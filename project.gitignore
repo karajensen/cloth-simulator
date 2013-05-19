@@ -1,0 +1,15 @@
+ipch/
+Versions/
+ClothSimulator.sdf
+ClothSimulator/._LOG.txt
+ClothSimulator/Debug/
+ClothSimulator/Release/
+ClothSimulator/bin/
+ClothSimulator/obj/
+ClothSimulator/*.exe
+ClothSimulator/*.pdb
+ClothSimulator/*.ilk
+ClothSimulator/*.vcxproj.user
+ClothSimulator/*.dll.metagen
+ClothSimulator/ClothSimulatorGUI.dll
+ClothSimulator/ClothSimulatorWrapper.dll
