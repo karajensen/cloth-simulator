@@ -1,7 +1,11 @@
 ipch/
+ipch/*
 Versions/
+Versions/*
 Graphics/
+Graphics/*
 ClothSimulator.sdf
+ClothSimulator.suo
 ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
 ClothSimulator/Release/

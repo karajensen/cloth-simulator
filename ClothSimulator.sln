@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClothSimulatorGUI", "ClothS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClothSimulatorWrapper", "ClothSimulator\ClothSimulatorWrapper.vcxproj", "{6E901A7B-3995-4C31-B23F-5BC7614384BF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3736609E-39A2-4236-B580-DC8B6C5D871D}"
+	ProjectSection(SolutionItems) = preProject
+		project.gitignore = project.gitignore
+		readme.txt = readme.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms

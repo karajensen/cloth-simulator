@@ -129,7 +129,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
     <None Include="Resources\Shaders\bounds.fx">
       <Filter>Resource Files</Filter>
     </None>
