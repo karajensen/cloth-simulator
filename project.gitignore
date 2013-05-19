@@ -13,3 +13,4 @@ ClothSimulator/*.vcxproj.user
 ClothSimulator/*.dll.metagen
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorWrapper.dll
+Thumbs.db
