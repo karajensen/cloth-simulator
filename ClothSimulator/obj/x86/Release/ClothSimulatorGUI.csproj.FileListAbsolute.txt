@@ -1,7 +1,0 @@
-D:\Projects\ClothSimulator\ClothSimulator\bin\Release\ClothSimulatorGUI.dll
-D:\Projects\ClothSimulator\ClothSimulator\bin\Release\ClothSimulatorGUI.pdb
-D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Release\ClothSimulatorGUI.ClothSimulator.resources
-D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Release\ClothSimulatorGUI.Properties.Resources.resources
-D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Release\ClothSimulatorGUI.csproj.GenerateResource.Cache
-D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Release\ClothSimulatorGUI.dll
-D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Release\ClothSimulatorGUI.pdb
