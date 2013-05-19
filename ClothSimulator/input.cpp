@@ -67,7 +67,7 @@ void Input::UpdateInput()
 {
     DIMOUSESTATE Mouse;
     BYTE Keys[KEY_BUFFER_SIZE];
-	GetMouse(&Mouse);
+    GetMouse(&Mouse);
     GetKeys(Keys);
 
     // Update all keys
@@ -92,16 +92,20 @@ void Input::UpdateInput()
     // Update mouse
     UpdateKey(Mouse.rgbButtons[MOUSE_LEFT], m_mouse);
     m_mouseClicked = IsKeyDown(m_mouse);
-    m_mouseDirection.x = 0.0f;
-    m_mouseDirection.y = 0.0f;
 
     if(Diagnostic::AllowDiagnostics())
     {
+        Diagnostic::Get().UpdateText("SnapDirection", Diagnostic::WHITE, StringCast(m_snapMouseDirection.x)+", "+StringCast(m_snapMouseDirection.y));
         Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
         Diagnostic::Get().UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
         Diagnostic::Get().UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
         Diagnostic::Get().UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
+
+    m_mouseDirection.x = 0.0f;
+    m_mouseDirection.y = 0.0f;
+    m_snapMouseDirection.x = 0.0f;
+    m_snapMouseDirection.y = 0.0f;
 }
 
 bool Input::IsMousePressed() 
@@ -142,18 +146,44 @@ bool Input::IsKeyDown(unsigned int& state)
         state |= KEY_QUERIED;
         return true;
     }
-	else if((state & KEY_DOWN) != KEY_DOWN)
+    else if((state & KEY_DOWN) != KEY_DOWN)
     {
         // Key is lifted, allow user to query again
-		state &= ~KEY_QUERIED;
+        state &= ~KEY_QUERIED;
     }
-	return false;
+    return false;
 }
 
 void Input::SetMouseCoord(int x, int y)
 {
     m_mouseDirection.x = static_cast<float>(m_x) - x;
     m_mouseDirection.y = static_cast<float>(m_y) - y;
+
+    float length = std::sqrt((m_mouseDirection.x*m_mouseDirection.x) + 
+        (m_mouseDirection.y*m_mouseDirection.y));
+
+    if(length != 0.0f)
+    {
+        float dot = m_mouseDirection.y/length;
+        float angle = RadToDeg(acos(dot));
+
+        //snap the angle to multiples of 45.0
+        float subAngle = 45.0f;
+        for(int i = 1; i < 6; ++i)
+        {
+            if(angle < subAngle*i)
+            {
+                angle = subAngle*(i-1);
+                break;
+            }
+        }
+
+        //generate vector from the new angle
+        angle = (dot < 0.0f ? -DegToRad(angle) : DegToRad(angle));
+        m_snapMouseDirection.x = cos(angle);
+        m_snapMouseDirection.y = sin(angle);
+    }
+
     m_x = x;
     m_y = y;
 }

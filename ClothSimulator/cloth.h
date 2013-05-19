@@ -25,7 +25,7 @@ public:
     * @param the width/length of the cloth
     * @param the scale of the cloth
     */
-	Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader, int dimensions, float scale);
+    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader, int dimensions, float scale);
 
     /**
     * Draw the cloth visual and collision models
@@ -44,23 +44,23 @@ public:
     * Updates the cloth state
     * @param delta time
     */
-	void UpdateState(double deltatime);
+    void UpdateState(double deltatime);
 
     /**
     * Resets the cloth to its initial state
     */
-	void Reset();
+    void Reset();
 
     /**
     * Toggle simulate cloth
     */
-	void ToggleSimulation();
+    void ToggleSimulation();
 
     /**
     * Adds a force to each vertex in the cloth
     * @param the force to add
     */
-	void AddForce(const FLOAT3& force);
+    void AddForce(const FLOAT3& force);
 
     /**
     * Solves collision between the cloth and an object
@@ -72,14 +72,14 @@ public:
     * Set/Get self collisions for the cloth
     */
     void SetSelfCollide(bool selfCollide) { m_selfCollide = selfCollide; }
-	bool IsSelfColliding() const { return m_selfCollide; }
+    bool IsSelfColliding() const { return m_selfCollide; }
 
     /**
     * Set/Get manipulate mode for the cloth
     */
-	void SetManipulate(bool manip);
-	bool IsManipulating() const { return m_manipulate; }
-	
+    void SetManipulate(bool manip);
+    bool IsManipulating() const { return m_manipulate; }
+    
     /**
     * Set/Get simulate for the cloth
     */
@@ -89,52 +89,52 @@ public:
     /**
     * Set/Get Number of spring iterations for the cloth
     */
-	void SetSpringIterations(int iterations) { m_springIterations = iterations; }
+    void SetSpringIterations(int iterations) { m_springIterations = iterations; }
     int GetSpringIterations() const { return m_springIterations; }
 
     /**
     * Set/Get The damping on the cloth
     */
-	void SetDamping(float damping) { m_damping = damping; }
+    void SetDamping(float damping) { m_damping = damping; }
     float GetDamping() const { return m_damping; }
 
     /**
     * Set/Get The cloth timestep
     */
-	void SetTimeStep(float timestep);
+    void SetTimeStep(float timestep);
     float GetTimeStep() const { return m_timestep; }
 
     /**
     * Get number of vertices for the cloth
     */
     unsigned int GetVertexCount() const { return m_vertexCount; }
-	
+    
     /**
     * Toggle whether vertex visual models are shown
     */
-	void ToggleVisualParticles();
+    void ToggleVisualParticles();
 
     /**
     * Toggle whether vertex visual models are shown
     */
-	virtual void SetCollisionVisibility(bool draw) override;
+    virtual void SetCollisionVisibility(bool draw) override;
 
     /**
     * Remove any pinned vertices
     */
-	void UnpinCloth();
+    void UnpinCloth();
 
     /**
     * Switches the currently selected row
     * @param the row to switch to
     */
-	void ChangeRow(int row);
+    void ChangeRow(int row);
 
     /**
     * Send a force to the currently selected row of the cloth
     * @param right,up,forward the direction and amount of force
     */
-	void MovePinnedRow(float right, float up, float forward);
+    void MovePinnedRow(float right, float up, float forward);
 
     /**
     * Selects the given particle
@@ -154,7 +154,7 @@ public:
     * Copies vertex data over to directX vertex buffer
     * @return whether the call succeeded or not
     */
-	bool UpdateVertexBuffer();
+    bool UpdateVertexBuffer();
 
 private:
 
@@ -171,17 +171,17 @@ private:
     /**
     * @return the particle in grid at row/col
     */
-	ParticlePtr& GetParticle(int row, int col);
+    ParticlePtr& GetParticle(int row, int col);
 
     /**
     * @return the vertex in grid at row/col
     */
-	Vertex& GetVertex(int row, int col);
+    Vertex& GetVertex(int row, int col);
 
     /**
     * Updates the normals of the cloth for smooth shading
     */
-	void UpdateNormals();
+    void UpdateNormals();
 
     /**
     * Creates a normal from the given three particles
@@ -213,15 +213,15 @@ private:
     float m_timestep;           ///< Cloth physics timestep
     float m_timestepSquared;    ///< Cloth timestep squared
     float m_damping;            ///< Damping to apply to movement of particles
-	int m_springCount;          ///< Number of springs in cloth
-	int m_springIterations;     ///< Number of solver iterations per tick
-	int m_vertexLength;         ///< Length between particles in the cloth
-	int m_vertexWidth;          ///< Width between particles in the cloth
-	int m_vertexCount;          ///< Overall number of particles in the cloth
-	bool m_simulation;          ///< Whether the cloth is currently simulating
-	bool m_manipulate;          ///< Whether manipulate mode is currently on
-	bool m_selfCollide;         ///< Whether the cloth is currently self-colliding
-	bool m_drawVisualParticles; ///< Whether particle visual models are drawn
+    int m_springCount;          ///< Number of springs in cloth
+    int m_springIterations;     ///< Number of solver iterations per tick
+    int m_vertexLength;         ///< Length between particles in the cloth
+    int m_vertexWidth;          ///< Width between particles in the cloth
+    int m_vertexCount;          ///< Overall number of particles in the cloth
+    bool m_simulation;          ///< Whether the cloth is currently simulating
+    bool m_manipulate;          ///< Whether manipulate mode is currently on
+    bool m_selfCollide;         ///< Whether the cloth is currently self-colliding
+    bool m_drawVisualParticles; ///< Whether particle visual models are drawn
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
     FLOAT3 m_downwardPull;      ///< Simulated 'Gravity' of the cloth
 
@@ -229,10 +229,10 @@ private:
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 
     std::vector<D3DXVECTOR3> m_colors;      ///< Viable colors for the particles
-	std::vector<SpringPtr> m_springs;       ///< Springs connecting particles together
+    std::vector<SpringPtr> m_springs;       ///< Springs connecting particles together
     std::vector<ParticlePtr> m_particles;   ///< Particles across the cloth grid
-	std::vector<Vertex> m_vertexData;       ///< DirectX Vertex data
-	std::vector<DWORD> m_indexData;         ///< DirectX Index data
-	void* m_vertexBuffer;                   ///< Raw Pointer to DirectX Vertex Buffer
-	void* m_indexBuffer;                    ///< Raw Pointer to DirectX Index Buffer
+    std::vector<Vertex> m_vertexData;       ///< DirectX Vertex data
+    std::vector<DWORD> m_indexData;         ///< DirectX Index data
+    void* m_vertexBuffer;                   ///< Raw Pointer to DirectX Vertex Buffer
+    void* m_indexBuffer;                    ///< Raw Pointer to DirectX Index Buffer
 };

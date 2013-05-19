@@ -41,8 +41,11 @@ float4 PShader(VS_OUTPUT input) : COLOR0
     input.LightVector = normalize(input.LightVector);
     input.Normal = normalize(input.Normal);
     
-    float4 Diffuse = (dot(input.LightVector, input.Normal)+1)*0.5; //Brings into range 0-1
+    // bring diffuse into range 0.4->1.0
+    float4 Diffuse = ((dot(input.LightVector, input.Normal)+1)*0.3)+0.4;
     Diffuse = Diffuse * DiffuseIntensity * DiffuseColor;
+
+    
     
     float4 Ambient = AmbientIntensity * AmbientColor;
     

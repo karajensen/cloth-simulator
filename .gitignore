@@ -2,6 +2,11 @@
 *.sdf
 *.suo
 *.db
+*.exe
+*.pdb
+*.ilk
+*.vcxproj.user
+*.dll.metagen
 ipch/
 Versions/
 Graphics/
@@ -10,10 +15,5 @@ ClothSimulator/Debug/
 ClothSimulator/Release/
 ClothSimulator/bin/
 ClothSimulator/obj/
-ClothSimulator/*.exe
-ClothSimulator/*.pdb
-ClothSimulator/*.ilk
-ClothSimulator/*.vcxproj.user
-ClothSimulator/*.dll.metagen
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorWrapper.dll

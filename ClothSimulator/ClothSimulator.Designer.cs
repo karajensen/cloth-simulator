@@ -30,13 +30,14 @@
         {
             this.SuspendLayout();
             // 
-            // Form1
+            // ClothSimulator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(862, 622);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "ClothSimulator";
+            this.Text = "Cloth Simulator";
+            this.Load += new System.EventHandler(this.ClothSimulator_Load);
             this.ResumeLayout(false);
 
         }

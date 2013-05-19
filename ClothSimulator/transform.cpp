@@ -59,16 +59,19 @@ void Transform::ScaleLocal(float x, float y, float z)
     D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
     SetPosition(0,0,0);
 
-	D3DXMatrixScaling(&Matrix, x, y, z);
+    D3DXMatrixScaling(&Matrix, x, y, z);
 
     SetPosition(position);
     CallObserver(true);
 }
 
-void Transform::RotateXLocal(float radians)
+void Transform::RotateX(float radians, bool local)
 {
     D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
-    SetPosition(0,0,0);
+    if(local)
+    {
+        SetPosition(0,0,0);
+    }
 
     D3DXMATRIX rotation;
     float c = cos(radians);
@@ -79,14 +82,20 @@ void Transform::RotateXLocal(float radians)
     rotation._33 = c; 
     Matrix *= rotation;
 
-    SetPosition(position);
+    if(local)
+    {
+        SetPosition(position);
+    }
     CallObserver(true);
 }
 
-void Transform::RotateYLocal(float radians)
+void Transform::RotateY(float radians, bool local)
 {
     D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
-    SetPosition(0,0,0);
+    if(local)
+    {
+        SetPosition(0,0,0);
+    }
 
     D3DXMATRIX rotation;
     float c = cos(radians);
@@ -97,14 +106,20 @@ void Transform::RotateYLocal(float radians)
     rotation._33 = c; 
     Matrix *= rotation;
 
-    SetPosition(position);
+    if(local)
+    {
+        SetPosition(position);
+    }
     CallObserver(true);
 }
 
-void Transform::RotateZLocal(float radians)
+void Transform::RotateZ(float radians, bool local)
 {
     D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
-    SetPosition(0,0,0);
+    if(local)
+    {
+        SetPosition(0,0,0);
+    }
 
     D3DXMATRIX rotation;
     float c = cos(radians);
@@ -115,47 +130,50 @@ void Transform::RotateZLocal(float radians)
     rotation._22 = c; 
     Matrix *= rotation;
 
-    SetPosition(position);
+    if(local)
+    {
+        SetPosition(position);
+    }
     CallObserver(true);
 }
 
 void Transform::SetPosition(const FLOAT3& pos)
 {
-	Matrix._41 = pos.x;
-	Matrix._42 = pos.y;
-	Matrix._43 = pos.z;
+    Matrix._41 = pos.x;
+    Matrix._42 = pos.y;
+    Matrix._43 = pos.z;
     CallObserver(false);
 }
 
 void Transform::SetPosition(float x, float y, float z)
 {
-	Matrix._41 = x;
-	Matrix._42 = y;
-	Matrix._43 = z;
+    Matrix._41 = x;
+    Matrix._42 = y;
+    Matrix._43 = z;
     CallObserver(false);
 }
 
 void Transform::SetPosition(const D3DXVECTOR3& pos)
 {
-	Matrix._41 = pos.x;
-	Matrix._42 = pos.y;
-	Matrix._43 = pos.z;
+    Matrix._41 = pos.x;
+    Matrix._42 = pos.y;
+    Matrix._43 = pos.z;
     CallObserver(false);
 }
 
 void Transform::Translate(const D3DXVECTOR3& pos)
 {
-	Matrix._41 += pos.x;
-	Matrix._42 += pos.y;
-	Matrix._43 += pos.z;
+    Matrix._41 += pos.x;
+    Matrix._42 += pos.y;
+    Matrix._43 += pos.z;
     CallObserver(false);
 }
 
 void Transform::Translate(float x, float y, float z)
 { 
-	Matrix._41 += x;
-	Matrix._42 += y;
-	Matrix._43 += z;
+    Matrix._41 += x;
+    Matrix._42 += y;
+    Matrix._43 += z;
     CallObserver(false);
 }
 

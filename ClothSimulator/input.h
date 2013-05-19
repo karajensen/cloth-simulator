@@ -89,6 +89,11 @@ public:
     * @return the direction the mouse has moved since last tick
     */
     const D3DXVECTOR2& GetMouseDirection() const { return m_mouseDirection; }
+
+    /**
+    * @return the snapped direction the mouse has moved since last tick
+    */
+    const D3DXVECTOR2& GetSnappedMouseDirection() const { return m_snapMouseDirection; }
     
 private:
 
@@ -152,6 +157,7 @@ private:
     int m_x, m_y;                          ///< Mouse clicked screen coordinates
     Picking m_picking;                     ///< Mouse picking
     D3DXVECTOR2 m_mouseDirection;          ///< Direction mouse has moved between ticks
+    D3DXVECTOR2 m_snapMouseDirection;      ///< Snapped direction mouse has moved between ticks
     LPDIRECTINPUT8 m_directInput;          ///< DirectX input
     LPDIRECTINPUTDEVICE8 m_keyboardInput;  ///< DirectX keyboard device
     LPDIRECTINPUTDEVICE8 m_mouseInput;     ///< DirectX mouse device

@@ -40,7 +40,7 @@ namespace
     };
 
     const float CAMERA_MOVE_SPEED = 0.2f;   ///< Speed the camera moves at
-    const float CAMERA_ROT_SPEED = 0.015f;  ///< Speed the camera rotates at
+    const float CAMERA_ROT_SPEED = 0.1f;    ///< Speed the camera rotates at
     const float HANDLE_SPEED = 0.5f;        ///< Speed the handle will move the cloth
 
     const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(175, 172, 175)); ///< CLear colour of the back buffer
@@ -477,8 +477,9 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     {
         if(m_input->IsMousePressed())
         {
-            m_camera->Up(-CAMERA_MOVE_SPEED*m_input->GetMouseDirection().y);
-            m_camera->Right(CAMERA_MOVE_SPEED*m_input->GetMouseDirection().x);
+            const auto& direction = m_input->GetSnappedMouseDirection();
+            m_camera->Up(-CAMERA_MOVE_SPEED*direction.y);
+            m_camera->Right(CAMERA_MOVE_SPEED*direction.x);
         }
     };
     m_input->SetKeyCallback(DIK_LCONTROL, true, cameraSideways);
@@ -488,8 +489,13 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     {
         if(m_input->IsMousePressed())
         {
-            m_camera->Yaw(CAMERA_ROT_SPEED*m_input->GetMouseDirection().y);
-            m_camera->Pitch(CAMERA_ROT_SPEED*m_input->GetMouseDirection().x);
+            const auto& direction = m_input->GetSnappedMouseDirection();
+            if(direction.x != 0.0f)
+            {
+                m_camera->Yaw(direction.x < 0.0f ? 
+                    CAMERA_ROT_SPEED : -CAMERA_ROT_SPEED);
+            }
+            //m_camera->Pitch(CAMERA_ROT_SPEED*m_input->GetMouseDirection().x);
         }
     };
     m_input->SetKeyCallback(DIK_LALT, true, cameraRotation);

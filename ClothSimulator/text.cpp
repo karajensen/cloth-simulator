@@ -9,9 +9,9 @@ Text::Text() :
 
 Text::~Text()
 { 
-	if (m_font != nullptr)
+    if (m_font != nullptr)
     {
-		m_font->Release(); 
+        m_font->Release(); 
     }
 }
 
@@ -22,7 +22,7 @@ void Text::SetText(const std::string& text)
 
 bool Text::Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, int size, UINT align, int xtl, int ytl, int xbr, int ybr)
 {
-	if(FAILED(D3DXCreateFont(d3ddev, size, 0, weight, 1, italic, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+    if(FAILED(D3DXCreateFont(d3ddev, size, 0, weight, 1, italic, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
         ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, LPSTR("Tahoma"), &m_font)))
     {
         Diagnostic::ShowMessage("Text failed to load");
@@ -43,14 +43,14 @@ void Text::SetPosition(int xtl, int ytl)
 }
 
 void Text::Draw()
-{	
-	m_font->DrawTextA(NULL, m_text.c_str(), m_text.length(), &m_textbox,
+{    
+    m_font->DrawTextA(NULL, m_text.c_str(), m_text.length(), &m_textbox,
         DT_WORDBREAK|DT_NOCLIP|m_align, m_color);
 }
 
 void Text::SetColour(const D3DXVECTOR3& color)
 {
-	m_color = D3DCOLOR_ARGB(FULL_ALPHA, static_cast<int>(color.x*FULL_ALPHA), 
+    m_color = D3DCOLOR_ARGB(FULL_ALPHA, static_cast<int>(color.x*FULL_ALPHA), 
         static_cast<int>(color.y*FULL_ALPHA), static_cast<int>(color.z*FULL_ALPHA));
 }
 

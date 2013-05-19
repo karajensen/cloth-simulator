@@ -31,22 +31,22 @@ public:
     void ScaleLocal(float x, float y, float z);
 
     /**
-    * Rotates around the local x axis
     * @param the amount to rotate in radians
+    * @param whether to rotate around the local x axis
     */
-    void RotateXLocal(float radians);
+    void RotateX(float radians, bool local);
 
     /**
-    * Rotates around the local y axis
     * @param the amount to rotate in radians
+    * @param whether to rotate around the local y axis
     */
-    void RotateYLocal(float radians);
+    void RotateY(float radians, bool local);
 
     /**
-    * Rotates around the local z axis
     * @param the amount to rotate in radians
+    * @param whether to rotate around the local z axis
     */
-    void RotateZLocal(float radians);
+    void RotateZ(float radians, bool local);
 
     /**
     * Adds a given vector in world coordinates to the position

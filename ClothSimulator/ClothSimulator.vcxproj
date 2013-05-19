@@ -134,6 +134,8 @@
     <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.gitignore" />
+    <None Include="..\readme.txt" />
     <None Include="Resources\Shaders\bounds.fx" />
     <None Include="Resources\Shaders\cloth.fx" />
     <None Include="Resources\Shaders\main.fx" />

@@ -51,12 +51,12 @@ public:
     * Adds force to the particle
     * @param the force to add
     */
-	void AddForce(const FLOAT3& force);
+    void AddForce(const FLOAT3& force);
 
     /**
     * @return whether particle is pinned
     */
-	bool IsPinned() const { return m_pinned; };
+    bool IsPinned() const { return m_pinned; };
 
     /**
     * @param set whether the particle is pinned
@@ -66,7 +66,7 @@ public:
     /**
     * @return whether particle is selected
     */
-	bool IsSelected() const { return m_selected; };
+    bool IsSelected() const { return m_selected; };
 
     /**
     * @param set whether particle is selected
@@ -77,7 +77,7 @@ public:
     * Move a particle explicitly
     * @param the position to move to
     */
-	void MovePosition(const FLOAT3& v);
+    void MovePosition(const FLOAT3& v);
 
     /**
     * @return the internal index of the particle
@@ -94,7 +94,7 @@ public:
     * @param the damping to apply to the movement
     * @param delta time squared
     */
-	void Update(float damping, float timestepSqr);
+    void Update(float damping, float timestepSqr);
 
     /**
     * Sets the colour of the visual particle mesh
@@ -105,17 +105,17 @@ public:
     /**
     * Resets the acceleration to zero
     */
-	void ResetAcceleration();
+    void ResetAcceleration();
 
 private:
 
     FLOAT3 m_acceleration;      ///< Current acceleration of particle
-	FLOAT3 m_oldPosition;       ///< Save position from last update
-	FLOAT3 m_initialPosition;   ///< Initial position of particle 
+    FLOAT3 m_oldPosition;       ///< Save position from last update
+    FLOAT3 m_initialPosition;   ///< Initial position of particle 
     FLOAT3 m_position;          ///< Current position in world coordinates of particle
     Transform m_transform;      ///< Current transform of particle
     bool m_selected;            ///< Whether particle is selected or not
-	bool m_pinned;              ///< Whether particle is pinned or not
+    bool m_pinned;              ///< Whether particle is pinned or not
     unsigned int m_index;       ///< Internal index of the particle
 
     std::shared_ptr<CollisionSphere> m_collision; ///< Collision geometry for particle

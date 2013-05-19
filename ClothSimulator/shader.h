@@ -13,7 +13,7 @@ class Shader
 public:
     
     Shader();
-	~Shader();
+    ~Shader();
 
     /**
     * Loads the shader
@@ -21,17 +21,17 @@ public:
     * @param the filename of the shader
     * @return whether loading was successful
     */
-	bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename);
+    bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename);
 
     /**
     * @return the DirectX Shader effect
     */
-	LPD3DXEFFECT GetEffect(){ return m_effect; };
+    LPD3DXEFFECT GetEffect(){ return m_effect; };
 
 private:
 
-	LPD3DXEFFECT m_effect; ///< DirectX shader
-	
+    LPD3DXEFFECT m_effect; ///< DirectX shader
+    
 };
 
 class Shader_Manager
@@ -64,28 +64,28 @@ public:
     /**
     * @return the shader effect for the world shader
     */
-	static LPD3DXEFFECT GetWorldEffect();
+    static LPD3DXEFFECT GetWorldEffect();
 
     /**
     * @return whether to use the world shader
     */
-	static bool UseWorldShader();
+    static bool UseWorldShader();
 
     /**
     * @param set whether to use the world shader
     */
-	static void SetUseWorldShader(bool use);
+    static void SetUseWorldShader(bool use);
 
     /**
     * @param set the currently used world shader
     */
-	static void SetWorldShader(SceneShader shader);
+    static void SetWorldShader(SceneShader shader);
 
 private:
 
     typedef std::shared_ptr<Shader> ShaderPtr;
     static std::vector<ShaderPtr> m_shaders; ///< All shaders in scene
 
-	static SceneShader m_worldShader;   ///< Index to the world shader
-	static bool m_useWorldShader;      ///< Whether to use the world shader or not
+    static SceneShader m_worldShader;   ///< Index to the world shader
+    static bool m_useWorldShader;      ///< Whether to use the world shader or not
 };

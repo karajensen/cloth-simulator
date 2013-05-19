@@ -53,6 +53,12 @@ T DegToRad(T degrees)
 }
 
 template<typename T>
+T RadToDeg(T radians)
+{
+    return (180.0f / D3DX_PI) * (radians);
+}
+
+template<typename T>
 std::string StringCast(const T& value)
 {
     std::ostringstream stream;

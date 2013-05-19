@@ -138,5 +138,7 @@
     <None Include="Resources\Shaders\main.fx">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\.gitignore" />
+    <None Include="..\readme.txt" />
   </ItemGroup>
 </Project>

@@ -86,8 +86,8 @@ public:
 
 private:
 
-	D3DXVECTOR3 m_rayOrigin;     ///< World coordinates origin of picking ray
+    D3DXVECTOR3 m_rayOrigin;     ///< World coordinates origin of picking ray
     D3DXVECTOR3 m_rayDirection;  ///< Direction vector from origin
-	PickableMesh* m_mesh;        ///< Raw pointer to mesh that was clicked
-	float m_distanceToMesh;      ///< Distance from origin to the mesh clicked
+    PickableMesh* m_mesh;        ///< Raw pointer to mesh that was clicked
+    float m_distanceToMesh;      ///< Distance from origin to the mesh clicked
 };

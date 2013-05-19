@@ -13,7 +13,7 @@ public:
     /**
     * Constructor
     */
-	Light();
+    Light();
 
     /**
     * @param the unique index of the light
@@ -25,14 +25,14 @@ public:
     * @param Ambient color of light from 0-1
     * @param the intensity of the ambient colour
     */
-	void SetAmbient(const D3DXVECTOR3& color, float intensity);
+    void SetAmbient(const D3DXVECTOR3& color, float intensity);
 
     /**
     * Set the diffuse colour of the light
     * @param diffuse color of light from 0-1
     * @param the intensity of the diffuse colour
     */
-	void SetDiffuse(const D3DXVECTOR3& color, float intensity);
+    void SetDiffuse(const D3DXVECTOR3& color, float intensity);
 
     /**
     * Set the specular colour of the light
@@ -40,7 +40,7 @@ public:
     * @param the intensity of the specular colour
     * @param the size of the specular highlight
     */
-	void SetSpecular(const D3DXVECTOR3& color, float intensity, float size);
+    void SetSpecular(const D3DXVECTOR3& color, float intensity, float size);
 
     /**
     * Set the attenuation of the light
@@ -48,7 +48,7 @@ public:
     * @param the Linear attenuation value
     * @param the Quadratic attenuation value
     */
-	void SetAttenuation(float a0, float a1, float a2);
+    void SetAttenuation(float a0, float a1, float a2);
 
     /**
     * Sets the light posiiton
@@ -60,12 +60,12 @@ public:
     * Send all parameters to the given shader
     * @param the shader to send to
     */
-	void SendLightToShader(LPD3DXEFFECT shader);
+    void SendLightToShader(LPD3DXEFFECT shader);
 
     /**
     * Toggle light on/off
     */
-	void LightSwitch();
+    void LightSwitch();
 
 private:
 
@@ -76,11 +76,11 @@ private:
     float m_attenuation0;      ///< Constant attenuation
     float m_attenuation1;      ///< Linear attenuation
     float m_attenuation2;      ///< Quadratic attenuation
-	float m_ambientIntensity;  ///< Intensity of the ambient light
-	float m_diffuseIntensity;  ///< Intensity of the diffuse light
-	float m_specularIntensity; ///< Intensity of the specular light
-	float m_specularSize;      ///< Size of the specular highlights
-	bool m_active;             ///< Whether the light is on or not
+    float m_ambientIntensity;  ///< Intensity of the ambient light
+    float m_diffuseIntensity;  ///< Intensity of the diffuse light
+    float m_specularIntensity; ///< Intensity of the specular light
+    float m_specularSize;      ///< Size of the specular highlights
+    bool m_active;             ///< Whether the light is on or not
     int m_index;               ///< The unique index of the light
 };
 

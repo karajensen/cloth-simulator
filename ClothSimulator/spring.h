@@ -15,14 +15,14 @@ struct Spring
     * Constructor
     * @param the two particles connected by the spring
     */
-	Spring(Particle& p1, Particle& p2);
+    Spring(Particle& p1, Particle& p2);
 
     /**
     * Update the spring
     */
-	void SolveSpring();
+    void SolveSpring();
 
     Particle& P1; ///< connected particle
     Particle& P2; ///< connected particle
-	float RestDistance; ///< distance for spring at rest
+    float RestDistance; ///< distance for spring at rest
 };

@@ -33,7 +33,7 @@ public:
     /**
     * Releases the simulation
     */
-	void Release();
+    void Release();
 
     /**
     * Renders the simulation
@@ -57,7 +57,7 @@ private:
     * Test whether a sprite was clicked
     * @param whether a sprite was clicked
     */
-	bool OnClickSprite();
+    bool OnClickSprite();
 
     /**
     * Solve the sprite click
@@ -68,12 +68,12 @@ private:
     /**
     * Generates a new cloth object
     */
-	void CreateCloth();
+    void CreateCloth();
 
     /**
     * Updates the visual cloth text
     */
-	void UpdateText();
+    void UpdateText();
 
     /**
     * Loads all scene meshes
@@ -108,17 +108,17 @@ private:
     std::shared_ptr<Cloth> m_cloth;     ///< Simulation cloth object
     std::shared_ptr<Input> m_input;     ///< Simulation input object
     std::shared_ptr<Camera> m_camera;   ///< Main camera
-	std::vector<TextPtr> m_text;        ///< Container of text
-	std::vector<SpritePtr> m_sprites;   ///< Container of sprites
-	std::vector<MeshPtr> m_meshes;      ///< Container of meshes
+    std::vector<TextPtr> m_text;        ///< Container of text
+    std::vector<SpritePtr> m_sprites;   ///< Container of sprites
+    std::vector<MeshPtr> m_meshes;      ///< Container of meshes
 
-	float m_clothSize;           ///< Current size of the cloth
-	int m_clothDimensions;       ///< Current dimensions of the cloth
-	bool m_handleMode;           ///< Whether the simulation is in handle mode
+    float m_clothSize;           ///< Current size of the cloth
+    int m_clothDimensions;       ///< Current dimensions of the cloth
+    bool m_handleMode;           ///< Whether the simulation is in handle mode
     LPDIRECT3DDEVICE9 m_d3ddev;  ///< DirectX device
 
     static bool sm_drawCollisions; ///< Whether to display collision models
-	
+    
     //To remove once GUI finished
     bool m_moveBall;
     float m_ballPosition;

@@ -15,5 +15,10 @@ namespace ClothSimulatorGUI
         {
             InitializeComponent();
         }
+
+        private void ClothSimulator_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

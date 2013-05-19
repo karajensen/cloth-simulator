@@ -11,13 +11,13 @@ class Text
 {
 public:
 
-	Text();
-	~Text();
+    Text();
+    ~Text();
 
     /**
     * Draw the text
     */
-	void Draw();
+    void Draw();
 
     /**
     * Load the text
@@ -29,8 +29,8 @@ public:
     * @param the top left corner of the textbox
     * @param the bottom right corner of the textbox
     */
-	bool Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, int size, UINT align, int xtl, int ytl, int xbr, int ybr);
-	
+    bool Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, int size, UINT align, int xtl, int ytl, int xbr, int ybr);
+    
     /**
     * Set a new position for the text box
     * @param the top left corner of the textbox
@@ -41,7 +41,7 @@ public:
     * Set the text to display
     * @param the new text
     */
-	void SetText(const std::string& text);
+    void SetText(const std::string& text);
 
     /**
     * Set the text colour
@@ -52,8 +52,8 @@ public:
 private:
 
     D3DCOLOR m_color;   ///< Colour of the text from 0-255
-	RECT m_textbox;     ///< Text bounding area
+    RECT m_textbox;     ///< Text bounding area
     LPD3DXFONT m_font;  ///< Font for the text
-	std::string m_text; ///< Text to display
-	UINT m_align;       ///< Alignment of the text
+    std::string m_text; ///< Text to display
+    UINT m_align;       ///< Alignment of the text
 };
