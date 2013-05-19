@@ -1,11 +1,10 @@
+*.opensdf
+*.sdf
+*.suo
+*.db
 ipch/
-ipch/*
 Versions/
-Versions/*
 Graphics/
-Graphics/*
-ClothSimulator.sdf
-ClothSimulator.suo
 ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
 ClothSimulator/Release/
@@ -18,4 +17,3 @@ ClothSimulator/*.vcxproj.user
 ClothSimulator/*.dll.metagen
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorWrapper.dll
-*.db
