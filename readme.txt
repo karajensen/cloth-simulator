@@ -16,5 +16,5 @@ www.KaraJensen.com
 https://github.com/karajensen/cloth-simulator.git
 =================================================================
 
-VISUAL STUDIO VERSION REQUIRED: November 2012
+VISUAL STUDIO VERSION REQUIRED: 2010
 ENVIRONMENT VARIABLES REQUIRED: $(DXSDK_DIR) DirectX SDK
