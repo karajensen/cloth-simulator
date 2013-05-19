@@ -1,0 +1,8 @@
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.ClothSimulator.resources
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.Properties.Resources.resources
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.csproj.GenerateResource.Cache
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.dll
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.pdb
+D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.dll
+D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.pdb
+D:\Projects\ClothSimulator\ClothSimulator\obj\x86\Debug\ClothSimulatorGUI.csprojResolveAssemblyReference.cache

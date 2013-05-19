@@ -1,0 +1,25 @@
+﻿Build started 5/19/2013 4:51:43 PM.
+     1>Project "D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\ClothSimulatorWrapper.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /analyze- /errorReport:prompt GUIWrapper.cpp /clr:nostdlib 
+         GUIWrapper.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /TP /analyze- /errorReport:prompt "C:\Users\Tani\AppData\Local\Temp\.NETFramework,Version=v4.0.AssemblyAttributes.cpp"
+         .NETFramework,Version=v4.0.AssemblyAttributes.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.dll" /INCREMENTAL /NOLOGO /MANIFEST /ManifestFile:"Debug\ClothSimulatorWrapper.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 /DLL Debug\GUIWrapper.obj
+         "Debug\.NETFramework,Version=v4.0.AssemblyAttributes.obj"
+         ClothSimulatorWrapper.vcxproj -> D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.dll
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.dll;#2" /manifest Debug\ClothSimulatorWrapper.dll.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\ClothSimulatorWrapper.unsuccessfulbuild".
+         Touching "Debug\ClothSimulatorWrapper.lastbuildstate".
+     1>Done Building Project "D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorWrapper.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:01:12.55
