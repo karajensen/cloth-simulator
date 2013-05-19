@@ -1,5 +1,6 @@
 ipch/
 Versions/
+Graphics/
 ClothSimulator.sdf
 ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
@@ -13,4 +14,4 @@ ClothSimulator/*.vcxproj.user
 ClothSimulator/*.dll.metagen
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorWrapper.dll
-Thumbs.db
+*.db
