@@ -93,9 +93,11 @@ void Input::UpdateInput()
     UpdateKey(Mouse.rgbButtons[MOUSE_LEFT], m_mouse);
     m_mouseClicked = IsKeyDown(m_mouse);
 
+    std::for_each(m_clickPreventionKeys.begin(), m_clickPreventionKeys.end(),
+        [&](const unsigned int& key){ if(IsKeyDownContinous(m_keys[key].state)){ m_mouseClicked = false; }});
+
     if(Diagnostic::AllowDiagnostics())
     {
-        Diagnostic::Get().UpdateText("SnapDirection", Diagnostic::WHITE, StringCast(m_snapMouseDirection.x)+", "+StringCast(m_snapMouseDirection.y));
         Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
         Diagnostic::Get().UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
         Diagnostic::Get().UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
@@ -104,8 +106,6 @@ void Input::UpdateInput()
 
     m_mouseDirection.x = 0.0f;
     m_mouseDirection.y = 0.0f;
-    m_snapMouseDirection.x = 0.0f;
-    m_snapMouseDirection.y = 0.0f;
 }
 
 bool Input::IsMousePressed() 
@@ -164,24 +164,7 @@ void Input::SetMouseCoord(int x, int y)
 
     if(length != 0.0f)
     {
-        float dot = m_mouseDirection.y/length;
-        float angle = RadToDeg(acos(dot));
-
-        //snap the angle to multiples of 45.0
-        float subAngle = 45.0f;
-        for(int i = 1; i < 6; ++i)
-        {
-            if(angle < subAngle*i)
-            {
-                angle = subAngle*(i-1);
-                break;
-            }
-        }
-
-        //generate vector from the new angle
-        angle = (dot < 0.0f ? -DegToRad(angle) : DegToRad(angle));
-        m_snapMouseDirection.x = cos(angle);
-        m_snapMouseDirection.y = sin(angle);
+        m_mouseDirection /= length;
     }
 
     m_x = x;
@@ -205,4 +188,12 @@ void Input::UpdatePicking(Transform& projection, Transform& view)
 void Input::SolvePicking()
 {
     m_picking.SolvePicking();
+}
+
+void Input::AddClickPreventionKey(unsigned int key)
+{
+    if(m_keys.find(key) != m_keys.end())
+    {
+        m_clickPreventionKeys.push_back(key);
+    }
 }

@@ -33,6 +33,36 @@ public:
     void CreateProjMatrix();
 
     /**
+    * Generates forward movement for the camera
+    * @param the direction the mouse has moved
+    * @param the speed for the movement (negative for reverse)
+    * @param whether the mouse is pressed or not
+    */
+    void ForwardMovement(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
+
+    /**
+    * Generates side movement for the camera
+    * @param the direction the mouse has moved
+    * @param the speed for the movement (negative for reverse)
+    * @param whether the mouse is pressed or not
+    */
+    void SideMovement(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
+
+    /**
+    * Generates rotation for the camera around the world origin
+    * @param the direction the mouse has moved
+    * @param the speed for the rotation (negative for reverse)
+    * @param whether the mouse is pressed or not
+    */
+    void Rotation(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
+
+    Transform Projection; ///< Projection Matrix for the camera
+    Transform View;       ///< View Matrix for the camera
+    Transform World;      ///< World Matrix for the camera
+
+private:
+
+    /**
     * Rotate the camera
     * @param angle the angle to rotate in radians
     */
@@ -47,12 +77,6 @@ public:
     void Forward(float val);
     void Right(float val);
     void Up(float val);
-
-    Transform Projection; ///< Projection Matrix for the camera
-    Transform View;       ///< View Matrix for the camera
-    Transform World;      ///< World Matrix for the camera
-
-private:
 
     bool m_cameraNeedsUpdate;  ///< Whether the camera requires updating or not
     D3DXVECTOR3 m_initialPos;  ///< Camera initial position in world space

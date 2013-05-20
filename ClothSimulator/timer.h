@@ -24,6 +24,11 @@ public:
     */
     double UpdateTimer();
 
+    /**
+    * @return delta time
+    */
+    float GetDeltaTime() const { return static_cast<float>(m_deltaTime); }
+
 private:
 
     double m_frequency;

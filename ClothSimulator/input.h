@@ -49,6 +49,11 @@ public:
     bool IsMousePressed();
 
     /**
+    * Adds key to a list that prevents mouse clicking when held
+    */
+    void AddClickPreventionKey(unsigned int key);
+
+    /**
     * Set the function to call upon toggle of the input key
     * @param the DirectInput keyboard scan code
     * @param whether to call on key press or key press continously
@@ -89,11 +94,6 @@ public:
     * @return the direction the mouse has moved since last tick
     */
     const D3DXVECTOR2& GetMouseDirection() const { return m_mouseDirection; }
-
-    /**
-    * @return the snapped direction the mouse has moved since last tick
-    */
-    const D3DXVECTOR2& GetSnappedMouseDirection() const { return m_snapMouseDirection; }
     
 private:
 
@@ -150,14 +150,15 @@ private:
     };
 
     typedef std::unordered_map<unsigned int, Key> KeyMap;
+    typedef std::vector<unsigned int> KeyList;
 
     KeyMap m_keys;                         ///< Cached keys
+    KeyList m_clickPreventionKeys;         ///< Keys that will prevent clicking of the mouse
     bool m_mouseClicked;                   ///< Whether mouse was clicked this tick
     unsigned int m_mouse;                  ///< Cached mouse state
     int m_x, m_y;                          ///< Mouse clicked screen coordinates
     Picking m_picking;                     ///< Mouse picking
-    D3DXVECTOR2 m_mouseDirection;          ///< Direction mouse has moved between ticks
-    D3DXVECTOR2 m_snapMouseDirection;      ///< Snapped direction mouse has moved between ticks
+    D3DXVECTOR2 m_mouseDirection;          ///< Direction mouse has moved (normalized) between ticks
     LPDIRECTINPUT8 m_directInput;          ///< DirectX input
     LPDIRECTINPUTDEVICE8 m_keyboardInput;  ///< DirectX keyboard device
     LPDIRECTINPUTDEVICE8 m_mouseInput;     ///< DirectX mouse device

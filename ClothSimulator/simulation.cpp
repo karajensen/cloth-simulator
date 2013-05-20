@@ -39,11 +39,11 @@ namespace
         KEYS, KEYLIST, COLLIDE, MOVE, MAX_SPRITE
     };
 
-    const float CAMERA_MOVE_SPEED = 0.2f;   ///< Speed the camera moves at
-    const float CAMERA_ROT_SPEED = 0.1f;    ///< Speed the camera rotates at
-    const float HANDLE_SPEED = 0.5f;        ///< Speed the handle will move the cloth
+    const float CAMERA_MOVE_SPEED = 40.0f;  
+    const float CAMERA_ROT_SPEED = 2.0f;    
+    const float HANDLE_SPEED = 10.0f;
 
-    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(175, 172, 175)); ///< CLear colour of the back buffer
+    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< CLear colour of the back buffer
     const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          ///< Render event colour
     const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          ///< Update event colour
 
@@ -465,59 +465,57 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     // Camera forward movement
     auto cameraForward = [&]()
     {
-        if(m_input->IsMousePressed())
-        {
-            m_camera->Forward(CAMERA_MOVE_SPEED*m_input->GetMouseDirection().y);
-        }
+        m_camera->ForwardMovement(m_input->GetMouseDirection(), 
+            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED, 
+            m_input->IsMousePressed());
     };
     m_input->SetKeyCallback(DIK_LSHIFT, true, cameraForward);
+    m_input->AddClickPreventionKey(DIK_LSHIFT);
 
     // Camera side movement
     auto cameraSideways = [&]()
     {
-        if(m_input->IsMousePressed())
-        {
-            const auto& direction = m_input->GetSnappedMouseDirection();
-            m_camera->Up(-CAMERA_MOVE_SPEED*direction.y);
-            m_camera->Right(CAMERA_MOVE_SPEED*direction.x);
-        }
+        m_camera->SideMovement(m_input->GetMouseDirection(), 
+            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED, 
+            m_input->IsMousePressed());
     };
     m_input->SetKeyCallback(DIK_LCONTROL, true, cameraSideways);
+    m_input->AddClickPreventionKey(DIK_LCONTROL);
 
     // Camera rotation
     auto cameraRotation = [&]()
     {
-        if(m_input->IsMousePressed())
-        {
-            const auto& direction = m_input->GetSnappedMouseDirection();
-            if(direction.x != 0.0f)
-            {
-                m_camera->Yaw(direction.x < 0.0f ? 
-                    CAMERA_ROT_SPEED : -CAMERA_ROT_SPEED);
-            }
-            //m_camera->Pitch(CAMERA_ROT_SPEED*m_input->GetMouseDirection().x);
-        }
+        m_camera->Rotation(m_input->GetMouseDirection(), 
+            m_timer->GetDeltaTime()*CAMERA_ROT_SPEED, 
+            m_input->IsMousePressed());
     };
     m_input->SetKeyCallback(DIK_LALT, true, cameraRotation);
+    m_input->AddClickPreventionKey(DIK_LALT);
 
     // Controlling the cloth
     m_input->SetKeyCallback(DIK_W, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(-HANDLE_SPEED,0.0f,0.0f); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        -m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); }});
 
     m_input->SetKeyCallback(DIK_S, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(HANDLE_SPEED,0.0f,0.0f); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); }});
 
     m_input->SetKeyCallback(DIK_A, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(0.0f,-HANDLE_SPEED,0.0f); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); }});
 
     m_input->SetKeyCallback(DIK_D, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(0.0f,HANDLE_SPEED,0.0f); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); }});
 
     m_input->SetKeyCallback(DIK_Q, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(0.0f,0.0f,-HANDLE_SPEED); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        0.0f,0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED); }});
 
     m_input->SetKeyCallback(DIK_E, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(0.0f,0.0f,HANDLE_SPEED); }});
+        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
+        0.0f,0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED); }});
 
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
