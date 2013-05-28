@@ -1,6 +1,7 @@
 
 • C#/C++CLI GUI make
 • Update sprite click to lambdas
+• Inducing delta time tool / capping delta time
 • NUnit tests
 • Scene mesh manipulation
 • friction to cloth

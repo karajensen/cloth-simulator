@@ -147,6 +147,7 @@ void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, boo
         ++m_textmap[id].counter;
     }
     m_textmap[id].color = m_colourmap[color];
+
     m_textmap[id].text = id + ": " + StringCast(m_textmap[id].counter);
 }
 

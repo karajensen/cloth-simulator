@@ -46,22 +46,18 @@ namespace DxConstant
     static const D3DXHANDLE LightOn("LightOn");
 }
 
-template<typename T>
-T DegToRad(T degrees)
+template<typename T> T DegToRad(T degrees)
 {
     return (D3DX_PI / 180.0f) * (degrees);
 }
 
-template<typename T>
-T RadToDeg(T radians)
+template<typename T> T RadToDeg(T radians)
 {
     return (180.0f / D3DX_PI) * (radians);
 }
 
-template<typename T>
-std::string StringCast(const T& value)
+typedef std::stringstream sstream;
+template<typename T> std::string StringCast(const T& value)
 {
-    std::ostringstream stream;
-    stream << value;
-    return stream.str();
+    return static_cast<sstream&>(sstream() << value).str();
 }

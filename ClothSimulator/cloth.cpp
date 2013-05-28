@@ -337,6 +337,7 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 
         Diagnostic::Get().UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
             + ", " + StringCast(position.y) + ", " + StringCast(position.z));
+
         Diagnostic::Get().UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
             + ", " + StringCast(vertex.y) + ", " + StringCast(vertex.z));
 
