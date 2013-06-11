@@ -5,7 +5,8 @@ Text::Text() :
     m_color(D3DCOLOR_ARGB(FULL_ALPHA, FULL_ALPHA, FULL_ALPHA, FULL_ALPHA)),
     m_font(nullptr),
     m_align(DT_LEFT)
-{}
+{
+}
 
 Text::~Text()
 { 
@@ -20,7 +21,8 @@ void Text::SetText(const std::string& text)
     m_text = text;
 }
 
-bool Text::Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, int size, UINT align, int xtl, int ytl, int xbr, int ybr)
+bool Text::Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, 
+    int size, UINT align, int xtl, int ytl, int xbr, int ybr)
 {
     if(FAILED(D3DXCreateFont(d3ddev, size, 0, weight, 1, italic, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
         ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, LPSTR("Tahoma"), &m_font)))

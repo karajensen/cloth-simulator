@@ -115,7 +115,8 @@ public:
     * @param the initial height of the cube
     * @param the initial depth of the cube
     */
-    CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent, float width, float height, float depth);
+    CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent,
+        float width, float height, float depth);
 
     /**
     * Test the collision geometry against another collision geometry

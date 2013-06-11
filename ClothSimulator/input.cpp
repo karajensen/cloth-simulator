@@ -98,7 +98,9 @@ void Input::UpdateInput()
 
     if(Diagnostic::AllowDiagnostics())
     {
-        Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
+        Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, 
+            StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
+
         Diagnostic::Get().UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
         Diagnostic::Get().UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
         Diagnostic::Get().UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));

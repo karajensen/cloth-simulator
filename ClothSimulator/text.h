@@ -29,7 +29,8 @@ public:
     * @param the top left corner of the textbox
     * @param the bottom right corner of the textbox
     */
-    bool Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, int size, UINT align, int xtl, int ytl, int xbr, int ybr);
+    bool Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, 
+        int size, UINT align, int xtl, int ytl, int xbr, int ybr);
     
     /**
     * Set a new position for the text box

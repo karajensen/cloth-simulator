@@ -13,7 +13,8 @@ Collision::Collision(Collision::CollisionShape shape, const Transform& parent) :
 {
 }
 
-CollisionCube::CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent, float width, float height, float depth) :
+CollisionCube::CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent,
+  float width, float height, float depth) :
     Collision(CUBE, parent),
     m_localMinBounds(-width/2.0f, -height/2.0f, -depth/2.0f),
     m_localMaxBounds(width/2.0f, height/2.0f, depth/2.0f)
@@ -145,9 +146,12 @@ bool Collision_Manager::TestSphereSphereCollision(const CollisionSphere* sphere1
 
 bool Collision_Manager::TestCubeCubeCollision(const CollisionCube* cube1, const CollisionCube* cube2)
 {
-    return (!((cube1->GetMaxBounds().x < cube2->GetMinBounds().x || cube1->GetMinBounds().x > cube2->GetMaxBounds().x) ||
-              (cube1->GetMaxBounds().y < cube2->GetMinBounds().y || cube1->GetMinBounds().y > cube2->GetMaxBounds().y) ||
-              (cube1->GetMaxBounds().z < cube2->GetMinBounds().z || cube1->GetMinBounds().z > cube2->GetMaxBounds().z)));
+    return (!((cube1->GetMaxBounds().x < cube2->GetMinBounds().x  || 
+               cube1->GetMinBounds().x > cube2->GetMaxBounds().x) ||
+              (cube1->GetMaxBounds().y < cube2->GetMinBounds().y  || 
+               cube1->GetMinBounds().y > cube2->GetMaxBounds().y) ||
+              (cube1->GetMaxBounds().z < cube2->GetMinBounds().z  ||
+               cube1->GetMinBounds().z > cube2->GetMaxBounds().z)));
 }
 
 bool Collision_Manager::TestCubeSphereCollision(const CollisionCube* cube, const CollisionSphere* sphere)
@@ -156,17 +160,20 @@ bool Collision_Manager::TestCubeSphereCollision(const CollisionCube* cube, const
     //times by radius to get vector from center sphere to sphere pointing at cube
     D3DXVECTOR3 sphereToBox = cube->GetPosition() - sphere->GetPosition();
     D3DXVec3Normalize(&sphereToBox,&sphereToBox);
-    D3DXVECTOR3 sphereDir = sphere->GetRadius() * sphereToBox; //vector from center of sphere pointing at cube
+    D3DXVECTOR3 sphereDir = sphere->GetRadius() * sphereToBox; //center of sphere pointing at cube
 
     //convert vector to world space
     sphereDir += sphere->GetPosition();
 
     //check for collision
-    if((sphereDir.x < cube->GetMaxBounds().x) && (sphereDir.x > cube->GetMinBounds().x)) //test if in x portion
+    if((sphereDir.x < cube->GetMaxBounds().x) && 
+        (sphereDir.x > cube->GetMinBounds().x)) //test if in x portion
     {
-        if((sphereDir.y < cube->GetMaxBounds().y) && (sphereDir.y > cube->GetMinBounds().y)) //test if in y portion
+        if((sphereDir.y < cube->GetMaxBounds().y) && 
+            (sphereDir.y > cube->GetMinBounds().y)) //test if in y portion
         {
-            return ((sphereDir.z < cube->GetMaxBounds().z) && (sphereDir.z > cube->GetMinBounds().z)); //test if in z portion
+            return ((sphereDir.z < cube->GetMaxBounds().z) &&
+                (sphereDir.z > cube->GetMinBounds().z)); //test if in z portion
         }
     }
     return false;

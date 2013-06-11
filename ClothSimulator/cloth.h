@@ -25,7 +25,8 @@ public:
     * @param the width/length of the cloth
     * @param the scale of the cloth
     */
-    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader, int dimensions, float scale);
+    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, 
+        std::shared_ptr<Shader> shader, int dimensions, float scale);
 
     /**
     * Draw the cloth visual and collision models
@@ -141,6 +142,11 @@ public:
     * @param the particle to select
     */
     void SelectParticle(int index);
+
+    /**
+    * Selects the given particle for diagnostic purposes
+    * @param the particle to select
+    */
     void SelectParticleForDiagnostics(int index);
 
     /**

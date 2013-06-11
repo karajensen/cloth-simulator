@@ -16,6 +16,9 @@ public:
 
     typedef std::function<void(void)> MeshPickFn;
 
+    /**
+    * Constructor/Destructor.
+    */
     PickableMesh();
     virtual ~PickableMesh();
 

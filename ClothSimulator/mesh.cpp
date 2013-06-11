@@ -30,7 +30,8 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
 {
     if(m_mesh && m_draw)
     {
-        LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() ? Shader_Manager::GetWorldEffect() : m_shader->GetEffect();
+        LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() 
+            ? Shader_Manager::GetWorldEffect() : m_shader->GetEffect();
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);

@@ -77,10 +77,6 @@ void Diagnostic::DrawAll3D(const Transform& projection, const Transform& view)
         LPD3DXEFFECT pEffect(sm_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
-        //sort by z value for alpha blending
-        auto sorter = [](const SpherePair& o1, const SpherePair& o2){ return o1.second.position.z < o2.second.position.z; };
-        std::sort(m_spheremap.begin(), m_spheremap.end(), sorter);
-
         for(SphereMap::iterator it = m_spheremap.begin(); it != m_spheremap.end(); ++it)
         {
             m_transform.MakeIdentity();
@@ -105,7 +101,8 @@ void Diagnostic::DrawAll3D(const Transform& projection, const Transform& view)
     }
 }
 
-void Diagnostic::UpdateSphere(const std::string& id, Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
+void Diagnostic::UpdateSphere(const std::string& id, 
+    Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
 {
     auto find = [&](const SpherePair& pair){ return pair.first == id; };
     auto iterator = std::find_if(m_spheremap.begin(), m_spheremap.end(), find);
@@ -151,7 +148,8 @@ void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, boo
     m_textmap[id].text = id + ": " + StringCast(m_textmap[id].counter);
 }
 
-void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color, const D3DXVECTOR3& start, D3DXVECTOR3& end)
+void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color, 
+    const D3DXVECTOR3& start, D3DXVECTOR3& end)
 {
     if(m_linemap.find(id) == m_linemap.end())
     {

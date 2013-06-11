@@ -21,7 +21,8 @@ namespace
     };
 }
 
-Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader, int dimensions, float scale) :
+Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, 
+  std::shared_ptr<Shader> shader, int dimensions, float scale) :
     m_selectedRow(1),
     m_timestep(0.5f),
     m_timestepSquared(m_timestep*m_timestep),
@@ -227,7 +228,8 @@ void Cloth::UnpinCloth()
 
 void Cloth::AddForce(const FLOAT3& force)
 {
-    std::for_each(m_particles.begin(), m_particles.end(), [&](const ParticlePtr& part){ part->AddForce(force); });
+    std::for_each(m_particles.begin(), m_particles.end(), 
+        [&](const ParticlePtr& part){ part->AddForce(force); });
 }
 
 void Cloth::UpdateState(double deltatime)
@@ -243,7 +245,8 @@ void Cloth::UpdateState(double deltatime)
         //Solve Springs
         for(int j = 0; j < m_springIterations; ++j)
         {
-            std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring){ spring->SolveSpring(); });
+            std::for_each(m_springs.begin(), m_springs.end(), 
+                [&](const SpringPtr& spring){ spring->SolveSpring(); });
         }
 
         //Updating particle positions
@@ -347,12 +350,14 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 
     if(m_drawColParticles)
     {
-        std::for_each(m_particles.begin(), m_particles.end(), [&](const ParticlePtr& part){ part->DrawCollisionMesh(projection, view); });
+        std::for_each(m_particles.begin(), m_particles.end(), 
+            [&](const ParticlePtr& part){ part->DrawCollisionMesh(projection, view); });
     }
 
     if(m_drawVisualParticles)
     {
-        std::for_each(m_particles.begin(), m_particles.end(), [&](const ParticlePtr& part){ part->DrawVisualMesh(projection, view); });
+        std::for_each(m_particles.begin(), m_particles.end(), 
+            [&](const ParticlePtr& part){ part->DrawVisualMesh(projection, view); });
     }
 }
 
@@ -377,7 +382,8 @@ void Cloth::SolveCollision(const Collision* object)
                 float centerToParticle_l = centerToParticle.Length();
                 if (centerToParticle_l < sphere->GetRadius())
                 {
-                    m_particles[i]->MovePosition(centerToParticle.GetNormalized()*(sphere->GetRadius()-centerToParticle_l)); 
+                    m_particles[i]->MovePosition(centerToParticle.GetNormalized()
+                        *(sphere->GetRadius()-centerToParticle_l)); 
                 }
             }
             break;
