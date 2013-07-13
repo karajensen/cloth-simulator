@@ -2,10 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClothSimulator", "ClothSimulator\ClothSimulator.vcxproj", "{740CACE8-B6A3-4FD4-9B50-3BE66BCCDFEE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{04EB7129-257B-41CA-AA71-2213D20A61A5} = {04EB7129-257B-41CA-AA71-2213D20A61A5}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClothSimulatorGUI", "ClothSimulator\ClothSimulatorGUI.csproj", "{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClothSimulatorWrapper", "ClothSimulator\ClothSimulatorWrapper.vcxproj", "{6E901A7B-3995-4C31-B23F-5BC7614384BF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClothSimulatorGUI", "ClothSimulator\ClothSimulatorGUI.vcxproj", "{04EB7129-257B-41CA-AA71-2213D20A61A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,26 +28,16 @@ Global
 		{740CACE8-B6A3-4FD4-9B50-3BE66BCCDFEE}.Release|Win32.ActiveCfg = Release|Win32
 		{740CACE8-B6A3-4FD4-9B50-3BE66BCCDFEE}.Release|Win32.Build.0 = Release|Win32
 		{740CACE8-B6A3-4FD4-9B50-3BE66BCCDFEE}.Release|x86.ActiveCfg = Release|Win32
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Debug|Win32.ActiveCfg = Debug|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Debug|x86.ActiveCfg = Debug|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Debug|x86.Build.0 = Debug|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Release|Mixed Platforms.Build.0 = Release|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Release|Win32.ActiveCfg = Release|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Release|x86.ActiveCfg = Release|x86
-		{D4CACB35-01A7-42DD-9E7B-FC67784D31F9}.Release|x86.Build.0 = Release|x86
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Debug|Win32.Build.0 = Debug|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Debug|x86.ActiveCfg = Debug|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Release|Win32.ActiveCfg = Release|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Release|Win32.Build.0 = Release|Win32
-		{6E901A7B-3995-4C31-B23F-5BC7614384BF}.Release|x86.ActiveCfg = Release|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Debug|Win32.Build.0 = Debug|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Debug|x86.ActiveCfg = Debug|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Release|Win32.ActiveCfg = Release|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Release|Win32.Build.0 = Release|Win32
+		{04EB7129-257B-41CA-AA71-2213D20A61A5}.Release|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
