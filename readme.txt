@@ -1,8 +1,11 @@
 
-• C#/C++CLI GUI make
+• Make sure all destructors are called
+• Get simulation form input working
+• Design .net gui
 • Update sprite click to lambdas
-• Inducing delta time tool / capping delta time
 • NUnit tests
+
+• Inducing delta time tool / capping delta time
 • Scene mesh manipulation
 • friction to cloth
 • Cloth self-collision

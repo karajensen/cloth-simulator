@@ -17,15 +17,6 @@ namespace GUI
         m_ManagedGUI = (void*)ptr;
     }
 
-    void NativeGUI::Tick()
-    {
-        ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
-        if(m_ManagedGUI)
-        {
-            ((ManagedGUI^)*ptr)->Tick();
-        }
-    }
-
     NativeGUI::~NativeGUI()
     {
         if (m_ManagedGUI)
@@ -35,5 +26,31 @@ namespace GUI
             m_ManagedGUI = nullptr;
             delete ptr;
         }
+    }
+
+    void NativeGUI::SetCallbacks(GuiCallback* callback)
+    {
+        ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
+        ((ManagedGUI^)*ptr)->SetCallbacks(callback);
+    }
+
+    bool NativeGUI::Update()
+    {
+        ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
+        return ((ManagedGUI^)*ptr)->Update();
+    }
+
+    void NativeGUI::Show()
+    {
+        ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
+        ((ManagedGUI^)*ptr)->Show();
+    }
+
+    WindowHandles NativeGUI::GetWindowHandles()
+    {
+        ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
+        void* handle = (((ManagedGUI^)*ptr)->GetWindowHandle()).ToPointer();
+        void* instance = (((ManagedGUI^)*ptr)->GetWindowInstance()).ToPointer();
+        return WindowHandles(static_cast<HWND>(handle), static_cast<HINSTANCE>(instance));
     }
 }

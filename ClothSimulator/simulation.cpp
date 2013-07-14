@@ -9,7 +9,6 @@
 #include "collision.h"
 #include "timer.h"
 #include "text.h"
-#include "nativeGUI.h"
 #include <algorithm>
 #include <sstream>
 
@@ -117,7 +116,6 @@ void Simulation::Update()
 
     double deltaTime = m_timer->UpdateTimer();
 
-    m_guiInterface->Tick();
     m_input->UpdateInput();
     m_camera->UpdateCamera();
 
@@ -370,9 +368,6 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     }
     success = (success ? LoadText() : false);
 
-    // Load the GUI
-    m_guiInterface.reset(new GUI::NativeGUI());
-
     // Start the internal timer
     m_timer.reset(new Timer());
     m_timer->StartTimer();
@@ -498,6 +493,9 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     m_input->AddClickPreventionKey(DIK_LALT);
 
     // Controlling the cloth
+    m_input->SetKeyCallback(DIK_G, false, 
+        [&](){ if(!m_handleMode){ m_cloth->ToggleSimulation(); }});
+
     m_input->SetKeyCallback(DIK_W, true, 
         [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
         -m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); }});

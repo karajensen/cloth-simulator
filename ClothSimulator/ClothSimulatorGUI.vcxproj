@@ -82,6 +82,7 @@
     <ClCompile Include="nativeGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guicallbacks.h" />
     <ClInclude Include="GUIForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>

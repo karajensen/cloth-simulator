@@ -5,6 +5,7 @@
 
 #pragma once
 #include "GUIForm.h"
+#include "guicallbacks.h"
 
 namespace GUI
 {
@@ -12,12 +13,37 @@ namespace GUI
     {
     public:
 
+        /**
+        * Constructor
+        */
         ManagedGUI();
 
         /**
-        * Ticks the GUI
+        * Sets the native callbacks for the GUI
+        * @param a struct of all callbacks
         */
-        void Tick();
+        void SetCallbacks(GuiCallback* callback);
+
+        /**
+        * Ticks the GUI
+        * @return whether the update was successful
+        */
+        bool Update();
+
+        /**
+        * Shows the GUI Window
+        */
+        void Show();
+
+        /**
+        * @return the handle to the simulation window
+        */
+        IntPtr GetWindowHandle();
+
+        /**
+        * @return the handle instance to the simulation window
+        */
+        IntPtr GetWindowInstance();
 
     private:
 

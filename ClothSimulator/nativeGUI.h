@@ -4,6 +4,8 @@
 *****************************************************************/
 
 #pragma once
+#include <Windows.h>
+#include "guicallbacks.h"
 
 #ifdef EXPORTAPI
 #define GUIINTAPI __declspec(dllexport)
@@ -13,6 +15,8 @@
 
 namespace GUI
 {
+    typedef std::pair<HWND, HINSTANCE> WindowHandles;
+
     class GUIINTAPI NativeGUI
     {
     public:
@@ -21,9 +25,26 @@ namespace GUI
         ~NativeGUI();
 
         /**
-        * Ticks the GUI
+        * Sets the native callbacks for the GUI
+        * @param a struct of all callbacks
         */
-        void Tick();
+        void SetCallbacks(GuiCallback* callback);
+
+        /**
+        * Ticks the GUI
+        * @return whether the update was successful
+        */
+        bool Update();
+
+        /**
+        * @return the handle to the simulation window
+        */
+        WindowHandles GetWindowHandles();
+
+        /**
+        * Shows the GUI Window
+        */
+        void Show();
 
     private:
 

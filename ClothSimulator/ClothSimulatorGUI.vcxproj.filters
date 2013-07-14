@@ -8,5 +8,9 @@
     <ClInclude Include="managedGUI.h" />
     <ClInclude Include="nativeGUI.h" />
     <ClInclude Include="GUIForm.h" />
+    <ClInclude Include="guicallbacks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GUIForm.resx" />
   </ItemGroup>
 </Project>

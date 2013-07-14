@@ -7,10 +7,6 @@
 
 #include "common.h"
 
-namespace GUI
-{
-    class NativeGUI;
-}
 class Camera;
 class Cloth;
 class Text;
@@ -28,7 +24,7 @@ public:
     /**
     * Initialises the simulation
     * @param the instance to the window
-    * @param the handle to the windoe
+    * @param the handle to the window
     * @param the directX device
     * @return whether initialisation succeeded
     */
@@ -107,7 +103,6 @@ private:
     typedef std::shared_ptr<Text> TextPtr;
     typedef std::shared_ptr<Sprite> SpritePtr;
     typedef std::shared_ptr<Mesh> MeshPtr;
-    typedef std::shared_ptr<GUI::NativeGUI> GUIPtr;
 
     std::shared_ptr<Timer> m_timer;
     std::shared_ptr<Cloth> m_cloth;     ///< Simulation cloth object
@@ -121,7 +116,6 @@ private:
     int m_clothDimensions;       ///< Current dimensions of the cloth
     bool m_handleMode;           ///< Whether the simulation is in handle mode
     LPDIRECT3DDEVICE9 m_d3ddev;  ///< DirectX device
-    GUIPtr m_guiInterface;       ///< Interface for .NET GUI
 
     static bool sm_drawCollisions; ///< Whether to display collision models
     
