@@ -19,6 +19,10 @@ namespace GUI
 
     NativeGUI::~NativeGUI()
     {
+        #ifdef _DEBUG
+        OutputDebugString(L"RELEASING NATIVEGUI\n");
+        #endif
+
         if (m_ManagedGUI)
         {
             //free gcroot handle

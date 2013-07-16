@@ -42,10 +42,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         simulation->Render();
     }
 
-    simulation->Release();
     d3ddev->Release();
     d3d->Release();
     backBuffer->Release();
+
+    #ifdef _DEBUG
+    OutputDebugString("EXITING SIMULATION\n");
+    #endif
 }
 
 bool InitialiseGUI()
@@ -56,7 +59,8 @@ bool InitialiseGUI()
 
         callbacks.quitFn = &QuitSimulation;
         callbacks.updateMouse = std::bind(&Simulation::SetMouseCoord, simulation.get(), _1, _2);
-        
+        simulation->LoadGuiCallbacks(&callbacks);
+
         gui->SetCallbacks(&callbacks);
         gui->Show();
     }

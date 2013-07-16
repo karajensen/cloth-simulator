@@ -107,7 +107,6 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="spring.cpp" />
-    <ClCompile Include="sprite.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="transform.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -128,7 +127,6 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="spring.h" />
-    <ClInclude Include="sprite.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="transform.h" />

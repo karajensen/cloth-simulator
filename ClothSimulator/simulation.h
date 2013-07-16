@@ -6,6 +6,7 @@
 #pragma once
 
 #include "common.h"
+#include "guicallbacks.h"
 
 class Camera;
 class Cloth;
@@ -20,6 +21,7 @@ class Simulation
 public:
 
     Simulation();
+    ~Simulation();
 
     /**
     * Initialises the simulation
@@ -31,9 +33,10 @@ public:
     bool CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev);
 
     /**
-    * Releases the simulation
+    * Loads the gui callbacks
+    * @param callbacks for the gui to fill in
     */
-    void Release();
+    void LoadGuiCallbacks(GUI::GuiCallback* callback);
 
     /**
     * Renders the simulation
@@ -54,44 +57,15 @@ public:
 private:
 
     /**
-    * Test whether a sprite was clicked
-    * @param whether a sprite was clicked
-    */
-    bool OnClickSprite();
-
-    /**
-    * Solve the sprite click
-    * @param the index of the sprite clicked
-    */
-    void SolveSpriteClick(int index);
-
-    /**
     * Generates a new cloth object
     */
     void CreateCloth();
-
-    /**
-    * Updates the visual cloth text
-    */
-    void UpdateText();
 
     /**
     * Loads all scene meshes
     * @param whether loading was successful
     */
     bool LoadMeshes();
-
-    /**
-    * Loads all scene sprites
-    * @param whether loading was successful
-    */
-    bool LoadSprites();
-
-    /**
-    * Loads all scene text
-    * @param whether loading was successful
-    */
-    bool LoadText();
 
     /**
     * Creates the input object and connects callbacks to input keys
@@ -108,19 +82,11 @@ private:
     std::shared_ptr<Cloth> m_cloth;     ///< Simulation cloth object
     std::shared_ptr<Input> m_input;     ///< Simulation input object
     std::shared_ptr<Camera> m_camera;   ///< Main camera
-    std::vector<TextPtr> m_text;        ///< Container of text
-    std::vector<SpritePtr> m_sprites;   ///< Container of sprites
     std::vector<MeshPtr> m_meshes;      ///< Container of meshes
 
-    float m_clothSize;           ///< Current size of the cloth
-    int m_clothDimensions;       ///< Current dimensions of the cloth
-    bool m_handleMode;           ///< Whether the simulation is in handle mode
-    LPDIRECT3DDEVICE9 m_d3ddev;  ///< DirectX device
-
+    float m_clothSize;             ///< Current size of the cloth
+    int m_clothDimensions;         ///< Current dimensions of the cloth
+    bool m_handleMode;             ///< Whether the simulation is in handle mode
+    LPDIRECT3DDEVICE9 m_d3ddev;    ///< DirectX device
     static bool sm_drawCollisions; ///< Whether to display collision models
-    
-    //To remove once GUI finished
-    bool m_moveBall;
-    float m_ballPosition;
-    float m_ballMoveAmount;
 };

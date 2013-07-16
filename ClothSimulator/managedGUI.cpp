@@ -8,6 +8,18 @@ namespace GUI
         m_form = gcnew GUIForm();
     }
 
+    ManagedGUI::~ManagedGUI()
+    {
+        this->!ManagedGUI();
+    }
+
+    ManagedGUI::!ManagedGUI()
+    {
+        #ifdef _DEBUG
+        OutputDebugString(L"RELEASING MANAGEDGUI\n");
+        #endif
+    }
+
     void ManagedGUI::SetCallbacks(GuiCallback* callback)
     {
         m_form->SetCallbacks(callback);

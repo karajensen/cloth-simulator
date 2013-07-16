@@ -13,10 +13,9 @@ namespace GUI
     {
     public:
 
-        /**
-        * Constructor
-        */
         ManagedGUI();
+        ~ManagedGUI();
+        !ManagedGUI();
 
         /**
         * Sets the native callbacks for the GUI
