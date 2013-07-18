@@ -33,8 +33,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     InitialiseWindow(&hInstance, cmdShow);
 
     simulation.reset(new Simulation());
-    runSimulation = InitDirect3D() && InitialiseGUI() && 
-        simulation->CreateSimulation(hInstance, hWnd, d3ddev);
+    runSimulation = InitDirect3D() &&  
+        simulation->CreateSimulation(hInstance, hWnd, d3ddev) &&
+        InitialiseGUI();
 
     while(runSimulation && HandleMessages())
     {
@@ -58,7 +59,6 @@ bool InitialiseGUI()
         using namespace std::placeholders;
 
         callbacks.quitFn = &QuitSimulation;
-        callbacks.updateMouse = std::bind(&Simulation::SetMouseCoord, simulation.get(), _1, _2);
         simulation->LoadGuiCallbacks(&callbacks);
 
         gui->SetCallbacks(&callbacks);
@@ -76,14 +76,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 {
     switch(message)
     {
-        case WM_MOUSEMOVE:
-        case WM_RBUTTONDOWN:
-        case WM_LBUTTONDOWN:
-            simulation->SetMouseCoord(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            break;
-        case WM_DESTROY:
-            QuitSimulation();
-            break;
+    case WM_DESTROY:
+        QuitSimulation();
+        break;
     }
     return DefWindowProc (hWnd, message, wParam, lParam);
 } 

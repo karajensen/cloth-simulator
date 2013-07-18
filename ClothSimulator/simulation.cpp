@@ -16,7 +16,7 @@ namespace
     const int GROUND_MESH = 0;
     const float CAMERA_MOVE_SPEED = 40.0f;  
     const float CAMERA_ROT_SPEED = 2.0f;    
-    const float HANDLE_SPEED = 10.0f;
+    const float HANDLE_SPEED = 20.0f;
 
     const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< CLear colour of the back buffer
     const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          ///< Render event colour
@@ -27,9 +27,6 @@ namespace
 bool Simulation::sm_drawCollisions = false;
 
 Simulation::Simulation() :
-    m_clothSize(0.5),
-    m_clothDimensions(30),
-    m_handleMode(false),
     m_d3ddev(nullptr)
 {
 }
@@ -106,167 +103,15 @@ void Simulation::Update()
     m_cloth->UpdateVertexBuffer();
 }
 
-void Simulation::SetMouseCoord(int x, int y)
-{
-    m_input->SetMouseCoord(x, y);
-}
-
 void Simulation::LoadGuiCallbacks(GUI::GuiCallback* callback)
 {
-    // TO fix once GUI done
-    const float CLICK_INCREASE = 0.1f;     
-    const float MIN_TIMESTEP = 0.01f;      
-    const float MIN_DAMPING = 0.01f;       
-    const float MIN_CLOTHSIZE = 0.11f;     
-    const unsigned int MIN_ITERATIONS = 2; 
-    const unsigned int MIN_VERTS = 4;      
-
-    //switch(index)
-    //{
-    //case GRAVITY:
-    //{
-    //    if(!m_handleMode)
-    //    {
-    //        m_sprites[GRAVITY]->ToggleVisibility();
-    //        m_cloth->ToggleSimulation();
-    //    }
-    //    break;
-    //}
-    //case GRAB:
-    //{   
-    //    m_cloth->UnpinCloth();
-    //    break;
-    //}
-    //case BOX:
-    //{   
-    //    m_meshes[BALL_MESH]->ToggleVisibility();
-    //    m_sprites[BOX]->ToggleVisibility();
-    //    break;
-    //}
-    //case CAMRESET:
-    //{   
-    //    m_camera->Reset();
-    //    break;
-    //}
-    //case CLOTHRESET:
-    //{
-    //    m_sprites[GRAVITY]->SetVisibility(HALF_ALPHA);
-    //    m_cloth->Reset();
-    //    break;
-    //}
-    //case PLUSTIME:
-    //{
-    //    m_cloth->SetTimeStep(m_cloth->GetTimeStep() + CLICK_INCREASE);
-    //    UpdateText();
-    //    break;
-    //}
-    //case MINUSTIME:
-    //{
-    //    m_cloth->SetTimeStep(max(MIN_TIMESTEP, m_cloth->GetTimeStep()+CLICK_INCREASE));
-    //    UpdateText();
-    //    break;
-    //}
-    //case PLUSDAMP:
-    //{
-    //    m_cloth->SetDamping(m_cloth->GetDamping() + CLICK_INCREASE);
-    //    UpdateText();
-    //    break;
-    //}
-    //case MINUSDAMP:
-    //{
-    //    m_cloth->SetDamping(max(MIN_DAMPING, m_cloth->GetDamping()+CLICK_INCREASE));
-    //    UpdateText();
-    //    break;
-    //}
-    //case MINUSVERT: 
-    //{
-    //    if(m_clothDimensions > MIN_VERTS)
-    //    {
-    //      --m_clothDimensions;
-    //      CreateCloth();
-    //      UpdateText();
-    //    }
-    //    break;
-    //}
-    //case PLUSVERT:
-    //{
-    //    m_clothDimensions++;
-    //    CreateCloth();
-    //    UpdateText();
-    //    break;
-    //}
-    //case PLUSSIZE:
-    //{
-    //    m_clothSize += CLICK_INCREASE;
-    //    CreateCloth();
-    //    UpdateText();
-    //    break;
-    //}
-    //case MINUSSIZE:
-    //{
-    //    if(m_clothSize > MIN_CLOTHSIZE)
-    //    {
-    //        m_clothSize -= CLICK_INCREASE;
-    //        CreateCloth();
-    //        UpdateText();
-    //    }
-    //    break;
-    //}
-    //case MINUSIT:
-    //{
-    //    int itr = m_cloth->GetSpringIterations();
-    //    if(m_cloth->GetSpringIterations() > MIN_ITERATIONS)
-    //    {
-    //        m_cloth->SetSpringIterations(--itr);
-    //        UpdateText();
-    //    }   
-    //    break;
-    //}
-    //case PLUSIT:
-    //{
-    //    int itr = m_cloth->GetSpringIterations();
-    //    m_cloth->SetSpringIterations(++itr);
-    //    UpdateText();
-    //    break;
-    //}
-    //case SHOWVERTS:
-    //{
-    //    m_cloth->ToggleVisualParticles();
-    //    m_sprites[SHOWVERTS]->ToggleVisibility();
-    //    break;
-    //}
-    //case HANDLEMODE:
-    //{
-    //    m_handleMode = !m_handleMode;
-    //    m_sprites[HANDLEMODE]->SetVisibility(m_handleMode ? FULL_ALPHA : HALF_ALPHA);
-    //    m_sprites[COLLIDE]->SetVisibility(HALF_ALPHA);
-    //    m_sprites[GRAVITY]->SetVisibility(HALF_ALPHA);
-    //    m_cloth->SetManipulate(m_handleMode);
-    //    break;
-    //}
-    //case COLLIDE:
-    //{
-    //    if(!m_handleMode)
-    //    {
-    //        m_sprites[COLLIDE]->SetVisibility(m_cloth->IsSelfColliding() ? HALF_ALPHA : FULL_ALPHA);
-    //        m_cloth->SetSelfCollide(!m_cloth->IsSelfColliding());
-    //    }
-    //    break;
-    //}
-    //case KEYS:
-    //case KEYLIST:
-    //{
-    //    m_sprites[KEYLIST]->ToggleVisibility(0);
-    //    m_sprites[KEYS]->ToggleVisibility();
-    //    break;
-    //}
-    //case MOVE:
-    //{
-    //    m_moveBall = !m_moveBall;
-    //    m_sprites[MOVE]->ToggleVisibility();
-    //    break;
-    //} 
-    //}
+    using namespace std::placeholders;
+    callback->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
+    callback->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
+    callback->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
+    callback->resetCamera = std::bind(&Camera::Reset, m_camera.get());
+    callback->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(),  _1);
+    callback->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(),  _1);
 }
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
@@ -283,13 +128,15 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     success = Shader_Manager::Inititalise(d3ddev);
     success = (success ? LoadMeshes() : false);
 
-    // Create the cloth
+    // Create the cloth/diagnostics
     if(success)
     {
         auto boundsShader = Shader_Manager::GetShader(Shader_Manager::BOUNDS_SHADER);
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
-        CreateCloth();
+
+        auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
+        m_cloth.reset(new Cloth(m_d3ddev, ModelsFolder+"square.png", clothShader));
     }
 
     // Start the internal timer
@@ -297,13 +144,6 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     m_timer->StartTimer();
 
     return success;
-}
-
-void Simulation::CreateCloth()
-{
-    auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
-    m_cloth.reset(new Cloth(m_d3ddev, ModelsFolder+"square.png", clothShader, m_clothDimensions, m_clothSize));
-    m_handleMode = false;
 }
 
 bool Simulation::LoadMeshes()
@@ -359,41 +199,35 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
 
     // Controlling the cloth
     m_input->SetKeyCallback(DIK_W, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        -m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); }});
+        [&](){ m_cloth->MovePinnedRow(-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
 
     m_input->SetKeyCallback(DIK_S, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); }});
+        [&](){ m_cloth->MovePinnedRow(m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
 
     m_input->SetKeyCallback(DIK_A, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); }});
+        [&](){ m_cloth->MovePinnedRow(0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
 
     m_input->SetKeyCallback(DIK_D, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); }});
+        [&](){ m_cloth->MovePinnedRow(0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
 
     m_input->SetKeyCallback(DIK_Q, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        0.0f,0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED); }});
+        [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED); });
 
     m_input->SetKeyCallback(DIK_E, true, 
-        [&](){ if(m_handleMode){ m_cloth->MovePinnedRow(
-        0.0f,0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED); }});
+        [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED); });
 
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
-        [&](){ if(m_handleMode){ m_cloth->ChangeRow(1); } }); 
+        [&](){ m_cloth->ChangeRow(1); }); 
 
     m_input->SetKeyCallback(DIK_2, false, 
-        [&](){ if(m_handleMode){ m_cloth->ChangeRow(2); } }); 
+        [&](){ m_cloth->ChangeRow(2); }); 
 
     m_input->SetKeyCallback(DIK_3, false, 
-        [&](){ if(m_handleMode){ m_cloth->ChangeRow(3); } }); 
+        [&](){ m_cloth->ChangeRow(3); }); 
 
     m_input->SetKeyCallback(DIK_4, false, 
-        [&](){ if(m_handleMode){ m_cloth->ChangeRow(4); } }); 
+        [&](){ m_cloth->ChangeRow(4); }); 
 
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_0, false, 

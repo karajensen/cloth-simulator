@@ -119,9 +119,13 @@
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="float3.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="guicallbacks.h" />
+    <ClInclude Include="GUIForm.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
+    <ClInclude Include="managedGUI.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="nativeGUI.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />
     <ClInclude Include="shader.h" />

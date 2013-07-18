@@ -63,11 +63,6 @@ public:
     void SetKeyCallback(unsigned int key, bool onContinous, KeyFn onKeyFn, KeyFn offKeyFn = nullptr);
 
     /**
-    * Set the x/y mouse coordinates
-    */
-    void SetMouseCoord(int x, int y);
-
-    /**
     * @return mouse picking information
     */
     Picking& GetMousePicking() { return m_picking; }
@@ -96,6 +91,11 @@ public:
     const D3DXVECTOR2& GetMouseDirection() const { return m_mouseDirection; }
     
 private:
+
+    /**
+    * Set the x/y mouse coordinates
+    */
+    void SetMouseCoord(int x, int y);
 
     /**
     * Whether a key is currently being pressed or not
@@ -152,6 +152,7 @@ private:
     typedef std::unordered_map<unsigned int, Key> KeyMap;
     typedef std::vector<unsigned int> KeyList;
 
+    HWND m_hWnd;                           ///< Cached handle to the window
     KeyMap m_keys;                         ///< Cached keys
     KeyList m_clickPreventionKeys;         ///< Keys that will prevent clicking of the mouse
     bool m_mouseClicked;                   ///< Whether mouse was clicked this tick

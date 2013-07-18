@@ -48,18 +48,7 @@ public:
     */
     void Update();
 
-    /**
-    * Update the input mouse coordinates
-    * @param the coordinates in screen space
-    */
-    void SetMouseCoord(int x, int y);
-
 private:
-
-    /**
-    * Generates a new cloth object
-    */
-    void CreateCloth();
 
     /**
     * Loads all scene meshes
@@ -84,9 +73,6 @@ private:
     std::shared_ptr<Camera> m_camera;   ///< Main camera
     std::vector<MeshPtr> m_meshes;      ///< Container of meshes
 
-    float m_clothSize;             ///< Current size of the cloth
-    int m_clothDimensions;         ///< Current dimensions of the cloth
-    bool m_handleMode;             ///< Whether the simulation is in handle mode
     LPDIRECT3DDEVICE9 m_d3ddev;    ///< DirectX device
     static bool sm_drawCollisions; ///< Whether to display collision models
 };

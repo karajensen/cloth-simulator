@@ -1,11 +1,9 @@
 
-• Make sure all destructors are called
-• Get simulation form input working
-• Design .net gui
-• Update sprite click to lambdas
+• GUI images make
+• Setting timestep, deltatime, iterations, vertices, damping
 • NUnit tests
+• Fix rebuild lib not found
 
-• Inducing delta time tool / capping delta time
 • Scene mesh manipulation
 • friction to cloth
 • Cloth self-collision

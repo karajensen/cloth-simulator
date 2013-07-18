@@ -22,11 +22,8 @@ public:
     * @param d3ddev the directX device
     * @param texture the path to the cloth texture
     * @param shader the shader for the mesh
-    * @param the width/length of the cloth
-    * @param the scale of the cloth
     */
-    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, 
-        std::shared_ptr<Shader> shader, int dimensions, float scale);
+    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader);
 
     /**
     * Draw the cloth visual and collision models
@@ -53,11 +50,6 @@ public:
     void Reset();
 
     /**
-    * Toggle simulate cloth
-    */
-    void ToggleSimulation();
-
-    /**
     * Adds a force to each vertex in the cloth
     * @param the force to add
     */
@@ -68,18 +60,6 @@ public:
     * @param the object to test against
     */
     void SolveCollision(const Collision* object);
-
-    /**
-    * Set/Get self collisions for the cloth
-    */
-    void SetSelfCollide(bool selfCollide) { m_selfCollide = selfCollide; }
-    bool IsSelfColliding() const { return m_selfCollide; }
-
-    /**
-    * Set/Get manipulate mode for the cloth
-    */
-    void SetManipulate(bool manip);
-    bool IsManipulating() const { return m_manipulate; }
     
     /**
     * Set/Get simulate for the cloth
@@ -113,12 +93,17 @@ public:
     /**
     * Toggle whether vertex visual models are shown
     */
-    void ToggleVisualParticles();
+    void SetVertexVisibility(bool draw);
 
     /**
     * Toggle whether vertex visual models are shown
     */
     virtual void SetCollisionVisibility(bool draw) override;
+
+    /**
+    * Set whether handle mode is active or not
+    */
+    void SetHandleMode(bool set);
 
     /**
     * Remove any pinned vertices
@@ -225,12 +210,13 @@ private:
     int m_vertexWidth;          ///< Width between particles in the cloth
     int m_vertexCount;          ///< Overall number of particles in the cloth
     bool m_simulation;          ///< Whether the cloth is currently simulating
-    bool m_manipulate;          ///< Whether manipulate mode is currently on
     bool m_selfCollide;         ///< Whether the cloth is currently self-colliding
     bool m_drawVisualParticles; ///< Whether particle visual models are drawn
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
+    float m_clothSize;          ///< Current size of the cloth
+    int m_clothDimensions;      ///< Current dimensions of the cloth
+    bool m_handleMode;          ///< Whether the simulation is in handle mode
     FLOAT3 m_downwardPull;      ///< Simulated 'Gravity' of the cloth
-
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 

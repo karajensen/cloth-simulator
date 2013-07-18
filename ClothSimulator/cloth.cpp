@@ -19,27 +19,34 @@ namespace
         SELECTED,
         MAX_COLORS
     };
+
+    const int DIMENSIONS = 30;      ///< Initial dimensions of the cloth
+    const int ITERATIONS = 4;       ///< Initial iterations of the cloth
+    const float TIMESTEP = 0.5f;    ///< Initial timestep of the cloth
+    const float DAMPING = 0.9f;     ///< Initial damping of the cloth
+    const float SPACING = 0.5f;     ///< Initial size between vertices of the cloth
 }
 
-Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, 
-  std::shared_ptr<Shader> shader, int dimensions, float scale) :
+Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader) :
     m_selectedRow(1),
-    m_timestep(0.5f),
-    m_timestepSquared(m_timestep*m_timestep),
-    m_damping(0.9f),
+    m_timestep(TIMESTEP),
+    m_timestepSquared(TIMESTEP*TIMESTEP),
+    m_damping(SPACING),
     m_springCount(0),
-    m_springIterations(4),
-    m_vertexLength(dimensions),
-    m_vertexWidth(dimensions),
-    m_vertexCount(dimensions*dimensions),
+    m_springIterations(ITERATIONS),
+    m_vertexLength(DIMENSIONS),
+    m_vertexWidth(DIMENSIONS),
+    m_vertexCount(DIMENSIONS*DIMENSIONS),
     m_simulation(false),
-    m_manipulate(false),
     m_selfCollide(false),
-    m_drawVisualParticles(true),
+    m_drawVisualParticles(false),
     m_drawColParticles(false),
-    m_downwardPull(0,-4.5f,0),
+    m_downwardPull(0,-9.8f,0),
     m_diagnosticParticle(0),
-    m_diagnosticSelect(false)
+    m_diagnosticSelect(false),
+    m_handleMode(false),
+    m_clothSize(SPACING),
+    m_clothDimensions(DIMENSIONS)
 {
     int numOfFaces = ((m_vertexWidth-1)*(m_vertexLength-1))*2;
     m_shader = shader;
@@ -71,8 +78,8 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture,
         for(int z = minL; z < maxL; ++z)
         {
             Vertex vert;
-            vert.position.x = x*scale;
-            vert.position.z = z*scale;
+            vert.position.x = x*m_clothSize;
+            vert.position.z = z*m_clothSize;
             vert.position.y = startingheight;
             vert.uvs.x = UVu;
             vert.uvs.y = UVv;
@@ -103,7 +110,7 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture,
     }
 
     //create particles
-    float collisionSize = scale/2; 
+    float collisionSize = m_clothSize/2; 
     for(unsigned int i = 0; i < static_cast<unsigned int>(m_vertexCount); ++i)
     {
         m_particles.push_back(ParticlePtr(new Particle(d3ddev,collisionSize,m_vertexData[i].position, i)));
@@ -201,14 +208,15 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture,
     m_mesh->UnlockIndexBuffer();
 }
 
-void Cloth::ToggleSimulation()
+void Cloth::SetHandleMode(bool set)
 {
-    m_simulation = !m_simulation;
+    m_handleMode = set;
+    ChangeRow(m_selectedRow, m_handleMode);
 }
 
-void Cloth::ToggleVisualParticles()
+void Cloth::SetVertexVisibility(bool draw)
 {
-    m_drawVisualParticles = !m_drawVisualParticles;
+    m_drawVisualParticles = draw;
 }
 
 void Cloth::SetCollisionVisibility(bool draw)
@@ -234,7 +242,7 @@ void Cloth::AddForce(const FLOAT3& force)
 
 void Cloth::UpdateState(double deltatime)
 {
-    if(m_simulation || m_manipulate)
+    if(m_simulation || m_handleMode)
     {
         //Move cloth down slowly
         if(m_simulation)
@@ -492,7 +500,7 @@ void Cloth::MousePickingTest(Picking& input)
 void Cloth::SetParticleColor(const Cloth::ParticlePtr& particle)
 {
     ParticleColors color = (particle->IsPinned() ? PINNED : 
-        (particle->IsSelected() && m_manipulate ? SELECTED : NORMAL));
+        (particle->IsSelected() && m_handleMode ? SELECTED : NORMAL));
     particle->SetColor(m_colors[color]);
 }
 
@@ -509,9 +517,12 @@ void Cloth::SelectParticle(int index)
 
 void Cloth::MovePinnedRow(float right, float up, float forward)
 {
-    FLOAT3 direction(right,up,forward);
-    auto addForce = [&](const ParticlePtr& part){ if(part->IsSelected()){ part->AddForce(direction); } };
-    std::for_each(m_particles.begin(), m_particles.end(), addForce);
+    if(m_handleMode)
+    {
+        FLOAT3 direction(right,up,forward);
+        auto addForce = [&](const ParticlePtr& part){ if(part->IsSelected()){ part->AddForce(direction); } };
+        std::for_each(m_particles.begin(), m_particles.end(), addForce);
+    }
 }
 
 void Cloth::ChangeRow(int row)
@@ -528,14 +539,6 @@ void Cloth::SetTimeStep(float timestep)
 {
     m_timestep = timestep;
     m_timestepSquared = m_timestep*m_timestep;
-}
-
-void Cloth::SetManipulate(bool manip)
-{
-    SetSimulation(false);
-    SetSelfCollide(false);
-    m_manipulate = manip;
-    ChangeRow(m_selectedRow, m_manipulate);
 }
 
 void Cloth::ChangeRow(int row, bool select)

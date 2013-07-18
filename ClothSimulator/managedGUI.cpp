@@ -44,7 +44,6 @@ namespace GUI
     bool ManagedGUI::Update()
     {
         System::Windows::Forms::Application::DoEvents();
-        m_form->UpdateCallbacks();
         return true;
     }
 }

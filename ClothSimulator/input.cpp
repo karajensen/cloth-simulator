@@ -11,7 +11,8 @@ namespace
 Input::Input(HINSTANCE hInstance, HWND hWnd) :
     m_directInput(nullptr),
     m_x(-1),
-    m_y(-1)
+    m_y(-1),
+    m_hWnd(hWnd)
 {
     DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, nullptr);
 
@@ -65,15 +66,21 @@ Input::~Input()
 
 void Input::UpdateInput()
 {
-    DIMOUSESTATE Mouse;
-    BYTE Keys[KEY_BUFFER_SIZE];
-    GetMouse(&Mouse);
-    GetKeys(Keys);
+    POINT cursor;
+    DIMOUSESTATE mouse;
+    BYTE keys[KEY_BUFFER_SIZE];
+    GetMouse(&mouse);
+    GetKeys(keys);
+
+    // Update mouse position
+    GetCursorPos(&cursor);
+    ScreenToClient(m_hWnd, &cursor); 
+    SetMouseCoord(static_cast<int>(cursor.x),static_cast<int>(cursor.y));
 
     // Update all keys
     for(KeyMap::iterator it = m_keys.begin(); it != m_keys.end(); ++it)
     {
-        UpdateKey(Keys[it->first], it->second.state);
+        UpdateKey(keys[it->first], it->second.state);
 
         bool keyDown = it->second.continuous ? 
             IsKeyDownContinous(it->second.state) : 
@@ -90,7 +97,7 @@ void Input::UpdateInput()
     }
 
     // Update mouse
-    UpdateKey(Mouse.rgbButtons[MOUSE_LEFT], m_mouse);
+    UpdateKey(mouse.rgbButtons[MOUSE_LEFT], m_mouse);
     m_mouseClicked = IsKeyDown(m_mouse);
 
     std::for_each(m_clickPreventionKeys.begin(), m_clickPreventionKeys.end(),

@@ -40,20 +40,33 @@ namespace GUI
             simulatorForm->BackColor = System::Drawing::Color::DarkGray;
             simulatorForm->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
             simulatorForm->BackgroundImage = System::Drawing::Image::FromFile("Resources//Sprites//loading.png");
-
+            simulatorForm->Size = System::Drawing::Size(800, 600);
+            simulatorForm->Location = System::Drawing::Point(0, 0);
             m_pinnedSimForm = new gcroot<WinForm^>(simulatorForm);
-            splitContainer1->Panel2->Controls->Add((WinForm^)*m_pinnedSimForm);
-		}
+            m_mainPanel->Controls->Add((WinForm^)*m_pinnedSimForm);
 
-		/// <summary>
-		/// Updates the form callbacks
-		/// </summary>
-        void UpdateCallbacks()
-        {
-            //int x = Cursor.Position.X - Location.X - splitContainer1.Location.X - splitContainer1->Panel2.Location.X;
-            //int y = Cursor.Position.Y - Location.Y - splitContainer1.Location.Y - splitContainer1->Panel2.Location.Y;
-            m_callbacks->updateMouse(0, 0);        
-        }
+            m_gravityDown = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_gravityUp = System::Drawing::Image::FromFile("Resources//Sprites//gravity.png");
+            m_vertsDown = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_vertsUp = System::Drawing::Image::FromFile("Resources//Sprites//showverts.png");
+            m_handleDown = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_handleUp = System::Drawing::Image::FromFile("Resources//Sprites//handle.png");
+
+            m_gravityBtn->Image = m_gravityUp;
+            m_vertsBtn->Image = m_vertsUp;
+            m_handleBtn->Image = m_handleUp;
+
+            m_cynlinderBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_sphereBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_boxBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//box.png");
+            m_scaleBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//move.png");
+            m_moveBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//move.png");
+            m_rotateBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//move.png");
+            m_resetCamBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//resetcam.png");
+            m_resetClothBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//resetcloth.png");
+            m_unpinBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//unpin.png");
+            m_removeBtn->Image = System::Drawing::Image::FromFile("Resources//Sprites//unpin.png");
+		}
 
 		/// <summary>
 		/// Sets all native callbacks for the form events
@@ -105,73 +118,31 @@ namespace GUI
 
         GuiCallback* m_callbacks; ///< Callbacks for the gui
         gcroot<WinForm^>* m_pinnedSimForm; ///< pinned as native needs window handle
+        System::Drawing::Image^ m_gravityDown; ///< Image to show when gravity btn is pressed
+        System::Drawing::Image^ m_gravityUp; ///< Image to show when gravity btn is not pressed
+        System::Drawing::Image^ m_vertsDown; ///< Image to show when verts btn is pressed
+        System::Drawing::Image^ m_vertsUp; ///< Image to show when verts btn is not pressed
+        System::Drawing::Image^ m_handleDown; ///< Image to show when handle btn is pressed
+        System::Drawing::Image^ m_handleUp; ///< Image to show when handle btn is not pressed
 
-		/// <summary>
+        /// <summary>
 		/// Designed form components
 		/// </summary>
-        System::Windows::Forms::SplitContainer^  splitContainer1;
-    private: System::Windows::Forms::Button^  gravityBtn;
 
-    private: System::Windows::Forms::Button^  button4;
-    private: System::Windows::Forms::Button^  button3;
-    private: System::Windows::Forms::Button^  unpinAllBtn;
-
-    private: System::Windows::Forms::Button^  button16;
-    private: System::Windows::Forms::Button^  button15;
-    private: System::Windows::Forms::Button^  button14;
-
-
-
-
-    private: System::Windows::Forms::Button^  button9;
-    private: System::Windows::Forms::Button^  button8;
-    private: System::Windows::Forms::Button^  button7;
-    private: System::Windows::Forms::Button^  button6;
-    private: System::Windows::Forms::Button^  button5;
-private: System::Windows::Forms::Label^  label5;
-private: System::Windows::Forms::Button^  button21;
-private: System::Windows::Forms::Button^  button22;
-private: System::Windows::Forms::Label^  label4;
-private: System::Windows::Forms::Button^  button19;
-private: System::Windows::Forms::Button^  button20;
-private: System::Windows::Forms::Label^  label3;
-private: System::Windows::Forms::Button^  button17;
-private: System::Windows::Forms::Button^  button18;
-private: System::Windows::Forms::Label^  label2;
-private: System::Windows::Forms::Button^  button12;
-private: System::Windows::Forms::Button^  button13;
-private: System::Windows::Forms::Label^  label1;
-private: System::Windows::Forms::Button^  button11;
-private: System::Windows::Forms::Button^  button10;
-private: System::Windows::Forms::Button^  button1;
-private: System::Windows::Forms::Button^  button2;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        System::Windows::Forms::Panel^     m_mainPanel;
+        System::Windows::Forms::CheckBox^  m_gravityBtn;
+        System::Windows::Forms::CheckBox^  m_vertsBtn;
+        System::Windows::Forms::CheckBox^  m_handleBtn;
+        System::Windows::Forms::Button^    m_resetCamBtn;
+        System::Windows::Forms::Button^    m_resetClothBtn;
+        System::Windows::Forms::Button^    m_unpinBtn;
+        System::Windows::Forms::Button^    m_scaleBtn;
+        System::Windows::Forms::Button^    m_rotateBtn;
+        System::Windows::Forms::Button^    m_moveBtn;
+        System::Windows::Forms::Button^    m_cynlinderBtn;
+        System::Windows::Forms::Button^    m_sphereBtn;
+        System::Windows::Forms::Button^    m_boxBtn;
+        System::Windows::Forms::Button^    m_removeBtn;
 
 
 		/// <summary>
@@ -186,416 +157,201 @@ private: System::Windows::Forms::Button^  button2;
 		/// </summary>
 		void InitializeComponent(void)
 		{
-            this->splitContainer1 = (gcnew System::Windows::Forms::SplitContainer());
-            this->button16 = (gcnew System::Windows::Forms::Button());
-            this->button15 = (gcnew System::Windows::Forms::Button());
-            this->button14 = (gcnew System::Windows::Forms::Button());
-            this->button9 = (gcnew System::Windows::Forms::Button());
-            this->button8 = (gcnew System::Windows::Forms::Button());
-            this->button7 = (gcnew System::Windows::Forms::Button());
-            this->button6 = (gcnew System::Windows::Forms::Button());
-            this->button5 = (gcnew System::Windows::Forms::Button());
-            this->button4 = (gcnew System::Windows::Forms::Button());
-            this->button3 = (gcnew System::Windows::Forms::Button());
-            this->unpinAllBtn = (gcnew System::Windows::Forms::Button());
-            this->gravityBtn = (gcnew System::Windows::Forms::Button());
-            this->button10 = (gcnew System::Windows::Forms::Button());
-            this->button11 = (gcnew System::Windows::Forms::Button());
-            this->label1 = (gcnew System::Windows::Forms::Label());
-            this->label2 = (gcnew System::Windows::Forms::Label());
-            this->button12 = (gcnew System::Windows::Forms::Button());
-            this->button13 = (gcnew System::Windows::Forms::Button());
-            this->label3 = (gcnew System::Windows::Forms::Label());
-            this->button17 = (gcnew System::Windows::Forms::Button());
-            this->button18 = (gcnew System::Windows::Forms::Button());
-            this->label4 = (gcnew System::Windows::Forms::Label());
-            this->button19 = (gcnew System::Windows::Forms::Button());
-            this->button20 = (gcnew System::Windows::Forms::Button());
-            this->label5 = (gcnew System::Windows::Forms::Label());
-            this->button21 = (gcnew System::Windows::Forms::Button());
-            this->button22 = (gcnew System::Windows::Forms::Button());
-            this->button1 = (gcnew System::Windows::Forms::Button());
-            this->button2 = (gcnew System::Windows::Forms::Button());
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->splitContainer1))->BeginInit();
-            this->splitContainer1->Panel1->SuspendLayout();
-            this->splitContainer1->SuspendLayout();
+            this->m_mainPanel = (gcnew System::Windows::Forms::Panel());
+            this->m_removeBtn = (gcnew System::Windows::Forms::Button());
+            this->m_scaleBtn = (gcnew System::Windows::Forms::Button());
+            this->m_rotateBtn = (gcnew System::Windows::Forms::Button());
+            this->m_moveBtn = (gcnew System::Windows::Forms::Button());
+            this->m_cynlinderBtn = (gcnew System::Windows::Forms::Button());
+            this->m_sphereBtn = (gcnew System::Windows::Forms::Button());
+            this->m_boxBtn = (gcnew System::Windows::Forms::Button());
+            this->m_resetCamBtn = (gcnew System::Windows::Forms::Button());
+            this->m_resetClothBtn = (gcnew System::Windows::Forms::Button());
+            this->m_unpinBtn = (gcnew System::Windows::Forms::Button());
+            this->m_vertsBtn = (gcnew System::Windows::Forms::CheckBox());
+            this->m_handleBtn = (gcnew System::Windows::Forms::CheckBox());
+            this->m_gravityBtn = (gcnew System::Windows::Forms::CheckBox());
+            this->m_mainPanel->SuspendLayout();
             this->SuspendLayout();
             // 
-            // splitContainer1
+            // m_mainPanel
             // 
-            this->splitContainer1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-            this->splitContainer1->Dock = System::Windows::Forms::DockStyle::Fill;
-            this->splitContainer1->IsSplitterFixed = true;
-            this->splitContainer1->Location = System::Drawing::Point(0, 0);
-            this->splitContainer1->Name = L"splitContainer1";
+            this->m_mainPanel->Controls->Add(this->m_removeBtn);
+            this->m_mainPanel->Controls->Add(this->m_scaleBtn);
+            this->m_mainPanel->Controls->Add(this->m_rotateBtn);
+            this->m_mainPanel->Controls->Add(this->m_moveBtn);
+            this->m_mainPanel->Controls->Add(this->m_cynlinderBtn);
+            this->m_mainPanel->Controls->Add(this->m_sphereBtn);
+            this->m_mainPanel->Controls->Add(this->m_boxBtn);
+            this->m_mainPanel->Controls->Add(this->m_resetCamBtn);
+            this->m_mainPanel->Controls->Add(this->m_resetClothBtn);
+            this->m_mainPanel->Controls->Add(this->m_unpinBtn);
+            this->m_mainPanel->Controls->Add(this->m_vertsBtn);
+            this->m_mainPanel->Controls->Add(this->m_handleBtn);
+            this->m_mainPanel->Controls->Add(this->m_gravityBtn);
+            this->m_mainPanel->Location = System::Drawing::Point(0, 0);
+            this->m_mainPanel->Name = L"m_mainPanel";
+            this->m_mainPanel->Size = System::Drawing::Size(800, 600);
+            this->m_mainPanel->TabIndex = 0;
             // 
-            // splitContainer1.Panel1
+            // m_removeBtn
             // 
-            this->splitContainer1->Panel1->Controls->Add(this->button1);
-            this->splitContainer1->Panel1->Controls->Add(this->button2);
-            this->splitContainer1->Panel1->Controls->Add(this->label5);
-            this->splitContainer1->Panel1->Controls->Add(this->button21);
-            this->splitContainer1->Panel1->Controls->Add(this->button22);
-            this->splitContainer1->Panel1->Controls->Add(this->label4);
-            this->splitContainer1->Panel1->Controls->Add(this->button19);
-            this->splitContainer1->Panel1->Controls->Add(this->button20);
-            this->splitContainer1->Panel1->Controls->Add(this->label3);
-            this->splitContainer1->Panel1->Controls->Add(this->button17);
-            this->splitContainer1->Panel1->Controls->Add(this->button18);
-            this->splitContainer1->Panel1->Controls->Add(this->label2);
-            this->splitContainer1->Panel1->Controls->Add(this->button12);
-            this->splitContainer1->Panel1->Controls->Add(this->button13);
-            this->splitContainer1->Panel1->Controls->Add(this->label1);
-            this->splitContainer1->Panel1->Controls->Add(this->button11);
-            this->splitContainer1->Panel1->Controls->Add(this->button10);
-            this->splitContainer1->Panel1->Controls->Add(this->button16);
-            this->splitContainer1->Panel1->Controls->Add(this->button15);
-            this->splitContainer1->Panel1->Controls->Add(this->button14);
-            this->splitContainer1->Panel1->Controls->Add(this->button9);
-            this->splitContainer1->Panel1->Controls->Add(this->button8);
-            this->splitContainer1->Panel1->Controls->Add(this->button7);
-            this->splitContainer1->Panel1->Controls->Add(this->button6);
-            this->splitContainer1->Panel1->Controls->Add(this->button5);
-            this->splitContainer1->Panel1->Controls->Add(this->button4);
-            this->splitContainer1->Panel1->Controls->Add(this->button3);
-            this->splitContainer1->Panel1->Controls->Add(this->unpinAllBtn);
-            this->splitContainer1->Panel1->Controls->Add(this->gravityBtn);
-            this->splitContainer1->Size = System::Drawing::Size(912, 600);
-            this->splitContainer1->SplitterDistance = 101;
-            this->splitContainer1->TabIndex = 0;
+            this->m_removeBtn->Location = System::Drawing::Point(12, 468);
+            this->m_removeBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_removeBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_removeBtn->Name = L"m_removeBtn";
+            this->m_removeBtn->Size = System::Drawing::Size(32, 32);
+            this->m_removeBtn->TabIndex = 12;
+            this->m_removeBtn->TabStop = false;
+            this->m_removeBtn->UseVisualStyleBackColor = true;
+            this->m_removeBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_removeBtn_Click);
             // 
-            // button16
+            // m_scaleBtn
             // 
-            this->button16->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button16->Location = System::Drawing::Point(50, 169);
-            this->button16->MaximumSize = System::Drawing::Size(32, 32);
-            this->button16->MinimumSize = System::Drawing::Size(32, 32);
-            this->button16->Name = L"button16";
-            this->button16->Size = System::Drawing::Size(32, 32);
-            this->button16->TabIndex = 15;
-            this->button16->TabStop = false;
-            this->button16->UseVisualStyleBackColor = true;
+            this->m_scaleBtn->Location = System::Drawing::Point(12, 430);
+            this->m_scaleBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_scaleBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_scaleBtn->Name = L"m_scaleBtn";
+            this->m_scaleBtn->Size = System::Drawing::Size(32, 32);
+            this->m_scaleBtn->TabIndex = 11;
+            this->m_scaleBtn->TabStop = false;
+            this->m_scaleBtn->UseVisualStyleBackColor = true;
+            this->m_scaleBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_scaleBtn_Click);
             // 
-            // button15
+            // m_rotateBtn
             // 
-            this->button15->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button15->Location = System::Drawing::Point(50, 131);
-            this->button15->MaximumSize = System::Drawing::Size(32, 32);
-            this->button15->MinimumSize = System::Drawing::Size(32, 32);
-            this->button15->Name = L"button15";
-            this->button15->Size = System::Drawing::Size(32, 32);
-            this->button15->TabIndex = 14;
-            this->button15->TabStop = false;
-            this->button15->UseVisualStyleBackColor = true;
+            this->m_rotateBtn->Location = System::Drawing::Point(12, 392);
+            this->m_rotateBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_rotateBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_rotateBtn->Name = L"m_rotateBtn";
+            this->m_rotateBtn->Size = System::Drawing::Size(32, 32);
+            this->m_rotateBtn->TabIndex = 10;
+            this->m_rotateBtn->TabStop = false;
+            this->m_rotateBtn->UseVisualStyleBackColor = true;
+            this->m_rotateBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_rotateBtn_Click);
             // 
-            // button14
+            // m_moveBtn
             // 
-            this->button14->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button14->Location = System::Drawing::Point(50, 93);
-            this->button14->MaximumSize = System::Drawing::Size(32, 32);
-            this->button14->MinimumSize = System::Drawing::Size(32, 32);
-            this->button14->Name = L"button14";
-            this->button14->Size = System::Drawing::Size(32, 32);
-            this->button14->TabIndex = 13;
-            this->button14->TabStop = false;
-            this->button14->UseVisualStyleBackColor = true;
+            this->m_moveBtn->Location = System::Drawing::Point(12, 354);
+            this->m_moveBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_moveBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_moveBtn->Name = L"m_moveBtn";
+            this->m_moveBtn->Size = System::Drawing::Size(32, 32);
+            this->m_moveBtn->TabIndex = 9;
+            this->m_moveBtn->TabStop = false;
+            this->m_moveBtn->UseVisualStyleBackColor = true;
+            this->m_moveBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_moveBtn_Click);
             // 
-            // button9
+            // m_cynlinderBtn
             // 
-            this->button9->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button9->Location = System::Drawing::Point(50, 207);
-            this->button9->MaximumSize = System::Drawing::Size(32, 32);
-            this->button9->MinimumSize = System::Drawing::Size(32, 32);
-            this->button9->Name = L"button9";
-            this->button9->Size = System::Drawing::Size(32, 32);
-            this->button9->TabIndex = 8;
-            this->button9->TabStop = false;
-            this->button9->UseVisualStyleBackColor = true;
+            this->m_cynlinderBtn->Location = System::Drawing::Point(12, 316);
+            this->m_cynlinderBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_cynlinderBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_cynlinderBtn->Name = L"m_cynlinderBtn";
+            this->m_cynlinderBtn->Size = System::Drawing::Size(32, 32);
+            this->m_cynlinderBtn->TabIndex = 8;
+            this->m_cynlinderBtn->TabStop = false;
+            this->m_cynlinderBtn->UseVisualStyleBackColor = true;
+            this->m_cynlinderBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_cynlinderBtn_Click);
             // 
-            // button8
+            // m_sphereBtn
             // 
-            this->button8->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button8->Location = System::Drawing::Point(12, 207);
-            this->button8->MaximumSize = System::Drawing::Size(32, 32);
-            this->button8->MinimumSize = System::Drawing::Size(32, 32);
-            this->button8->Name = L"button8";
-            this->button8->Size = System::Drawing::Size(32, 32);
-            this->button8->TabIndex = 7;
-            this->button8->TabStop = false;
-            this->button8->UseVisualStyleBackColor = true;
+            this->m_sphereBtn->Location = System::Drawing::Point(12, 278);
+            this->m_sphereBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_sphereBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_sphereBtn->Name = L"m_sphereBtn";
+            this->m_sphereBtn->Size = System::Drawing::Size(32, 32);
+            this->m_sphereBtn->TabIndex = 7;
+            this->m_sphereBtn->TabStop = false;
+            this->m_sphereBtn->UseVisualStyleBackColor = true;
+            this->m_sphereBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_sphereBtn_Click);
             // 
-            // button7
+            // m_boxBtn
             // 
-            this->button7->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button7->Location = System::Drawing::Point(12, 169);
-            this->button7->MaximumSize = System::Drawing::Size(32, 32);
-            this->button7->MinimumSize = System::Drawing::Size(32, 32);
-            this->button7->Name = L"button7";
-            this->button7->Size = System::Drawing::Size(32, 32);
-            this->button7->TabIndex = 6;
-            this->button7->TabStop = false;
-            this->button7->UseVisualStyleBackColor = true;
+            this->m_boxBtn->Location = System::Drawing::Point(12, 240);
+            this->m_boxBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_boxBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_boxBtn->Name = L"m_boxBtn";
+            this->m_boxBtn->Size = System::Drawing::Size(32, 32);
+            this->m_boxBtn->TabIndex = 6;
+            this->m_boxBtn->TabStop = false;
+            this->m_boxBtn->UseVisualStyleBackColor = true;
+            this->m_boxBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_boxBtn_Click);
             // 
-            // button6
+            // m_resetCamBtn
             // 
-            this->button6->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button6->Location = System::Drawing::Point(12, 131);
-            this->button6->MaximumSize = System::Drawing::Size(32, 32);
-            this->button6->MinimumSize = System::Drawing::Size(32, 32);
-            this->button6->Name = L"button6";
-            this->button6->Size = System::Drawing::Size(32, 32);
-            this->button6->TabIndex = 5;
-            this->button6->TabStop = false;
-            this->button6->UseVisualStyleBackColor = true;
+            this->m_resetCamBtn->Location = System::Drawing::Point(12, 202);
+            this->m_resetCamBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_resetCamBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_resetCamBtn->Name = L"m_resetCamBtn";
+            this->m_resetCamBtn->Size = System::Drawing::Size(32, 32);
+            this->m_resetCamBtn->TabIndex = 5;
+            this->m_resetCamBtn->TabStop = false;
+            this->m_resetCamBtn->UseVisualStyleBackColor = true;
+            this->m_resetCamBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_resetCamBtn_Click);
             // 
-            // button5
+            // m_resetClothBtn
             // 
-            this->button5->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button5->Location = System::Drawing::Point(12, 93);
-            this->button5->MaximumSize = System::Drawing::Size(32, 32);
-            this->button5->MinimumSize = System::Drawing::Size(32, 32);
-            this->button5->Name = L"button5";
-            this->button5->Size = System::Drawing::Size(32, 32);
-            this->button5->TabIndex = 4;
-            this->button5->TabStop = false;
-            this->button5->UseVisualStyleBackColor = true;
+            this->m_resetClothBtn->Location = System::Drawing::Point(12, 164);
+            this->m_resetClothBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_resetClothBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_resetClothBtn->Name = L"m_resetClothBtn";
+            this->m_resetClothBtn->Size = System::Drawing::Size(32, 32);
+            this->m_resetClothBtn->TabIndex = 4;
+            this->m_resetClothBtn->TabStop = false;
+            this->m_resetClothBtn->UseVisualStyleBackColor = true;
+            this->m_resetClothBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_resetClothBtn_Click);
             // 
-            // button4
+            // m_unpinBtn
             // 
-            this->button4->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button4->Location = System::Drawing::Point(50, 55);
-            this->button4->MaximumSize = System::Drawing::Size(32, 32);
-            this->button4->MinimumSize = System::Drawing::Size(32, 32);
-            this->button4->Name = L"button4";
-            this->button4->Size = System::Drawing::Size(32, 32);
-            this->button4->TabIndex = 3;
-            this->button4->TabStop = false;
-            this->button4->UseVisualStyleBackColor = true;
+            this->m_unpinBtn->Location = System::Drawing::Point(12, 126);
+            this->m_unpinBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_unpinBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_unpinBtn->Name = L"m_unpinBtn";
+            this->m_unpinBtn->Size = System::Drawing::Size(32, 32);
+            this->m_unpinBtn->TabIndex = 3;
+            this->m_unpinBtn->TabStop = false;
+            this->m_unpinBtn->UseVisualStyleBackColor = true;
+            this->m_unpinBtn->Click += gcnew System::EventHandler(this, &GUIForm::m_unpinBtn_Click);
             // 
-            // button3
+            // m_vertsBtn
             // 
-            this->button3->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button3->Location = System::Drawing::Point(12, 55);
-            this->button3->MaximumSize = System::Drawing::Size(32, 32);
-            this->button3->MinimumSize = System::Drawing::Size(32, 32);
-            this->button3->Name = L"button3";
-            this->button3->Size = System::Drawing::Size(32, 32);
-            this->button3->TabIndex = 2;
-            this->button3->TabStop = false;
-            this->button3->UseVisualStyleBackColor = true;
+            this->m_vertsBtn->Appearance = System::Windows::Forms::Appearance::Button;
+            this->m_vertsBtn->Location = System::Drawing::Point(12, 88);
+            this->m_vertsBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_vertsBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_vertsBtn->Name = L"m_vertsBtn";
+            this->m_vertsBtn->Size = System::Drawing::Size(32, 32);
+            this->m_vertsBtn->TabIndex = 2;
+            this->m_vertsBtn->TabStop = false;
+            this->m_vertsBtn->UseVisualStyleBackColor = true;
+            this->m_vertsBtn->CheckStateChanged += gcnew System::EventHandler(this, &GUIForm::m_vertsBtn_CheckStateChanged);
             // 
-            // unpinAllBtn
+            // m_handleBtn
             // 
-            this->unpinAllBtn->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->unpinAllBtn->Location = System::Drawing::Point(50, 17);
-            this->unpinAllBtn->MaximumSize = System::Drawing::Size(32, 32);
-            this->unpinAllBtn->MinimumSize = System::Drawing::Size(32, 32);
-            this->unpinAllBtn->Name = L"unpinAllBtn";
-            this->unpinAllBtn->Size = System::Drawing::Size(32, 32);
-            this->unpinAllBtn->TabIndex = 1;
-            this->unpinAllBtn->TabStop = false;
-            this->unpinAllBtn->UseVisualStyleBackColor = true;
+            this->m_handleBtn->Appearance = System::Windows::Forms::Appearance::Button;
+            this->m_handleBtn->Location = System::Drawing::Point(12, 50);
+            this->m_handleBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_handleBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_handleBtn->Name = L"m_handleBtn";
+            this->m_handleBtn->Size = System::Drawing::Size(32, 32);
+            this->m_handleBtn->TabIndex = 1;
+            this->m_handleBtn->TabStop = false;
+            this->m_handleBtn->UseVisualStyleBackColor = true;
+            this->m_handleBtn->CheckStateChanged += gcnew System::EventHandler(this, &GUIForm::m_handleBtn_CheckStateChanged);
             // 
-            // gravityBtn
+            // m_gravityBtn
             // 
-            this->gravityBtn->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->gravityBtn->Location = System::Drawing::Point(12, 17);
-            this->gravityBtn->MaximumSize = System::Drawing::Size(32, 32);
-            this->gravityBtn->MinimumSize = System::Drawing::Size(32, 32);
-            this->gravityBtn->Name = L"gravityBtn";
-            this->gravityBtn->Size = System::Drawing::Size(32, 32);
-            this->gravityBtn->TabIndex = 0;
-            this->gravityBtn->TabStop = false;
-            this->gravityBtn->UseVisualStyleBackColor = true;
-            // 
-            // button10
-            // 
-            this->button10->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button10->Location = System::Drawing::Point(12, 320);
-            this->button10->MaximumSize = System::Drawing::Size(32, 32);
-            this->button10->MinimumSize = System::Drawing::Size(32, 32);
-            this->button10->Name = L"button10";
-            this->button10->Size = System::Drawing::Size(32, 32);
-            this->button10->TabIndex = 16;
-            this->button10->TabStop = false;
-            this->button10->UseVisualStyleBackColor = true;
-            // 
-            // button11
-            // 
-            this->button11->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button11->Location = System::Drawing::Point(50, 320);
-            this->button11->MaximumSize = System::Drawing::Size(32, 32);
-            this->button11->MinimumSize = System::Drawing::Size(32, 32);
-            this->button11->Name = L"button11";
-            this->button11->Size = System::Drawing::Size(32, 32);
-            this->button11->TabIndex = 17;
-            this->button11->TabStop = false;
-            this->button11->UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this->label1->AutoSize = true;
-            this->label1->Location = System::Drawing::Point(12, 302);
-            this->label1->Name = L"label1";
-            this->label1->Size = System::Drawing::Size(78, 17);
-            this->label1->TabIndex = 18;
-            this->label1->Text = L"ITR: 10000";
-            // 
-            // label2
-            // 
-            this->label2->AutoSize = true;
-            this->label2->Location = System::Drawing::Point(12, 355);
-            this->label2->Name = L"label2";
-            this->label2->Size = System::Drawing::Size(78, 17);
-            this->label2->TabIndex = 21;
-            this->label2->Text = L"ITR: 10000";
-            // 
-            // button12
-            // 
-            this->button12->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button12->Location = System::Drawing::Point(50, 373);
-            this->button12->MaximumSize = System::Drawing::Size(32, 32);
-            this->button12->MinimumSize = System::Drawing::Size(32, 32);
-            this->button12->Name = L"button12";
-            this->button12->Size = System::Drawing::Size(32, 32);
-            this->button12->TabIndex = 20;
-            this->button12->TabStop = false;
-            this->button12->UseVisualStyleBackColor = true;
-            // 
-            // button13
-            // 
-            this->button13->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button13->Location = System::Drawing::Point(12, 373);
-            this->button13->MaximumSize = System::Drawing::Size(32, 32);
-            this->button13->MinimumSize = System::Drawing::Size(32, 32);
-            this->button13->Name = L"button13";
-            this->button13->Size = System::Drawing::Size(32, 32);
-            this->button13->TabIndex = 19;
-            this->button13->TabStop = false;
-            this->button13->UseVisualStyleBackColor = true;
-            // 
-            // label3
-            // 
-            this->label3->AutoSize = true;
-            this->label3->Location = System::Drawing::Point(12, 410);
-            this->label3->Name = L"label3";
-            this->label3->Size = System::Drawing::Size(78, 17);
-            this->label3->TabIndex = 24;
-            this->label3->Text = L"ITR: 10000";
-            // 
-            // button17
-            // 
-            this->button17->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button17->Location = System::Drawing::Point(50, 428);
-            this->button17->MaximumSize = System::Drawing::Size(32, 32);
-            this->button17->MinimumSize = System::Drawing::Size(32, 32);
-            this->button17->Name = L"button17";
-            this->button17->Size = System::Drawing::Size(32, 32);
-            this->button17->TabIndex = 23;
-            this->button17->TabStop = false;
-            this->button17->UseVisualStyleBackColor = true;
-            // 
-            // button18
-            // 
-            this->button18->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button18->Location = System::Drawing::Point(12, 428);
-            this->button18->MaximumSize = System::Drawing::Size(32, 32);
-            this->button18->MinimumSize = System::Drawing::Size(32, 32);
-            this->button18->Name = L"button18";
-            this->button18->Size = System::Drawing::Size(32, 32);
-            this->button18->TabIndex = 22;
-            this->button18->TabStop = false;
-            this->button18->UseVisualStyleBackColor = true;
-            // 
-            // label4
-            // 
-            this->label4->AutoSize = true;
-            this->label4->Location = System::Drawing::Point(12, 466);
-            this->label4->Name = L"label4";
-            this->label4->Size = System::Drawing::Size(78, 17);
-            this->label4->TabIndex = 27;
-            this->label4->Text = L"ITR: 10000";
-            // 
-            // button19
-            // 
-            this->button19->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button19->Location = System::Drawing::Point(50, 484);
-            this->button19->MaximumSize = System::Drawing::Size(32, 32);
-            this->button19->MinimumSize = System::Drawing::Size(32, 32);
-            this->button19->Name = L"button19";
-            this->button19->Size = System::Drawing::Size(32, 32);
-            this->button19->TabIndex = 26;
-            this->button19->TabStop = false;
-            this->button19->UseVisualStyleBackColor = true;
-            // 
-            // button20
-            // 
-            this->button20->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button20->Location = System::Drawing::Point(12, 484);
-            this->button20->MaximumSize = System::Drawing::Size(32, 32);
-            this->button20->MinimumSize = System::Drawing::Size(32, 32);
-            this->button20->Name = L"button20";
-            this->button20->Size = System::Drawing::Size(32, 32);
-            this->button20->TabIndex = 25;
-            this->button20->TabStop = false;
-            this->button20->UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this->label5->AutoSize = true;
-            this->label5->Location = System::Drawing::Point(12, 522);
-            this->label5->Name = L"label5";
-            this->label5->Size = System::Drawing::Size(78, 17);
-            this->label5->TabIndex = 30;
-            this->label5->Text = L"ITR: 10000";
-            // 
-            // button21
-            // 
-            this->button21->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button21->Location = System::Drawing::Point(50, 540);
-            this->button21->MaximumSize = System::Drawing::Size(32, 32);
-            this->button21->MinimumSize = System::Drawing::Size(32, 32);
-            this->button21->Name = L"button21";
-            this->button21->Size = System::Drawing::Size(32, 32);
-            this->button21->TabIndex = 29;
-            this->button21->TabStop = false;
-            this->button21->UseVisualStyleBackColor = true;
-            // 
-            // button22
-            // 
-            this->button22->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button22->Location = System::Drawing::Point(12, 540);
-            this->button22->MaximumSize = System::Drawing::Size(32, 32);
-            this->button22->MinimumSize = System::Drawing::Size(32, 32);
-            this->button22->Name = L"button22";
-            this->button22->Size = System::Drawing::Size(32, 32);
-            this->button22->TabIndex = 28;
-            this->button22->TabStop = false;
-            this->button22->UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button1->Location = System::Drawing::Point(50, 245);
-            this->button1->MaximumSize = System::Drawing::Size(32, 32);
-            this->button1->MinimumSize = System::Drawing::Size(32, 32);
-            this->button1->Name = L"button1";
-            this->button1->Size = System::Drawing::Size(32, 32);
-            this->button1->TabIndex = 32;
-            this->button1->TabStop = false;
-            this->button1->UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this->button2->FlatStyle = System::Windows::Forms::FlatStyle::System;
-            this->button2->Location = System::Drawing::Point(12, 245);
-            this->button2->MaximumSize = System::Drawing::Size(32, 32);
-            this->button2->MinimumSize = System::Drawing::Size(32, 32);
-            this->button2->Name = L"button2";
-            this->button2->Size = System::Drawing::Size(32, 32);
-            this->button2->TabIndex = 31;
-            this->button2->TabStop = false;
-            this->button2->UseVisualStyleBackColor = true;
+            this->m_gravityBtn->Appearance = System::Windows::Forms::Appearance::Button;
+            this->m_gravityBtn->Location = System::Drawing::Point(12, 12);
+            this->m_gravityBtn->MaximumSize = System::Drawing::Size(32, 32);
+            this->m_gravityBtn->MinimumSize = System::Drawing::Size(32, 32);
+            this->m_gravityBtn->Name = L"m_gravityBtn";
+            this->m_gravityBtn->Size = System::Drawing::Size(32, 32);
+            this->m_gravityBtn->TabIndex = 0;
+            this->m_gravityBtn->TabStop = false;
+            this->m_gravityBtn->UseVisualStyleBackColor = true;
+            this->m_gravityBtn->CheckStateChanged += gcnew System::EventHandler(this, &GUIForm::m_gravityBtn_CheckStateChanged);
             // 
             // GUIForm
             // 
@@ -603,18 +359,15 @@ private: System::Windows::Forms::Button^  button2;
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(190)), static_cast<System::Int32>(static_cast<System::Byte>(190)), 
                 static_cast<System::Int32>(static_cast<System::Byte>(195)));
-            this->ClientSize = System::Drawing::Size(912, 600);
-            this->Controls->Add(this->splitContainer1);
+            this->ClientSize = System::Drawing::Size(800, 600);
+            this->Controls->Add(this->m_mainPanel);
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
-            this->MaximumSize = System::Drawing::Size(918, 645);
-            this->MinimumSize = System::Drawing::Size(918, 600);
+            this->MaximumSize = System::Drawing::Size(806, 633);
+            this->MinimumSize = System::Drawing::Size(806, 633);
             this->Name = L"GUIForm";
             this->Text = L"Cloth Simulator";
             this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &GUIForm::GUIForm_FormClosed);
-            this->splitContainer1->Panel1->ResumeLayout(false);
-            this->splitContainer1->Panel1->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->splitContainer1))->EndInit();
-            this->splitContainer1->ResumeLayout(false);
+            this->m_mainPanel->ResumeLayout(false);
             this->ResumeLayout(false);
 
         }
@@ -626,6 +379,133 @@ private: System::Windows::Forms::Button^  button2;
         System::Void GUIForm_FormClosed(System::Object^ sender, System::Windows::Forms::FormClosedEventArgs^ e) 
         {
             m_callbacks->quitFn();
+        }
+
+		/// <summary>
+		/// On Gravity Button Change
+		/// </summary>
+        System::Void m_gravityBtn_CheckStateChanged(System::Object^  sender, System::EventArgs^  e) 
+        {
+            System::Windows::Forms::CheckBox^ checkbox = static_cast<System::Windows::Forms::CheckBox^>(sender);
+            m_callbacks->setGravity(checkbox->Checked);
+            if(checkbox->Checked)
+            {
+                checkbox->Image = m_gravityDown;
+            }
+            else
+            {
+                checkbox->Image = m_gravityUp;
+            }
+        }
+
+		/// <summary>
+		/// On Reset Cloth Button Press
+		/// </summary>
+        System::Void m_resetClothBtn_Click(System::Object^  sender, System::EventArgs^  e) 
+        {
+            m_callbacks->resetCloth();
+        }
+
+		/// <summary>
+		/// On Handle Mode Button Change
+		/// </summary>
+        System::Void m_handleBtn_CheckStateChanged(System::Object^  sender, System::EventArgs^  e) 
+        {
+            System::Windows::Forms::CheckBox^ checkbox = static_cast<System::Windows::Forms::CheckBox^>(sender);
+            m_callbacks->setHandleMode(checkbox->Checked);
+            if(checkbox->Checked)
+            {
+                m_gravityBtn->Checked = false;
+                m_gravityBtn->Enabled = false;
+                checkbox->Image = m_handleDown;
+            }
+            else
+            {
+                m_gravityBtn->Enabled = true;
+                checkbox->Image = m_handleUp;
+            }
+        }
+
+		/// <summary>
+		/// On Vertex Visibility Change
+		/// </summary>
+        System::Void m_vertsBtn_CheckStateChanged(System::Object^  sender, System::EventArgs^  e) 
+        {
+            System::Windows::Forms::CheckBox^ checkbox = static_cast<System::Windows::Forms::CheckBox^>(sender);
+            m_callbacks->setVertsVisible(checkbox->Checked);
+            if(checkbox->Checked)
+            {
+                checkbox->Image = m_vertsDown;
+            }
+            else
+            {
+                checkbox->Image = m_vertsUp;
+            }
+        }
+
+		/// <summary>
+		/// On Reset Camera Button Press
+		/// </summary>
+        System::Void m_resetCamBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+            m_callbacks->resetCamera();
+        }
+
+		/// <summary>
+		/// On Unpin Vertex Button Press
+		/// </summary>
+        System::Void m_unpinBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+            m_callbacks->unpinCloth();
+        }
+
+		/// <summary>
+		/// On Create Box Button Press
+		/// </summary>
+        System::Void m_boxBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+        }
+
+		/// <summary>
+		/// On Create Sphere Button Press
+		/// </summary>
+        System::Void m_sphereBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+        }
+
+		/// <summary>
+		/// On Create Cylinder Button Press
+		/// </summary>
+        System::Void m_cynlinderBtn_Click(System::Object^  sender, System::EventArgs^  e) 
+        {
+        }
+
+		/// <summary>
+		/// On Move Object Button Press
+		/// </summary>
+        System::Void m_moveBtn_Click(System::Object^  sender, System::EventArgs^  e) 
+        {
+        }
+
+		/// <summary>
+		/// On Rotate Object Button Press
+		/// </summary>
+        System::Void m_rotateBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+        }
+
+		/// <summary>
+		/// On Scale Object Button Press
+		/// </summary>
+        System::Void m_scaleBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
+        }
+
+		/// <summary>
+		/// On Clear Scene Button Press
+		/// </summary>
+        System::Void m_removeBtn_Click(System::Object^  sender, System::EventArgs^  e)
+        {
         }
     };
 }
