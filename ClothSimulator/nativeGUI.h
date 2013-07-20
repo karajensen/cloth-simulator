@@ -4,7 +4,6 @@
 *****************************************************************/
 
 #pragma once
-#include <Windows.h>
 #include "guicallbacks.h"
 
 #ifdef EXPORTAPI
@@ -15,8 +14,6 @@
 
 namespace GUI
 {
-    typedef std::pair<HWND, HINSTANCE> WindowHandles;
-
     class GUIINTAPI NativeGUI
     {
     public:
@@ -39,7 +36,7 @@ namespace GUI
         /**
         * @return the handle to the simulation window
         */
-        WindowHandles GetWindowHandles();
+        WindowHandle GetWindowHandle();
 
         /**
         * Shows the GUI Window

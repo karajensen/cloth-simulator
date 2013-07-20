@@ -34,7 +34,7 @@ Simulation::Simulation() :
 Simulation::~Simulation()
 {
     #ifdef _DEBUG
-    OutputDebugString("RELEASING SIMULATION\n");
+    OutputDebugString("Simulation::~Simulation\n");
     #endif
 }
 

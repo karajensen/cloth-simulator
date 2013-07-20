@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     backBuffer->Release();
 
     #ifdef _DEBUG
-    OutputDebugString("EXITING SIMULATION\n");
+    OutputDebugString("Exiting Simulation\n");
     #endif
 }
 
@@ -88,9 +88,9 @@ void InitialiseWindow(HINSTANCE* hInstance, int cmdShow)
     if(useGUI)
     {
         gui.reset(new GUI::NativeGUI());
-        auto windowHandles = gui->GetWindowHandles();
-        hWnd = windowHandles.first;
-        *hInstance = windowHandles.second;
+        auto windowHandles = gui->GetWindowHandle();
+        hWnd = windowHandles.handle;
+        *hInstance = windowHandles.instance;
     }
     else
     {

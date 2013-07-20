@@ -16,7 +16,7 @@ namespace GUI
     ManagedGUI::!ManagedGUI()
     {
         #ifdef _DEBUG
-        OutputDebugString(L"RELEASING MANAGEDGUI\n");
+        OutputDebugString(L"ManagedGUI::!ManagedGUI\n");
         #endif
     }
 
@@ -25,15 +25,9 @@ namespace GUI
         m_form->SetCallbacks(callback);
     }
 
-    IntPtr ManagedGUI::GetWindowHandle()
+    WindowHandle ManagedGUI::GetWindowHandle()
     {
         return m_form->GetWindowHandle();
-    }
-
-    IntPtr ManagedGUI::GetWindowInstance()
-    {
-        return System::Runtime::InteropServices::Marshal::GetHINSTANCE(
-            System::Reflection::Assembly::GetExecutingAssembly()->GetModules()[0]);
     }
 
     void ManagedGUI::Show()

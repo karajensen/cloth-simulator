@@ -1,9 +1,10 @@
 /****************************************************************
 * Kara Jensen (KaraPeaceJensen@gmail.com) 
-* List of callback information for the gui
+* List of callback/window information for the gui
 *****************************************************************/
 #pragma once
 #include <functional>
+#include <Windows.h>
 
 namespace GUI
 {
@@ -20,5 +21,11 @@ namespace GUI
         VoidFn unpinCloth; ///< Removes any pinned verts 
         VoidFn clearScene; ///< Removes any scene objects
         VoidFn quitFn; ///< Function called to quit the simulation
+    };
+
+    struct WindowHandle
+    {
+        HWND handle;
+        HINSTANCE instance;
     };
 }

@@ -37,12 +37,7 @@ namespace GUI
         /**
         * @return the handle to the simulation window
         */
-        IntPtr GetWindowHandle();
-
-        /**
-        * @return the handle instance to the simulation window
-        */
-        IntPtr GetWindowInstance();
+        WindowHandle GetWindowHandle();
 
     private:
 

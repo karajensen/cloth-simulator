@@ -20,7 +20,7 @@ namespace GUI
     NativeGUI::~NativeGUI()
     {
         #ifdef _DEBUG
-        OutputDebugString(L"RELEASING NATIVEGUI\n");
+        OutputDebugString(L"NativeGUI::~NativeGUI\n");
         #endif
 
         if (m_ManagedGUI)
@@ -50,11 +50,9 @@ namespace GUI
         ((ManagedGUI^)*ptr)->Show();
     }
 
-    WindowHandles NativeGUI::GetWindowHandles()
+    WindowHandle NativeGUI::GetWindowHandle()
     {
         ManagedPtr ptr = reinterpret_cast<gcroot<ManagedGUI^>*>(m_ManagedGUI);
-        void* handle = (((ManagedGUI^)*ptr)->GetWindowHandle()).ToPointer();
-        void* instance = (((ManagedGUI^)*ptr)->GetWindowInstance()).ToPointer();
-        return WindowHandles(static_cast<HWND>(handle), static_cast<HINSTANCE>(instance));
+        return ((ManagedGUI^)*ptr)->GetWindowHandle();
     }
 }
