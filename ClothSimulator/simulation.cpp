@@ -103,15 +103,15 @@ void Simulation::Update()
     m_cloth->UpdateVertexBuffer();
 }
 
-void Simulation::LoadGuiCallbacks(GUI::GuiCallback* callback)
+void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
-    callback->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
-    callback->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
-    callback->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
-    callback->resetCamera = std::bind(&Camera::Reset, m_camera.get());
-    callback->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(),  _1);
-    callback->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(),  _1);
+    callbacks->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
+    callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
+    callbacks->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
+    callbacks->resetCamera = std::bind(&Camera::Reset, m_camera.get());
+    callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(),  _1);
+    callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(),  _1);
 }
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 

@@ -1,27 +1,31 @@
 /****************************************************************
 * Kara Jensen (KaraPeaceJensen@gmail.com) 
-* Holds .NET GUI specific code
+* Interface that native code will talk to
 *****************************************************************/
 
 #pragma once
-#include "GUIForm.h"
-#include "guicallbacks.h"
+#include "GUICallbacks.h"
+
+#ifdef EXPORTAPI
+#define GUIINTAPI __declspec(dllexport)
+#else
+#define GUIINTAPI __declspec(dllimport)
+#endif
 
 namespace GUI
 {
-    public ref class ManagedGUI
+    class GUIINTAPI GuiWrapper
     {
     public:
 
-        ManagedGUI();
-        ~ManagedGUI();
-        !ManagedGUI();
+        GuiWrapper();
+        ~GuiWrapper();
 
         /**
         * Sets the native callbacks for the GUI
         * @param a struct of all callbacks
         */
-        void SetCallbacks(GuiCallback* callback);
+        void SetCallbacks(GuiCallbacks* callbacks);
 
         /**
         * Ticks the GUI
@@ -30,17 +34,17 @@ namespace GUI
         bool Update();
 
         /**
-        * Shows the GUI Window
-        */
-        void Show();
-
-        /**
         * @return the handle to the simulation window
         */
         WindowHandle GetWindowHandle();
 
+        /**
+        * Shows the GUI Window
+        */
+        void Show();
+
     private:
 
-        GUIForm^ m_form;
+        void* m_guiForm; ///< pointer to managed gui form
     };
 }

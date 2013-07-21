@@ -4,7 +4,7 @@
 *****************************************************************/
 #pragma once
 #include <vcclr.h>
-#include "guicallbacks.h"
+#include "GUICallbacks.h"
 
 namespace GUI 
 {
@@ -14,11 +14,12 @@ namespace GUI
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
-    typedef System::Windows::Forms::Form WinForm;
 
-	public ref class GUIForm : public WinForm
+	public ref class GUIForm : public System::Windows::Forms::Form
 	{
 	public:
+
+        typedef System::Windows::Forms::Form WinForm;
 
 		/// <summary>
 		/// Constructor
@@ -27,16 +28,16 @@ namespace GUI
             m_callbacks(nullptr)
 		{
 			InitializeComponent();
-            CreateSimulationForm();
+            SetSimulationForm();
             SetButtonImages();
 		}
 
 		/// <summary>
 		/// Sets all native callbacks for the form events
 		/// </summary>
-        void SetCallbacks(GuiCallback* callback)
+        void SetCallbacks(GuiCallbacks* callbacks)
         {
-            m_callbacks = callback;
+            m_callbacks = callbacks;
         }
 
 		/// <summary>
@@ -91,7 +92,7 @@ namespace GUI
 
 	private:
 
-        GuiCallback* m_callbacks; ///< Callbacks for the gui
+        GuiCallbacks* m_callbacks; ///< Callbacks for the gui
         gcroot<WinForm^>* m_pinnedSimForm; ///< pinned as native needs window handle
         System::Drawing::Image^ m_gravityDown; ///< Image to show when gravity btn is pressed
         System::Drawing::Image^ m_gravityUp; ///< Image to show when gravity btn is not pressed
@@ -122,18 +123,20 @@ namespace GUI
 		/// <summary>
 		/// Creates the main simulation form
 		/// </summary>
-        void CreateSimulationForm()
+        void SetSimulationForm()
         {
             WinForm^ simulatorForm = gcnew WinForm();
             simulatorForm->TopLevel = false;
             simulatorForm->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
             simulatorForm->Dock = System::Windows::Forms::DockStyle::Fill;
             simulatorForm->Visible = true;
-            simulatorForm->BackColor = System::Drawing::Color::DarkGray;
-            simulatorForm->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
-            simulatorForm->BackgroundImage = System::Drawing::Image::FromFile("Resources//Sprites//loading.png");
             simulatorForm->Size = System::Drawing::Size(800, 600);
             simulatorForm->Location = System::Drawing::Point(0, 0);
+            simulatorForm->BackColor = System::Drawing::Color::FromArgb(
+                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
+                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
+                static_cast<System::Int32>(static_cast<System::Byte>(195)));
+
             m_pinnedSimForm = new gcroot<WinForm^>(simulatorForm);
             m_mainPanel->Controls->Add((WinForm^)*m_pinnedSimForm);
         }
@@ -338,7 +341,7 @@ namespace GUI
             // 
             // m_removeBtn
             // 
-            this->m_removeBtn->Location = System::Drawing::Point(12, 468);
+            this->m_removeBtn->Location = System::Drawing::Point(12, 408);
             this->m_removeBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_removeBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_removeBtn->Name = L"m_removeBtn";
@@ -350,7 +353,7 @@ namespace GUI
             // 
             // m_scaleBtn
             // 
-            this->m_scaleBtn->Location = System::Drawing::Point(12, 430);
+            this->m_scaleBtn->Location = System::Drawing::Point(12, 375);
             this->m_scaleBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_scaleBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_scaleBtn->Name = L"m_scaleBtn";
@@ -362,7 +365,7 @@ namespace GUI
             // 
             // m_rotateBtn
             // 
-            this->m_rotateBtn->Location = System::Drawing::Point(12, 392);
+            this->m_rotateBtn->Location = System::Drawing::Point(12, 342);
             this->m_rotateBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_rotateBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_rotateBtn->Name = L"m_rotateBtn";
@@ -374,7 +377,7 @@ namespace GUI
             // 
             // m_moveBtn
             // 
-            this->m_moveBtn->Location = System::Drawing::Point(12, 354);
+            this->m_moveBtn->Location = System::Drawing::Point(12, 309);
             this->m_moveBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_moveBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_moveBtn->Name = L"m_moveBtn";
@@ -386,7 +389,7 @@ namespace GUI
             // 
             // m_cynlinderBtn
             // 
-            this->m_cynlinderBtn->Location = System::Drawing::Point(12, 316);
+            this->m_cynlinderBtn->Location = System::Drawing::Point(12, 276);
             this->m_cynlinderBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_cynlinderBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_cynlinderBtn->Name = L"m_cynlinderBtn";
@@ -398,7 +401,7 @@ namespace GUI
             // 
             // m_sphereBtn
             // 
-            this->m_sphereBtn->Location = System::Drawing::Point(12, 278);
+            this->m_sphereBtn->Location = System::Drawing::Point(12, 243);
             this->m_sphereBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_sphereBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_sphereBtn->Name = L"m_sphereBtn";
@@ -410,7 +413,7 @@ namespace GUI
             // 
             // m_boxBtn
             // 
-            this->m_boxBtn->Location = System::Drawing::Point(12, 240);
+            this->m_boxBtn->Location = System::Drawing::Point(12, 210);
             this->m_boxBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_boxBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_boxBtn->Name = L"m_boxBtn";
@@ -422,7 +425,7 @@ namespace GUI
             // 
             // m_resetCamBtn
             // 
-            this->m_resetCamBtn->Location = System::Drawing::Point(12, 202);
+            this->m_resetCamBtn->Location = System::Drawing::Point(12, 177);
             this->m_resetCamBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_resetCamBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_resetCamBtn->Name = L"m_resetCamBtn";
@@ -434,7 +437,7 @@ namespace GUI
             // 
             // m_resetClothBtn
             // 
-            this->m_resetClothBtn->Location = System::Drawing::Point(12, 164);
+            this->m_resetClothBtn->Location = System::Drawing::Point(12, 144);
             this->m_resetClothBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_resetClothBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_resetClothBtn->Name = L"m_resetClothBtn";
@@ -446,7 +449,7 @@ namespace GUI
             // 
             // m_unpinBtn
             // 
-            this->m_unpinBtn->Location = System::Drawing::Point(12, 126);
+            this->m_unpinBtn->Location = System::Drawing::Point(12, 111);
             this->m_unpinBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_unpinBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_unpinBtn->Name = L"m_unpinBtn";
@@ -459,7 +462,7 @@ namespace GUI
             // m_vertsBtn
             // 
             this->m_vertsBtn->Appearance = System::Windows::Forms::Appearance::Button;
-            this->m_vertsBtn->Location = System::Drawing::Point(12, 88);
+            this->m_vertsBtn->Location = System::Drawing::Point(12, 78);
             this->m_vertsBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_vertsBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_vertsBtn->Name = L"m_vertsBtn";
@@ -472,7 +475,7 @@ namespace GUI
             // m_handleBtn
             // 
             this->m_handleBtn->Appearance = System::Windows::Forms::Appearance::Button;
-            this->m_handleBtn->Location = System::Drawing::Point(12, 50);
+            this->m_handleBtn->Location = System::Drawing::Point(12, 45);
             this->m_handleBtn->MaximumSize = System::Drawing::Size(32, 32);
             this->m_handleBtn->MinimumSize = System::Drawing::Size(32, 32);
             this->m_handleBtn->Name = L"m_handleBtn";

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "guicallbacks.h"
+#include "GUICallbacks.h"
 
 class Camera;
 class Cloth;
@@ -36,7 +36,7 @@ public:
     * Loads the gui callbacks
     * @param callbacks for the gui to fill in
     */
-    void LoadGuiCallbacks(GUI::GuiCallback* callback);
+    void LoadGuiCallbacks(GUI::GuiCallbacks* callbacks);
 
     /**
     * Renders the simulation

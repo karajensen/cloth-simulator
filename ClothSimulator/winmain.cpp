@@ -6,8 +6,8 @@
 #endif
 
 #include "simulation.h"
-#include "nativeGUI.h"
-#include "guicallbacks.h"
+#include "GUIWrapper.h"
+#include "GUICallbacks.h"
 #include <windows.h>
 #include <windowsx.h>
 
@@ -16,28 +16,27 @@ LPDIRECT3DDEVICE9 d3ddev = nullptr;      ///< DirectX device
 LPDIRECT3D9 d3d = nullptr;               ///< DirectX interface
 LPDIRECT3DSURFACE9 backBuffer = nullptr; ///< Back buffer
 
-bool useGUI = true;                      ///< Whether to render embedded in the gui
 bool runSimulation = true;               ///< Whether simulation can be run or not
 std::unique_ptr<Simulation> simulation;  ///< Main simulation object
-std::unique_ptr<GUI::NativeGUI> gui;     ///< Interface for .NET GUI
-GUI::GuiCallback callbacks;              ///< Callback list for the GUI
+std::unique_ptr<GUI::GuiWrapper> gui;    ///< Interface for .NET GUI
+GUI::GuiCallbacks callbacks;             ///< Callback list for the GUI
 
 bool InitialiseGUI();
-void QuitSimulation();
-void InitialiseWindow(HINSTANCE* hInstance, int cmdShow);
-bool HandleMessages();
-bool InitDirect3D();
+bool InitialiseDirectX();
+bool InitialiseWindow(HINSTANCE* hInst);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int cmdShow)
 {
-    InitialiseWindow(&hInstance, cmdShow);
-
+    gui.reset(new GUI::GuiWrapper());
     simulation.reset(new Simulation());
-    runSimulation = InitDirect3D() &&  
+
+    runSimulation = 
+        InitialiseWindow(&hInstance) && 
+        InitialiseDirectX() &&  
         simulation->CreateSimulation(hInstance, hWnd, d3ddev) &&
         InitialiseGUI();
 
-    while(runSimulation && HandleMessages())
+    while(runSimulation && gui->Update())
     {
         simulation->Update();
         simulation->Render();
@@ -54,95 +53,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 bool InitialiseGUI()
 {
-    if(useGUI)
-    {
-        using namespace std::placeholders;
-
-        callbacks.quitFn = &QuitSimulation;
-        simulation->LoadGuiCallbacks(&callbacks);
-
-        gui->SetCallbacks(&callbacks);
-        gui->Show();
-    }
+    callbacks.quitFn = [](){ runSimulation = false; };
+    simulation->LoadGuiCallbacks(&callbacks);
+    gui->SetCallbacks(&callbacks);
+    gui->Show();
     return true;
 }
 
-void QuitSimulation()
+bool InitialiseWindow(HINSTANCE* hInst)
 {
-    runSimulation = false;
-}
-
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch(message)
-    {
-    case WM_DESTROY:
-        QuitSimulation();
-        break;
-    }
-    return DefWindowProc (hWnd, message, wParam, lParam);
-} 
-
-void InitialiseWindow(HINSTANCE* hInstance, int cmdShow)
-{
-    if(useGUI)
-    {
-        gui.reset(new GUI::NativeGUI());
-        auto windowHandles = gui->GetWindowHandle();
-        hWnd = windowHandles.handle;
-        *hInstance = windowHandles.instance;
-    }
-    else
-    {
-        WNDCLASSEX wc;
-        ZeroMemory(&wc, sizeof(WNDCLASSEX));
-        wc.cbSize = sizeof(WNDCLASSEX);
-        wc.style = CS_HREDRAW | CS_VREDRAW;
-        wc.lpfnWndProc = (WNDPROC)WindowProc; 
-        wc.hInstance = *hInstance; 
-        wc.hCursor = LoadCursor(NULL, IDC_ARROW); 
-        wc.lpszClassName = WINDOW_NAME;
-        RegisterClassEx(&wc); 
-
-        int win_x_position = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
-        int win_y_position = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-
-        hWnd = CreateWindowEx(NULL,WINDOW_NAME,WINDOW_NAME, WS_EX_TOPMOST | WS_POPUP,
-            win_x_position, win_y_position, WINDOW_WIDTH, WINDOW_HEIGHT, NULL, NULL, *hInstance, NULL); 
-
-        ShowWindow(hWnd, cmdShow);
-    }
-}
-
-bool HandleMessages()
-{
-    if(useGUI)
-    {
-        return gui->Update();
-    }
-    else
-    {
-        static MSG msg;
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            if (msg.message == WM_QUIT)
-            {
-                return false;
-            }
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        // check the escape key and quit
-        if(GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-        {
-            return false;
-        }
-    }
+    auto windowHandles = gui->GetWindowHandle();
+    hWnd = windowHandles.handle;
+    *hInst = windowHandles.instance;
     return true;
 }
 
-bool InitDirect3D()
+bool InitialiseDirectX()
 {
     if(FAILED(d3d = Direct3DCreate9(D3D_SDK_VERSION)))
     {

@@ -1,16 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="managedGUI.cpp" />
-    <ClCompile Include="nativeGUI.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="managedGUI.h" />
-    <ClInclude Include="nativeGUI.h" />
     <ClInclude Include="GUIForm.h" />
-    <ClInclude Include="guicallbacks.h" />
+    <ClInclude Include="GUIWrapper.h" />
+    <ClInclude Include="GUICallbacks.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUIForm.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GUIWrapper.cpp" />
   </ItemGroup>
 </Project>

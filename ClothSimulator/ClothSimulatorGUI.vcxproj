@@ -78,16 +78,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="managedGUI.cpp" />
-    <ClCompile Include="nativeGUI.cpp" />
+    <ClCompile Include="GUIWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="guicallbacks.h" />
+    <ClInclude Include="GUICallbacks.h" />
     <ClInclude Include="GUIForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="managedGUI.h" />
-    <ClInclude Include="nativeGUI.h" />
+    <ClInclude Include="GUIWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

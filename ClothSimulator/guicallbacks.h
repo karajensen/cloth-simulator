@@ -11,7 +11,7 @@ namespace GUI
     typedef std::function<void(void)> VoidFn;
     typedef std::function<void(bool)> SetFlag;
 
-    struct GuiCallback
+    struct GuiCallbacks
     {
         SetFlag setGravity; ///< Whether gravity is on/off
         SetFlag setHandleMode; ///< Whether handle mode is on/off
