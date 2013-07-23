@@ -1,8 +1,8 @@
 
-• GUI images make
+• GUI: mouseover, setup checkbuttons, pressed
 • Setting timestep, deltatime, iterations, vertices, damping
 • NUnit tests
-• Fix rebuild lib not found
+• Fix rebuild lib not found, remove .lib/.exp
 
 • Scene mesh manipulation
 • friction to cloth
