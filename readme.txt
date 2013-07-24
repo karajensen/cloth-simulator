@@ -1,9 +1,10 @@
 
-• GUI: mouseover, setup checkbuttons, pressed
+• change corners to be color of panel
 • Setting timestep, deltatime, iterations, vertices, damping
+• Clean auto generated code
+
 • NUnit tests
 • Fix rebuild lib not found, remove .lib/.exp
-
 • Scene mesh manipulation
 • friction to cloth
 • Cloth self-collision
