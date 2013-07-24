@@ -23,7 +23,9 @@ namespace GUI
 		/// Constructor
 		/// </summary>
 		GUIForm(void) :
-            m_callbacks(nullptr)
+            m_callbacks(nullptr),
+            m_toolSelected(nullptr),
+            m_pinnedSimForm(nullptr)
 		{
 			InitializeComponent();
             CreateSimulationForm();
@@ -94,28 +96,32 @@ namespace GUI
         gcroot<Form^>* m_pinnedSimForm; ///< pinned as native needs window handle
         Image^ m_disabledGravity; ///< Image for disabled gravity
         Image^ m_enabledGravity; ///< Image for enabled gravity
+        RadioButton^ m_toolSelected; ///< Which object manipulation tool selected
 
-        CheckBox^  m_gravityBtn;    ///< Checkbox for toggling on gravity
-        CheckBox^  m_vertsBtn;      ///< Checkbox for toggling on vertices
-        CheckBox^  m_handleBtn;     ///< Checkbox for toggling on handle mode
-        CheckBox^  m_scaleBtn;      ///< Checkbox for scaling the selected scene object
-        CheckBox^  m_rotateBtn;     ///< Checkbox for rotating the selected scene object
-        CheckBox^  m_moveBtn;       ///< Checkbox for moving the selected scene object
-        CheckBox^  m_animateBtn;    ///< Checkbox for animating an object
-        Button^    m_resetCamBtn;   ///< Button for resetting the camera
-        Button^    m_resetClothBtn; ///< Button for resetting the cloth
-        Button^    m_unpinBtn;      ///< Button for upinning the cloth
-        Button^    m_cynlinderBtn;  ///< Button for creating a cynlinder
-        Button^    m_sphereBtn;     ///< Button for creating a sphere
-        Button^    m_boxBtn;        ///< Button for creating a box
-        Button^    m_removeBtn;     ///< Button for clearing all scene objects
+        /// <summary>
+		/// GUI Buttons
+		/// </summary>
+        CheckBox^ m_gravityBtn;    ///< Checkbox for toggling on gravity
+        CheckBox^ m_vertsBtn;      ///< Checkbox for toggling on vertices
+        CheckBox^ m_handleBtn;     ///< Checkbox for toggling on handle mode
+        RadioButton^ m_scaleBtn;   ///< Checkbox for scaling the selected scene object
+        RadioButton^ m_rotateBtn;  ///< Checkbox for rotating the selected scene object
+        RadioButton^ m_moveBtn;    ///< Checkbox for moving the selected scene object
+        RadioButton^ m_animateBtn; ///< Checkbox for animating an object
+        Button^ m_resetCamBtn;     ///< Button for resetting the camera
+        Button^ m_resetClothBtn;   ///< Button for resetting the cloth
+        Button^ m_unpinBtn;        ///< Button for upinning the cloth
+        Button^ m_cynlinderBtn;    ///< Button for creating a cynlinder
+        Button^ m_sphereBtn;       ///< Button for creating a sphere
+        Button^ m_boxBtn;          ///< Button for creating a box
+        Button^ m_removeBtn;       ///< Button for clearing all scene objects
 
 		/// <summary>
 		/// Designer specific components
 		/// </summary>
-        System::ComponentModel::Container^ components;   ///< Auto-Required designer variable.
-        System::Windows::Forms::Panel^     m_mainPanel;  ///< Panel for holding main simulation form
-        System::Windows::Forms::Panel^     m_guiPanel;   ///< Panel for gui buttons
+        System::ComponentModel::Container^ components;  ///< Auto-Required designer variable.
+        System::Windows::Forms::Panel^ m_mainPanel;     ///< Panel for holding main simulation form
+        System::Windows::Forms::Panel^ m_guiPanel;      ///< Panel for gui buttons
 
 		/// <summary>
 		/// Creates the main simulation form
@@ -141,12 +147,23 @@ namespace GUI
 		/// <summary>
 		/// Creates a checkbox button
 		/// </summary>
-        void CreateCheckbox(CheckBox^% checkbox, String^ image, int index, EventHandler^ callback)
+        void CreateCheckBox(CheckBox^% checkbox, String^ image, int index, EventHandler^ callback)
         {
             checkbox = gcnew CheckBox();
             checkbox->Appearance = System::Windows::Forms::Appearance::Button;
             checkbox->CheckStateChanged += callback;
             CreateControl(checkbox, image, index);
+        }
+
+		/// <summary>
+		/// Creates a radio button
+		/// </summary>
+        void CreateRadioButton(RadioButton^% button, String^ image, int index, EventHandler^ callback)
+        {
+            button = gcnew RadioButton();
+            button->Appearance = System::Windows::Forms::Appearance::Button;
+            button->Click += callback;
+            CreateControl(button, image, index);
         }
 
 		/// <summary>
@@ -206,35 +223,39 @@ namespace GUI
         }
 
 		/// <summary>
-		/// On Animate Check Change
+		/// On Animate Button Press
 		/// </summary>
-        System::Void AnimateCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
+        System::Void AnimateClick(System::Object^ sender, System::EventArgs^ e) 
         {
-            CheckBox^ checkbox = static_cast<CheckBox^>(sender);
+            RadioButton^ button = static_cast<RadioButton^>(sender);
+            SelectRadioButton(button);
         }
 
 		/// <summary>
-		/// On Move Check Change
+		/// On Move Button Press
 		/// </summary>
-        System::Void MoveCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
-        {
-            CheckBox^ checkbox = static_cast<CheckBox^>(sender);
+        System::Void MoveClick(System::Object^ sender, System::EventArgs^ e) 
+        {         
+            RadioButton^ button = static_cast<RadioButton^>(sender);
+            SelectRadioButton(button);
         }
 
 		/// <summary>
-		/// On Rotate Check Change
+		/// On Rotate Button Press
 		/// </summary>
-        System::Void RotateCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
+        System::Void RotateClick(System::Object^ sender, System::EventArgs^ e) 
         {
-            CheckBox^ checkbox = static_cast<CheckBox^>(sender);
+            RadioButton^ button = static_cast<RadioButton^>(sender);
+            SelectRadioButton(button);
         }
 
 		/// <summary>
-		/// On Scale Check Change
+		/// On Scale Button Press
 		/// </summary>
-        System::Void ScaleCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
+        System::Void ScaleClick(System::Object^ sender, System::EventArgs^ e) 
         {
-            CheckBox^ checkbox = static_cast<CheckBox^>(sender);
+            RadioButton^ button = static_cast<RadioButton^>(sender);
+            SelectRadioButton(button);
         }
 
 		/// <summary>
@@ -290,6 +311,22 @@ namespace GUI
         }
 
 		/// <summary>
+		/// Chooses the selected radio button
+		/// </summary>
+        void SelectRadioButton(RadioButton^ button)
+        {
+            if(m_toolSelected == button)
+            {
+                button->Checked = false;
+                m_toolSelected = nullptr;
+            }
+            else
+            {
+                m_toolSelected = button;
+            }
+        }
+
+		/// <summary>
 		/// Creates the gui buttons
 		/// </summary>
         void CreateButtons()
@@ -297,13 +334,13 @@ namespace GUI
             int index = 0;
             String^ path = "Resources//Sprites//";
 
-            CreateCheckbox(m_gravityBtn, path+"gravity.png", index++,
+            CreateCheckBox(m_gravityBtn, path+"gravity.png", index++,
                 gcnew System::EventHandler(this, &GUIForm::GravityCheckedChanged));
 
-            CreateCheckbox(m_handleBtn, path+"handle.png", index++,
+            CreateCheckBox(m_handleBtn, path+"handle.png", index++,
                 gcnew System::EventHandler(this, &GUIForm::HandleCheckedChanged));
 
-            CreateCheckbox(m_vertsBtn, path+"showverts.png", index++,
+            CreateCheckBox(m_vertsBtn, path+"showverts.png", index++,
                 gcnew System::EventHandler(this, &GUIForm::VertsCheckedChanged));
 
             CreateButton(m_unpinBtn, path+"unpin.png", index++,
@@ -324,17 +361,17 @@ namespace GUI
             CreateButton(m_cynlinderBtn, path+"cylinder.png", index++,
                 gcnew System::EventHandler(this, &GUIForm::CynlinderClick));
 
-            CreateCheckbox(m_animateBtn, path+"animate.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::AnimateCheckedChanged));
+            CreateRadioButton(m_animateBtn, path+"animate.png", index++,
+                gcnew System::EventHandler(this, &GUIForm::AnimateClick));
 
-            CreateCheckbox(m_moveBtn, path+"move.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::MoveCheckedChanged));
+            CreateRadioButton(m_moveBtn, path+"move.png", index++,
+                gcnew System::EventHandler(this, &GUIForm::MoveClick));
 
-            CreateCheckbox(m_rotateBtn, path+"rotate.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::RotateCheckedChanged));
+            CreateRadioButton(m_rotateBtn, path+"rotate.png", index++,
+                gcnew System::EventHandler(this, &GUIForm::RotateClick));
 
-            CreateCheckbox(m_scaleBtn, path+"scale.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::ScaleCheckedChanged));
+            CreateRadioButton(m_scaleBtn, path+"scale.png", index++,
+                gcnew System::EventHandler(this, &GUIForm::ScaleClick));
 
             CreateButton(m_removeBtn, path+"clear.png", index++,
                 gcnew System::EventHandler(this, &GUIForm::RemoveClick));
@@ -410,10 +447,7 @@ namespace GUI
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-            this->BackColor = System::Drawing::Color::FromArgb(
-                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(195)));
+            this->BackColor = System::Drawing::Color::DimGray;
             this->ClientSize = System::Drawing::Size(800, 600);
             this->Controls->Add(this->m_mainPanel);
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
