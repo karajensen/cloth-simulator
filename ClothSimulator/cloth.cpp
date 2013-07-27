@@ -31,12 +31,12 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_selectedRow(1),
     m_timestep(TIMESTEP),
     m_timestepSquared(TIMESTEP*TIMESTEP),
-    m_damping(SPACING),
+    m_damping(DAMPING),
     m_springCount(0),
     m_springIterations(ITERATIONS),
-    m_vertexLength(DIMENSIONS),
-    m_vertexWidth(DIMENSIONS),
-    m_vertexCount(DIMENSIONS*DIMENSIONS),
+    m_vertexLength(0),
+    m_vertexWidth(0),
+    m_vertexCount(0),
     m_simulation(false),
     m_selfCollide(false),
     m_drawVisualParticles(false),
@@ -45,27 +45,34 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_diagnosticParticle(0),
     m_diagnosticSelect(false),
     m_handleMode(false),
-    m_clothSize(SPACING),
-    m_clothDimensions(DIMENSIONS)
+    m_spacing(0.0f),
+    m_d3ddev(d3ddev)
 {
-    int numOfFaces = ((m_vertexWidth-1)*(m_vertexLength-1))*2;
     m_shader = shader;
-    
-    //Load texture
     if(FAILED(D3DXCreateTextureFromFile(d3ddev, texture.c_str(), &m_texture)))
     {
         m_texture = nullptr;
         Diagnostic::ShowMessage("Cannot create texture " + texture);
     }
 
-    //Create colors
     m_colors.resize(MAX_COLORS);
     std::generate(m_colors.begin(), m_colors.end(), [&](){ return D3DXVECTOR3(0.0, 0.0, 0.0); });
     m_colors[NORMAL].z = 1.0f; ///< Blue for no selection/pinning
     m_colors[PINNED].x = 1.0f; ///< Red for pinned
     m_colors[SELECTED].y = 1.0f; ///< Green for selection
 
+    CreateCloth(DIMENSIONS, SPACING);
+}
+
+void Cloth::CreateCloth(int rows, float spacing)
+{
+    m_spacing = spacing;
+    m_vertexLength = rows;
+    m_vertexWidth = rows;
+    m_vertexCount = rows*rows;
+
     //create verticies
+    m_vertexData.clear();
     const int minW = -m_vertexWidth/2;
     const int maxW = minW + m_vertexWidth;
     const int minL = -m_vertexLength/2;
@@ -78,8 +85,8 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
         for(int z = minL; z < maxL; ++z)
         {
             Vertex vert;
-            vert.position.x = x*m_clothSize;
-            vert.position.z = z*m_clothSize;
+            vert.position.x = x*m_spacing;
+            vert.position.z = z*m_spacing;
             vert.position.y = startingheight;
             vert.uvs.x = UVu;
             vert.uvs.y = UVv;
@@ -91,6 +98,8 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     }
 
     //create indices
+    int numOfFaces = ((m_vertexWidth-1)*(m_vertexLength-1))*2;
+    m_indexData.clear();
     m_indexData.resize(numOfFaces*3);
     m_indexData.assign(m_indexData.size(), 0);
 
@@ -110,10 +119,11 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     }
 
     //create particles
-    float collisionSize = m_clothSize/2; 
+    m_particles.clear();
+    float collisionSize = m_spacing/2; 
     for(unsigned int i = 0; i < static_cast<unsigned int>(m_vertexCount); ++i)
     {
-        m_particles.push_back(ParticlePtr(new Particle(d3ddev,collisionSize,m_vertexData[i].position, i)));
+        m_particles.push_back(ParticlePtr(new Particle(m_d3ddev,collisionSize,m_vertexData[i].position, i)));
     }
 
     //Connect neighbouring m_particles with m_springs
@@ -178,18 +188,22 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     };
 
     //Create the mesh
-    if(!m_mesh)
+    if(m_mesh)
     {
-        if(FAILED(D3DXCreateMesh(numOfFaces, m_vertexData.size(),
-                                 D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
-                                 VertexDec,d3ddev,&m_mesh)))
-        {
-            m_mesh = nullptr;
-            Diagnostic::ShowMessage("Cloth Mesh creation failed");
-        }
+        m_mesh->Release();
+        m_mesh = nullptr;
+    }
+
+    if(FAILED(D3DXCreateMesh(numOfFaces, m_vertexData.size(),
+                             D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
+                             VertexDec, m_d3ddev, &m_mesh)))
+    {
+        m_mesh = nullptr;
+        Diagnostic::ShowMessage("Cloth Mesh creation failed");
     }
 
     //Vertex Buffer
+    m_vertexBuffer = nullptr;
     if(FAILED(m_mesh->LockVertexBuffer(0,&m_vertexBuffer)))
     {
         Diagnostic::ShowMessage("Cloth Vertex buffer lock failed");
@@ -199,6 +213,7 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_mesh->UnlockVertexBuffer();
 
     //Index Buffer
+    m_indexBuffer = nullptr;
     if(FAILED(m_mesh->LockIndexBuffer(0,&m_indexBuffer)))
     {
         Diagnostic::ShowMessage("Cloth Index buffer lock failed");
@@ -565,14 +580,20 @@ void Cloth::ChangeRow(int row, bool select)
     }
 }
 
-void Cloth::SetClothSize(double size)
+void Cloth::SetSpacing(double size)
 {
-    //note check if already set with value
+    if(m_spacing != size)
+    {
+        CreateCloth(m_vertexLength, static_cast<float>(size));
+    }
 }
 
-void Cloth::SetVertexNumber(double number)
+void Cloth::SetVertexRows(double number)
 {
-    //note check if already set with value
+    if(m_vertexLength != number)
+    {
+        CreateCloth(static_cast<int>(number), m_spacing);
+    }
 }
 
 void Cloth::SetIterations(double iterations)
@@ -596,12 +617,12 @@ double Cloth::GetIterations() const
     return m_springIterations;
 }
 
-double Cloth::GetVertexNumber() const
+double Cloth::GetVertexRows() const
 {
-    return m_vertexCount;
+    return m_vertexLength;
 }
 
-double Cloth::GetClothSize() const
+double Cloth::GetSpacing() const
 {
-    return m_clothSize;
+    return m_spacing;
 }

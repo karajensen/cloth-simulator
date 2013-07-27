@@ -116,12 +116,12 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->createSphere = std::bind(&Simulation::CreateObject, this, Simulation::SPHERE);
     callbacks->createCylinder = std::bind(&Simulation::CreateObject, this, Simulation::CYLINDER);
     callbacks->setTimestep = std::bind(&Cloth::SetTimeStep, m_cloth.get(), _1);
-    callbacks->setVertexNumber = std::bind(&Cloth::SetVertexNumber, m_cloth.get(), _1);
+    callbacks->setVertexRows = std::bind(&Cloth::SetVertexRows, m_cloth.get(), _1);
     callbacks->setIterations = std::bind(&Cloth::SetIterations, m_cloth.get(), _1);
-    callbacks->setClothSize = std::bind(&Cloth::SetClothSize, m_cloth.get(), _1);
-    callbacks->getClothSize = std::bind(&Cloth::GetClothSize, m_cloth.get());
+    callbacks->setSpacing = std::bind(&Cloth::SetSpacing, m_cloth.get(), _1);
+    callbacks->getSpacing = std::bind(&Cloth::GetSpacing, m_cloth.get());
     callbacks->getIterations = std::bind(&Cloth::GetIterations, m_cloth.get());
-    callbacks->getVertexNumber = std::bind(&Cloth::GetVertexNumber, m_cloth.get());
+    callbacks->getVertexRows = std::bind(&Cloth::GetVertexRows, m_cloth.get());
     callbacks->getTimestep = std::bind(&Cloth::GetTimeStep, m_cloth.get());
 }
 

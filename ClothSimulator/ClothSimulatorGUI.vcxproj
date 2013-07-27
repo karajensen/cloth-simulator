@@ -43,10 +43,12 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)ClothSimulator\</OutDir>
     <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+    <IntDir>$(SolutionDir)ClothSimulator\gui\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)ClothSimulator\</OutDir>
+    <IntDir>$(SolutionDir)ClothSimulator\gui\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -97,8 +99,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUIForm.resx">
-       <DependentUpon>GUIForm.h</DependentUpon>
-    </EmbeddedResource> 
+      <DependentUpon>GUIForm.h</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,33 +8,33 @@
 
 namespace GUI 
 {
-	using namespace System;
-	using namespace System::ComponentModel;
-	using namespace System::Collections;
-	using namespace System::Windows::Forms;
-	using namespace System::Data;
-	using namespace System::Drawing;
+    using namespace System;
+    using namespace System::ComponentModel;
+    using namespace System::Collections;
+    using namespace System::Windows::Forms;
+    using namespace System::Data;
+    using namespace System::Drawing;
 
-	public ref class GUIForm : public System::Windows::Forms::Form
-	{
-	public:
+    public ref class GUIForm : public System::Windows::Forms::Form
+    {
+    public:
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		GUIForm(void) :
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        GUIForm(void) :
             m_callbacks(nullptr),
             m_toolSelected(nullptr),
             m_pinnedSimForm(nullptr)
-		{
-			InitializeComponent();
+        {
+            InitializeComponent();
             CreateSimulationForm();
             CreateButtons();
-		}
+        }
 
-		/// <summary>
-		/// Returns the handle to the simulation window/instance
-		/// </summary>
+        /// <summary>
+        /// Returns the handle to the simulation window/instance
+        /// </summary>
         WindowHandle GetWindowHandle()
         {
             Form^ simForm = (Form^)*m_pinnedSimForm;
@@ -49,34 +49,34 @@ namespace GUI
             return window;
         }
 
-		/// <summary>
-		/// Sets all native callbacks and fills in the initial spin box values
-		/// </summary>
+        /// <summary>
+        /// Sets all native callbacks and fills in the initial spin box values
+        /// </summary>
         void SetCallbacks(GuiCallbacks* callbacks)
         {
             m_callbacks = callbacks;
-            m_clothsize->numeric->Value = Decimal(callbacks->getClothSize());
+            m_spacing->numeric->Value = Decimal(callbacks->getSpacing());
             m_iterations->numeric->Value = Decimal(callbacks->getIterations());
             m_timestep->numeric->Value = Decimal(callbacks->getTimestep());
-            m_vertNumber->numeric->Value = Decimal(callbacks->getVertexNumber());
+            m_vertRows->numeric->Value = Decimal(callbacks->getVertexRows());
         }
 
-	protected:
+    protected:
 
-		/// <summary>
-		/// Finaliser: Clean up any resources being used.
-		/// </summary>
+        /// <summary>
+        /// Finaliser: Clean up any resources being used.
+        /// </summary>
         !GUIForm()
         {
             #ifdef _DEBUG
             OutputDebugString(L"GUIForm::!GUIForm\n");
             #endif
 
-			if (components)
-			{
-				delete components;
+            if (components)
+            {
+                delete components;
                 components = nullptr;
-			}
+            }
             if (m_pinnedSimForm)
             {
                 //free gcroot handle
@@ -86,19 +86,19 @@ namespace GUI
             }
         }
 
-		/// <summary>
-		/// Destructor: Will automatically suppress finalisation if called
-		/// </summary>
-		~GUIForm()
-		{
+        /// <summary>
+        /// Destructor: Will automatically suppress finalisation if called
+        /// </summary>
+        ~GUIForm()
+        {
             this->!GUIForm(); 
-		}
+        }
 
-	private:
+    private:
 
-		/// <summary>
-		/// Reference structure for the gui spinbox
-		/// </summary>
+        /// <summary>
+        /// Reference structure for the gui spinbox
+        /// </summary>
         ref struct SpinBox
         {
             Panel^ panel;
@@ -112,8 +112,8 @@ namespace GUI
         RadioButton^ m_toolSelected;    ///< Which object manipulation tool selected
 
         /// <summary>
-		/// GUI Buttons
-		/// </summary>
+        /// GUI Buttons
+        /// </summary>
         CheckBox^ m_gravityBtn;    ///< Checkbox for toggling on gravity
         CheckBox^ m_vertsBtn;      ///< Checkbox for toggling on vertices
         CheckBox^ m_handleBtn;     ///< Checkbox for toggling on handle mode
@@ -128,21 +128,21 @@ namespace GUI
         Button^ m_sphereBtn;       ///< Button for creating a sphere
         Button^ m_boxBtn;          ///< Button for creating a box
         Button^ m_removeBtn;       ///< Button for clearing all scene objects
-        SpinBox^ m_vertNumber;     ///< Spinbox for changing vertex number
+        SpinBox^ m_vertRows;       ///< Spinbox for changing vertex row number
         SpinBox^ m_iterations;     ///< Spinbox for changing iterations
         SpinBox^ m_timestep;       ///< Spinbox for changing the timestep
-        SpinBox^ m_clothsize;      ///< Spinbox for changing the cloth size
+        SpinBox^ m_spacing;        ///< Spinbox for changing the spacing between vertices
 
-		/// <summary>
-		/// Designer specific components
-		/// </summary>
+        /// <summary>
+        /// Designer specific components
+        /// </summary>
         System::ComponentModel::Container^ components;  ///< Auto-Required designer variable.
         System::Windows::Forms::Panel^ m_mainPanel;     ///< Panel for holding main simulation form
         System::Windows::Forms::Panel^ m_guiPanel;      ///< Panel for gui buttons
 
-		/// <summary>
-		/// Creates the main simulation form
-		/// </summary>
+        /// <summary>
+        /// Creates the main simulation form
+        /// </summary>
         void CreateSimulationForm()
         {
             Form^ simulatorForm = gcnew Form();
@@ -158,9 +158,9 @@ namespace GUI
             m_mainPanel->Controls->Add((Form^)*m_pinnedSimForm);
         }
 
-		/// <summary>
-		/// Creates/adds a checkbox button
-		/// </summary>
+        /// <summary>
+        /// Creates/adds a checkbox button
+        /// </summary>
         void CreateCheckBox(CheckBox^% checkbox, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             checkbox = gcnew CheckBox();
@@ -169,9 +169,9 @@ namespace GUI
             CreateControl(checkbox, image, tip, index);
         }
 
-		/// <summary>
-		/// Creates/adds a radio button
-		/// </summary>
+        /// <summary>
+        /// Creates/adds a radio button
+        /// </summary>
         void CreateRadioButton(RadioButton^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew RadioButton();
@@ -180,9 +180,9 @@ namespace GUI
             CreateControl(button, image, tip, index);
         }
 
-		/// <summary>
-		/// Creates/adds a button
-		/// </summary>
+        /// <summary>
+        /// Creates/adds a button
+        /// </summary>
         void CreateButton(Button^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew Button();
@@ -190,26 +190,26 @@ namespace GUI
             CreateControl(button, image, tip, index);
         }
 
-		/// <summary>
-		/// On GUI Close Event
-		/// </summary>
+        /// <summary>
+        /// On GUI Close Event
+        /// </summary>
         System::Void GUIFormClosed(System::Object^ sender, System::Windows::Forms::FormClosedEventArgs^ e) 
         {
             m_callbacks->quitFn();
         }
 
-		/// <summary>
-		/// On Gravity Check Change
-		/// </summary>
+        /// <summary>
+        /// On Gravity Check Change
+        /// </summary>
         System::Void GravityCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
         {
             CheckBox^ checkbox = static_cast<CheckBox^>(sender);
             m_callbacks->setGravity(checkbox->Checked);
         }
 
-		/// <summary>
-		/// On Handle Mode Check Change
-		/// </summary>
+        /// <summary>
+        /// On Handle Mode Check Change
+        /// </summary>
         System::Void HandleCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
         {
             CheckBox^ checkbox = static_cast<CheckBox^>(sender);
@@ -227,145 +227,145 @@ namespace GUI
             }
         }
 
-		/// <summary>
-		/// On Vertex Visibility Check Change
-		/// </summary>
+        /// <summary>
+        /// On Vertex Visibility Check Change
+        /// </summary>
         System::Void VertsCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
         {
             CheckBox^ checkbox = static_cast<CheckBox^>(sender);
             m_callbacks->setVertsVisible(checkbox->Checked);
         }
 
-		/// <summary>
-		/// On Animate Button Press
-		/// </summary>
+        /// <summary>
+        /// On Animate Button Press
+        /// </summary>
         System::Void AnimateClick(System::Object^ sender, System::EventArgs^ e) 
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
         }
 
-		/// <summary>
-		/// On Move Button Press
-		/// </summary>
+        /// <summary>
+        /// On Move Button Press
+        /// </summary>
         System::Void MoveClick(System::Object^ sender, System::EventArgs^ e) 
         {         
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
         }
 
-		/// <summary>
-		/// On Rotate Button Press
-		/// </summary>
+        /// <summary>
+        /// On Rotate Button Press
+        /// </summary>
         System::Void RotateClick(System::Object^ sender, System::EventArgs^ e) 
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
         }
 
-		/// <summary>
-		/// On Scale Button Press
-		/// </summary>
+        /// <summary>
+        /// On Scale Button Press
+        /// </summary>
         System::Void ScaleClick(System::Object^ sender, System::EventArgs^ e) 
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
         }
 
-		/// <summary>
-		/// On Reset Cloth Button Press
-		/// </summary>
+        /// <summary>
+        /// On Reset Cloth Button Press
+        /// </summary>
         System::Void ResetClothClick(System::Object^ sender, System::EventArgs^ e) 
         {
             m_callbacks->resetCloth();
         }
 
-		/// <summary>
-		/// On Reset Camera Button Press
-		/// </summary>
+        /// <summary>
+        /// On Reset Camera Button Press
+        /// </summary>
         System::Void ResetCamClick(System::Object^ sender, System::EventArgs^ e)
         {
             m_callbacks->resetCamera();
         }
 
-		/// <summary>
-		/// On Unpin Vertex Button Press
-		/// </summary>
+        /// <summary>
+        /// On Unpin Vertex Button Press
+        /// </summary>
         System::Void UnpinClick(System::Object^ sender, System::EventArgs^ e)
         {
             m_callbacks->unpinCloth();
         }
 
-		/// <summary>
-		/// On Create Box Button Press
-		/// </summary>
+        /// <summary>
+        /// On Create Box Button Press
+        /// </summary>
         System::Void BoxClick(System::Object^ sender, System::EventArgs^ e)
         {
             m_callbacks->createBox();
         }
 
-		/// <summary>
-		/// On Create Sphere Button Press
-		/// </summary>
+        /// <summary>
+        /// On Create Sphere Button Press
+        /// </summary>
         System::Void SphereClick(System::Object^ sender, System::EventArgs^ e)
         {
             m_callbacks->createSphere();
         }
 
-		/// <summary>
-		/// On Create Cylinder Button Press
-		/// </summary>
+        /// <summary>
+        /// On Create Cylinder Button Press
+        /// </summary>
         System::Void CynlinderClick(System::Object^ sender, System::EventArgs^ e) 
         {
             m_callbacks->createCylinder();
         }
 
-		/// <summary>
-		/// On Clear Scene Button Press
-		/// </summary>
+        /// <summary>
+        /// On Clear Scene Button Press
+        /// </summary>
         System::Void RemoveClick(System::Object^  sender, System::EventArgs^ e)
         {
         }
 
-		/// <summary>
-		/// On Vertex Number Value Changed
-		/// </summary>
-        System::Void VertexNumberChanged(System::Object^ sender, System::EventArgs^ e)
+        /// <summary>
+        /// On Vertex Row Number Value Changed
+        /// </summary>
+        System::Void VertexRowsChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
-            m_callbacks->setVertexNumber(Decimal::ToDouble(spinbox->Value));
+            m_callbacks->setVertexRows(Decimal::ToDouble(spinbox->Value));
         }
 
-		/// <summary>
-		/// On Iteration Value Changed
-		/// </summary>
+        /// <summary>
+        /// On Iteration Value Changed
+        /// </summary>
         System::Void IterationChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
             m_callbacks->setIterations(Decimal::ToDouble(spinbox->Value));
         }
 
-		/// <summary>
-		/// On Timestep Value Changed
-		/// </summary>
+        /// <summary>
+        /// On Timestep Value Changed
+        /// </summary>
         System::Void TimestepChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
             m_callbacks->setTimestep(Decimal::ToDouble(spinbox->Value));
         }
 
-		/// <summary>
-		/// On Cloth Size Value Changed
-		/// </summary>
-        System::Void ClothSizeChanged(System::Object^ sender, System::EventArgs^ e)
+        /// <summary>
+        /// On Cloth Spacing Value Changed
+        /// </summary>
+        System::Void SpacingChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
-            m_callbacks->setClothSize(Decimal::ToDouble(spinbox->Value));
+            m_callbacks->setSpacing(Decimal::ToDouble(spinbox->Value));
         }
 
-		/// <summary>
-		/// Chooses the selected radio button
-		/// </summary>
+        /// <summary>
+        /// Chooses the selected radio button
+        /// </summary>
         void SelectRadioButton(RadioButton^ button)
         {
             if(m_toolSelected == button)
@@ -379,9 +379,9 @@ namespace GUI
             }
         }
 
-		/// <summary>
-		/// Creates the gui buttons
-		/// </summary>
+        /// <summary>
+        /// Creates the gui buttons
+        /// </summary>
         void CreateButtons()
         {
             int index = 0;
@@ -433,9 +433,9 @@ namespace GUI
             m_enabledGravity = m_gravityBtn->BackgroundImage;
             index = 0;
 
-            CreateSpinBox(m_vertNumber, path+"vertnumber.png",
+            CreateSpinBox(m_vertRows, path+"vertrows.png",
                 "Change the number of vertex rows", index++, 1.0, 2.0, 50.0,
-                gcnew System::EventHandler(this, &GUIForm::VertexNumberChanged));
+                gcnew System::EventHandler(this, &GUIForm::VertexRowsChanged));
 
             CreateSpinBox(m_iterations, path+"iterations.png", 
                 "Change the number of solve iterations", index++, 1.0, 1.0, 10.0,
@@ -445,14 +445,14 @@ namespace GUI
                 "Change the cloth timestep", index++, 0.05, 0.1, 10.0,
                 gcnew System::EventHandler(this, &GUIForm::TimestepChanged));
 
-            CreateSpinBox(m_clothsize, path+"clothsize.png", 
-                "Change the overall size of the cloth", index++, 0.05, 0.1, 10.0,
-                gcnew System::EventHandler(this, &GUIForm::ClothSizeChanged));
+            CreateSpinBox(m_spacing, path+"spacing.png", 
+                "Change the spacing between vertices", index++, 0.05, 0.1, 10.0,
+                gcnew System::EventHandler(this, &GUIForm::SpacingChanged));
         }
 
-		/// <summary>
-		/// Creates a gui control
-		/// </summary>
+        /// <summary>
+        /// Creates a gui control
+        /// </summary>
         void CreateControl(ButtonBase^ control, String^ image, String^ tip, int index)
         {
             const int buttonSize = 32;
@@ -480,9 +480,9 @@ namespace GUI
             tooltip->SetToolTip(control, tip);
         }
 
-		/// <summary>
-		/// Creates a spinbox control
-		/// </summary>
+        /// <summary>
+        /// Creates a spinbox control
+        /// </summary>
         void CreateSpinBox(SpinBox^% spinbox, String^ image, String^ tip, int index,
             double increment, double minimum, double maximum, EventHandler^ callback)
         {
@@ -528,12 +528,12 @@ namespace GUI
         }
 
         #pragma region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		void InitializeComponent(void)
-		{
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        void InitializeComponent(void)
+        {
             this->m_mainPanel = (gcnew System::Windows::Forms::Panel());
             this->m_guiPanel = (gcnew System::Windows::Forms::Panel());
             this->m_mainPanel->SuspendLayout();
@@ -549,7 +549,7 @@ namespace GUI
             // 
             // m_guiPanel
             // 
-            this->m_guiPanel->BackColor = System::Drawing::Color::DimGray;
+            this->m_guiPanel->BackColor = System::Drawing::Color::Gray;
             this->m_guiPanel->Location = System::Drawing::Point(12, 12);
             this->m_guiPanel->Name = L"m_guiPanel";
             this->m_guiPanel->Size = System::Drawing::Size(36, 452);

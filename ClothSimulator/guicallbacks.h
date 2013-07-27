@@ -28,12 +28,12 @@ namespace GUI
         VoidFn createSphere; ///< Function called to create a sphere
         SetValue setTimestep; ///< Function set timestep
         SetValue setIterations; ///< Function set iterations
-        SetValue setVertexNumber; ///< Function set vertex number
-        SetValue setClothSize; ///< Function set cloth size
+        SetValue setVertexRows; ///< Function set vertex number
+        SetValue setSpacing; ///< Function set spacing between vertices
         GetValue getTimestep; ///< Function get timestep
         GetValue getIterations; ///< Function get iterations
-        GetValue getVertexNumber; ///< Function get vertex number
-        GetValue getClothSize; ///< Function get cloth size
+        GetValue getVertexRows; ///< Function get vertex number
+        GetValue getSpacing; ///< Function get spacing between vertices
     };
 
     struct WindowHandle

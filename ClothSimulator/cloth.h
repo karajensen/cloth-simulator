@@ -66,26 +66,26 @@ public:
     bool IsSimulating() const { return m_simulation; }
 
     /**
-    * Sets the size of the cloth
-    * @param the size to set the cloth to
+    * Sets the size of the cloth  between vertices
+    * @param the spacing to set
     */
-    void SetClothSize(double size);
+    void SetSpacing(double size);
 
     /**
-    * @return the size of the cloth
+    * @return the size of the cloth between vertices
     */
-    double GetClothSize() const;
+    double GetSpacing() const;
 
     /**
-    * Sets the amount of vertices for the cloth
+    * Sets the amount of vertex rows for the cloth
     * @param the vertice count to set to
     */
-    void SetVertexNumber(double number);
+    void SetVertexRows(double number);
 
     /**
-    * @return the amount of vertices for the cloth
+    * @return the amount of vertex rows for the cloth
     */
-    double GetVertexNumber() const;
+    double GetVertexRows() const;
 
     /**
     * Sets the particle solver iteration amount
@@ -166,6 +166,13 @@ private:
     typedef std::shared_ptr<Spring> SpringPtr;
 
     /**
+    * Recreates the cloth
+    * @param the number of rows for the cloth
+    * @param the spacing between vertices
+    */
+    void CreateCloth(int rows, float spacing);
+
+    /**
     * Adds a force to each vertex in the cloth
     * @param the force to add
     */
@@ -238,13 +245,13 @@ private:
     bool m_selfCollide;         ///< Whether the cloth is currently self-colliding
     bool m_drawVisualParticles; ///< Whether particle visual models are drawn
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
-    float m_clothSize;          ///< Current size of the cloth
-    int m_clothDimensions;      ///< Current dimensions of the cloth
+    float m_spacing;            ///< Current spacing between vertices
     bool m_handleMode;          ///< Whether the simulation is in handle mode
     FLOAT3 m_downwardPull;      ///< Simulated 'Gravity' of the cloth
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 
+    LPDIRECT3DDEVICE9 m_d3ddev;             ///< DirextX device
     std::vector<D3DXVECTOR3> m_colors;      ///< Viable colors for the particles
     std::vector<SpringPtr> m_springs;       ///< Springs connecting particles together
     std::vector<ParticlePtr> m_particles;   ///< Particles across the cloth grid

@@ -1,0 +1,27 @@
+﻿Build started 7/27/2013 1:00:51 PM.
+     1>Project "D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Touching "D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorGUI.unsuccessfulbuild".
+       GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLOTHSIMULATORWRAPPER_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"D:\Projects\ClothSimulator\ClothSimulator\gui\\" /Fd"D:\Projects\ClothSimulator\ClothSimulator\gui\vc100.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.dll" /analyze- /errorReport:prompt GUIWrapper.cpp /clr:nostdlib 
+         GUIWrapper.cpp
+         All outputs are up-to-date.
+       CoreResGen:
+         No resources are out of date with respect to their source files. Skipping resource generation.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /ASSEMBLYRESOURCE:D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorWrapper.GUIForm.resources /MANIFEST /ManifestFile:"D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorGUI.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.pdb" /ASSEMBLYDEBUG /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 /DLL D:\Projects\ClothSimulator\ClothSimulator\gui\GUIWrapper.obj
+         "D:\Projects\ClothSimulator\ClothSimulator\gui\.NETFramework,Version=v4.0.AssemblyAttributes.obj"
+            Creating library D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.lib and object D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.exp
+         ClothSimulatorGUI.vcxproj -> D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.dll
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.dll;#2" /manifest D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorGUI.dll.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorGUI.unsuccessfulbuild".
+         Touching "D:\Projects\ClothSimulator\ClothSimulator\gui\ClothSimulatorGUI.lastbuildstate".
+     1>Done Building Project "D:\Projects\ClothSimulator\ClothSimulator\ClothSimulatorGUI.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.85
