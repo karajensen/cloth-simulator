@@ -13,6 +13,8 @@ ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
 ClothSimulator/Release/
 ClothSimulator/bin/
+ClothSimulator/gui/
+ClothSimulator/sim/
 ClothSimulator/obj/
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorGUI.lib
