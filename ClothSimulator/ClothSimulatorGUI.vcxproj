@@ -26,8 +26,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -43,12 +44,12 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)ClothSimulator\</OutDir>
     <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
-    <IntDir>$(SolutionDir)ClothSimulator\gui\</IntDir>
+    <IntDir>$(SolutionDir)ClothSimulator\Gui$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)ClothSimulator\</OutDir>
-    <IntDir>$(SolutionDir)ClothSimulator\gui\</IntDir>
+    <IntDir>$(SolutionDir)ClothSimulator\Gui$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

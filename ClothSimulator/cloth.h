@@ -11,7 +11,7 @@
 class Particle;
 class Shader;
 class Collision;
-struct Spring;
+class Spring;
 
 class Cloth : public Mesh
 {

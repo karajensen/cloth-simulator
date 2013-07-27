@@ -9,20 +9,26 @@
 
 class Particle;
 
-struct Spring
+class Spring
 {
+public:
+
+    Spring();
+
     /**
-    * Constructor
+    * Creates the spring
     * @param the two particles connected by the spring
     */
-    Spring(Particle& p1, Particle& p2);
+    void Initialise(Particle& p1, Particle& p2);
 
     /**
     * Update the spring
     */
     void SolveSpring();
 
-    Particle& P1; ///< connected particle
-    Particle& P2; ///< connected particle
-    float RestDistance; ///< distance for spring at rest
+private:
+
+    Particle* m_particle1; ///< connected particle
+    Particle* m_particle2; ///< connected particle
+    float m_restDistance; ///< distance for spring at rest
 };

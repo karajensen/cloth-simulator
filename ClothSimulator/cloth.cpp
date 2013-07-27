@@ -72,7 +72,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_vertexCount = rows*rows;
 
     //create verticies
-    m_vertexData.clear();
+    m_vertexData.resize(m_vertexCount);
     const int minW = -m_vertexWidth/2;
     const int maxW = minW + m_vertexWidth;
     const int minL = -m_vertexLength/2;
@@ -80,17 +80,16 @@ void Cloth::CreateCloth(int rows, float spacing)
     const float startingheight = 8.0f;
     float UVu = 0;
     float UVv = 0;
+    int index = 0;
     for(int x = minW; x < maxW; ++x)
     {
-        for(int z = minL; z < maxL; ++z)
+        for(int z = minL; z < maxL; ++z, ++index)
         {
-            Vertex vert;
-            vert.position.x = x*m_spacing;
-            vert.position.z = z*m_spacing;
-            vert.position.y = startingheight;
-            vert.uvs.x = UVu;
-            vert.uvs.y = UVv;
-            m_vertexData.push_back(vert);
+            m_vertexData[index].position.x = x*m_spacing;
+            m_vertexData[index].position.z = z*m_spacing;
+            m_vertexData[index].position.y = startingheight;
+            m_vertexData[index].uvs.x = UVu;
+            m_vertexData[index].uvs.y = UVv;
             UVu += 0.5;
         }
         UVu = 0;
@@ -99,9 +98,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     //create indices
     int numOfFaces = ((m_vertexWidth-1)*(m_vertexLength-1))*2;
-    m_indexData.clear();
     m_indexData.resize(numOfFaces*3);
-    m_indexData.assign(m_indexData.size(), 0);
 
     int k = 0;
     for(int i = 0; i < m_vertexWidth-1; ++i)
@@ -119,33 +116,42 @@ void Cloth::CreateCloth(int rows, float spacing)
     }
 
     //create particles
-    m_particles.clear();
+    m_particles.resize(m_vertexCount);
     float collisionSize = m_spacing/2; 
-    for(unsigned int i = 0; i < static_cast<unsigned int>(m_vertexCount); ++i)
+    for(unsigned int i = 0; i < m_particles.size(); ++i)
     {
-        m_particles.push_back(ParticlePtr(new Particle(m_d3ddev,collisionSize,m_vertexData[i].position, i)));
+        if(!m_particles[i].get())
+        {
+            m_particles[i].reset(new Particle(m_d3ddev,collisionSize));
+        }
+        m_particles[i]->Initialise(m_vertexData[i].position, i);
     }
 
     //Connect neighbouring m_particles with m_springs
+    m_springs.clear();
     for(int x = 0; x < m_vertexWidth; ++x)
     {
         for(int y = 0; y < m_vertexLength; ++y)
         {
-            if (x<m_vertexWidth-1)
+            if (x < m_vertexWidth-1)
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x+1,y))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+1,y));
             }
-            if (y<m_vertexLength-1) 
+            if (y < m_vertexLength-1) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x,y+1))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x,y+1));
             }
-            if (x<m_vertexWidth-1 && y<m_vertexLength-1) 
+            if (x < m_vertexWidth-1 && y < m_vertexLength-1) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x+1,y+1))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+1,y+1));
             }
-            if (x<m_vertexWidth-1 && y<m_vertexLength-1) 
+            if (x < m_vertexWidth-1 && y < m_vertexLength-1) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x+1,y),*GetParticle(x,y+1))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x+1,y),*GetParticle(x,y+1));
             }
         }
     }
@@ -155,21 +161,25 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int y = 0; y < m_vertexLength; ++y)
         {
-            if (x<m_vertexWidth-2) 
+            if (x < m_vertexWidth-2) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x+2,y))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+2,y));
             }
-            if (y<m_vertexLength-2)
+            if (y < m_vertexLength-2)
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x,y+2))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x,y+2));
             }
-            if (x<m_vertexWidth-2 && y<m_vertexLength-2) 
+            if (x < m_vertexWidth-2 && y < m_vertexLength-2) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x,y),*GetParticle(x+2,y+2))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+2,y+2));
             }
-            if (x<m_vertexWidth-2 && y<m_vertexLength-2) 
+            if (x < m_vertexWidth-2 && y < m_vertexLength-2) 
             { 
-                m_springs.push_back(SpringPtr(new Spring(*GetParticle(x+2,y),*GetParticle(x,y+2))));
+                m_springs.push_back(SpringPtr(new Spring()));
+                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x+2,y),*GetParticle(x,y+2));
             }
         }
     }
@@ -582,18 +592,12 @@ void Cloth::ChangeRow(int row, bool select)
 
 void Cloth::SetSpacing(double size)
 {
-    if(m_spacing != size)
-    {
-        CreateCloth(m_vertexLength, static_cast<float>(size));
-    }
+    CreateCloth(m_vertexLength, static_cast<float>(size));
 }
 
 void Cloth::SetVertexRows(double number)
 {
-    if(m_vertexLength != number)
-    {
-        CreateCloth(static_cast<int>(number), m_spacing);
-    }
+    CreateCloth(static_cast<int>(number), m_spacing);
 }
 
 void Cloth::SetIterations(double iterations)

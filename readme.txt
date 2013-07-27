@@ -1,4 +1,7 @@
 
+• Refactor spring code
+• Fix release 
+
 • Scene mesh manipulation
 • friction to cloth
 • Cloth self-collision
