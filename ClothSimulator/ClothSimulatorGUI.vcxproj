@@ -96,7 +96,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GUIForm.resx" />
+    <EmbeddedResource Include="GUIForm.resx">
+       <DependentUpon>GUIForm.h</DependentUpon>
+    </EmbeddedResource> 
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
