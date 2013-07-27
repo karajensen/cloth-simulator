@@ -50,45 +50,64 @@ public:
     void Reset();
 
     /**
-    * Adds a force to each vertex in the cloth
-    * @param the force to add
-    */
-    void AddForce(const FLOAT3& force);
-
-    /**
     * Solves collision between the cloth and an object
     * @param the object to test against
     */
     void SolveCollision(const Collision* object);
     
     /**
-    * Set/Get simulate for the cloth
+    * Set whether the cloth is simulating
     */
-    void SetSimulation(bool sim){ m_simulation = sim; }
+    void SetSimulation(bool sim) { m_simulation = sim; }
+
+    /**
+    * @return whether the cloth is simulating
+    */
     bool IsSimulating() const { return m_simulation; }
 
     /**
-    * Set/Get Number of spring iterations for the cloth
+    * Sets the size of the cloth
+    * @param the size to set the cloth to
     */
-    void SetSpringIterations(int iterations) { m_springIterations = iterations; }
-    int GetSpringIterations() const { return m_springIterations; }
+    void SetClothSize(double size);
 
     /**
-    * Set/Get The damping on the cloth
+    * @return the size of the cloth
     */
-    void SetDamping(float damping) { m_damping = damping; }
-    float GetDamping() const { return m_damping; }
+    double GetClothSize() const;
 
     /**
-    * Set/Get The cloth timestep
+    * Sets the amount of vertices for the cloth
+    * @param the vertice count to set to
     */
-    void SetTimeStep(float timestep);
-    float GetTimeStep() const { return m_timestep; }
+    void SetVertexNumber(double number);
 
     /**
-    * Get number of vertices for the cloth
+    * @return the amount of vertices for the cloth
     */
-    unsigned int GetVertexCount() const { return m_vertexCount; }
+    double GetVertexNumber() const;
+
+    /**
+    * Sets the particle solver iteration amount
+    * @param the iterations to set to
+    */
+    void SetIterations(double iterations);
+
+    /**
+    * @return the particle solver iteration amount
+    */
+    double GetIterations() const;
+
+    /**
+    * Sets the cloth timestep
+    * @param the timeset to set to
+    */
+    void SetTimeStep(double timestep);
+
+    /**
+    * @return the timestep for the simulation
+    */
+    double GetTimeStep() const;
     
     /**
     * Toggle whether vertex visual models are shown
@@ -129,12 +148,6 @@ public:
     void SelectParticle(int index);
 
     /**
-    * Selects the given particle for diagnostic purposes
-    * @param the particle to select
-    */
-    void SelectParticleForDiagnostics(int index);
-
-    /**
     * Allows Diagnostic select which involes selecting a 
     * particle and displaying it's information 
     * @param sets whether diagnostic select is allowed
@@ -151,6 +164,18 @@ private:
 
     typedef std::shared_ptr<Particle> ParticlePtr;
     typedef std::shared_ptr<Spring> SpringPtr;
+
+    /**
+    * Adds a force to each vertex in the cloth
+    * @param the force to add
+    */
+    void AddForce(const FLOAT3& force);
+
+    /**
+    * Selects the given particle for diagnostic purposes
+    * @param the particle to select
+    */
+    void SelectParticleForDiagnostics(int index);
 
     /**
     * Changes a particular row

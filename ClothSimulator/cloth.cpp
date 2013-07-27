@@ -20,11 +20,11 @@ namespace
         MAX_COLORS
     };
 
-    const int DIMENSIONS = 30;      ///< Initial dimensions of the cloth
-    const int ITERATIONS = 4;       ///< Initial iterations of the cloth
-    const float TIMESTEP = 0.5f;    ///< Initial timestep of the cloth
-    const float DAMPING = 0.9f;     ///< Initial damping of the cloth
-    const float SPACING = 0.5f;     ///< Initial size between vertices of the cloth
+    const int DIMENSIONS = 30;    ///< Initial dimensions of the cloth
+    const int ITERATIONS = 4;     ///< Initial iterations of the cloth
+    const float TIMESTEP = 0.5f;  ///< Initial timestep of the cloth
+    const float DAMPING = 0.9f;   ///< Initial damping of the cloth
+    const float SPACING = 0.5f;   ///< Initial size between vertices of the cloth
 }
 
 Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader) :
@@ -535,12 +535,6 @@ void Cloth::ChangeRow(int row)
     }
 }
 
-void Cloth::SetTimeStep(float timestep)
-{
-    m_timestep = timestep;
-    m_timestepSquared = m_timestep*m_timestep;
-}
-
 void Cloth::ChangeRow(int row, bool select)
 {
     int index = 0;
@@ -569,4 +563,45 @@ void Cloth::ChangeRow(int row, bool select)
         m_particles[index]->SelectParticle(select);
         SetParticleColor(m_particles[index]);
     }
+}
+
+void Cloth::SetClothSize(double size)
+{
+    //note check if already set with value
+}
+
+void Cloth::SetVertexNumber(double number)
+{
+    //note check if already set with value
+}
+
+void Cloth::SetIterations(double iterations)
+{
+    m_springIterations = static_cast<int>(iterations);
+}
+
+void Cloth::SetTimeStep(double timestep)
+{
+    m_timestep = static_cast<float>(timestep);
+    m_timestepSquared = m_timestep*m_timestep;
+}
+
+double Cloth::GetTimeStep() const
+{
+    return m_timestep;
+}
+
+double Cloth::GetIterations() const
+{
+    return m_springIterations;
+}
+
+double Cloth::GetVertexNumber() const
+{
+    return m_vertexCount;
+}
+
+double Cloth::GetClothSize() const
+{
+    return m_clothSize;
 }

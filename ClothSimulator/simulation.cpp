@@ -110,8 +110,19 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
     callbacks->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
     callbacks->resetCamera = std::bind(&Camera::Reset, m_camera.get());
-    callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(),  _1);
-    callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(),  _1);
+    callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(), _1);
+    callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(), _1);
+    callbacks->createBox = std::bind(&Simulation::CreateObject, this, Simulation::BOX);
+    callbacks->createSphere = std::bind(&Simulation::CreateObject, this, Simulation::SPHERE);
+    callbacks->createCylinder = std::bind(&Simulation::CreateObject, this, Simulation::CYLINDER);
+    callbacks->setTimestep = std::bind(&Cloth::SetTimeStep, m_cloth.get(), _1);
+    callbacks->setVertexNumber = std::bind(&Cloth::SetVertexNumber, m_cloth.get(), _1);
+    callbacks->setIterations = std::bind(&Cloth::SetIterations, m_cloth.get(), _1);
+    callbacks->setClothSize = std::bind(&Cloth::SetClothSize, m_cloth.get(), _1);
+    callbacks->getClothSize = std::bind(&Cloth::GetClothSize, m_cloth.get());
+    callbacks->getIterations = std::bind(&Cloth::GetIterations, m_cloth.get());
+    callbacks->getVertexNumber = std::bind(&Cloth::GetVertexNumber, m_cloth.get());
+    callbacks->getTimestep = std::bind(&Cloth::GetTimeStep, m_cloth.get());
 }
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
@@ -128,13 +139,14 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     success = Shader_Manager::Inititalise(d3ddev);
     success = (success ? LoadMeshes() : false);
 
-    // Create the cloth/diagnostics
     if(success)
     {
+        // Create the diagnostics
         auto boundsShader = Shader_Manager::GetShader(Shader_Manager::BOUNDS_SHADER);
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
 
+        // Create the cloth
         auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
         m_cloth.reset(new Cloth(m_d3ddev, ModelsFolder+"square.png", clothShader));
     }
@@ -161,6 +173,11 @@ bool Simulation::LoadMeshes()
         m_meshes[GROUND_MESH]->CreateCollision(m_d3ddev,150.0f,1.0f,150.0f);
     }
     return success;
+}
+
+void Simulation::CreateObject(Simulation::Object object)
+{
+
 }
 
 void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)

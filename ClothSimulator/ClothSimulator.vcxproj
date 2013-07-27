@@ -52,7 +52,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)\Include;$(SolutionDir)\$(ProjectName)\assimp\include;$(SolutionDir)\$(ProjectName)\vld\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)\Include;$(SolutionDir)\$(ProjectName)\assimp\include;$(SolutionDir)\$(ProjectName)\vld\include;$(SolutionDir)\$(ProjectName)\gui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -79,7 +79,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)\Include;$(SolutionDir)\$(ProjectName)\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)\Include;$(SolutionDir)\$(ProjectName)\assimp\include;$(SolutionDir)\$(ProjectName)\gui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
@@ -119,13 +119,9 @@
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="float3.h" />
     <ClInclude Include="common.h" />
-    <ClInclude Include="guicallbacks.h" />
-    <ClInclude Include="GUIForm.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
-    <ClInclude Include="managedGUI.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="nativeGUI.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />
     <ClInclude Include="shader.h" />

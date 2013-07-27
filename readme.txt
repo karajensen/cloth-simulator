@@ -1,15 +1,16 @@
 
-• Setting timestep, deltatime, iterations, vertices, damping
-• NUnit tests
-• Fix rebuild lib not found, remove .lib/.exp
+• Fixing deleting .lib
+• Change gui buttons
+• Connect up vertex no/cloth size (move to gui)
+• remove .lib/.exp from git
 
 • Scene mesh manipulation
 • friction to cloth
 • Cloth self-collision
 • Octree spacial partitioning
-• Soft shadow mapping
+• Soft shadow mapping?
 
-================================================================
+=================================================================
 CLOTH SIMULATOR
 =================================================================
 mail@KaraJensen.com

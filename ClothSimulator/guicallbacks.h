@@ -10,6 +10,8 @@ namespace GUI
 {
     typedef std::function<void(void)> VoidFn;
     typedef std::function<void(bool)> SetFlag;
+    typedef std::function<void(double)> SetValue;
+    typedef std::function<double(void)> GetValue;
 
     struct GuiCallbacks
     {
@@ -21,6 +23,17 @@ namespace GUI
         VoidFn unpinCloth; ///< Removes any pinned verts 
         VoidFn clearScene; ///< Removes any scene objects
         VoidFn quitFn; ///< Function called to quit the simulation
+        VoidFn createBox; ///< Function called to create a box
+        VoidFn createCylinder; ///< Function called to create a cylinder
+        VoidFn createSphere; ///< Function called to create a sphere
+        SetValue setTimestep; ///< Function set timestep
+        SetValue setIterations; ///< Function set iterations
+        SetValue setVertexNumber; ///< Function set vertex number
+        SetValue setClothSize; ///< Function set cloth size
+        GetValue getTimestep; ///< Function get timestep
+        GetValue getIterations; ///< Function get iterations
+        GetValue getVertexNumber; ///< Function get vertex number
+        GetValue getClothSize; ///< Function get cloth size
     };
 
     struct WindowHandle

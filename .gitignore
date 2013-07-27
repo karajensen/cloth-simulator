@@ -15,4 +15,5 @@ ClothSimulator/Release/
 ClothSimulator/bin/
 ClothSimulator/obj/
 ClothSimulator/ClothSimulatorGUI.dll
-ClothSimulator/ClothSimulatorWrapper.dll
+ClothSimulator/ClothSimulatorGUI.lib
+ClothSimulator/ClothSimulatorGUI.exp

@@ -33,14 +33,6 @@ namespace GUI
 		}
 
 		/// <summary>
-		/// Sets all native callbacks for the form events
-		/// </summary>
-        void SetCallbacks(GuiCallbacks* callbacks)
-        {
-            m_callbacks = callbacks;
-        }
-
-		/// <summary>
 		/// Returns the handle to the simulation window/instance
 		/// </summary>
         WindowHandle GetWindowHandle()
@@ -55,6 +47,18 @@ namespace GUI
             window.handle = static_cast<HWND>(handle.ToPointer());
             window.instance = static_cast<HINSTANCE>(instance.ToPointer());
             return window;
+        }
+
+		/// <summary>
+		/// Sets all native callbacks and fills in the initial spin box values
+		/// </summary>
+        void SetCallbacks(GuiCallbacks* callbacks)
+        {
+            m_callbacks = callbacks;
+            m_clothsize->numeric->Value = Decimal(callbacks->getClothSize());
+            m_iterations->numeric->Value = Decimal(callbacks->getIterations());
+            m_timestep->numeric->Value = Decimal(callbacks->getTimestep());
+            m_vertNumber->numeric->Value = Decimal(callbacks->getVertexNumber());
         }
 
 	protected:
@@ -92,11 +96,20 @@ namespace GUI
 
 	private:
 
-        GuiCallbacks* m_callbacks; ///< Callbacks for the gui
+		/// <summary>
+		/// Reference structure for the gui spinbox
+		/// </summary>
+        ref struct SpinBox
+        {
+            Panel^ panel;
+            NumericUpDown^ numeric;
+        };
+
+        GuiCallbacks* m_callbacks;      ///< Callbacks for the gui
         gcroot<Form^>* m_pinnedSimForm; ///< pinned as native needs window handle
-        Image^ m_disabledGravity; ///< Image for disabled gravity
-        Image^ m_enabledGravity; ///< Image for enabled gravity
-        RadioButton^ m_toolSelected; ///< Which object manipulation tool selected
+        Image^ m_disabledGravity;       ///< Image for disabled gravity
+        Image^ m_enabledGravity;        ///< Image for enabled gravity
+        RadioButton^ m_toolSelected;    ///< Which object manipulation tool selected
 
         /// <summary>
 		/// GUI Buttons
@@ -115,6 +128,10 @@ namespace GUI
         Button^ m_sphereBtn;       ///< Button for creating a sphere
         Button^ m_boxBtn;          ///< Button for creating a box
         Button^ m_removeBtn;       ///< Button for clearing all scene objects
+        SpinBox^ m_vertNumber;     ///< Spinbox for changing vertex number
+        SpinBox^ m_iterations;     ///< Spinbox for changing iterations
+        SpinBox^ m_timestep;       ///< Spinbox for changing the timestep
+        SpinBox^ m_clothsize;      ///< Spinbox for changing the cloth size
 
 		/// <summary>
 		/// Designer specific components
@@ -135,45 +152,42 @@ namespace GUI
             simulatorForm->Visible = true;
             simulatorForm->Size = System::Drawing::Size(800, 600);
             simulatorForm->Location = System::Drawing::Point(0, 0);
-            simulatorForm->BackColor = System::Drawing::Color::FromArgb(
-                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(190)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(195)));
+            simulatorForm->BackColor = System::Drawing::Color::FromArgb(190, 190, 195);
 
             m_pinnedSimForm = new gcroot<Form^>(simulatorForm);
             m_mainPanel->Controls->Add((Form^)*m_pinnedSimForm);
         }
 
 		/// <summary>
-		/// Creates a checkbox button
+		/// Creates/adds a checkbox button
 		/// </summary>
-        void CreateCheckBox(CheckBox^% checkbox, String^ image, int index, EventHandler^ callback)
+        void CreateCheckBox(CheckBox^% checkbox, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             checkbox = gcnew CheckBox();
             checkbox->Appearance = System::Windows::Forms::Appearance::Button;
             checkbox->CheckStateChanged += callback;
-            CreateControl(checkbox, image, index);
+            CreateControl(checkbox, image, tip, index);
         }
 
 		/// <summary>
-		/// Creates a radio button
+		/// Creates/adds a radio button
 		/// </summary>
-        void CreateRadioButton(RadioButton^% button, String^ image, int index, EventHandler^ callback)
+        void CreateRadioButton(RadioButton^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew RadioButton();
             button->Appearance = System::Windows::Forms::Appearance::Button;
             button->Click += callback;
-            CreateControl(button, image, index);
+            CreateControl(button, image, tip, index);
         }
 
 		/// <summary>
-		/// Creates a button
+		/// Creates/adds a button
 		/// </summary>
-        void CreateButton(Button^% button, String^ image, int index, EventHandler^ callback)
+        void CreateButton(Button^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew Button();
             button->Click += callback;
-            CreateControl(button, image, index);
+            CreateControl(button, image, tip, index);
         }
 
 		/// <summary>
@@ -287,6 +301,7 @@ namespace GUI
 		/// </summary>
         System::Void BoxClick(System::Object^ sender, System::EventArgs^ e)
         {
+            m_callbacks->createBox();
         }
 
 		/// <summary>
@@ -294,6 +309,7 @@ namespace GUI
 		/// </summary>
         System::Void SphereClick(System::Object^ sender, System::EventArgs^ e)
         {
+            m_callbacks->createSphere();
         }
 
 		/// <summary>
@@ -301,6 +317,7 @@ namespace GUI
 		/// </summary>
         System::Void CynlinderClick(System::Object^ sender, System::EventArgs^ e) 
         {
+            m_callbacks->createCylinder();
         }
 
 		/// <summary>
@@ -308,6 +325,42 @@ namespace GUI
 		/// </summary>
         System::Void RemoveClick(System::Object^  sender, System::EventArgs^ e)
         {
+        }
+
+		/// <summary>
+		/// On Vertex Number Value Changed
+		/// </summary>
+        System::Void VertexNumberChanged(System::Object^ sender, System::EventArgs^ e)
+        {
+            NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_callbacks->setVertexNumber(Decimal::ToDouble(spinbox->Value));
+        }
+
+		/// <summary>
+		/// On Iteration Value Changed
+		/// </summary>
+        System::Void IterationChanged(System::Object^ sender, System::EventArgs^ e)
+        {
+            NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_callbacks->setIterations(Decimal::ToDouble(spinbox->Value));
+        }
+
+		/// <summary>
+		/// On Timestep Value Changed
+		/// </summary>
+        System::Void TimestepChanged(System::Object^ sender, System::EventArgs^ e)
+        {
+            NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_callbacks->setTimestep(Decimal::ToDouble(spinbox->Value));
+        }
+
+		/// <summary>
+		/// On Cloth Size Value Changed
+		/// </summary>
+        System::Void ClothSizeChanged(System::Object^ sender, System::EventArgs^ e)
+        {
+            NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_callbacks->setClothSize(Decimal::ToDouble(spinbox->Value));
         }
 
 		/// <summary>
@@ -334,85 +387,144 @@ namespace GUI
             int index = 0;
             String^ path = "Resources//Sprites//";
 
-            CreateCheckBox(m_gravityBtn, path+"gravity.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::GravityCheckedChanged));
+            CreateCheckBox(m_gravityBtn, path+"gravity.png", "Add gravity to the simulation", 
+                index++, gcnew System::EventHandler(this, &GUIForm::GravityCheckedChanged));
 
-            CreateCheckBox(m_handleBtn, path+"handle.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::HandleCheckedChanged));
+            CreateCheckBox(m_handleBtn, path+"handle.png", "Switch to handle mode", 
+                index++, gcnew System::EventHandler(this, &GUIForm::HandleCheckedChanged));
 
-            CreateCheckBox(m_vertsBtn, path+"showverts.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::VertsCheckedChanged));
+            CreateButton(m_unpinBtn, path+"unpin.png", "Unpin all pinned vertices", 
+                index++, gcnew System::EventHandler(this, &GUIForm::UnpinClick));
 
-            CreateButton(m_unpinBtn, path+"unpin.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::UnpinClick));
+            CreateCheckBox(m_vertsBtn, path+"showverts.png", "Toggle vertex visibility", 
+                index++, gcnew System::EventHandler(this, &GUIForm::VertsCheckedChanged));
 
-            CreateButton(m_resetClothBtn, path+"resetcloth.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::ResetClothClick));
+            CreateButton(m_resetClothBtn, path+"resetcloth.png", "Reset the cloth", 
+                index++, gcnew System::EventHandler(this, &GUIForm::ResetClothClick));
 
-            CreateButton(m_resetCamBtn, path+"resetcam.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::ResetCamClick));
+            CreateButton(m_resetCamBtn, path+"resetcam.png", "Reset the camera", 
+                index++, gcnew System::EventHandler(this, &GUIForm::ResetCamClick));
 
-            CreateButton(m_boxBtn, path+"box.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::BoxClick));
+            CreateButton(m_boxBtn, path+"box.png", "Create a box",
+                index++, gcnew System::EventHandler(this, &GUIForm::BoxClick));
 
-            CreateButton(m_sphereBtn, path+"sphere.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::SphereClick));
+            CreateButton(m_sphereBtn, path+"sphere.png", "Create a sphere", 
+                index++, gcnew System::EventHandler(this, &GUIForm::SphereClick));
 
-            CreateButton(m_cynlinderBtn, path+"cylinder.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::CynlinderClick));
+            CreateButton(m_cynlinderBtn, path+"cylinder.png", "Create a cylinder",
+                index++, gcnew System::EventHandler(this, &GUIForm::CynlinderClick));
 
-            CreateRadioButton(m_animateBtn, path+"animate.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::AnimateClick));
+            CreateRadioButton(m_animateBtn, path+"animate.png", "Animate selected object",
+                index++, gcnew System::EventHandler(this, &GUIForm::AnimateClick));
 
-            CreateRadioButton(m_moveBtn, path+"move.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::MoveClick));
+            CreateRadioButton(m_moveBtn, path+"move.png", "Move selected object",
+                index++, gcnew System::EventHandler(this, &GUIForm::MoveClick));
 
-            CreateRadioButton(m_rotateBtn, path+"rotate.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::RotateClick));
+            CreateRadioButton(m_rotateBtn, path+"rotate.png", "Rotate selected object",
+                index++, gcnew System::EventHandler(this, &GUIForm::RotateClick));
 
-            CreateRadioButton(m_scaleBtn, path+"scale.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::ScaleClick));
+            CreateRadioButton(m_scaleBtn, path+"scale.png", "Scale selected object",
+                index++, gcnew System::EventHandler(this, &GUIForm::ScaleClick));
 
-            CreateButton(m_removeBtn, path+"clear.png", index++,
-                gcnew System::EventHandler(this, &GUIForm::RemoveClick));
+            CreateButton(m_removeBtn, path+"clear.png", "Clear all scene objects",
+                index++, gcnew System::EventHandler(this, &GUIForm::RemoveClick));
 
-            // Setup disabled images
             m_disabledGravity = Image::FromFile(path+"dgravity.png");
             m_enabledGravity = m_gravityBtn->BackgroundImage;
+            index = 0;
+
+            CreateSpinBox(m_vertNumber, path+"vertnumber.png",
+                "Change the number of vertex rows", index++, 1.0, 2.0, 50.0,
+                gcnew System::EventHandler(this, &GUIForm::VertexNumberChanged));
+
+            CreateSpinBox(m_iterations, path+"iterations.png", 
+                "Change the number of solve iterations", index++, 1.0, 1.0, 10.0,
+                gcnew System::EventHandler(this, &GUIForm::IterationChanged));
+
+            CreateSpinBox(m_timestep, path+"timestep.png",  
+                "Change the cloth timestep", index++, 0.05, 0.1, 10.0,
+                gcnew System::EventHandler(this, &GUIForm::TimestepChanged));
+
+            CreateSpinBox(m_clothsize, path+"clothsize.png", 
+                "Change the overall size of the cloth", index++, 0.05, 0.1, 10.0,
+                gcnew System::EventHandler(this, &GUIForm::ClothSizeChanged));
         }
 
 		/// <summary>
 		/// Creates a gui control
 		/// </summary>
-        void CreateControl(ButtonBase^ control, String^ image, int index)
+        void CreateControl(ButtonBase^ control, String^ image, String^ tip, int index)
         {
+            const int buttonSize = 32;
             const int border = 2;
+
             m_guiPanel->Controls->Add(control);
-            control->BackgroundImage = Image::FromFile(image);
-            control->Cursor = System::Windows::Forms::Cursors::Hand;
-            control->Location = System::Drawing::Point(border, (index*32)+border);
-            control->Margin = System::Windows::Forms::Padding(0);
-            control->MaximumSize = System::Drawing::Size(32, 32);
-            control->MinimumSize = System::Drawing::Size(32, 32);
-            control->Size = System::Drawing::Size(32, 32);
             control->TabIndex = 0;
             control->TabStop = false;
             control->UseVisualStyleBackColor = false;
+            control->BackgroundImage = Image::FromFile(image);
+            control->Cursor = System::Windows::Forms::Cursors::Hand;
+            control->Location = System::Drawing::Point(border, (index*buttonSize)+border);
+            control->Margin = System::Windows::Forms::Padding(0);
+            control->MaximumSize = System::Drawing::Size(buttonSize, buttonSize);
+            control->MinimumSize = System::Drawing::Size(buttonSize, buttonSize);
+            control->Size = System::Drawing::Size(buttonSize, buttonSize);
             control->FlatAppearance->BorderSize = 0;
-            control->FlatAppearance->MouseOverBackColor = System::Drawing::Color::DarkGray;
             control->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            control->BackColor = System::Drawing::Color::FromArgb(
-                static_cast<System::Int32>(static_cast<System::Byte>(214)),
-                static_cast<System::Int32>(static_cast<System::Byte>(214)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(214))); 
-            control->FlatAppearance->CheckedBackColor = System::Drawing::Color::FromArgb(
-                static_cast<System::Int32>(static_cast<System::Byte>(150)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(160)),
-                static_cast<System::Int32>(static_cast<System::Byte>(255)));
-            control->FlatAppearance->MouseDownBackColor = System::Drawing::Color::FromArgb(
-                static_cast<System::Int32>(static_cast<System::Byte>(150)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(160)), 
-                static_cast<System::Int32>(static_cast<System::Byte>(255)));
+            control->FlatAppearance->CheckedBackColor = System::Drawing::Color::Gray;
+            control->FlatAppearance->MouseDownBackColor = Color::Gray;
+            control->FlatAppearance->MouseOverBackColor = Color::FromArgb(150, 150, 240);
+            control->BackColor = Color::FromArgb(230, 230, 230);
+
+            ToolTip^ tooltip = gcnew ToolTip();
+            tooltip->SetToolTip(control, tip);
+        }
+
+		/// <summary>
+		/// Creates a spinbox control
+		/// </summary>
+        void CreateSpinBox(SpinBox^% spinbox, String^ image, String^ tip, int index,
+            double increment, double minimum, double maximum, EventHandler^ callback)
+        {
+            const int controlSize = 32;
+            const int panelX = 690;
+            const int panelY = 466 + (index*controlSize);
+            const int panelHeight = controlSize-4;
+            const int numericX = panelX + controlSize + 3;
+            const int numericY = panelY + 5;
+
+            spinbox = gcnew SpinBox();
+            spinbox->panel = gcnew Panel();
+            spinbox->numeric = gcnew NumericUpDown();
+
+            Form^ simForm = (Form^)*m_pinnedSimForm;
+            simForm->Controls->Add(spinbox->panel);
+            simForm->Controls->Add(spinbox->numeric);
+            
+            spinbox->panel->BackgroundImage = Image::FromFile(image);
+            spinbox->panel->Location = System::Drawing::Point(panelX, panelY+2);
+            spinbox->panel->Margin = System::Windows::Forms::Padding(0);
+            spinbox->panel->MaximumSize = System::Drawing::Size(controlSize, panelHeight);
+            spinbox->panel->MinimumSize = System::Drawing::Size(controlSize, panelHeight);
+            spinbox->panel->Size = System::Drawing::Size(controlSize, panelHeight);
+            spinbox->panel->TabIndex = 0;
+            spinbox->panel->TabStop = false;
+
+            spinbox->numeric->TabIndex = 0;
+            spinbox->numeric->TabStop = false;
+            spinbox->numeric->DecimalPlaces = 3;
+            spinbox->numeric->Location = System::Drawing::Point(numericX, numericY);
+            spinbox->numeric->Size = System::Drawing::Size(65, 22);
+            spinbox->numeric->ReadOnly = true;
+            spinbox->numeric->InterceptArrowKeys = false;
+            spinbox->numeric->BackColor = System::Drawing::Color::Silver;
+            spinbox->numeric->Increment = Decimal(increment);
+            spinbox->numeric->Minimum = Decimal(minimum);
+            spinbox->numeric->Maximum = Decimal(maximum);
+            spinbox->numeric->ValueChanged += callback;
+
+            ToolTip^ tooltip = gcnew ToolTip();
+            tooltip->SetToolTip(spinbox->panel, tip);
         }
 
         #pragma region Windows Form Designer generated code

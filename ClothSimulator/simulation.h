@@ -51,6 +51,16 @@ public:
 private:
 
     /**
+    * Avaliable objects for the scene
+    */
+    enum Object
+    {
+        BOX,
+        SPHERE,
+        CYLINDER
+    };
+
+    /**
     * Loads all scene meshes
     * @param whether loading was successful
     */
@@ -62,6 +72,12 @@ private:
     * @param the handle to the window
     */
     void LoadInput(HINSTANCE hInstance, HWND hWnd);
+
+    /**
+    * Creates an object of the given type
+    * @param the object type to create
+    */
+    void CreateObject(Object object);
 
     typedef std::shared_ptr<Text> TextPtr;
     typedef std::shared_ptr<Sprite> SpritePtr;
