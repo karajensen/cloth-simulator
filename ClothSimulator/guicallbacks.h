@@ -18,6 +18,7 @@ namespace GUI
         SetFlag setGravity; ///< Whether gravity is on/off
         SetFlag setHandleMode; ///< Whether handle mode is on/off
         SetFlag setVertsVisible; ///< Whether vertices are visible or not
+        SetFlag setWireframeMode; ///< Whether wireframe mode is on/off
         VoidFn resetCamera; ///< Resets the camera to the default position 
         VoidFn resetCloth; ///< Resets the cloth to the default position
         VoidFn unpinCloth; ///< Removes any pinned verts 

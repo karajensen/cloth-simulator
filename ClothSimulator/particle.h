@@ -56,7 +56,7 @@ public:
     * Adds force to the particle
     * @param the force to add
     */
-    void AddForce(const FLOAT3& force);
+    void AddForce(const D3DXVECTOR3& force);
 
     /**
     * @return whether particle is pinned
@@ -82,7 +82,7 @@ public:
     * Move a particle explicitly
     * @param the position to move to
     */
-    void MovePosition(const FLOAT3& v);
+    void MovePosition(const D3DXVECTOR3& v);
 
     /**
     * @return the internal index of the particle
@@ -92,7 +92,7 @@ public:
     /**
     * @return the position of the particle in world coordinates
     */
-    const FLOAT3& GetPosition() const { return m_position; }
+    const D3DXVECTOR3& GetPosition() const { return m_position; }
 
     /**
     * Update the particles position
@@ -114,10 +114,10 @@ public:
 
 private:
 
-    FLOAT3 m_acceleration;      ///< Current acceleration of particle
-    FLOAT3 m_oldPosition;       ///< Save position from last update
-    FLOAT3 m_initialPosition;   ///< Initial position of particle 
-    FLOAT3 m_position;          ///< Current position in world coordinates of particle
+    D3DXVECTOR3 m_acceleration;      ///< Current acceleration of particle
+    D3DXVECTOR3 m_oldPosition;       ///< Save position from last update
+    D3DXVECTOR3 m_initialPosition;   ///< Initial position of particle 
+    D3DXVECTOR3 m_position;          ///< Current position in world coordinates of particle
     Transform m_transform;      ///< Current transform of particle
     bool m_selected;            ///< Whether particle is selected or not
     bool m_pinned;              ///< Whether particle is pinned or not

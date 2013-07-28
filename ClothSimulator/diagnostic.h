@@ -5,6 +5,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <array>
 #include "common.h"
 
 class Shader;
@@ -47,8 +48,14 @@ public:
     /**
     * Sets/Gets whether to render diagnostics
     */
-    static void ToggleDiagnostics() { sm_showDiagnostics = !sm_showDiagnostics; }
-    static bool AllowDiagnostics() { return sm_showDiagnostics; }
+    static void ToggleDiagnostics();
+    static bool AllowDiagnostics();
+
+    /**
+    * Sets/Gets whether to render text diagnostics
+    */
+    static void ToggleText();
+    static bool AllowText();
 
     /**
     * Adds a sphere for diagnostic rendering. Will only add once per id and update each call
@@ -76,66 +83,55 @@ public:
     void UpdateText(const std::string& id, Colour color, bool increaseCounter);
 
     /**
-    * Adds a line for diagnostic rendering. Will only add once per id and update each call
+    * Adds a cylinder line for diagnostic rendering. Will only add once per id and update each call
     * @param the id of the line
     * @param the colour of the line
     * @param the start position in world coordinates
     * @param the end position in world coordinates
     */
-    void UpdateLine(const std::string& id, Colour color, const D3DXVECTOR3& start, D3DXVECTOR3& end);
+    void UpdateLine(const std::string& id, Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
 
     /**
     * Draws all 3D diagnostics
     * @param the projection matrix
     * @param the view matrix
     */
-    void DrawAll3D(const Transform& projection, const Transform& view);
+    void DrawAllObjects(const Transform& projection, const Transform& view);
 
     /**
     * Draws all 2D diagnostics
     */
-    void DrawAll2D();
+    void DrawAllText();
 
     /**
     * Destructor
     */
     ~Diagnostic();
 
-private:   
+private: 
 
-    /**
-    * Diagnostics sphere
-    * Position is auto updating
-    */
-    struct DiagSphere
-    {
-        D3DXVECTOR3 color;            ///< Colour of the sphere
-        D3DXVECTOR3 position;         ///< World coordinate center of the sphere
-        float radius;                 ///< Radius of the sphere
-    };
-
-    /**
-    * Diagnostics text
-    */
     struct DiagText
     {
-        D3DXVECTOR3 color;  ///< Colour of the text
-        std::string text;   ///< Actual text to display
-        int counter;        ///< Optional counter for text
+        D3DXVECTOR3 color; ///< Colour of the text
+        std::string text;  ///< Actual text to display
+        int counter;       ///< Optional counter for text
     };
 
-    /**
-    * Diagnostics line
-    */
+    struct DiagSphere
+    {
+        D3DXVECTOR3 color;  ///< Colour of the object
+        Transform world;    ///< Matrix for sphere
+    };
+
     struct DiagLine
     {
-        D3DXVECTOR3 color;  ///< Colour of the lin
-        D3DXVECTOR3 start;  ///< Start position in world coordinates
-        D3DXVECTOR3 end;    ///< End position in world coordinates
+        D3DXVECTOR3 color;  ///< Colour of the object
+        Transform world;    ///< Matrix for cylinder
     };
 
     static std::shared_ptr<Shader> sm_shader; ///< Global diagnostic mesh shader
     static std::shared_ptr<Diagnostic> sm_diag; ///< Diagnostic singleton pointer
+    static bool sm_showText; ///< Whether text diagnostics are visible or not
     static bool sm_showDiagnostics; ///< Whether diagnostics are visible or not
 
     Diagnostic(LPDIRECT3DDEVICE9 d3ddev);
@@ -143,19 +139,18 @@ private:
     Diagnostic(const Diagnostic&);  
 
     typedef std::string KeyType;
-    typedef std::pair<KeyType, DiagSphere> SpherePair;
-    typedef std::vector<SpherePair> SphereMap;
-    typedef std::unordered_map<KeyType, DiagText> TextMap;
+    typedef std::unordered_map<KeyType, DiagSphere> SphereMap;
     typedef std::unordered_map<KeyType, DiagLine> LineMap;
+    typedef std::unordered_map<KeyType, DiagText> TextMap;
     typedef std::unordered_map<Colour, D3DXVECTOR3> ColorMap;
 
-    LineMap m_linemap;      ///< Map of line diagnostics
-    TextMap m_textmap;      ///< Map of text diagnostics
-    SphereMap m_spheremap;  ///< Sorted vector map of sphere diagnostics
-    ColorMap m_colourmap;   ///< Easy access diagnostic colours
+    TextMap m_textmap;       ///< Map of text diagnostics
+    SphereMap m_spheremap;   ///< Map of sphere diagnostics
+    LineMap m_linemap;       ///< Map of cylinder diagnostics
+    ColorMap m_colourmap;    ///< Easy access diagnostic colours
 
-    Transform m_transform;          ///< Diagnostic transform for mesh
+    LPDIRECT3DDEVICE9 m_d3ddev;     ///< DirectX Device
     LPD3DXMESH m_sphere;            ///< Diagnostic geometry sphere
+    LPD3DXMESH m_cylinder;          ///< Diagnostic geometry sphere
     std::shared_ptr<Text> m_text;   ///< Diagnostic text
-    LPD3DXLINE m_line;              ///< Diagnostic line
 };

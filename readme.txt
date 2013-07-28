@@ -1,11 +1,11 @@
 
-• Refactor spring code
-• Fix release 
+• Bending springs and get good initial cloth
+• Fix diag line sizing
 
 • Scene mesh manipulation
 • friction to cloth
-• Cloth self-collision
 • Octree spacial partitioning
+• Cloth self-collision
 • Soft shadow mapping?
 
 =================================================================
@@ -25,6 +25,8 @@ LCTRL-CLICK:    Move sideways with the camera
 1-4:            Toggle different cloth edge in handle mode
 WASDQE:         Control the cloth in handle mode
 
-0:              Toggle diagnostics
-9:              Toggle collision models
+0:              Toggle text diagnostics
+9:              Toggle object diagnostics
+8:              Toggle collision models
+7:              Toggle wireframe mode
 RALT-CLICK:     Allows selection of particle. Diagnostics must be toggled

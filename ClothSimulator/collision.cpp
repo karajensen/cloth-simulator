@@ -8,7 +8,8 @@ Collision::Collision(Collision::CollisionShape shape, const Transform& parent) :
     m_draw(false),
     m_shape(shape),
     m_mesh(nullptr),
-    m_colour(0.0f,0.0f,1.0f),
+    m_colour(0.0f, 0.0f, 1.0f),
+    m_position(0.0f, 0.0f, 0.0f),
     m_parent(parent)
 {
 }
@@ -17,7 +18,9 @@ CollisionCube::CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent,
   float width, float height, float depth) :
     Collision(CUBE, parent),
     m_localMinBounds(-width/2.0f, -height/2.0f, -depth/2.0f),
-    m_localMaxBounds(width/2.0f, height/2.0f, depth/2.0f)
+    m_localMaxBounds(width/2.0f, height/2.0f, depth/2.0f),
+    m_minBounds(0.0f, 0.0f, 0.0f),
+    m_maxBounds(0.0f, 0.0f, 0.0f)
 {
     D3DXCreateBox(d3ddev,width,height,depth,&m_mesh,NULL);
 

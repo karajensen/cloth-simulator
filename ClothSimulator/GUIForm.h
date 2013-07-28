@@ -117,6 +117,7 @@ namespace GUI
         CheckBox^ m_gravityBtn;    ///< Checkbox for toggling on gravity
         CheckBox^ m_vertsBtn;      ///< Checkbox for toggling on vertices
         CheckBox^ m_handleBtn;     ///< Checkbox for toggling on handle mode
+        CheckBox^ m_wireBtn;       ///< Checkbox for toggling on wireframe mode
         RadioButton^ m_scaleBtn;   ///< Checkbox for scaling the selected scene object
         RadioButton^ m_rotateBtn;  ///< Checkbox for rotating the selected scene object
         RadioButton^ m_moveBtn;    ///< Checkbox for moving the selected scene object
@@ -205,6 +206,15 @@ namespace GUI
         {
             CheckBox^ checkbox = static_cast<CheckBox^>(sender);
             m_callbacks->setGravity(checkbox->Checked);
+        }
+
+        /// <summary>
+        /// On Gravity Check Change
+        /// </summary>
+        System::Void WireCheckedChanged(System::Object^ sender, System::EventArgs^ e) 
+        {
+            CheckBox^ checkbox = static_cast<CheckBox^>(sender);
+            m_callbacks->setWireframeMode(checkbox->Checked);
         }
 
         /// <summary>
@@ -399,6 +409,9 @@ namespace GUI
             CreateCheckBox(m_vertsBtn, path+"showverts.png", "Toggle vertex visibility", 
                 index++, gcnew System::EventHandler(this, &GUIForm::VertsCheckedChanged));
 
+            CreateCheckBox(m_wireBtn, path+"wire.png", "Switch to wireframe mode", 
+                index++, gcnew System::EventHandler(this, &GUIForm::WireCheckedChanged));
+
             CreateButton(m_resetClothBtn, path+"resetcloth.png", "Reset the cloth", 
                 index++, gcnew System::EventHandler(this, &GUIForm::ResetClothClick));
 
@@ -434,7 +447,7 @@ namespace GUI
             index = 0;
 
             CreateSpinBox(m_vertRows, path+"vertrows.png",
-                "Change the number of vertex rows", index++, 1.0, 2.0, 50.0,
+                "Change the number of vertex rows", index++, 2.0, 3.0, 50.0,
                 gcnew System::EventHandler(this, &GUIForm::VertexRowsChanged));
 
             CreateSpinBox(m_iterations, path+"iterations.png", 
@@ -552,7 +565,7 @@ namespace GUI
             this->m_guiPanel->BackColor = System::Drawing::Color::Gray;
             this->m_guiPanel->Location = System::Drawing::Point(12, 12);
             this->m_guiPanel->Name = L"m_guiPanel";
-            this->m_guiPanel->Size = System::Drawing::Size(36, 452);
+            this->m_guiPanel->Size = System::Drawing::Size(36, 484);
             this->m_guiPanel->TabIndex = 14;
             // 
             // GUIForm

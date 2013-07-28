@@ -92,6 +92,7 @@ protected:
         D3DXVECTOR3 position;
         D3DXVECTOR3 normal;
         D3DXVECTOR2 uvs;
+        Vertex();
     };
 
     bool m_selected;   ///< Whether the mesh is selected or not

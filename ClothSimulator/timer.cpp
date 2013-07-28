@@ -37,7 +37,7 @@ double Timer::UpdateTimer()
         m_fpsCounter = 0;
     }
 
-    if(Diagnostic::AllowDiagnostics())
+    if(Diagnostic::AllowText())
     {
         Diagnostic::Get().UpdateText("FramePerSec", Diagnostic::WHITE, StringCast(m_fps));
         Diagnostic::Get().UpdateText("FramesCounter", Diagnostic::WHITE, StringCast(m_fpsCounter));

@@ -20,11 +20,14 @@ namespace
         MAX_COLORS
     };
 
-    const int DIMENSIONS = 30;    ///< Initial dimensions of the cloth
-    const int ITERATIONS = 4;     ///< Initial iterations of the cloth
-    const float TIMESTEP = 0.5f;  ///< Initial timestep of the cloth
-    const float DAMPING = 0.9f;   ///< Initial damping of the cloth
-    const float SPACING = 0.5f;   ///< Initial size between vertices of the cloth
+    /**
+    * Initial values for the cloth
+    */
+    const int ROWS = 20;         
+    const int ITERATIONS = 4;    
+    const float TIMESTEP = 0.5f; 
+    const float DAMPING = 0.9f;  
+    const float SPACING = 0.75f; 
 }
 
 Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader) :
@@ -41,7 +44,7 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_selfCollide(false),
     m_drawVisualParticles(false),
     m_drawColParticles(false),
-    m_downwardPull(0,-9.8f,0),
+    m_gravity(0,-9.8f,0),
     m_diagnosticParticle(0),
     m_diagnosticSelect(false),
     m_handleMode(false),
@@ -61,7 +64,7 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_colors[PINNED].x = 1.0f; ///< Red for pinned
     m_colors[SELECTED].y = 1.0f; ///< Green for selection
 
-    CreateCloth(DIMENSIONS, SPACING);
+    CreateCloth(ROWS, SPACING);
 }
 
 void Cloth::CreateCloth(int rows, float spacing)
@@ -127,63 +130,86 @@ void Cloth::CreateCloth(int rows, float spacing)
         m_particles[i]->Initialise(m_vertexData[i].position, i);
     }
 
-    //Connect neighbouring m_particles with m_springs
-    m_springs.clear();
-    for(int x = 0; x < m_vertexWidth; ++x)
-    {
-        for(int y = 0; y < m_vertexLength; ++y)
-        {
-            if (x < m_vertexWidth-1)
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+1,y));
-            }
-            if (y < m_vertexLength-1) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x,y+1));
-            }
-            if (x < m_vertexWidth-1 && y < m_vertexLength-1) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+1,y+1));
-            }
-            if (x < m_vertexWidth-1 && y < m_vertexLength-1) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x+1,y),*GetParticle(x,y+1));
-            }
-        }
-    }
+    /* Connect neighbouring particles with springs
+    ------ x
+    |  |  |    Stretch/Compression: Horizontal/Vertical springs
+    -------    Shear: Cross springs
+    |  |  |    Bending: Link every second horizontal/vertical vertex
+    ------              
+    y */
 
-    //Connect bending m_springs
+    auto createSpring = [&](int i) -> int
+    {
+        if(!m_springs[i+1].get())
+        {
+            m_springs[i+1].reset(new Spring());
+        }
+        return i+1;
+    };
+
+    m_springCount = ((m_vertexLength-1)*(((m_vertexWidth-2)*2)+2)) 
+        + (m_vertexLength*(m_vertexWidth-1)) 
+        + (m_vertexLength*(m_vertexWidth-2))
+        + ((m_vertexLength-2)*m_vertexWidth)
+        + ((m_vertexLength-1)*m_vertexWidth);
+
+    m_springs.resize(m_springCount);
+    index = NO_INDEX;
     for(int x = 0; x < m_vertexWidth; ++x)
     {
         for(int y = 0; y < m_vertexLength; ++y)
         {
-            if (x < m_vertexWidth-2) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+2,y));
+            //Last y doesn't have cross springs
+            if(y < m_vertexLength-1)
+            {
+                if(x < m_vertexWidth-1) //Don't create right cross if last x
+                {
+                    index = createSpring(index);
+                    m_springs[index]->Initialise(*GetParticle(x,y),
+                        *GetParticle(x+1,y+1), index, Spring::SHEAR);
+                }
+
+                if(x > 0) //Don't create left cross if first x
+                {
+                    index = createSpring(index);
+                    m_springs[index]->Initialise(*GetParticle(x,y),
+                        *GetParticle(x-1,y+1), index, Spring::SHEAR);
+                }
             }
-            if (y < m_vertexLength-2)
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x,y+2));
+
+            //Last 2 xs doesn't have bending horizontal springs
+            if(x < m_vertexWidth-2)
+            {
+                index = createSpring(index);
+                m_springs[index]->Initialise(*GetParticle(x,y),
+                    *GetParticle(x+2,y), index, Spring::BEND);
             }
-            if (x < m_vertexWidth-2 && y < m_vertexLength-2) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x,y),*GetParticle(x+2,y+2));
+
+            //Last x doesn't have horizontal springs
+            if(x < m_vertexWidth-1)
+            {
+                index = createSpring(index);
+                m_springs[index]->Initialise(*GetParticle(x,y),
+                    *GetParticle(x+1,y), index, Spring::STRETCH);
             }
-            if (x < m_vertexWidth-2 && y < m_vertexLength-2) 
-            { 
-                m_springs.push_back(SpringPtr(new Spring()));
-                m_springs[m_springs.size()-1]->Initialise(*GetParticle(x+2,y),*GetParticle(x,y+2));
+
+            //Last 2ys doesn't have bending vertical springs
+            if(y < m_vertexLength-2)
+            {
+                index = createSpring(index);
+                m_springs[index]->Initialise(*GetParticle(x,y),
+                    *GetParticle(x,y+2), index, Spring::BEND);
+            }
+            
+            //Last y doesn't have vertical springs
+            if(y < m_vertexLength-1)
+            {
+                index = createSpring(index);
+                m_springs[index]->Initialise(*GetParticle(x,y),
+                    *GetParticle(x,y+1), index, Spring::STRETCH);
             }
         }
     }
-    m_springCount = int(m_springs.size());
 
     //create normals
     UpdateNormals();
@@ -259,7 +285,7 @@ void Cloth::UnpinCloth()
     std::for_each(m_particles.begin(), m_particles.end(), unpinParticle);
 }
 
-void Cloth::AddForce(const FLOAT3& force)
+void Cloth::AddForce(const D3DXVECTOR3& force)
 {
     std::for_each(m_particles.begin(), m_particles.end(), 
         [&](const ParticlePtr& part){ part->AddForce(force); });
@@ -272,7 +298,7 @@ void Cloth::UpdateState(double deltatime)
         //Move cloth down slowly
         if(m_simulation)
         {
-            AddForce(m_downwardPull*m_timestepSquared*static_cast<float>(deltatime));
+            AddForce(m_gravity*m_timestepSquared*static_cast<float>(deltatime));
         }
     
         //Solve Springs
@@ -365,20 +391,26 @@ void Cloth::UpdateNormals()
 
 void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 {
+    const float radius = 0.4f;
+    const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
+    const auto& vertex = m_vertexData[m_diagnosticParticle].position;
+    
     if(Diagnostic::AllowDiagnostics())
     {
-        const float radius = 0.4f;
-        const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-        const auto& vertex = m_vertexData[m_diagnosticParticle].position;
+        Diagnostic::Get().UpdateSphere("Particle", 
+            Diagnostic::YELLOW, position, radius);
 
+        std::for_each(m_springs.begin(), m_springs.end(), 
+            [&](const SpringPtr& spring){ spring->UpdateDiagnostic(); });
+    }
+
+    if(Diagnostic::AllowText())
+    {
         Diagnostic::Get().UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
             + ", " + StringCast(position.y) + ", " + StringCast(position.z));
 
         Diagnostic::Get().UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
             + ", " + StringCast(vertex.y) + ", " + StringCast(vertex.z));
-
-        Diagnostic::Get().UpdateSphere("Particle", Diagnostic::YELLOW, 
-            D3DXVECTOR3(position.x, position.y, position.z), radius);
     }
 
     if(m_drawColParticles)
@@ -396,9 +428,12 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 
 D3DXVECTOR3 Cloth::CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& p2, const ParticlePtr& p3)
 {
-    FLOAT3 normal((p2->GetPosition()-p1->GetPosition()).Cross(p3->GetPosition()-p1->GetPosition()));
-    normal.Normalize();
-    return D3DXVECTOR3(normal.x,normal.y,normal.z);
+    D3DXVECTOR3 normal;
+    D3DXVECTOR3 p2p1(p2->GetPosition()-p1->GetPosition());
+    D3DXVECTOR3 p3p1(p3->GetPosition()-p1->GetPosition());
+    D3DXVec3Cross(&normal, &p2p1, &p3p1);
+    D3DXVec3Normalize(&normal, &normal);
+    return normal;
 }
 
 void Cloth::SolveCollision(const Collision* object)
@@ -408,15 +443,16 @@ void Cloth::SolveCollision(const Collision* object)
         case Collision::SPHERE:
         {
             const CollisionSphere* sphere = static_cast<const CollisionSphere*>(object);
-            FLOAT3 sphereCenter(sphere->GetPosition().x, sphere->GetPosition().y, sphere->GetPosition().z);
+            D3DXVECTOR3 sphereCenter(sphere->GetPosition());
             for(int i = 0; i < m_vertexCount; ++i)
             {
-                FLOAT3 centerToParticle(m_particles[i]->GetPosition() - sphereCenter);
-                float centerToParticle_l = centerToParticle.Length();
-                if (centerToParticle_l < sphere->GetRadius())
+                D3DXVECTOR3 centerToParticle(m_particles[i]->GetPosition() - sphereCenter);
+                float length = D3DXVec3Length(&centerToParticle);
+                centerToParticle /= length;
+
+                if (length < sphere->GetRadius())
                 {
-                    m_particles[i]->MovePosition(centerToParticle.GetNormalized()
-                        *(sphere->GetRadius()-centerToParticle_l)); 
+                    m_particles[i]->MovePosition(centerToParticle*(sphere->GetRadius()-length)); 
                 }
             }
             break;
@@ -426,49 +462,18 @@ void Cloth::SolveCollision(const Collision* object)
             const CollisionCube* cube = static_cast<const CollisionCube*>(object);
             for(int i = 0; i < m_vertexCount; ++i)
             {
-                FLOAT3 pos = m_particles[i]->GetPosition();
+                D3DXVECTOR3 pos = m_particles[i]->GetPosition();
                 if(pos.y <= cube->GetMaxBounds().y)
                 {
                     float distance = cube->GetMaxBounds().y-pos.y;
                     distance *= (distance < 0) ? -1.0f : 1.0f;
-                    m_particles[i]->MovePosition(FLOAT3(0,distance,0));
+                    m_particles[i]->MovePosition(D3DXVECTOR3(0,distance,0));
                 }
             }
             break;
         }
     }
 }
-
-//bool Cloth::SelfCollisionTest()
-//{
-//        if(m_selfCollide && m_simulation)
-//        {
-//            for(int j = 0; j < m_vertexCount; ++j)
-//            {
-//                for(int i = (j+1); i < m_vertexCount; ++i) //don't test <j against i
-//                {
-//                    FLOAT3 centerTocenter = m_particles[i]->position - m_particles[j].position; //i <-- j
-//                    float centerTocenter_l = centerTocenter.Length();
-//                    float rad_l = m_particles[i].Radius + m_particles[j].Radius;
-//                    if (centerTocenter_l < rad_l)
-//                    {
-//                        //don't wanna move j...only move i
-//                        float difference = (rad_l-centerTocenter_l);
-//                        if(difference < 0)
-//                            difference*=-1;
-//                        m_particles[i]->MovePosition(centerTocenter.Normalize()*difference);       
-//                    }
-//                }
-//                //check for emergency stop
-//                if(KEY_DOWN(VK_BACK))
-//                {
-//                    m_simulation = false;
-//                    return false;
-//                }
-//            }
-//        }
-//    return true;
-//}
 
 void Cloth::MousePickingTest(Picking& input)
 {
@@ -544,7 +549,7 @@ void Cloth::MovePinnedRow(float right, float up, float forward)
 {
     if(m_handleMode)
     {
-        FLOAT3 direction(right,up,forward);
+        D3DXVECTOR3 direction(right,up,forward);
         auto addForce = [&](const ParticlePtr& part){ if(part->IsSelected()){ part->AddForce(direction); } };
         std::for_each(m_particles.begin(), m_particles.end(), addForce);
     }
@@ -592,12 +597,18 @@ void Cloth::ChangeRow(int row, bool select)
 
 void Cloth::SetSpacing(double size)
 {
-    CreateCloth(m_vertexLength, static_cast<float>(size));
+    if(size != m_spacing)
+    {
+        CreateCloth(m_vertexLength, static_cast<float>(size));
+    }
 }
 
 void Cloth::SetVertexRows(double number)
 {
-    CreateCloth(static_cast<int>(number), m_spacing);
+    if(number != m_vertexLength)
+    {
+        CreateCloth(static_cast<int>(number), m_spacing);
+    }
 }
 
 void Cloth::SetIterations(double iterations)

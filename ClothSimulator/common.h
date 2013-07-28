@@ -13,7 +13,6 @@
 #include <vector>
 #include <sstream>
 #include <memory>
-#include "float3.h"
 #include "transform.h"
 #include "diagnostic.h"
 

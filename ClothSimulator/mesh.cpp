@@ -247,3 +247,10 @@ void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
     Transform::UpdateFn positionalFn = std::bind(&CollisionSphere::PositionalUpdate, sphere);
     SetObserver(fullFn, positionalFn);
 }
+
+Mesh::Vertex::Vertex() :
+    position(0.0f, 0.0f, 0.0f),
+    normal(0.0f, 0.0f, 0.0f),
+    uvs(0.0f, 0.0f)
+{
+}

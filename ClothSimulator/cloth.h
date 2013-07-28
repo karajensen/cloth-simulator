@@ -176,7 +176,7 @@ private:
     * Adds a force to each vertex in the cloth
     * @param the force to add
     */
-    void AddForce(const FLOAT3& force);
+    void AddForce(const D3DXVECTOR3& force);
 
     /**
     * Selects the given particle for diagnostic purposes
@@ -218,7 +218,7 @@ private:
     * @param particle to add the force to
     * @param the force to add
     */
-    void AddForce(const ParticlePtr& particle, const FLOAT3& force);
+    void AddForce(const ParticlePtr& particle, const D3DXVECTOR3& force);
 
     /**
     * @param the particle to set the color for
@@ -247,7 +247,7 @@ private:
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
     float m_spacing;            ///< Current spacing between vertices
     bool m_handleMode;          ///< Whether the simulation is in handle mode
-    FLOAT3 m_downwardPull;      ///< Simulated 'Gravity' of the cloth
+    D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 

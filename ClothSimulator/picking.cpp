@@ -2,7 +2,9 @@
 
 Picking::Picking():
     m_mesh(nullptr),
-    m_distanceToMesh(0.0f)
+    m_distanceToMesh(0.0f),
+    m_rayDirection(0.0f, 0.0f, 0.0f),
+    m_rayOrigin(0.0f, 0.0f, 0.0f)
 { 
 }
 

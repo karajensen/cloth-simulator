@@ -8,7 +8,6 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <functional>
-#include "float3.h"
 
 class Transform
 {
@@ -65,7 +64,6 @@ public:
     */
     void SetPosition(float x, float y, float z);
     void SetPosition(const D3DXVECTOR3& pos);
-    void SetPosition(const FLOAT3& pos);
 
     /**
     * Explicitly set the transform to a scale
@@ -81,6 +79,14 @@ public:
     * @param the function to call when translation occurs
     */
     void SetObserver(UpdateFn fullUpdate, UpdateFn positionalUpdate);
+
+    /**
+    * Explicitly set the transform axis
+    * @param the up vector
+    * @param the forward vector
+    * @param the right vector
+    */
+    void SetAxis(const D3DXVECTOR3& up, const D3DXVECTOR3& forward, const D3DXVECTOR3& right);
 
     /**
     * @return the transform right axis

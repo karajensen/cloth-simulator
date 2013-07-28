@@ -63,10 +63,10 @@ void Simulation::Render()
     std::for_each(std::begin(m_meshes), std::end(m_meshes), drawCol);
 
     //Draw all 3D Diagnostics
-    Diagnostic::Get().DrawAll3D(m_camera->Projection, m_camera->View);
+    Diagnostic::Get().DrawAllObjects(m_camera->Projection, m_camera->View);
 
     //Draw all 2D Diagnostics
-    Diagnostic::Get().DrawAll2D();
+    Diagnostic::Get().DrawAllText();
 
     m_d3ddev->EndScene();
     m_d3ddev->Present(NULL, NULL, NULL, NULL);
@@ -106,6 +106,11 @@ void Simulation::Update()
 void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
+
+    auto setWireframe = [&](bool set){ m_d3ddev->SetRenderState(D3DRS_FILLMODE,
+        set ? D3DFILL_WIREFRAME : D3DFILL_SOLID);};
+
+    callbacks->setWireframeMode = setWireframe;
     callbacks->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
     callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
     callbacks->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
@@ -248,6 +253,9 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
 
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_0, false, 
+        [&](){ Diagnostic::ToggleText(); });
+
+    m_input->SetKeyCallback(DIK_9, false, 
         [&](){ Diagnostic::ToggleDiagnostics(); });
 
     // Allow diagnostic selection of particles
@@ -256,12 +264,11 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
         [&](){ m_cloth->SetDiagnosticSelect(false); });
 
     // Toggle mesh collision model diagnostics
-    auto toggleCollisionDiagnostics = [&]()
+    m_input->SetKeyCallback(DIK_8, false, [&]()
     {
         sm_drawCollisions = !sm_drawCollisions;
         m_cloth->SetCollisionVisibility(sm_drawCollisions);
         std::for_each(std::begin(m_meshes), std::end(m_meshes), 
             [&](MeshPtr& mesh){ mesh->SetCollisionVisibility(sm_drawCollisions); });
-    };
-    m_input->SetKeyCallback(DIK_9, false, toggleCollisionDiagnostics);
+    });
 }

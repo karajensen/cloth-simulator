@@ -103,7 +103,7 @@ void Input::UpdateInput()
     std::for_each(m_clickPreventionKeys.begin(), m_clickPreventionKeys.end(),
         [&](const unsigned int& key){ if(IsKeyDownContinous(m_keys[key].state)){ m_mouseClicked = false; }});
 
-    if(Diagnostic::AllowDiagnostics())
+    if(Diagnostic::AllowText())
     {
         Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, 
             StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
