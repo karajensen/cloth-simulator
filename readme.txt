@@ -1,21 +1,7 @@
 
-• Clean cloth member vars
 • Scene mesh manipulation
-
-Move: if clicked on tool bar, move as drag
-
-class ObjectManager
-{
-public:
-	
-	void SetTool(Tool tool);
-	void UpdateTool();
-
-private:
-	
-	Tool m_activeTool;
-	std::vector<MeshPtr> m_meshes;
-};
+	- Redesign mesh/cloth class for instancing
+	- Disabling when reaching max objects
 
 
 • friction to cloth

@@ -10,7 +10,8 @@ Mesh::Mesh():
     m_draw(true),
     m_mesh(nullptr),
     m_texture(nullptr),
-    m_shader(nullptr)
+    m_shader(nullptr),
+    m_pickable(true)
 {
 }
 
@@ -24,6 +25,13 @@ Mesh::~Mesh()
     { 
         m_mesh->Release();
     }
+}
+
+Mesh::Vertex::Vertex() :
+    position(0.0f, 0.0f, 0.0f),
+    normal(0.0f, 0.0f, 0.0f),
+    uvs(0.0f, 0.0f)
+{
 }
 
 void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
@@ -80,7 +88,7 @@ Collision* Mesh::GetCollision()
 
 void Mesh::MousePickingTest(Picking& input)
 {
-    if(m_draw && m_mesh)
+    if(m_pickable && m_draw && m_mesh)
     {
         LPD3DXMESH meshToTest = m_collision ? m_collision->GetMesh() : m_mesh;
 
@@ -248,9 +256,12 @@ void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
     SetObserver(fullFn, positionalFn);
 }
 
-Mesh::Vertex::Vertex() :
-    position(0.0f, 0.0f, 0.0f),
-    normal(0.0f, 0.0f, 0.0f),
-    uvs(0.0f, 0.0f)
+bool Mesh::IsVisible() const
 {
+    return m_draw;
+}
+
+void Mesh::SetPickable(bool pickable)
+{
+    m_pickable = pickable;
 }

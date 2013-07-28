@@ -53,6 +53,11 @@ public:
     void ToggleVisibility();
 
     /**
+    * @return whether the mesh is visible
+    */
+    bool IsVisible() const;
+
+    /**
     * @return the collison mesh
     */
     Collision* GetCollision();
@@ -77,6 +82,11 @@ public:
     */
     virtual void SetCollisionVisibility(bool draw);
 
+    /**
+    * @param whether the mesh is pickable or not
+    */
+    void SetPickable(bool pickable);
+
 protected:
 
     /**
@@ -95,6 +105,7 @@ protected:
         Vertex();
     };
 
+    bool m_pickable;   ///< Whether the mesh can be mouse picked or not
     bool m_selected;   ///< Whether the mesh is selected or not
     bool m_draw;       ///< Whether the mesh is visible or not
     LPD3DXMESH m_mesh; ///< The directX mesh

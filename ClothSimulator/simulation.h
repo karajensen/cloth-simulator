@@ -8,12 +8,10 @@
 #include "common.h"
 #include "GUICallbacks.h"
 
+class MeshManager;
 class Camera;
 class Cloth;
-class Text;
-class Sprite;
 class Input;
-class Mesh;
 class Timer;
 
 class Simulation
@@ -51,16 +49,6 @@ public:
 private:
 
     /**
-    * Avaliable objects for the scene
-    */
-    enum Object
-    {
-        BOX,
-        SPHERE,
-        CYLINDER
-    };
-
-    /**
     * Loads all scene meshes
     * @param whether loading was successful
     */
@@ -73,22 +61,11 @@ private:
     */
     void LoadInput(HINSTANCE hInstance, HWND hWnd);
 
-    /**
-    * Creates an object of the given type
-    * @param the object type to create
-    */
-    void CreateObject(Object object);
-
-    typedef std::shared_ptr<Text> TextPtr;
-    typedef std::shared_ptr<Sprite> SpritePtr;
-    typedef std::shared_ptr<Mesh> MeshPtr;
-
-    std::shared_ptr<Timer> m_timer;
-    std::shared_ptr<Cloth> m_cloth;     ///< Simulation cloth object
-    std::shared_ptr<Input> m_input;     ///< Simulation input object
-    std::shared_ptr<Camera> m_camera;   ///< Main camera
-    std::vector<MeshPtr> m_meshes;      ///< Container of meshes
-
-    LPDIRECT3DDEVICE9 m_d3ddev;    ///< DirectX device
-    static bool sm_drawCollisions; ///< Whether to display collision models
+    std::shared_ptr<Timer> m_timer;       ///< Simulation timer object
+    std::shared_ptr<Cloth> m_cloth;       ///< Simulation cloth object
+    std::shared_ptr<Input> m_input;       ///< Simulation input object
+    std::shared_ptr<Camera> m_camera;     ///< Main camera
+    std::shared_ptr<MeshManager> m_scene; ///< Mesh manager for the scene
+    LPDIRECT3DDEVICE9 m_d3ddev;           ///< DirectX device
+    static bool sm_drawCollisions;        ///< Whether to display collision models
 };

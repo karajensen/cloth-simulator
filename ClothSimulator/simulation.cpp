@@ -1,5 +1,4 @@
 #include "simulation.h"
-#include "mesh.h"
 #include "cloth.h"
 #include "camera.h"
 #include "light.h"
@@ -8,12 +7,12 @@
 #include "collision.h"
 #include "timer.h"
 #include "text.h"
+#include "meshmanager.h"
 #include <algorithm>
 #include <sstream>
 
 namespace
 {
-    const int GROUND_MESH = 0;
     const float CAMERA_MOVE_SPEED = 40.0f;  
     const float CAMERA_ROT_SPEED = 2.0f;    
     const float HANDLE_SPEED = 20.0f;
@@ -21,7 +20,6 @@ namespace
     const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< CLear colour of the back buffer
     const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          ///< Render event colour
     const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          ///< Update event colour
-    const std::string ModelsFolder(".\\Resources\\Models\\");       ///< Folder for all meshes
 }
 
 bool Simulation::sm_drawCollisions = false;
@@ -49,23 +47,12 @@ void Simulation::Render()
     m_d3ddev->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
     D3DXVECTOR3 camPos(m_camera->World.Position());
-
-    //Draw all meshes
-    auto drawMesh = [&](MeshPtr& mesh) { mesh->DrawMesh(camPos, m_camera->Projection, m_camera->View); };
-    std::for_each(std::begin(m_meshes), std::end(m_meshes), drawMesh);
-
-    //Draw cloth
+    m_scene->Draw(camPos, m_camera->Projection, m_camera->View);
     m_cloth->DrawMesh(camPos, m_camera->Projection, m_camera->View);
     m_cloth->DrawCollision(m_camera->Projection, m_camera->View);
+    m_scene->DrawCollision(m_camera->Projection, m_camera->View);
 
-    //Draw all collision models
-    auto drawCol = [&](MeshPtr& mesh) { mesh->DrawCollision(m_camera->Projection, m_camera->View); };
-    std::for_each(std::begin(m_meshes), std::end(m_meshes), drawCol);
-
-    //Draw all 3D Diagnostics
     Diagnostic::Get().DrawAllObjects(m_camera->Projection, m_camera->View);
-
-    //Draw all 2D Diagnostics
     Diagnostic::Get().DrawAllText();
 
     m_d3ddev->EndScene();
@@ -86,20 +73,13 @@ void Simulation::Update()
     if (m_input->IsMouseClicked())
     {
         m_input->UpdatePicking(m_camera->Projection, m_camera->View); 
-
         m_cloth->MousePickingTest(m_input->GetMousePicking());
-
-        auto meshPick = [&](MeshPtr& mesh) { mesh->MousePickingTest(m_input->GetMousePicking()); };
-        std::for_each(std::begin(m_meshes), std::end(m_meshes), meshPick);
-
+        m_scene->MousePickingTest(m_input->GetMousePicking());
         m_input->SolvePicking();
     }
 
     m_cloth->UpdateState(deltaTime);
-
-    std::for_each(std::begin(m_meshes), std::end(m_meshes), 
-        [&](MeshPtr& mesh){ m_cloth->SolveCollision(mesh->GetCollision()); });
-
+    m_scene->SolveClothCollision(*m_cloth);
     m_cloth->UpdateVertexBuffer();
 }
 
@@ -107,23 +87,24 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
 
-    auto setWireframe = [&](bool set){ m_d3ddev->SetRenderState(D3DRS_FILLMODE,
-        set ? D3DFILL_WIREFRAME : D3DFILL_SOLID);};
-
-    callbacks->setWireframeMode = setWireframe;
     callbacks->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
     callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
     callbacks->unpinCloth = std::bind(&Cloth::UnpinCloth, m_cloth.get());
     callbacks->resetCamera = std::bind(&Camera::Reset, m_camera.get());
     callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(), _1);
     callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(), _1);
-    callbacks->createBox = std::bind(&Simulation::CreateObject, this, Simulation::BOX);
-    callbacks->createSphere = std::bind(&Simulation::CreateObject, this, Simulation::SPHERE);
-    callbacks->createCylinder = std::bind(&Simulation::CreateObject, this, Simulation::CYLINDER);
+    callbacks->setWireframeMode = [&](bool set){m_d3ddev->SetRenderState(
+        D3DRS_FILLMODE, set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); };
+
+    callbacks->createBox = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::BOX);
+    callbacks->createSphere = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::SPHERE);
+    callbacks->createCylinder = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::CYLINDER);
+
     callbacks->setTimestep = std::bind(&Cloth::SetTimeStep, m_cloth.get(), _1);
     callbacks->setVertexRows = std::bind(&Cloth::SetVertexRows, m_cloth.get(), _1);
     callbacks->setIterations = std::bind(&Cloth::SetIterations, m_cloth.get(), _1);
     callbacks->setSpacing = std::bind(&Cloth::SetSpacing, m_cloth.get(), _1);
+
     callbacks->getSpacing = std::bind(&Cloth::GetSpacing, m_cloth.get());
     callbacks->getIterations = std::bind(&Cloth::GetIterations, m_cloth.get());
     callbacks->getVertexRows = std::bind(&Cloth::GetVertexRows, m_cloth.get());
@@ -132,28 +113,26 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
 {   
-    bool success = true;
     m_d3ddev = d3ddev;
     LoadInput(hInstance, hWnd);
 
     m_camera.reset(new Camera(D3DXVECTOR3(0.0f,0.0f,-30.0f), D3DXVECTOR3(0.0f,0.0f,0.0f)));
     m_camera->CreateProjMatrix();
 
-    // Load all assets
-    Light_Manager::Inititalise();
-    success = Shader_Manager::Inititalise(d3ddev);
-    success = (success ? LoadMeshes() : false);
+    bool success = Shader_Manager::Inititalise(d3ddev) 
+        && Light_Manager::Inititalise();
 
     if(success)
     {
-        // Create the diagnostics
         auto boundsShader = Shader_Manager::GetShader(Shader_Manager::BOUNDS_SHADER);
+        auto meshShader = Shader_Manager::GetShader(Shader_Manager::MAIN_SHADER);
+        auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
+
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
 
-        // Create the cloth
-        auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
-        m_cloth.reset(new Cloth(m_d3ddev, ModelsFolder+"square.png", clothShader));
+        m_scene.reset(new MeshManager(d3ddev, meshShader));
+        m_cloth.reset(new Cloth(m_d3ddev, clothShader));
     }
 
     // Start the internal timer
@@ -161,28 +140,6 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     m_timer->StartTimer();
 
     return success;
-}
-
-bool Simulation::LoadMeshes()
-{
-    bool success = true;
-    m_meshes.resize(1);
-    std::generate(m_meshes.begin(), m_meshes.end(), [&](){ return Simulation::MeshPtr(new Mesh()); });
-
-    auto meshShader = Shader_Manager::GetShader(Shader_Manager::MAIN_SHADER);
-    success = (success ? m_meshes[GROUND_MESH]->Load(m_d3ddev,ModelsFolder+"ground.obj",meshShader) : false);
-
-    if(success)
-    {
-        m_meshes[GROUND_MESH]->SetPosition(0,-20,0);
-        m_meshes[GROUND_MESH]->CreateCollision(m_d3ddev,150.0f,1.0f,150.0f);
-    }
-    return success;
-}
-
-void Simulation::CreateObject(Simulation::Object object)
-{
-
 }
 
 void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
@@ -268,7 +225,6 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     {
         sm_drawCollisions = !sm_drawCollisions;
         m_cloth->SetCollisionVisibility(sm_drawCollisions);
-        std::for_each(std::begin(m_meshes), std::end(m_meshes), 
-            [&](MeshPtr& mesh){ mesh->SetCollisionVisibility(sm_drawCollisions); });
+        m_scene->SetCollisionVisibility(sm_drawCollisions);
     });
 }

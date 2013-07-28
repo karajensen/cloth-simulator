@@ -20,10 +20,9 @@ public:
     /**
     * Constructor; loads the cloth mesh
     * @param d3ddev the directX device
-    * @param texture the path to the cloth texture
     * @param shader the shader for the mesh
     */
-    Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader);
+    Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader);
 
     /**
     * Draw the cloth visual and collision models

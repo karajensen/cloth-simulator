@@ -29,7 +29,7 @@ namespace
     const float SPACING = 0.75f; 
 }
 
-Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_ptr<Shader> shader) :
+Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
     m_selectedRow(1),
     m_timestep(TIMESTEP),
     m_timestepSquared(TIMESTEP*TIMESTEP),
@@ -51,10 +51,10 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const std::string& texture, std::shared_p
     m_d3ddev(d3ddev)
 {
     m_shader = shader;
-    if(FAILED(D3DXCreateTextureFromFile(d3ddev, texture.c_str(), &m_texture)))
+    if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_texture)))
     {
         m_texture = nullptr;
-        Diagnostic::ShowMessage("Cannot create texture " + texture);
+        Diagnostic::ShowMessage("Cannot create cloth texture");
     }
 
     m_colors.resize(MAX_COLORS);

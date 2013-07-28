@@ -99,8 +99,9 @@ public:
 
     /**
     * Initialise all lighting
+    * @param whether initialisation succeeded or nots
     */
-    static void Inititalise();
+    static bool Inititalise();
 
     /**
     * Sends all lighting to the given shader
