@@ -1,8 +1,23 @@
 
-• Bending springs and get good initial cloth
-• Fix diag line sizing
-
+• Clean cloth member vars
 • Scene mesh manipulation
+
+Move: if clicked on tool bar, move as drag
+
+class ObjectManager
+{
+public:
+	
+	void SetTool(Tool tool);
+	void UpdateTool();
+
+private:
+	
+	Tool m_activeTool;
+	std::vector<MeshPtr> m_meshes;
+};
+
+
 • friction to cloth
 • Octree spacial partitioning
 • Cloth self-collision

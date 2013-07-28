@@ -1,6 +1,6 @@
 /****************************************************************
 * Kara Jensen (KaraPeaceJensen@gmail.com) 
-* Main Window Form, usable with the designer
+* Main GUI Window Form, usable with the designer
 *****************************************************************/
 #pragma once
 #include <vcclr.h>
@@ -343,6 +343,8 @@ namespace GUI
         System::Void VertexRowsChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_handleBtn->Checked = false;
+            m_callbacks->setHandleMode(false);
             m_callbacks->setVertexRows(Decimal::ToDouble(spinbox->Value));
         }
 
@@ -370,6 +372,8 @@ namespace GUI
         System::Void SpacingChanged(System::Object^ sender, System::EventArgs^ e)
         {
             NumericUpDown^ spinbox = static_cast<NumericUpDown^>(sender);
+            m_handleBtn->Checked = false;
+            m_callbacks->setHandleMode(false);
             m_callbacks->setSpacing(Decimal::ToDouble(spinbox->Value));
         }
 
@@ -447,15 +451,15 @@ namespace GUI
             index = 0;
 
             CreateSpinBox(m_vertRows, path+"vertrows.png",
-                "Change the number of vertex rows", index++, 2.0, 3.0, 50.0,
+                "Change the number of vertex rows", index++, 2.0, 4.0, 50.0,
                 gcnew System::EventHandler(this, &GUIForm::VertexRowsChanged));
 
             CreateSpinBox(m_iterations, path+"iterations.png", 
-                "Change the number of solve iterations", index++, 1.0, 1.0, 10.0,
+                "Change the number of solve iterations", index++, 1.0, 1.0, 50.0,
                 gcnew System::EventHandler(this, &GUIForm::IterationChanged));
 
             CreateSpinBox(m_timestep, path+"timestep.png",  
-                "Change the cloth timestep", index++, 0.05, 0.1, 10.0,
+                "Change the cloth timestep", index++, 0.01, 0.1, 50.0,
                 gcnew System::EventHandler(this, &GUIForm::TimestepChanged));
 
             CreateSpinBox(m_spacing, path+"spacing.png", 

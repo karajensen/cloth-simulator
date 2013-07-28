@@ -34,7 +34,7 @@ Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev) :
     m_colourmap.insert(ColorMap::value_type(WHITE, D3DXVECTOR3(1.0f, 1.0f, 1.0f)));
     m_colourmap.insert(ColorMap::value_type(YELLOW, D3DXVECTOR3(1.0f, 1.0f, 0.0f)));
 
-    int border = 10;
+    const int border = 10;
     m_text.reset(new Text());
     if(!m_text->Load(d3ddev, false, TEXT_WEIGHT, TEXT_SIZE, DT_LEFT, 
         border, border, WINDOW_WIDTH-border, WINDOW_HEIGHT-border))
@@ -172,7 +172,7 @@ void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color,
         D3DXVec3Normalize(&up, &up);
 
         D3DXVECTOR3 right;
-        D3DXVec3Cross(&right, &ZAXIS, &forward);
+        D3DXVec3Cross(&right, &up, &forward);
         D3DXVec3Normalize(&right, &right);
 
         forward *= size;

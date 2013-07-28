@@ -1,4 +1,3 @@
-
 #include "cloth.h"
 #include "input.h"
 #include "collision.h"
@@ -24,7 +23,7 @@ namespace
     * Initial values for the cloth
     */
     const int ROWS = 20;         
-    const int ITERATIONS = 4;    
+    const int ITERATIONS = 6;    
     const float TIMESTEP = 0.5f; 
     const float DAMPING = 0.9f;  
     const float SPACING = 0.75f; 
