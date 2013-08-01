@@ -1,5 +1,5 @@
 /****************************************************************
-* Kara Jensen (KaraPeaceJensen@gmail.com) 
+* Kara Jensen (mail@karajensen.com) 
 * Main GUI Window Form, usable with the designer
 *****************************************************************/
 #pragma once

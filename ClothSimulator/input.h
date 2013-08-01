@@ -1,5 +1,5 @@
 /****************************************************************
-* Kara Jensen (KaraPeaceJensen@gmail.com) 
+* Kara Jensen (mail@karajensen.com) 
 * Direct Input and mouse picking wrapper
 * Note: Some keys do not work with continuous keypress/
 * mouse click combination (ie. Space/Tab)

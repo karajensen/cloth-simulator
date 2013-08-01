@@ -3,7 +3,6 @@
 	- Redesign mesh/cloth class for instancing
 	- Disabling when reaching max objects
 
-
 • friction to cloth
 • Octree spacial partitioning
 • Cloth self-collision

@@ -1,5 +1,5 @@
 /****************************************************************
-* Kara Jensen (KaraPeaceJensen@gmail.com) 
+* Kara Jensen (mail@karajensen.com) 
 * Basic lights for scene with multiple light support
 *****************************************************************/
 #pragma once
@@ -99,7 +99,7 @@ public:
 
     /**
     * Initialise all lighting
-    * @param whether initialisation succeeded or nots
+    * @param whether initialisation succeeded or not
     */
     static bool Inititalise();
 
