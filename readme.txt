@@ -1,12 +1,14 @@
 
 • Scene mesh manipulation
-	- Redesign mesh/cloth class for instancing
-	- Disabling when reaching max objects
+	- move particles/scene mesh over to instances
+	- create objects through clicking gui
+	- Disabling gui when reaching max objects (callback retruns bool)
+	- add cylinder to collisions
+	- create moving tools
 
-• friction to cloth
 • Octree spacial partitioning
 • Cloth self-collision
-• Soft shadow mapping?
+• Soft shadow mapping
 
 =================================================================
 CLOTH SIMULATOR

@@ -19,12 +19,33 @@ public:
     virtual ~Mesh();
 
     /**
+    * Data for rendering a mesh
+    */
+    struct MeshData
+    {
+        LPD3DXMESH mesh;                      ///< The directX mesh
+        LPDIRECT3DTEXTURE9 texture;           ///< The texture attached to the mesh
+        std::shared_ptr<Shader> shader;       ///< The shader attached to the mesh
+        std::shared_ptr<Collision> collision; ///< The collision geometry attached to the mesh
+
+        MeshData();
+        ~MeshData();
+    };
+
+    /**
     * Load the mesh
     * @param the directX device
     * @param the path to the mesh
     * @param the shader attached to the mesh
     */
     bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shared_ptr<Shader> shader);
+
+    /**
+    * Load the mesh as an instance of another mesh
+    * @param the directX device
+    * @param the meshdata from the parent mesh
+    */
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data);
 
     /**
     * Draw the visual model of the mesh
@@ -48,14 +69,19 @@ public:
     virtual void MousePickingTest(Picking& input);
 
     /**
-    * Toggles visibility of the mesh
+    * Sets visibility of the mesh
     */
-    void ToggleVisibility();
+    void SetVisible(bool visible);
 
     /**
     * @return whether the mesh is visible
     */
     bool IsVisible() const;
+
+    /**
+    * @return the mesh data
+    */
+    std::shared_ptr<MeshData> GetData();
 
     /**
     * @return the collison mesh
@@ -105,12 +131,9 @@ protected:
         Vertex();
     };
 
+    std::shared_ptr<MeshData> m_data;   ///< Data for the mesh
+
     bool m_pickable;   ///< Whether the mesh can be mouse picked or not
     bool m_selected;   ///< Whether the mesh is selected or not
     bool m_draw;       ///< Whether the mesh is visible or not
-    LPD3DXMESH m_mesh; ///< The directX mesh
-
-    LPDIRECT3DTEXTURE9 m_texture;           ///< The texture attached to the mesh
-    std::shared_ptr<Shader> m_shader;       ///< The shader attached to the mesh
-    std::shared_ptr<Collision> m_collision; ///< The collision geometry attached to the mesh
 };

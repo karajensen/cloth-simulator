@@ -8,23 +8,40 @@
 Mesh::Mesh():
     m_selected(false),
     m_draw(true),
-    m_mesh(nullptr),
-    m_texture(nullptr),
-    m_shader(nullptr),
     m_pickable(true)
 {
+    SetMeshPickFunction(std::bind(&Mesh::ToggleSelected, this));
+
+    m_data.reset(new MeshData());
+    m_data->collision.reset(new Collision(*this));
+
+    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
+    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
+    SetObserver(fullFn, positionalFn);
+}
+
+Mesh::MeshData::MeshData() :
+    mesh(nullptr),
+    texture(nullptr),
+    shader(nullptr),
+    collision(nullptr)
+{
+}
+
+Mesh::MeshData::~MeshData()
+{
+    if(texture != nullptr)
+    { 
+        texture->Release();
+    }
+    if(mesh != nullptr)
+    { 
+        mesh->Release();
+    }
 }
 
 Mesh::~Mesh()
 {
-    if(m_texture != nullptr)
-    { 
-        m_texture->Release();
-    }
-    if(m_mesh != nullptr)
-    { 
-        m_mesh->Release();
-    }
 }
 
 Mesh::Vertex::Vertex() :
@@ -36,17 +53,17 @@ Mesh::Vertex::Vertex() :
 
 void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
 {
-    if(m_mesh && m_draw)
+    if(m_data->mesh && m_draw)
     {
         LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() 
-            ? Shader_Manager::GetWorldEffect() : m_shader->GetEffect();
+            ? Shader_Manager::GetWorldEffect() : m_data->shader->GetEffect();
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
 
-        if(m_texture != nullptr)
+        if(m_data->texture != nullptr)
         {
-            effect->SetTexture(DxConstant::DiffuseTexture, m_texture);
+            effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
         }
 
         Light_Manager::SendLightingToShader(effect);
@@ -66,7 +83,7 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
         for(UINT iPass = 0; iPass<nPasses; ++iPass)
         {
             effect->BeginPass(iPass);
-            m_mesh->DrawSubset(0);
+            m_data->mesh->DrawSubset(0);
             effect->EndPass();
         }
         effect->End();
@@ -75,22 +92,22 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
 
 void Mesh::DrawCollision(const Transform& projection, const Transform& view)
 {
-    if(m_collision && m_draw)
+    if(m_data->collision && m_draw)
     {
-        m_collision->Draw(projection, view);
+        m_data->collision->Draw(projection, view);
     }
 }
 
 Collision* Mesh::GetCollision()
 {
-    return m_collision.get();
+    return m_data->collision.get();
 }
 
 void Mesh::MousePickingTest(Picking& input)
 {
-    if(m_pickable && m_draw && m_mesh)
+    if(m_pickable && m_draw && m_data->mesh)
     {
-        LPD3DXMESH meshToTest = m_collision ? m_collision->GetMesh() : m_mesh;
+        LPD3DXMESH meshToTest = m_data->collision ? m_data->collision->GetMesh() : m_data->mesh;
 
         D3DXMATRIX worldInverse;
         D3DXMatrixInverse(&worldInverse, NULL, &Matrix);
@@ -122,15 +139,15 @@ void Mesh::MousePickingTest(Picking& input)
 
 void Mesh::SetCollisionVisibility(bool draw)
 {
-    if(m_collision)
+    if(m_data->collision)
     {
-        m_collision->SetDraw(draw);
+        m_data->collision->SetDraw(draw);
     }
 }
 
-void Mesh::ToggleVisibility()
+void Mesh::SetVisible(bool visible)
 {
-    m_draw = !m_draw;
+    m_draw = visible;
 }
 
 void Mesh::ToggleSelected()
@@ -140,8 +157,7 @@ void Mesh::ToggleSelected()
 
 bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shared_ptr<Shader> shader)
 {
-    m_shader = shader;
-    SetMeshPickFunction(std::bind(&Mesh::ToggleSelected, this));
+    m_data->shader = shader;
 
     //Create a assimp mesh
     std::string errorBuffer;
@@ -160,9 +176,9 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shar
     {
         //Create any textures
         std::string diffuse = subMeshes[i].textures[Assimpmesh::DIFFUSE];
-        if(!diffuse.empty() && !m_texture)
+        if(!diffuse.empty() && !m_data->texture)
         {
-            if(FAILED(D3DXCreateTextureFromFile(d3ddev, diffuse.c_str(), &m_texture)))
+            if(FAILED(D3DXCreateTextureFromFile(d3ddev, diffuse.c_str(), &m_data->texture)))
             {
                 Diagnostic::ShowMessage("Cannot create texture " + diffuse);
                 return false;
@@ -205,7 +221,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shar
                              D3DXMESH_MANAGED | D3DXMESH_32BIT,
                              VertexDec,
                              d3ddev,
-                             &m_mesh)))
+                             &m_data->mesh)))
     {
         Diagnostic::ShowMessage("Mesh " + filename + " creation failed");
         return false;
@@ -213,47 +229,46 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shar
 
     //Fill in the vertex buffer
     Vertex* pVertexBuffer;
-    if(FAILED( m_mesh->LockVertexBuffer(0, (void**)&pVertexBuffer)))
+    if(FAILED( m_data->mesh->LockVertexBuffer(0, (void**)&pVertexBuffer)))
     {
         Diagnostic::ShowMessage(filename + " Vertex buffer lock failed");
         return false;
     }
     #pragma warning(disable: 4996)
     std::copy(vertexData.begin(), vertexData.end(), pVertexBuffer);
-    m_mesh->UnlockVertexBuffer();
+    m_data->mesh->UnlockVertexBuffer();
 
     //Fill in the index buffer
     DWORD* pm_indexBuffer;
-    if(FAILED(m_mesh->LockIndexBuffer(0, (void**)&pm_indexBuffer)))
+    if(FAILED(m_data->mesh->LockIndexBuffer(0, (void**)&pm_indexBuffer)))
     {
         Diagnostic::ShowMessage(filename + " Index buffer lock failed");
         return false;
     }
     #pragma warning(disable: 4996)
     std::copy(indexData.begin(), indexData.end(), pm_indexBuffer);
-    m_mesh->UnlockIndexBuffer();
+    m_data->mesh->UnlockIndexBuffer();
 
+    return true;
+}
+
+bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data)
+{
+    m_data = data;
+    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
+    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
+    SetObserver(fullFn, positionalFn);
     return true;
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
 {
-    CollisionCube* cube = new CollisionCube(d3ddev, *this, width, height, depth);
-    m_collision.reset(cube);
-
-    Transform::UpdateFn fullFn = std::bind(&CollisionCube::FullUpdate, cube);
-    Transform::UpdateFn positionalFn = std::bind(&CollisionCube::PositionalUpdate, cube);
-    SetObserver(fullFn, positionalFn);
+    m_data->collision->LoadBox(d3ddev, width, height, depth);
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
 {
-    CollisionSphere* sphere = new CollisionSphere(d3ddev, *this, radius, quality);
-    m_collision.reset(sphere);
-
-    Transform::UpdateFn fullFn = std::bind(&CollisionSphere::FullUpdate, sphere);
-    Transform::UpdateFn positionalFn = std::bind(&CollisionSphere::PositionalUpdate, sphere);
-    SetObserver(fullFn, positionalFn);
+    m_data->collision->LoadSphere(d3ddev, radius, quality);
 }
 
 bool Mesh::IsVisible() const
@@ -264,4 +279,9 @@ bool Mesh::IsVisible() const
 void Mesh::SetPickable(bool pickable)
 {
     m_pickable = pickable;
+}
+
+std::shared_ptr<Mesh::MeshData> Mesh::GetData()
+{
+    return m_data;
 }

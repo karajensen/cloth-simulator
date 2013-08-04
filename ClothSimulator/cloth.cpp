@@ -50,10 +50,10 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
     m_spacing(0.0f),
     m_d3ddev(d3ddev)
 {
-    m_shader = shader;
-    if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_texture)))
+    m_data->shader = shader;
+    if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_data->texture)))
     {
-        m_texture = nullptr;
+        m_data->texture = nullptr;
         Diagnostic::ShowMessage("Cannot create cloth texture");
     }
 
@@ -223,39 +223,39 @@ void Cloth::CreateCloth(int rows, float spacing)
     };
 
     //Create the mesh
-    if(m_mesh)
+    if(m_data->mesh)
     {
-        m_mesh->Release();
-        m_mesh = nullptr;
+        m_data->mesh->Release();
+        m_data->mesh = nullptr;
     }
 
     if(FAILED(D3DXCreateMesh(numOfFaces, m_vertexData.size(),
                              D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
-                             VertexDec, m_d3ddev, &m_mesh)))
+                             VertexDec, m_d3ddev, &m_data->mesh)))
     {
-        m_mesh = nullptr;
+        m_data->mesh = nullptr;
         Diagnostic::ShowMessage("Cloth Mesh creation failed");
     }
 
     //Vertex Buffer
     m_vertexBuffer = nullptr;
-    if(FAILED(m_mesh->LockVertexBuffer(0,&m_vertexBuffer)))
+    if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
     {
         Diagnostic::ShowMessage("Cloth Vertex buffer lock failed");
     }
     #pragma warning(disable: 4996)
     std::copy(m_vertexData.begin(), m_vertexData.end(),(Vertex*)m_vertexBuffer);
-    m_mesh->UnlockVertexBuffer();
+    m_data->mesh->UnlockVertexBuffer();
 
     //Index Buffer
     m_indexBuffer = nullptr;
-    if(FAILED(m_mesh->LockIndexBuffer(0,&m_indexBuffer)))
+    if(FAILED(m_data->mesh->LockIndexBuffer(0,&m_indexBuffer)))
     {
         Diagnostic::ShowMessage("Cloth Index buffer lock failed");
     }
     #pragma warning(disable: 4996)
     std::copy(m_indexData.begin(), m_indexData.end(), (DWORD*)m_indexBuffer);
-    m_mesh->UnlockIndexBuffer();
+    m_data->mesh->UnlockIndexBuffer();
 }
 
 void Cloth::SetHandleMode(bool set)
@@ -334,7 +334,7 @@ bool Cloth::UpdateVertexBuffer()
     UpdateNormals();
 
     //Lock the vertex buffer
-    if(FAILED(m_mesh->LockVertexBuffer(0,&m_vertexBuffer)))
+    if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
     {
         Diagnostic::ShowMessage("Vertex buffer lock failed");
         return false;
@@ -345,7 +345,7 @@ bool Cloth::UpdateVertexBuffer()
     std::copy(m_vertexData.begin(), m_vertexData.end(),(Vertex*)m_vertexBuffer);
 
     //unlock vertex buffer
-    m_mesh->UnlockVertexBuffer();
+    m_data->mesh->UnlockVertexBuffer();
     return true;
 }
 
@@ -441,7 +441,9 @@ void Cloth::SolveCollision(const Collision* object)
     {
         case Collision::SPHERE:
         {
-            const CollisionSphere* sphere = static_cast<const CollisionSphere*>(object);
+            const Collision* sphere = static_cast<const Collision*>(object);
+            const Collision::Sphere& spheredata = sphere->GetSphereData();
+
             D3DXVECTOR3 sphereCenter(sphere->GetPosition());
             for(int i = 0; i < m_vertexCount; ++i)
             {
@@ -449,22 +451,24 @@ void Cloth::SolveCollision(const Collision* object)
                 float length = D3DXVec3Length(&centerToParticle);
                 centerToParticle /= length;
 
-                if (length < sphere->GetRadius())
+                if (length < spheredata.radius)
                 {
-                    m_particles[i]->MovePosition(centerToParticle*(sphere->GetRadius()-length)); 
+                    m_particles[i]->MovePosition(centerToParticle*(spheredata.radius-length)); 
                 }
             }
             break;
         }
-        case Collision::CUBE:
+        case Collision::BOX:
         {
-            const CollisionCube* cube = static_cast<const CollisionCube*>(object);
+            const Collision* box = static_cast<const Collision*>(object);
+            const Collision::Box& boxdata = box->GetBoxData();
+
             for(int i = 0; i < m_vertexCount; ++i)
             {
                 D3DXVECTOR3 pos = m_particles[i]->GetPosition();
-                if(pos.y <= cube->GetMaxBounds().y)
+                if(pos.y <= boxdata.maxBounds.y)
                 {
-                    float distance = cube->GetMaxBounds().y-pos.y;
+                    float distance = boxdata.maxBounds.y-pos.y;
                     distance *= (distance < 0) ? -1.0f : 1.0f;
                     m_particles[i]->MovePosition(D3DXVECTOR3(0,distance,0));
                 }

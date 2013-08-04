@@ -4,51 +4,72 @@
 
 std::shared_ptr<Shader> Collision::sm_shader = nullptr;
 
-Collision::Collision(Collision::CollisionShape shape, const Transform& parent) :
+Collision::Collision(const Transform& parent) :
+    m_shape(NONE),
     m_draw(false),
-    m_shape(shape),
-    m_mesh(nullptr),
     m_colour(0.0f, 0.0f, 1.0f),
     m_position(0.0f, 0.0f, 0.0f),
     m_parent(parent)
 {
 }
 
-CollisionCube::CollisionCube(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent,
-  float width, float height, float depth) :
-    Collision(CUBE, parent),
-    m_localMinBounds(-width/2.0f, -height/2.0f, -depth/2.0f),
-    m_localMaxBounds(width/2.0f, height/2.0f, depth/2.0f),
-    m_minBounds(0.0f, 0.0f, 0.0f),
-    m_maxBounds(0.0f, 0.0f, 0.0f)
+Collision::Geometry::Geometry() :
+    mesh(nullptr)
 {
-    D3DXCreateBox(d3ddev,width,height,depth,&m_mesh,NULL);
+}
 
+Collision::Box::Box(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth) :
+    localMinBounds(-width/2.0f, -height/2.0f, -depth/2.0f),
+    localMaxBounds(width/2.0f, height/2.0f, depth/2.0f),
+    minBounds(0.0f, 0.0f, 0.0f),
+    maxBounds(0.0f, 0.0f, 0.0f)
+{
+    D3DXCreateBox(d3ddev,width,height,depth,&mesh,NULL);
+}
+
+void Collision::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
+{
+    Box* box = new Box(d3ddev, width, height, depth);
+    m_data.reset(box);
+
+    m_shape = BOX;
     m_localWorld.SetScale(width, height, depth);
     m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
     m_position = m_world.Position();
-    D3DXVec3TransformCoord(&m_minBounds, &m_localMinBounds, &m_world.Matrix);
-    D3DXVec3TransformCoord(&m_maxBounds, &m_localMaxBounds, &m_world.Matrix);
+    D3DXVec3TransformCoord(&box->minBounds, &box->localMinBounds, &m_world.Matrix);
+    D3DXVec3TransformCoord(&box->maxBounds, &box->localMaxBounds, &m_world.Matrix);
 }
 
-CollisionSphere::CollisionSphere(LPDIRECT3DDEVICE9 d3ddev, const Transform& parent, float radius, int divisions) :
-    Collision(SPHERE, parent),
-    m_localRadius(radius),
-    m_radius(0.0f)
+Collision::Sphere::Sphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions) :
+    localRadius(radius),
+    radius(0.0f)
 {
-    D3DXCreateSphere(d3ddev,radius,divisions,divisions,&m_mesh,NULL);
+    D3DXCreateSphere(d3ddev,radius,divisions,divisions,&mesh,NULL);
+}
 
+void Collision::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
+{
+    Sphere* sphere = new Sphere(d3ddev, radius, divisions);
+    m_data.reset(sphere);
+
+    m_shape = SPHERE;
     m_localWorld.SetScale(radius);
     m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
     m_position = m_world.Position();
-    m_radius = m_localRadius * m_world.GetScaleFactor().x;
+    sphere->radius = sphere->localRadius * m_world.GetScaleFactor().x;
 }
 
-Collision::~Collision()
+void Collision::LoadInstance(Shape shape, std::shared_ptr<Collision::Geometry> data)
+{
+    m_data = data;
+    m_shape = shape;
+}
+
+Collision::Geometry::~Geometry()
 { 
-    if(m_mesh != nullptr)
+    if(mesh != nullptr)
     { 
-        m_mesh->Release(); 
+        mesh->Release(); 
     } 
 }
 
@@ -57,9 +78,39 @@ void Collision::Initialise(std::shared_ptr<Shader> boundsShader)
     sm_shader = boundsShader;
 }
 
+LPD3DXMESH Collision::GetMesh()
+{
+    return m_data->mesh;
+}
+
+void Collision::SetDraw(bool draw) 
+{ 
+    m_draw = draw;
+}
+
+const D3DXVECTOR3& Collision::GetPosition() const 
+{ 
+    return m_position; 
+}
+
+std::shared_ptr<Collision::Geometry> Collision::GetData()
+{
+    return m_data;
+}
+
+Collision::Shape Collision::GetShape() const
+{ 
+    return m_shape;
+}
+
+void Collision::SetColor(const D3DXVECTOR3& color)
+{ 
+    m_colour = color;
+}
+
 void Collision::Draw(const Transform& projection, const Transform& view)
 {
-    if(m_draw && m_mesh)
+    if(m_draw && m_data && m_data->mesh)
     {
         LPD3DXEFFECT pEffect(sm_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
@@ -74,117 +125,157 @@ void Collision::Draw(const Transform& projection, const Transform& view)
         for( UINT iPass = 0; iPass<nPasses; iPass++)
         {
             pEffect->BeginPass(iPass);
-            m_mesh->DrawSubset(0);
+            m_data->mesh->DrawSubset(0);
             pEffect->EndPass();
         }
         pEffect->End();
     }
 }
 
-void CollisionCube::PositionalUpdate()
+Collision::Sphere& Collision::GetSphereData()
 {
-    D3DXVECTOR3 difference(m_position-m_parent.Position());
-    m_position += difference;
-    m_world.Translate(difference);
-    m_minBounds += difference;
-    m_maxBounds += difference;
+    return static_cast<Sphere&>(*m_data.get());
 }
 
-void CollisionSphere::PositionalUpdate()
+Collision::Box& Collision::GetBoxData()
 {
-    m_position = m_parent.Position();
-    m_world.SetPosition(m_position);
+    return static_cast<Box&>(*m_data.get());
 }
 
-void CollisionCube::FullUpdate()
+const Collision::Sphere& Collision::GetSphereData() const
 {
-    //DirectX:  World = LocalWorld * ParentWorld
-    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
-    m_position = m_world.Position();
-    D3DXVec3TransformCoord(&m_minBounds, &m_localMinBounds, &m_world.Matrix);
-    D3DXVec3TransformCoord(&m_maxBounds, &m_localMaxBounds, &m_world.Matrix);
+    return static_cast<Sphere&>(*m_data.get());
 }
 
-void CollisionSphere::FullUpdate()
+const Collision::Box& Collision::GetBoxData() const
 {
-    //DirectX:  World = LocalWorld * ParentWorld
-    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
-    m_position = m_world.Position();
-    
-    //assumes uniform scaling
-    m_radius = m_localRadius * m_world.GetScaleFactor().x;
+    return static_cast<Box&>(*m_data.get());
 }
 
-bool CollisionCube::TestCollision(const Collision* obj) const
+void Collision::PositionalUpdate()
 {
-    switch(obj->GetShape())
+    if(m_data)
     {
-    case SPHERE:
-        return Collision_Manager::TestCubeSphereCollision(this, static_cast<const CollisionSphere*>(obj));
-    case CUBE:
-        return Collision_Manager::TestCubeCubeCollision(this, static_cast<const CollisionCube*>(obj));
-    }
-    return false;
-}
-
-bool CollisionSphere::TestCollision(const Collision* obj) const
-{
-    switch(obj->GetShape())
-    {
-    case SPHERE:
-        return Collision_Manager::TestSphereSphereCollision(this, static_cast<const CollisionSphere*>(obj));
-    case CUBE:
-        return Collision_Manager::TestCubeSphereCollision(static_cast<const CollisionCube*>(obj), this);
-    }
-    return false;
-}
-
-bool Collision_Manager::TestSphereSphereCollision(const CollisionSphere* sphere1, const CollisionSphere* sphere2)
-{
-    D3DVECTOR relPos = sphere1->GetPosition() - sphere2->GetPosition();
-    float dist = (relPos.x * relPos.x) + (relPos.y * relPos.y) + (relPos.z * relPos.z);
-    float minDist = sphere1->GetRadius() + sphere2->GetRadius();
-    return (dist <= (pow(minDist,2)));
-}
-
-bool Collision_Manager::TestCubeCubeCollision(const CollisionCube* cube1, const CollisionCube* cube2)
-{
-    return (!((cube1->GetMaxBounds().x < cube2->GetMinBounds().x  || 
-               cube1->GetMinBounds().x > cube2->GetMaxBounds().x) ||
-              (cube1->GetMaxBounds().y < cube2->GetMinBounds().y  || 
-               cube1->GetMinBounds().y > cube2->GetMaxBounds().y) ||
-              (cube1->GetMaxBounds().z < cube2->GetMinBounds().z  ||
-               cube1->GetMinBounds().z > cube2->GetMaxBounds().z)));
-}
-
-bool Collision_Manager::TestCubeSphereCollision(const CollisionCube* cube, const CollisionSphere* sphere)
-{
-    //get normalized vector from sphere center to box center
-    //times by radius to get vector from center sphere to sphere pointing at cube
-    D3DXVECTOR3 sphereToBox = cube->GetPosition() - sphere->GetPosition();
-    D3DXVec3Normalize(&sphereToBox,&sphereToBox);
-    D3DXVECTOR3 sphereDir = sphere->GetRadius() * sphereToBox; //center of sphere pointing at cube
-
-    //convert vector to world space
-    sphereDir += sphere->GetPosition();
-
-    //check for collision
-    if((sphereDir.x < cube->GetMaxBounds().x) && 
-        (sphereDir.x > cube->GetMinBounds().x)) //test if in x portion
-    {
-        if((sphereDir.y < cube->GetMaxBounds().y) && 
-            (sphereDir.y > cube->GetMinBounds().y)) //test if in y portion
+        if(m_shape == BOX)
         {
-            return ((sphereDir.z < cube->GetMaxBounds().z) &&
-                (sphereDir.z > cube->GetMinBounds().z)); //test if in z portion
+            Box& box = GetBoxData();
+            D3DXVECTOR3 difference(m_position-m_parent.Position());
+            m_position += difference;
+            m_world.Translate(difference);
+            box.minBounds += difference;
+            box.maxBounds += difference;
+        }
+        else if(m_shape == SPHERE)
+        {
+            m_position = m_parent.Position();
+            m_world.SetPosition(m_position);
+        }
+    }
+}
+
+void Collision::FullUpdate()
+{
+    if(m_data)
+    {
+        //DirectX:  World = LocalWorld * ParentWorld
+        m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+        m_position = m_world.Position();
+
+        if(m_shape == BOX)
+        {
+            Box& box = GetBoxData();
+            D3DXVec3TransformCoord(&box.minBounds, &box.localMinBounds, &m_world.Matrix);
+            D3DXVec3TransformCoord(&box.maxBounds, &box.localMaxBounds, &m_world.Matrix);
+        }
+        else if(m_shape == SPHERE)
+        {
+            //assumes uniform scaling
+            Sphere& sphere = GetSphereData();
+            sphere.radius = sphere.localRadius * m_world.GetScaleFactor().x;
+        }
+    }
+}
+
+bool Collision::TestCollision(const Collision* obj) const
+{
+    if(m_data)
+    {
+        if(m_shape == BOX && obj->GetShape() == BOX)
+        {
+            return CollisionTester::TestBoxBoxCollision(this, obj);
+        }
+        else if(m_shape == BOX && obj->GetShape() == SPHERE)
+        {
+            return CollisionTester::TestBoxSphereCollision(this, obj);
+        }
+        else if(m_shape == SPHERE && obj->GetShape() == BOX)
+        {
+            return CollisionTester::TestBoxSphereCollision(obj, this);
+        }
+        else if(m_shape == SPHERE && obj->GetShape() == SPHERE)
+        {
+            return CollisionTester::TestSphereSphereCollision(this, obj);
         }
     }
     return false;
 }
 
-void CollisionSphere::DrawWithRadius(const Transform& projection, const Transform& view, float radius)
+bool CollisionTester::TestSphereSphereCollision(const Collision* sphere1, const Collision* sphere2)
 {
+    const Collision::Sphere& sphere1data = sphere1->GetSphereData();
+    const Collision::Sphere& sphere2data = sphere2->GetSphereData();
+
+    D3DVECTOR relPos = sphere1->GetPosition() - sphere2->GetPosition();
+    float dist = (relPos.x * relPos.x) + (relPos.y * relPos.y) + (relPos.z * relPos.z);
+    float minDist = sphere1data.radius + sphere2data.radius;
+    return (dist <= (pow(minDist,2)));
+}
+
+bool CollisionTester::TestBoxBoxCollision(const Collision* box1, const Collision* box2)
+{
+    const Collision::Box& box1data = box1->GetBoxData();
+    const Collision::Box& box2data = box2->GetBoxData();
+
+    return (!((box1data.maxBounds.x < box2data.minBounds.x  || 
+               box1data.minBounds.x > box2data.maxBounds.x) ||
+              (box1data.maxBounds.y < box2data.minBounds.y  || 
+               box1data.minBounds.y > box2data.maxBounds.y) ||
+              (box1data.maxBounds.z < box2data.minBounds.z  ||
+               box1data.minBounds.z > box2data.maxBounds.z)));
+}
+
+bool CollisionTester::TestBoxSphereCollision(const Collision* box, const Collision* sphere)
+{
+    const Collision::Box& boxData = box->GetBoxData();
+    const Collision::Sphere& sphereData = sphere->GetSphereData();
+
+    //get normalized vector from sphere center to box center
+    //times by radius to get vector from center sphere to sphere pointing at cube
+    D3DXVECTOR3 sphereToBox = box->GetPosition() - sphere->GetPosition();
+    D3DXVec3Normalize(&sphereToBox,&sphereToBox);
+    D3DXVECTOR3 sphereDir = sphereData.radius * sphereToBox; //center of sphere pointing at cube
+
+    //convert vector to world space
+    sphereDir += sphere->GetPosition();
+
+    //check for collision
+    if((sphereDir.x < boxData.maxBounds.x) && 
+        (sphereDir.x > boxData.minBounds.x)) //test if in x portion
+    {
+        if((sphereDir.y < boxData.maxBounds.y) && 
+            (sphereDir.y > boxData.minBounds.y)) //test if in y portion
+        {
+            return ((sphereDir.z < boxData.maxBounds.z) &&
+                (sphereDir.z > boxData.minBounds.z)); //test if in z portion
+        }
+    }
+    return false;
+}
+
+void Collision::DrawWithRadius(const Transform& projection, const Transform& view, float radius)
+{
+    Sphere& spheredata = GetSphereData();
     m_world.Matrix._11 = m_world.Matrix._22 = m_world.Matrix._33 = radius;
     Draw(projection, view);
-    m_world.Matrix._11 = m_world.Matrix._22 = m_world.Matrix._33 = m_radius;
+    m_world.Matrix._11 = m_world.Matrix._22 = m_world.Matrix._33 = spheredata.radius;
 }

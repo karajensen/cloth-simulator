@@ -30,7 +30,8 @@ public:
     {
         BOX,
         SPHERE,
-        CYLINDER
+        CYLINDER,
+        MAX_OBJECT
     };
 
     /**
@@ -103,6 +104,7 @@ private:
     LPDIRECT3DDEVICE9 m_d3ddev; ///< DirectX device
     std::queue<unsigned int> m_open; ///< Indices for the avaliable meshes
     std::vector<MeshPtr> m_meshes;  ///< Changable meshes in the scene
+    std::vector<MeshPtr> m_templates; ///< Mesh templates for creating mesh instances
     Tool m_selectedTool; ///< Currently selected tool
     unsigned int m_selectedMesh; ///< Currently selected object
 

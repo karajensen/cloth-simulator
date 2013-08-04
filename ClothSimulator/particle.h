@@ -8,7 +8,7 @@
 #include "common.h"
 
 class Collision;
-class CollisionSphere;
+class Collision;
 
 class Particle
 {
@@ -123,5 +123,5 @@ private:
     bool m_pinned;              ///< Whether particle is pinned or not
     unsigned int m_index;       ///< Internal index of the particle
 
-    std::shared_ptr<CollisionSphere> m_collision; ///< Collision geometry for particle
+    std::shared_ptr<Collision> m_collision; ///< Collision geometry for particle
 };
