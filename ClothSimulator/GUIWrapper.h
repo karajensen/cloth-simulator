@@ -28,6 +28,12 @@ namespace GUI
         void SetCallbacks(GuiCallbacks* callbacks);
 
         /**
+        * Sets whether the mesh creation gui buttons are enabled
+        * @param whether the buttons are enabled/disabled
+        */
+        void EnableMeshCreation(bool enable);
+
+        /**
         * Ticks the GUI
         * @return whether the update was successful
         */

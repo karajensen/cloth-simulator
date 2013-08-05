@@ -37,15 +37,19 @@ public:
     * @param the directX device
     * @param the path to the mesh
     * @param the shader attached to the mesh
+    * @param a user defined index
     */
-    bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shared_ptr<Shader> shader);
+    bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
+        std::shared_ptr<Shader> shader, int index = NO_INDEX);
 
     /**
     * Load the mesh as an instance of another mesh
     * @param the directX device
     * @param the meshdata from the parent mesh
+    * @param a user defined index
     */
-    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data);
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
+        std::shared_ptr<MeshData> data, int index = NO_INDEX);
 
     /**
     * Draw the visual model of the mesh
@@ -98,10 +102,19 @@ public:
     /**
     * Creates a collision sphere for the mesh
     * @param the directX device
-    * @param the initial radius of the sphere. This will be multiplied with the mesh scale
-    * @param the quality of the collision sphere. Higher is more polygons.
+    * @param the initial radius of the sphere
+    * @param the quality of the collision sphere
     */
     void CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality);
+
+    /**
+    * Creates a collision cylinder for the mesh
+    * @param the directX device
+    * @param the initial radius of the cylinder
+    * @param the length of the cylinder.
+    * @param the quality of the cylinder
+    */
+    void CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality);
 
     /**
     * @param whether the collision mesh is visible
@@ -112,6 +125,22 @@ public:
     * @param whether the mesh is pickable or not
     */
     void SetPickable(bool pickable);
+
+    /**
+    * @return the user defined index for the mesh
+    */
+    int GetIndex() const;
+
+    /**
+    * Sets whether the mesh is selected or not
+    */
+    void SetSelected(bool selected);
+
+    /**
+    * Sets the mesh color
+    * @param the rgb color components from 0->1
+    */
+    void SetColor(float r, float g, float b);
 
 protected:
 
@@ -131,9 +160,11 @@ protected:
         Vertex();
     };
 
-    std::shared_ptr<MeshData> m_data;   ///< Data for the mesh
-
-    bool m_pickable;   ///< Whether the mesh can be mouse picked or not
-    bool m_selected;   ///< Whether the mesh is selected or not
-    bool m_draw;       ///< Whether the mesh is visible or not
+    std::shared_ptr<MeshData> m_data;  ///< Data for the mesh
+    D3DXVECTOR3 m_color; ///< Color for the mesh
+    D3DXVECTOR3 m_initialcolor; ///< initial color for the mesh
+    int m_index; ///< User defined index for the mesh
+    bool m_pickable; ///< Whether the mesh can be mouse picked or not
+    bool m_selected; ///< Whether the mesh is selected or not
+    bool m_draw;  ///< Whether the mesh is visible or not
 };

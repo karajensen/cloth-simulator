@@ -7,7 +7,9 @@
 
 #include "common.h"
 #include <queue>
+#include "GUICallbacks.h"
 
+using namespace GUI;
 class Shader;
 class Cloth;
 class Mesh;
@@ -75,9 +77,8 @@ public:
     /**
     * Adds an object to the scene
     * @param the object to add
-    * @return whether addition was successful
     */
-    bool AddObject(Object object);
+    void AddObject(Object object);
 
     /**
     * Tests all scene objects for mouse picking
@@ -97,7 +98,19 @@ public:
     */
     void SetCollisionVisibility(bool visible);
 
+    /**
+    * Enables/Disables the gui buttons for mesh creation
+    * @param a callback from the GUI to set whether meshes are enabled or not
+    */
+    void SetMeshEnableCallback(SetFlag enableCreation);
+
 private:
+
+    /**
+    * Sets the selected mesh
+    * @param the selected mesh
+    */
+    void SetSelectedMesh(const Mesh* mesh);
 
     typedef std::shared_ptr<Mesh> MeshPtr;
 
@@ -106,6 +119,7 @@ private:
     std::vector<MeshPtr> m_meshes;  ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates; ///< Mesh templates for creating mesh instances
     Tool m_selectedTool; ///< Currently selected tool
-    unsigned int m_selectedMesh; ///< Currently selected object
+    int m_selectedMesh; ///< Currently selected object
+    SetFlag m_enableCreation; ///< Callback for enabled/disabling gui mesh creation
 
 };

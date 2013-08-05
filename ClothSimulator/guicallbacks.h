@@ -12,10 +12,13 @@ namespace GUI
     typedef std::function<void(bool)> SetFlag;
     typedef std::function<void(double)> SetValue;
     typedef std::function<double(void)> GetValue;
-    typedef std::function<bool(void)> CreateFn;
 
+    /**
+    * Callbacks for use in the GUI
+    */
     struct GuiCallbacks
     {
+        SetFlag enableMeshCreation; ///< Enables/disables gui mesh creation
         SetFlag setGravity; ///< Whether gravity is on/off
         SetFlag setHandleMode; ///< Whether handle mode is on/off
         SetFlag setVertsVisible; ///< Whether vertices are visible or not
@@ -25,9 +28,9 @@ namespace GUI
         VoidFn unpinCloth; ///< Removes any pinned verts 
         VoidFn clearScene; ///< Removes any scene objects
         VoidFn quitFn; ///< Function called to quit the simulation
-        CreateFn createBox; ///< Function called to create a box
-        CreateFn createCylinder; ///< Function called to create a cylinder
-        CreateFn createSphere; ///< Function called to create a sphere
+        VoidFn createBox; ///< Function called to create a box
+        VoidFn createCylinder; ///< Function called to create a cylinder
+        VoidFn createSphere; ///< Function called to create a sphere
         SetValue setTimestep; ///< Function set timestep
         SetValue setIterations; ///< Function set iterations
         SetValue setVertexRows; ///< Function set vertex number
@@ -38,6 +41,9 @@ namespace GUI
         GetValue getSpacing; ///< Function get spacing between vertices
     };
 
+    /**
+    * GUI window information
+    */
     struct WindowHandle
     {
         HWND handle;

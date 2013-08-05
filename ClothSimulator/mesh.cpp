@@ -5,13 +5,19 @@
 #include "input.h"
 #include "light.h"
 
+namespace /*anon*/
+{
+    const D3DXVECTOR3 SELECTED_COLOR(0.7f, 0.7f, 1.0f);
+}
+
 Mesh::Mesh():
     m_selected(false),
     m_draw(true),
-    m_pickable(true)
+    m_pickable(true),
+    m_index(NO_INDEX),
+    m_color(1.0f, 1.0f, 1.0f),
+    m_initialcolor(1.0f, 1.0f, 1.0f)
 {
-    SetMeshPickFunction(std::bind(&Mesh::ToggleSelected, this));
-
     m_data.reset(new MeshData());
     m_data->collision.reset(new Collision(*this));
 
@@ -60,6 +66,7 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+        effect->SetFloatArray(DxConstant::MeshColor, &(m_color.x), 3);
 
         if(m_data->texture != nullptr)
         {
@@ -155,8 +162,10 @@ void Mesh::ToggleSelected()
     m_selected = !m_selected;
 }
 
-bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shared_ptr<Shader> shader)
+bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
+    std::shared_ptr<Shader> shader, int index)
 {
+    m_index = index;
     m_data->shader = shader;
 
     //Create a assimp mesh
@@ -252,13 +261,19 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, std::shar
     return true;
 }
 
-bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data)
+bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data, int index)
 {
+    m_index = index;
     m_data = data;
     Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
     Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
     SetObserver(fullFn, positionalFn);
     return true;
+}
+
+void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality)
+{
+    m_data->collision->LoadCylinder(d3ddev, radius, length, quality);
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
@@ -284,4 +299,23 @@ void Mesh::SetPickable(bool pickable)
 std::shared_ptr<Mesh::MeshData> Mesh::GetData()
 {
     return m_data;
+}
+
+int Mesh::GetIndex() const
+{
+    return m_index;
+}
+
+void Mesh::SetSelected(bool selected)
+{
+    m_selected = selected;
+    m_color = selected ? SELECTED_COLOR : m_initialcolor;
+}
+
+void Mesh::SetColor(float r, float g, float b)
+{
+    m_initialcolor.x = r;
+    m_initialcolor.y = g;
+    m_initialcolor.z = b;
+    m_color = m_initialcolor;
 }

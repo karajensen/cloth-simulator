@@ -1,12 +1,11 @@
 
 • Scene mesh manipulation
-	- move particles/scene mesh over to instances
-	- create objects through clicking gui
-	- Disabling gui when reaching max objects (callback retruns bool)
-	- add cylinder to collisions
+	- make floor into grid
+	- fit cylinder collision mesh
+	- fix cloth-object collisions
 	- create moving tools
 
-• Octree spacial partitioning
+• Octree spacial partitioning inside cloth
 • Cloth self-collision
 • Soft shadow mapping
 

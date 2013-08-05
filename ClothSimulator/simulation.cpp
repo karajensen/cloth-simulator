@@ -86,6 +86,7 @@ void Simulation::Update()
 void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
+    m_scene->SetMeshEnableCallback(callbacks->enableMeshCreation);
 
     callbacks->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
     callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
@@ -99,6 +100,7 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->createBox = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::BOX);
     callbacks->createSphere = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::SPHERE);
     callbacks->createCylinder = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::CYLINDER);
+    callbacks->clearScene = std::bind(&MeshManager::RemoveScene, m_scene.get());
 
     callbacks->setTimestep = std::bind(&Cloth::SetTimeStep, m_cloth.get(), _1);
     callbacks->setVertexRows = std::bind(&Cloth::SetVertexRows, m_cloth.get(), _1);

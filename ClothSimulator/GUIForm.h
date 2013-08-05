@@ -61,6 +61,19 @@ namespace GUI
             m_vertRows->numeric->Value = Decimal(callbacks->getVertexRows());
         }
 
+        /// <summary>
+        /// Enables/Disables the gui controls conditional on scene information
+        /// </summary>
+        void EnableMeshCreation(bool enable)
+        {
+            m_cynlinderBtn->BackColor = enable ? m_unpressedColor : m_pressedColor;
+            m_sphereBtn->BackColor = enable ? m_unpressedColor : m_pressedColor;
+            m_boxBtn->BackColor = enable ? m_unpressedColor : m_pressedColor;
+            m_cynlinderBtn->Enabled = enable;
+            m_sphereBtn->Enabled = enable;
+            m_boxBtn->Enabled = enable;
+        }
+
     protected:
 
         /// <summary>
@@ -110,6 +123,8 @@ namespace GUI
         Image^ m_disabledGravity;       ///< Image for disabled gravity
         Image^ m_enabledGravity;        ///< Image for enabled gravity
         RadioButton^ m_toolSelected;    ///< Which object manipulation tool selected
+        Color m_unpressedColor;         ///< Color of buttons when unpressed
+        Color m_pressedColor;           ///< Color of buttons when pressed
 
         /// <summary>
         /// GUI Buttons
@@ -335,6 +350,7 @@ namespace GUI
         /// </summary>
         System::Void RemoveClick(System::Object^  sender, System::EventArgs^ e)
         {
+            m_callbacks->clearScene();
         }
 
         /// <summary>
@@ -400,6 +416,8 @@ namespace GUI
         {
             int index = 0;
             String^ path = "Resources//Sprites//";
+            m_pressedColor = Color::DarkGray;
+            m_unpressedColor = Color::FromArgb(230, 230, 230);
 
             CreateCheckBox(m_gravityBtn, path+"gravity.png", "Add gravity to the simulation", 
                 index++, gcnew System::EventHandler(this, &GUIForm::GravityCheckedChanged));
@@ -488,10 +506,10 @@ namespace GUI
             control->Size = System::Drawing::Size(buttonSize, buttonSize);
             control->FlatAppearance->BorderSize = 0;
             control->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            control->FlatAppearance->CheckedBackColor = System::Drawing::Color::Gray;
-            control->FlatAppearance->MouseDownBackColor = Color::Gray;
+            control->FlatAppearance->CheckedBackColor = m_pressedColor;
+            control->FlatAppearance->MouseDownBackColor = m_pressedColor;
             control->FlatAppearance->MouseOverBackColor = Color::FromArgb(150, 150, 240);
-            control->BackColor = Color::FromArgb(230, 230, 230);
+            control->BackColor = m_unpressedColor;
 
             ToolTip^ tooltip = gcnew ToolTip();
             tooltip->SetToolTip(control, tip);

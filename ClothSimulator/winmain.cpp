@@ -54,6 +54,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 bool InitialiseGUI()
 {
     callbacks.quitFn = [](){ runSimulation = false; };
+    callbacks.enableMeshCreation = std::bind(
+        &GUI::GuiWrapper::EnableMeshCreation, gui.get(),
+        std::placeholders::_1);
+
     simulation->LoadGuiCallbacks(&callbacks);
     gui->SetCallbacks(&callbacks);
     gui->Show();

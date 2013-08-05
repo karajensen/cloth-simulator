@@ -35,6 +35,7 @@ namespace DxConstant
     static const D3DXHANDLE WordViewProjection("WorldViewProjection");
     static const D3DXHANDLE World("World");
     static const D3DXHANDLE AmbientColor("AmbientColor");
+    static const D3DXHANDLE MeshColor("MeshColor");
     static const D3DXHANDLE DiffuseColor("DiffuseColor");
     static const D3DXHANDLE SpecularColor("SpecularIntensity");
     static const D3DXHANDLE AmbientIntensity("AmbientIntensity");

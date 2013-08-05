@@ -22,47 +22,86 @@ Collision::Box::Box(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float d
     localMinBounds(-width/2.0f, -height/2.0f, -depth/2.0f),
     localMaxBounds(width/2.0f, height/2.0f, depth/2.0f),
     minBounds(0.0f, 0.0f, 0.0f),
-    maxBounds(0.0f, 0.0f, 0.0f)
+    maxBounds(0.0f, 0.0f, 0.0f),
+    dimensions(width, height, depth)
 {
-    D3DXCreateBox(d3ddev,width,height,depth,&mesh,NULL);
+    D3DXCreateBox(d3ddev, width, height, depth, &mesh, NULL);
 }
 
 void Collision::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
 {
     Box* box = new Box(d3ddev, width, height, depth);
     m_data.reset(box);
+    MakeBox(box);
+}
 
+void Collision::MakeBox(Box* boxdata)
+{
     m_shape = BOX;
-    m_localWorld.SetScale(width, height, depth);
+    m_localWorld.SetScale(boxdata->dimensions.x, boxdata->dimensions.y, boxdata->dimensions.z);
     m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
     m_position = m_world.Position();
-    D3DXVec3TransformCoord(&box->minBounds, &box->localMinBounds, &m_world.Matrix);
-    D3DXVec3TransformCoord(&box->maxBounds, &box->localMaxBounds, &m_world.Matrix);
+    D3DXVec3TransformCoord(&boxdata->minBounds, &boxdata->localMinBounds, &m_world.Matrix);
+    D3DXVec3TransformCoord(&boxdata->maxBounds, &boxdata->localMaxBounds, &m_world.Matrix);
 }
 
 Collision::Sphere::Sphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions) :
     localRadius(radius),
     radius(0.0f)
 {
-    D3DXCreateSphere(d3ddev,radius,divisions,divisions,&mesh,NULL);
+    D3DXCreateSphere(d3ddev, radius, divisions, divisions, &mesh, NULL);
 }
 
 void Collision::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
 {
     Sphere* sphere = new Sphere(d3ddev, radius, divisions);
     m_data.reset(sphere);
+    MakeSphere(sphere);
+}
 
+void Collision::MakeSphere(Sphere* spheredata)
+{
     m_shape = SPHERE;
-    m_localWorld.SetScale(radius);
+    m_localWorld.SetScale(spheredata->localRadius);
     m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
     m_position = m_world.Position();
-    sphere->radius = sphere->localRadius * m_world.GetScaleFactor().x;
+    spheredata->radius = spheredata->localRadius * m_world.GetScaleFactor().x;
+}
+
+Collision::Cylinder::Cylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions)
+{
+    D3DXCreateCylinder(d3ddev, radius, radius, length, divisions, 1, &mesh, NULL);
+}
+
+void Collision::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions)
+{
+    Cylinder* cylinder = new Cylinder(d3ddev, radius, length, divisions);
+    m_data.reset(cylinder);
+    MakeCylinder(cylinder);
+}
+
+void Collision::MakeCylinder(Cylinder* cylinderdata)
+{
+    m_shape = CYLINDER;
+    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+    m_position = m_world.Position();
 }
 
 void Collision::LoadInstance(Shape shape, std::shared_ptr<Collision::Geometry> data)
 {
     m_data = data;
-    m_shape = shape;
+    if(shape == SPHERE)
+    {
+        MakeSphere(&GetSphereData());
+    }
+    else if(shape == BOX)
+    {
+        MakeBox(&GetBoxData());
+    }
+    else if(shape == CYLINDER)
+    {
+        MakeCylinder(&GetCylinderData());
+    }
 }
 
 Collision::Geometry::~Geometry()
@@ -91,6 +130,11 @@ void Collision::SetDraw(bool draw)
 const D3DXVECTOR3& Collision::GetPosition() const 
 { 
     return m_position; 
+}
+
+const Transform& Collision::GetTransform() const
+{
+    return m_world;
 }
 
 std::shared_ptr<Collision::Geometry> Collision::GetData()
@@ -142,6 +186,11 @@ Collision::Box& Collision::GetBoxData()
     return static_cast<Box&>(*m_data.get());
 }
 
+Collision::Cylinder& Collision::GetCylinderData()
+{
+    return static_cast<Cylinder&>(*m_data.get());
+}
+
 const Collision::Sphere& Collision::GetSphereData() const
 {
     return static_cast<Sphere&>(*m_data.get());
@@ -150,6 +199,11 @@ const Collision::Sphere& Collision::GetSphereData() const
 const Collision::Box& Collision::GetBoxData() const
 {
     return static_cast<Box&>(*m_data.get());
+}
+
+const Collision::Cylinder& Collision::GetCylinderData() const
+{
+    return static_cast<Cylinder&>(*m_data.get());
 }
 
 void Collision::PositionalUpdate()

@@ -1,6 +1,5 @@
 #include "cloth.h"
 #include "input.h"
-#include "collision.h"
 #include "particle.h"
 #include "spring.h"
 #include <functional>
@@ -51,6 +50,8 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
     m_d3ddev(d3ddev)
 {
     m_data->shader = shader;
+    m_template.reset(new Collision::Sphere(d3ddev, 1.0f, 8));
+
     if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_data->texture)))
     {
         m_data->texture = nullptr;
@@ -119,14 +120,14 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     //create particles
     m_particles.resize(m_vertexCount);
-    float collisionSize = m_spacing/2; 
+    m_template->localRadius = m_spacing/2;
     for(unsigned int i = 0; i < m_particles.size(); ++i)
     {
         if(!m_particles[i].get())
         {
-            m_particles[i].reset(new Particle(m_d3ddev,collisionSize));
+            m_particles[i].reset(new Particle(m_d3ddev));
         }
-        m_particles[i]->Initialise(m_vertexData[i].position, i);
+        m_particles[i]->Initialise(m_vertexData[i].position, i, m_template);
     }
 
     /* Connect neighbouring particles with springs
@@ -390,12 +391,11 @@ void Cloth::UpdateNormals()
 
 void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 {
-    const float radius = 0.4f;
-    const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-    const auto& vertex = m_vertexData[m_diagnosticParticle].position;
-    
     if(Diagnostic::AllowDiagnostics())
     {
+        const float radius = 0.4f;
+        const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
+
         Diagnostic::Get().UpdateSphere("Particle", 
             Diagnostic::YELLOW, position, radius);
 
@@ -405,8 +405,15 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
 
     if(Diagnostic::AllowText())
     {
+        const auto& vertex = m_vertexData[m_diagnosticParticle].position;
+        const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
+        const auto& collision = m_particles[m_diagnosticParticle]->GetCollision()->GetPosition();
+
         Diagnostic::Get().UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
             + ", " + StringCast(position.y) + ", " + StringCast(position.z));
+
+        Diagnostic::Get().UpdateText("Collision", Diagnostic::YELLOW, StringCast(collision.x) 
+            + ", " + StringCast(collision.y) + ", " + StringCast(collision.z));
 
         Diagnostic::Get().UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
             + ", " + StringCast(vertex.y) + ", " + StringCast(vertex.z));
@@ -449,10 +456,10 @@ void Cloth::SolveCollision(const Collision* object)
             {
                 D3DXVECTOR3 centerToParticle(m_particles[i]->GetPosition() - sphereCenter);
                 float length = D3DXVec3Length(&centerToParticle);
-                centerToParticle /= length;
 
                 if (length < spheredata.radius)
                 {
+                    centerToParticle /= length;
                     m_particles[i]->MovePosition(centerToParticle*(spheredata.radius-length)); 
                 }
             }
@@ -483,17 +490,10 @@ void Cloth::MousePickingTest(Picking& input)
     if(m_draw && m_drawVisualParticles)
     {
         int indexChosen = NO_INDEX;
-    
-        Transform world;
         for(int i = 0; i < m_vertexCount; ++i)
         {
-            //fill in world matrix for mesh
-            world.Matrix._41 = m_particles[i]->GetCollision()->GetPosition().x;
-            world.Matrix._42 = m_particles[i]->GetCollision()->GetPosition().y;
-            world.Matrix._43 = m_particles[i]->GetCollision()->GetPosition().z;
-    
             D3DXMATRIX worldInverse;
-            D3DXMatrixInverse(&worldInverse, NULL, &world.Matrix);
+            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->GetTransform().Matrix);
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;

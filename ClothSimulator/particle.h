@@ -6,9 +6,7 @@
 #pragma once
 
 #include "common.h"
-
-class Collision;
-class Collision;
+#include "collision.h"
 
 class Particle
 {
@@ -17,16 +15,17 @@ public:
     /**
     * Constructor
     * @param the directx device
-    * @param the actual radius of the particle collision mesh
     */
-    Particle(LPDIRECT3DDEVICE9 d3ddev, float radius);
+    Particle(LPDIRECT3DDEVICE9 d3ddev);
 
     /**
     * Create the particle
     * @param the intial position of the particle
     * @param the internal index of the particle
+    * @param the collision data for the particle
     */
-    void Initialise(const D3DXVECTOR3& position, unsigned int index);
+    void Initialise(const D3DXVECTOR3& position, unsigned int index,
+         std::shared_ptr<Collision::Sphere> spheredata);
 
     /**
     * Draws the particle visual mesh

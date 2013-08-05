@@ -32,6 +32,12 @@ namespace GUI
         }
     }
 
+    void GuiWrapper::EnableMeshCreation(bool enable)
+    {
+        GuiPtr ptr = reinterpret_cast<GuiPtr>(m_guiForm);
+        ((GUIForm^)*ptr)->EnableMeshCreation(enable);
+    }
+
     void GuiWrapper::SetCallbacks(GuiCallbacks* callbacks)
     {
         GuiPtr ptr = reinterpret_cast<GuiPtr>(m_guiForm);

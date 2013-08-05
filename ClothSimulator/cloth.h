@@ -5,12 +5,12 @@
 
 #pragma once
 
+#include "collision.h"
 #include "common.h"
 #include "mesh.h"
 
 class Particle;
 class Shader;
-class Collision;
 class Spring;
 
 class Cloth : public Mesh
@@ -258,4 +258,6 @@ private:
     std::vector<DWORD> m_indexData;         ///< DirectX Index data
     void* m_vertexBuffer;                   ///< Raw Pointer to DirectX Vertex Buffer
     void* m_indexBuffer;                    ///< Raw Pointer to DirectX Index Buffer
+
+    std::shared_ptr<Collision::Sphere> m_template;  ///< Template collision for all particles
 };
