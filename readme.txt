@@ -1,8 +1,7 @@
 
 • Scene mesh manipulation
-	- make floor into grid
-	- fit cylinder collision mesh
-	- fix cloth-object collisions
+	- fix grid blurring
+	- fix cloth-object collisions including cylinder
 	- create moving tools
 
 • Octree spacial partitioning inside cloth

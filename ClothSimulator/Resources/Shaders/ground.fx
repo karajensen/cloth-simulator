@@ -1,6 +1,6 @@
 /****************************************************************
 * Kara Jensen (mail@karajensen.com) 
-* Generic world shader
+* Generic ground shader
 *****************************************************************/
 
 float4x4 World                 : World;
@@ -12,18 +12,30 @@ float AmbientIntensity;
 float4 AmbientColor;
 float DiffuseIntensity;     
 float4 DiffuseColor;
-float4 MeshColor;
+
+Texture DiffuseTexture;
+sampler ColorSampler = sampler_state 
+{ 
+    texture = <DiffuseTexture>; 
+    magfilter = LINEAR; 
+    minfilter = LINEAR; 
+    mipfilter = LINEAR; 
+    AddressU = WRAP; 
+    AddressV = WRAP; 
+};
 
 struct VS_OUTPUT
 {
     float4 Pos          : POSITION;
     float3 Normal       : TEXCOORD0;
     float3 LightVector  : TEXCOORD1;
+    float2 UV           : TEXCOORD2;
 };                      
                         
 // Vertex Shader
-VS_OUTPUT VShader(float4 inPos    : POSITION, 
-                  float3 inNormal : NORMAL)
+VS_OUTPUT VShader(float4 inPos    : POSITION,
+                  float3 inNormal : NORMAL,
+                  float2 inUV     : TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
@@ -32,6 +44,7 @@ VS_OUTPUT VShader(float4 inPos    : POSITION,
    
     output.Normal = mul(inNormal,WorldInvTrans);
     output.LightVector = LightPos - PosWorld;
+    output.UV = inUV;
 
     return output;
 }
@@ -49,7 +62,7 @@ float4 PShader(VS_OUTPUT input) : COLOR0
 
     Diffuse = Diffuse * DiffuseIntensity * DiffuseColor;
     float4 Ambient = AmbientIntensity * AmbientColor;
-    return MeshColor*(Diffuse + Ambient);
+    return tex2D(ColorSampler, input.UV) * (Diffuse + Ambient);
 }
 
 //Techniques

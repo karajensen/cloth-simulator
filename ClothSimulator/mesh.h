@@ -142,6 +142,14 @@ public:
     */
     void SetColor(float r, float g, float b);
 
+    /**
+    * Loads a texture for the mesh
+    * @param the directX device
+    * @param the filename for the texture
+    * @return whether loading was successful
+    */
+    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename);
+
 protected:
 
     /**

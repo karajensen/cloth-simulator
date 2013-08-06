@@ -126,6 +126,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
 
     if(success)
     {
+        auto groundShader = Shader_Manager::GetShader(Shader_Manager::GROUND_SHADER);
         auto boundsShader = Shader_Manager::GetShader(Shader_Manager::BOUNDS_SHADER);
         auto meshShader = Shader_Manager::GetShader(Shader_Manager::MAIN_SHADER);
         auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
@@ -133,7 +134,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
 
-        m_scene.reset(new MeshManager(d3ddev, meshShader));
+        m_scene.reset(new MeshManager(d3ddev, meshShader, groundShader));
         m_cloth.reset(new Cloth(m_d3ddev, clothShader));
     }
 

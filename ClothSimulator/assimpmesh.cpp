@@ -71,33 +71,6 @@ bool Assimpmesh::Initialise(const std::string& path, std::string& errorBuffer)
             m_subMeshes[i].indices.push_back(pFace->mIndices[1]);
             m_subMeshes[i].indices.push_back(pFace->mIndices[2]);
         }
-
-        // Load the textures
-        aiMaterial* material = scene->mMaterials[pMesh->mMaterialIndex];
-        
-        aiString textureName;
-        if(aiGetMaterialString(material, AI_MATKEY_TEXTURE_DIFFUSE(0), &textureName) == AI_SUCCESS)
-        {
-            m_subMeshes[i].textures[DIFFUSE] = textureName.data;
-        }
-
-        textureName.Clear();
-        if(aiGetMaterialString(material, AI_MATKEY_TEXTURE_NORMALS(0), &textureName) == AI_SUCCESS)
-        {
-            m_subMeshes[i].textures[NORMAL] = textureName.data;
-        }
-
-        textureName.Clear();
-        if(aiGetMaterialString(material, AI_MATKEY_TEXTURE_SPECULAR(0), &textureName) == AI_SUCCESS)
-        {
-            m_subMeshes[i].textures[SPECULAR] = textureName.data;
-        }
-
-        textureName.Clear();
-        if(aiGetMaterialString(material, AI_MATKEY_TEXTURE_REFLECTION(0), &textureName) == AI_SUCCESS)
-        {
-            m_subMeshes[i].textures[ENVIRON] = textureName.data;
-        }
     }
 
     return true;

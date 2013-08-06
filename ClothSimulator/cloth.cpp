@@ -80,7 +80,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     const int maxW = minW + m_vertexWidth;
     const int minL = -m_vertexLength/2;
     const int maxL = minL + m_vertexLength;
-    const float startingheight = 8.0f;
+    const D3DXVECTOR3 startingPos(1.0f, 8.0f, 0.0f);
     float UVu = 0;
     float UVv = 0;
     int index = 0;
@@ -88,9 +88,9 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int z = minL; z < maxL; ++z, ++index)
         {
-            m_vertexData[index].position.x = x*m_spacing;
-            m_vertexData[index].position.z = z*m_spacing;
-            m_vertexData[index].position.y = startingheight;
+            m_vertexData[index].position = startingPos;
+            m_vertexData[index].position.x += x*m_spacing;
+            m_vertexData[index].position.z += z*m_spacing;
             m_vertexData[index].uvs.x = UVu;
             m_vertexData[index].uvs.y = UVv;
             UVu += 0.5;

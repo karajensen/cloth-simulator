@@ -162,6 +162,16 @@ void Mesh::ToggleSelected()
     m_selected = !m_selected;
 }
 
+bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename)
+{
+    if(FAILED(D3DXCreateTextureFromFile(d3ddev, filename.c_str(), &m_data->texture)))
+    {
+        Diagnostic::ShowMessage("Cannot create texture " + filename);
+        return false;
+    }
+    return true;
+}
+
 bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
     std::shared_ptr<Shader> shader, int index)
 {
@@ -183,17 +193,6 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
 
     for(unsigned int i = 0; i < subMeshes.size(); ++i)
     {
-        //Create any textures
-        std::string diffuse = subMeshes[i].textures[Assimpmesh::DIFFUSE];
-        if(!diffuse.empty() && !m_data->texture)
-        {
-            if(FAILED(D3DXCreateTextureFromFile(d3ddev, diffuse.c_str(), &m_data->texture)))
-            {
-                Diagnostic::ShowMessage("Cannot create texture " + diffuse);
-                return false;
-            }
-        }
-
         //Fill in vertex data
         for(unsigned int j = 0; j < subMeshes[i].vertices.size(); ++j)
         {

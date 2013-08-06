@@ -23,26 +23,12 @@ public:
     };
 
     /**
-    * Texture index ordering for 
-    * the submeshes textures container
-    */
-    enum TextureIndex
-    {
-        DIFFUSE,
-        NORMAL,
-        SPECULAR,
-        ENVIRON,
-        TEXTURE_AMOUNT
-    };
-
-    /**
     * SubMesh struct
     */
     struct SubMesh
     {
         std::vector<Vertex> vertices;          ///< Vertex buffer
         std::vector<unsigned long> indices;    ///< Index buffer
-        std::string textures[TEXTURE_AMOUNT];  ///< Textures for submesh
     };
 
     /**

@@ -46,6 +46,7 @@ public:
         MAIN_SHADER, 
         CLOTH_SHADER, 
         BOUNDS_SHADER, 
+        GROUND_SHADER,
         MAX_SHADERS 
     };
 

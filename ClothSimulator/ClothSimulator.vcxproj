@@ -137,6 +137,7 @@
     <None Include="..\readme.txt" />
     <None Include="Resources\Shaders\bounds.fx" />
     <None Include="Resources\Shaders\cloth.fx" />
+    <None Include="Resources\Shaders\ground.fx" />
     <None Include="Resources\Shaders\main.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
