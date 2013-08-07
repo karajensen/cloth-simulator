@@ -1,6 +1,5 @@
 
 • Scene mesh manipulation
-	- fix grid blurring
 	- fix cloth-object collisions including cylinder
 	- create moving tools
 

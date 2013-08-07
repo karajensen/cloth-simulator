@@ -14,24 +14,36 @@ float DiffuseIntensity;
 float4 DiffuseColor;
 float4 MeshColor;
 
+Texture DiffuseTexture;
+sampler ColorSampler = sampler_state 
+{ 
+    texture = <DiffuseTexture>; 
+    magfilter = ANISOTROPIC; 
+    minfilter = ANISOTROPIC; 
+    mipfilter = ANISOTROPIC; 
+    AddressU = WRAP; 
+    AddressV = WRAP; 
+};
+
 struct VS_OUTPUT
 {
     float4 Pos          : POSITION;
     float3 Normal       : TEXCOORD0;
     float3 LightVector  : TEXCOORD1;
-};                      
+	float2 UV           : TEXCOORD2;
+};                 
                         
 // Vertex Shader
 VS_OUTPUT VShader(float4 inPos    : POSITION, 
-                  float3 inNormal : NORMAL)
+                  float3 inNormal : NORMAL,
+				  float2 inUV     : TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
     output.Pos = mul(inPos, WorldViewProjection); 
-    float3 PosWorld = mul(inPos, World); 
-   
     output.Normal = mul(inNormal,WorldInvTrans);
-    output.LightVector = LightPos - PosWorld;
+    output.LightVector = LightPos - mul(inPos, World);
+	output.UV = inUV;
 
     return output;
 }
@@ -44,12 +56,14 @@ float4 PShader(VS_OUTPUT input) : COLOR0
     
     // bring diffuse into range of 0.4->1.0
     float inner = 0.4;
-    float4 Diffuse = ((dot(input.LightVector, input.Normal)
+    float4 diffuse = ((dot(input.LightVector, input.Normal)
         +1.0)*((1.0-inner)/(2.0)))+inner;
 
-    Diffuse = Diffuse * DiffuseIntensity * DiffuseColor;
-    float4 Ambient = AmbientIntensity * AmbientColor;
-    return MeshColor*(Diffuse + Ambient);
+    diffuse *= DiffuseIntensity * DiffuseColor;
+    float4 ambient = AmbientIntensity * AmbientColor;
+	float4 color = saturate(tex2D(ColorSampler, input.UV) + MeshColor);
+
+    return color * (diffuse + ambient);
 }
 
 //Techniques

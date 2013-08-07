@@ -148,7 +148,7 @@ public:
     * @param the filename for the texture
     * @return whether loading was successful
     */
-    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename);
+    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions);
 
 protected:
 

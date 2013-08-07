@@ -91,7 +91,7 @@ public:
     * Constructor
     * @param the transform of the mesh parent
     */
-    Collision(const Transform& parent);
+    Collision(const Transform* parent);
 
     /**
     * Creates a sphere collision model
@@ -210,6 +210,11 @@ public:
         const Transform& view, float radius);
 
     /**
+    * Sets the parent transform
+    */
+    void SetParent(const Transform* parent);
+
+    /**
     * Initialise the use of collisions 
     * @param the shader to apply to collision meshes
     */
@@ -237,7 +242,7 @@ private:
 
     Shape m_shape;              ///< Type of shape of the collision geometry
     bool m_draw;                ///< Whether to draw the geometry
-    const Transform& m_parent;  ///< Parent transform of the collision geometry
+    const Transform* m_parent;  ///< Parent transform of the collision geometry
     Transform m_world;          ///< World transform of the collision geometry
     Transform m_localWorld;     ///< Local transform before any calculations of the geometry
     D3DXVECTOR3 m_position;     ///< Position in world coordinates of the collision geometry

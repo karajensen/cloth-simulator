@@ -63,16 +63,16 @@ float4 PShader(VS_OUTPUT input) : COLOR0
     input.CameraVector = normalize(input.CameraVector);
     
     //Brings into range 0-1, abs to prevent one side of cloth being darker
-    float4 Diffuse = (abs(dot(input.LightVector, input.Normal))+1)*0.5;
+    float4 diffuse = (abs(dot(input.LightVector, input.Normal))+1)*0.5;
 
-    float3 HalfVector = -normalize(input.LightVector + input.CameraVector);                                         
-    float4 Specular = SpecularIntensity*(pow(saturate(dot(input.Normal, HalfVector)), SpecularSize));
+    float3 halfVector = -normalize(input.LightVector + input.CameraVector);                                         
+    float4 specular = SpecularIntensity*(pow(saturate(dot(input.Normal, halfVector)), SpecularSize));
     
-    float4 Texture = tex2D(ColorSampler, input.UV);
-    Texture *= 0.04; // reduce brightness of grid texture
+    float4 color = tex2D(ColorSampler, input.UV);
+    color *= 0.04; // reduce brightness of grid texture
     
-    return Texture + (Diffuse * DiffuseIntensity * DiffuseColor) 
-        + (AmbientIntensity * AmbientColor) + Specular;
+    return color + (diffuse * DiffuseIntensity * DiffuseColor) 
+        + (AmbientIntensity * AmbientColor) + specular;
 }
 
 //Techniques

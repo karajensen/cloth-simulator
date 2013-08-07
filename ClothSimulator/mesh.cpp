@@ -19,7 +19,7 @@ Mesh::Mesh():
     m_initialcolor(1.0f, 1.0f, 1.0f)
 {
     m_data.reset(new MeshData());
-    m_data->collision.reset(new Collision(*this));
+    m_data->collision.reset(new Collision(this));
 
     Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
     Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
@@ -67,11 +67,7 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
         effect->SetFloatArray(DxConstant::MeshColor, &(m_color.x), 3);
-
-        if(m_data->texture != nullptr)
-        {
-            effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-        }
+        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
 
         Light_Manager::SendLightingToShader(effect);
 
@@ -162,9 +158,11 @@ void Mesh::ToggleSelected()
     m_selected = !m_selected;
 }
 
-bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename)
+bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions)
 {
-    if(FAILED(D3DXCreateTextureFromFile(d3ddev, filename.c_str(), &m_data->texture)))
+    if(FAILED(D3DXCreateTextureFromFileEx(d3ddev, filename.c_str(), dimensions, 
+        dimensions, 6, NULL, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
+        D3DX_DEFAULT, NULL, NULL, NULL, &m_data->texture)))
     {
         Diagnostic::ShowMessage("Cannot create texture " + filename);
         return false;
@@ -264,6 +262,7 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> da
 {
     m_index = index;
     m_data = data;
+    m_data->collision->SetParent(this);
     Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
     Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
     SetObserver(fullFn, positionalFn);

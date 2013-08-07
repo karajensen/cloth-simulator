@@ -4,7 +4,7 @@
 
 std::shared_ptr<Shader> Collision::sm_shader = nullptr;
 
-Collision::Collision(const Transform& parent) :
+Collision::Collision(const Transform* parent) :
     m_shape(NONE),
     m_draw(false),
     m_colour(0.0f, 0.0f, 1.0f),
@@ -39,7 +39,7 @@ void Collision::MakeBox(Box* boxdata)
 {
     m_shape = BOX;
     m_localWorld.SetScale(boxdata->dimensions.x, boxdata->dimensions.y, boxdata->dimensions.z);
-    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+    m_world.Matrix = m_localWorld.Matrix * m_parent->Matrix;
     m_position = m_world.Position();
     D3DXVec3TransformCoord(&boxdata->minBounds, &boxdata->localMinBounds, &m_world.Matrix);
     D3DXVec3TransformCoord(&boxdata->maxBounds, &boxdata->localMaxBounds, &m_world.Matrix);
@@ -63,7 +63,7 @@ void Collision::MakeSphere(Sphere* spheredata)
 {
     m_shape = SPHERE;
     m_localWorld.SetScale(spheredata->localRadius);
-    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+    m_world.Matrix = m_localWorld.Matrix * m_parent->Matrix;
     m_position = m_world.Position();
     spheredata->radius = spheredata->localRadius * m_world.GetScaleFactor().x;
 }
@@ -83,8 +83,13 @@ void Collision::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float lengt
 void Collision::MakeCylinder(Cylinder* cylinderdata)
 {
     m_shape = CYLINDER;
-    m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+    m_world.Matrix = m_localWorld.Matrix * m_parent->Matrix;
     m_position = m_world.Position();
+}
+
+void Collision::SetParent(const Transform* parent)
+{
+    m_parent = parent;
 }
 
 void Collision::LoadInstance(Shape shape, std::shared_ptr<Collision::Geometry> data)
@@ -213,7 +218,7 @@ void Collision::PositionalUpdate()
         if(m_shape == BOX)
         {
             Box& box = GetBoxData();
-            D3DXVECTOR3 difference(m_position-m_parent.Position());
+            D3DXVECTOR3 difference(m_position-m_parent->Position());
             m_position += difference;
             m_world.Translate(difference);
             box.minBounds += difference;
@@ -221,7 +226,7 @@ void Collision::PositionalUpdate()
         }
         else if(m_shape == SPHERE)
         {
-            m_position = m_parent.Position();
+            m_position = m_parent->Position();
             m_world.SetPosition(m_position);
         }
     }
@@ -232,7 +237,7 @@ void Collision::FullUpdate()
     if(m_data)
     {
         //DirectX:  World = LocalWorld * ParentWorld
-        m_world.Matrix = m_localWorld.Matrix * m_parent.Matrix;
+        m_world.Matrix = m_localWorld.Matrix * m_parent->Matrix;
         m_position = m_world.Position();
 
         if(m_shape == BOX)

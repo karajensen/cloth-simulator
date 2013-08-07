@@ -40,11 +40,8 @@ public:
     * Constructor
     * @param the directx device
     * @param the shader for the meshes
-    * @param the shader for the ground
     */
-    MeshManager(LPDIRECT3DDEVICE9 d3ddev, 
-        std::shared_ptr<Shader> meshshader, 
-        std::shared_ptr<Shader> groundshader);
+    MeshManager(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> meshshader);
 
     /**
     * Draws all scene meshes
@@ -52,9 +49,7 @@ public:
     * @param the camera projection matrix
     * @param the camera view matrix
     */
-    void Draw(const D3DXVECTOR3& position, 
-        const Transform& projection,
-        const Transform& view);
+    void Draw(const D3DXVECTOR3& position, const Transform& projection, const Transform& view);
 
     /**
     * Draws all scene meshe collisions

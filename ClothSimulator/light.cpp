@@ -11,7 +11,7 @@ Light::Light() :
     m_attenuation0(0.0f),
     m_attenuation1(1.0f),
     m_attenuation2(0.0f),
-    m_ambientIntensity(0.1f),
+    m_ambientIntensity(0.2f),
     m_diffuseIntensity(0.7f),
     m_specularIntensity(0.3f),
     m_specularSize(10.0f),
