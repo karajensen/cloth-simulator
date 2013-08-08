@@ -7,7 +7,7 @@ Transform::Transform():
     m_positionalUpdateFn(nullptr),
     m_scaleFactor(1.0f,1.0f,1.0f)
 { 
-    D3DXMatrixIdentity(&Matrix);
+    D3DXMatrixIdentity(&m_matrix);
 }
 
 void Transform::SetObserver(UpdateFn fullUpdate, UpdateFn positionalUpdate)
@@ -41,9 +41,9 @@ void Transform::SetScale(float scale)
 
 void Transform::SetScale(float x, float y, float z)
 {
-    Matrix._11 = x;
-    Matrix._22 = y;
-    Matrix._33 = z;
+    m_matrix._11 = x;
+    m_matrix._22 = y;
+    m_matrix._33 = z;
     m_scaleFactor.x = x;
     m_scaleFactor.y = y;
     m_scaleFactor.z = z;
@@ -56,10 +56,10 @@ void Transform::ScaleLocal(float x, float y, float z)
     m_scaleFactor.y *= y;
     m_scaleFactor.z *= z;
 
-    D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
+    D3DXVECTOR3 position(m_matrix._41, m_matrix._42, m_matrix._43);
     SetPosition(0,0,0);
 
-    D3DXMatrixScaling(&Matrix, x, y, z);
+    D3DXMatrixScaling(&m_matrix, x, y, z);
 
     SetPosition(position);
     CallObserver(true);
@@ -67,7 +67,7 @@ void Transform::ScaleLocal(float x, float y, float z)
 
 void Transform::RotateX(float radians, bool local)
 {
-    D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
+    D3DXVECTOR3 position(m_matrix._41, m_matrix._42, m_matrix._43);
     if(local)
     {
         SetPosition(0,0,0);
@@ -81,7 +81,7 @@ void Transform::RotateX(float radians, bool local)
     rotation._32 = s;  
     rotation._23 = -s; 
     rotation._33 = c; 
-    Matrix *= rotation;
+    m_matrix *= rotation;
 
     if(local)
     {
@@ -92,7 +92,7 @@ void Transform::RotateX(float radians, bool local)
 
 void Transform::RotateY(float radians, bool local)
 {
-    D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
+    D3DXVECTOR3 position(m_matrix._41, m_matrix._42, m_matrix._43);
     if(local)
     {
         SetPosition(0,0,0);
@@ -106,7 +106,7 @@ void Transform::RotateY(float radians, bool local)
     rotation._13 = s;  
     rotation._31 = -s; 
     rotation._33 = c; 
-    Matrix *= rotation;
+    m_matrix *= rotation;
 
     if(local)
     {
@@ -117,7 +117,7 @@ void Transform::RotateY(float radians, bool local)
 
 void Transform::RotateZ(float radians, bool local)
 {
-    D3DXVECTOR3 position(Matrix._41, Matrix._42, Matrix._43);
+    D3DXVECTOR3 position(m_matrix._41, m_matrix._42, m_matrix._43);
     if(local)
     {
         SetPosition(0,0,0);
@@ -131,7 +131,7 @@ void Transform::RotateZ(float radians, bool local)
     rotation._21 = s;  
     rotation._12 = -s; 
     rotation._22 = c; 
-    Matrix *= rotation;
+    m_matrix *= rotation;
 
     if(local)
     {
@@ -142,33 +142,33 @@ void Transform::RotateZ(float radians, bool local)
 
 void Transform::SetPosition(const D3DXVECTOR3& pos)
 {
-    Matrix._41 = pos.x;
-    Matrix._42 = pos.y;
-    Matrix._43 = pos.z;
+    m_matrix._41 = pos.x;
+    m_matrix._42 = pos.y;
+    m_matrix._43 = pos.z;
     CallObserver(false);
 }
 
 void Transform::SetPosition(float x, float y, float z)
 {
-    Matrix._41 = x;
-    Matrix._42 = y;
-    Matrix._43 = z;
+    m_matrix._41 = x;
+    m_matrix._42 = y;
+    m_matrix._43 = z;
     CallObserver(false);
 }
 
 void Transform::Translate(const D3DXVECTOR3& pos)
 {
-    Matrix._41 += pos.x;
-    Matrix._42 += pos.y;
-    Matrix._43 += pos.z;
+    m_matrix._41 += pos.x;
+    m_matrix._42 += pos.y;
+    m_matrix._43 += pos.z;
     CallObserver(false);
 }
 
 void Transform::Translate(float x, float y, float z)
 { 
-    Matrix._41 += x;
-    Matrix._42 += y;
-    Matrix._43 += z;
+    m_matrix._41 += x;
+    m_matrix._42 += y;
+    m_matrix._43 += z;
     CallObserver(false);
 }
 
@@ -177,39 +177,51 @@ void Transform::MakeIdentity()
     m_scaleFactor.x = 1.0f;
     m_scaleFactor.y = 1.0f;
     m_scaleFactor.z = 1.0f;
-    D3DXMatrixIdentity(&Matrix);
+    D3DXMatrixIdentity(&m_matrix);
     CallObserver(true);
 }
 
 void Transform::SetAxis(const D3DXVECTOR3& up, const D3DXVECTOR3& forward, const D3DXVECTOR3& right)
 {
-    Matrix._11 = right.x;
-    Matrix._12 = right.y;
-    Matrix._13 = right.z;
-    Matrix._21 = up.x;
-    Matrix._22 = up.y; 
-    Matrix._23 = up.z;
-    Matrix._31 = forward.x;
-    Matrix._32 = forward.y; 
-    Matrix._33 = forward.z;
+    m_matrix._11 = right.x;
+    m_matrix._12 = right.y;
+    m_matrix._13 = right.z;
+    m_matrix._21 = up.x;
+    m_matrix._22 = up.y; 
+    m_matrix._23 = up.z;
+    m_matrix._31 = forward.x;
+    m_matrix._32 = forward.y; 
+    m_matrix._33 = forward.z;
 }
 
 D3DXVECTOR3 Transform::Right() const
 { 
-    return D3DXVECTOR3(Matrix._11,Matrix._12,Matrix._13);
+    return D3DXVECTOR3(m_matrix._11,m_matrix._12,m_matrix._13);
 }
 
 D3DXVECTOR3 Transform::Up() const
 { 
-    return D3DXVECTOR3(Matrix._21,Matrix._22,Matrix._23); 
+    return D3DXVECTOR3(m_matrix._21,m_matrix._22,m_matrix._23); 
 }
 
 D3DXVECTOR3 Transform::Forward() const
 { 
-    return D3DXVECTOR3(Matrix._31,Matrix._32,Matrix._33); 
+    return D3DXVECTOR3(m_matrix._31,m_matrix._32,m_matrix._33); 
 }
 
 D3DXVECTOR3 Transform::Position() const
 { 
-    return D3DXVECTOR3(Matrix._41,Matrix._42,Matrix._43); 
+    return D3DXVECTOR3(m_matrix._41,m_matrix._42,m_matrix._43); 
+}
+
+void Transform::Multiply(const D3DXMATRIX& matrix)
+{
+    //given matrix assumed to have no scaling
+    m_matrix *= matrix;
+}
+
+void Transform::Equals(const D3DXMATRIX& matrix, const D3DXVECTOR3& scalefactor)
+{
+    m_matrix = matrix;
+    m_scaleFactor = scalefactor;
 }

@@ -26,7 +26,6 @@ public:
         LPD3DXMESH mesh;                      ///< The directX mesh
         LPDIRECT3DTEXTURE9 texture;           ///< The texture attached to the mesh
         std::shared_ptr<Shader> shader;       ///< The shader attached to the mesh
-        std::shared_ptr<Collision> collision; ///< The collision geometry attached to the mesh
 
         MeshData();
         ~MeshData();
@@ -45,10 +44,11 @@ public:
     /**
     * Load the mesh as an instance of another mesh
     * @param the directX device
-    * @param the meshdata from the parent mesh
+    * @param the collision of the other mesh
+    * @param the meshdata from the other mesh
     * @param a user defined index
     */
-    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
         std::shared_ptr<MeshData> data, int index = NO_INDEX);
 
     /**
@@ -150,6 +150,11 @@ public:
     */
     bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions);
 
+    /**
+    * @return whether the mesh has collision geometry attached to it
+    */
+    bool HasCollision() const;
+
 protected:
 
     /**
@@ -168,6 +173,7 @@ protected:
         Vertex();
     };
 
+    std::shared_ptr<Collision> m_collision; ///< The collision geometry attached to the mesh
     std::shared_ptr<MeshData> m_data;  ///< Data for the mesh
     D3DXVECTOR3 m_color; ///< Color for the mesh
     D3DXVECTOR3 m_initialcolor; ///< initial color for the mesh

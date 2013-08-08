@@ -1,4 +1,5 @@
 #include "picking.h"
+#include "diagnostic.h"
 
 Picking::Picking():
     m_mesh(nullptr),
@@ -13,15 +14,15 @@ void Picking::UpdatePicking(Transform& projection, Transform& view, int x, int y
     m_rayOrigin = D3DXVECTOR3();
     m_rayDirection = D3DXVECTOR3();
     m_mesh = nullptr;
-    m_distanceToMesh = 0.0f;
+    m_distanceToMesh = FLT_MAX;
 
     D3DXVECTOR3 mouseRay;
-    mouseRay.x =  (((2.0f*x)/WINDOW_WIDTH )-1) / projection.Matrix._11;
-    mouseRay.y = -(((2.0f*y)/WINDOW_HEIGHT)-1) / projection.Matrix._22;
+    mouseRay.x =  (((2.0f*x)/WINDOW_WIDTH )-1) / projection.Matrix()._11;
+    mouseRay.y = -(((2.0f*y)/WINDOW_HEIGHT)-1) / projection.Matrix()._22;
     mouseRay.z =  1.0f;
 
     D3DXMATRIX ViewInverse;
-    D3DXMatrixInverse(&ViewInverse, NULL, &view.Matrix);
+    D3DXMatrixInverse(&ViewInverse, NULL, &view.Matrix());
 
     //Transform the screen space pick ray into 3D world space
     m_rayDirection.x  = mouseRay.x*ViewInverse._11 + mouseRay.y*ViewInverse._21 + mouseRay.z*ViewInverse._31;
@@ -34,6 +35,12 @@ void Picking::UpdatePicking(Transform& projection, Transform& view, int x, int y
 
 void Picking::SolvePicking()
 {
+    if(Diagnostic::AllowText())
+    {
+        Diagnostic::Get().UpdateText("DistanceToPick", Diagnostic::WHITE, 
+            StringCast(m_distanceToMesh == FLT_MAX ? 0.0f : m_distanceToMesh));
+    }
+
     if(m_mesh)
     {
         m_mesh->OnPickMesh();

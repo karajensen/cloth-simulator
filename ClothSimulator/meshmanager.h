@@ -11,7 +11,7 @@
 
 using namespace GUI;
 class Shader;
-class Cloth;
+class ClothSolver;
 class Mesh;
 class Picking;
 
@@ -88,9 +88,9 @@ public:
 
     /**
     * Solves the collision between scene objects and the cloth
-    * @param the cloth to solve
+    * @param the cloth solver for object-cloth collisions
     */
-    void SolveClothCollision(Cloth& cloth);
+    void SolveClothCollision(ClothSolver& solver);
 
     /**
     * Set the visibility of the collision mesh

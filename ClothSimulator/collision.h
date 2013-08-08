@@ -20,78 +20,30 @@ public:
         CYLINDER
     };
 
-    /**
-    * Geometry base
-    */
     struct Geometry
     {
-        /**
-        * Destructor/constructor
-        */
         Geometry();
-        virtual ~Geometry();
+        ~Geometry();
 
+        Shape shape;     ///< Type of shape of the collision geometry
         LPD3DXMESH mesh; ///< Collision geometry mesh
     };
 
-    /**
-    * Geometry for a sphere collsion model
-    */
-    struct Sphere : public Geometry
-    {        
-        /**
-        * Creates a sphere collision model
-        * @param the directX device
-        * @param the initial radius of the sphere
-        * @param the amount of divisions of the mesh
-        */
-        Sphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions);
-
-        float radius;      ///< sphere radius with scaling applied
-        float localRadius; ///< initial sphere radius
-    };
-
-    /**
-    * Geometry for a cylinder collsion model
-    */
-    struct Cylinder : public Geometry
-    {        
-        /**
-        * Creates a cylinder collision model
-        * @param the directX device
-        * @param the initial radius of the cylinder
-        * @param the length of the cylinder
-        * @param the amount of divisions of the mesh
-        */
-        Cylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions);
-    };
-
-    /**
-    * Geometry for a box collsion model
-    */
-    struct Box : public Geometry
+    struct Data
     {
-        /**
-        * Creates a cube collision model
-        * @param the directX device
-        * @param the initial width of the cube
-        * @param the initial height of the cube
-        * @param the initial depth of the cube
-        */
-        Box(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
-
-        D3DXVECTOR3 localMinBounds; ///< Untransformed min bounds of the cube
-        D3DXVECTOR3 localMaxBounds; ///< Untransformed max bounds of the cube
+        Data();
+        D3DXVECTOR3 localMinBounds; ///< Untransformed min bounds for box geometry
+        D3DXVECTOR3 localMaxBounds; ///< Untransformed max bounds for cube geometry
         D3DXVECTOR3 minBounds;      ///< Transformed world min bounds of the cube
         D3DXVECTOR3 maxBounds;      ///< Transformed world max bounds of the cube
-        D3DXVECTOR3 dimensions;     ///< The width, height and depth of the cube
+        Transform localWorld;       ///< Local transform before any calculations of the geometry
     };
 
     /**
     * Constructor
     * @param the transform of the mesh parent
     */
-    Collision(const Transform* parent);
+    Collision(const Transform& parent);
 
     /**
     * Creates a sphere collision model
@@ -102,11 +54,12 @@ public:
     void LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions);
 
     /**
-    * Creates a cube collision model
+    * Creates a box collision model
     * @param the directX device
-    * @param the initial width of the cube
-    * @param the initial height of the cube
-    * @param the initial depth of the cube
+    * @param the initial width of the box
+    * @param the initial height of the box
+    * @param the initial depth of the box
+    * @param whether to load the box as an instance
     */
     void LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
 
@@ -121,10 +74,10 @@ public:
 
     /**
     * Loads the collision as an instance of another
-    * @param shape of the geometry
     * @param the data to load
+    * @param geometry mesh instance
     */
-    void LoadInstance(Shape shape, std::shared_ptr<Geometry> data);
+    void LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry);
 
     /**
     * @return the shape the collision mesh has
@@ -140,7 +93,12 @@ public:
     /**
     * @return the center in world coordinates of the collision geometry
     */
-    const D3DXVECTOR3& GetPosition() const;
+    D3DXVECTOR3 GetPosition() const;
+
+    /**
+    * @return the radius of the sphere/cylinder
+    */
+    float GetRadius() const;
 
     /**
     * @return the world matrix of the collision geometry
@@ -152,13 +110,6 @@ public:
     */
     LPD3DXMESH GetMesh();
     
-    /**
-    * Test the collision geometry against another collision geometry
-    * @param the geometry to test against
-    * @return whether collision occured
-    */
-    bool TestCollision(const Collision* obj) const;
-
     /**
     * Draw the collision geometry. Assumes Update() has been called as needed
     * @param the projection matrix
@@ -182,23 +133,15 @@ public:
     void PositionalUpdate();
 
     /**
-    * @return the collision data 
+    * @return the collision mesh 
     */
-    std::shared_ptr<Geometry> GetData();
+    std::shared_ptr<Geometry> GetGeometry() const;
 
     /**
-    * @return the data as a specific shape
+    * @return the geometry data
     */
-    Box& GetBoxData();
-    Sphere& GetSphereData();
-    Cylinder& GetCylinderData();
-
-    /**
-    * @return the const data as a specific shape
-    */
-    const Box& GetBoxData() const;
-    const Sphere& GetSphereData() const;
-    const Cylinder& GetCylinderData() const;
+    const Data& GetData() const;
+    Data& GetData();
 
     /**
     * Draw the collision geometry with a specific radius.
@@ -210,9 +153,9 @@ public:
         const Transform& view, float radius);
 
     /**
-    * Sets the parent transform
+    * @return whether the collision has geometry attached to it or not
     */
-    void SetParent(const Transform* parent);
+    bool HasGeometry() const;
 
     /**
     * Initialise the use of collisions 
@@ -222,58 +165,12 @@ public:
 
 private:
 
-    /**
-    * Sets the collision as a cylinder
-    * @param the data for the cylinder
-    */
-    void MakeCylinder(Cylinder* cylinderdata);
-
-    /**
-    * Sets the collision as a sphere
-    * @param the data for the sphere
-    */
-    void MakeSphere(Sphere* spheredata);
-
-    /**
-    * Sets the collision as a box
-    * @param the data for the box
-    */
-    void MakeBox(Box* boxdata);
-
-    Shape m_shape;              ///< Type of shape of the collision geometry
     bool m_draw;                ///< Whether to draw the geometry
-    const Transform* m_parent;  ///< Parent transform of the collision geometry
+    const Transform& m_parent;  ///< Parent transform of the collision geometry
     Transform m_world;          ///< World transform of the collision geometry
-    Transform m_localWorld;     ///< Local transform before any calculations of the geometry
-    D3DXVECTOR3 m_position;     ///< Position in world coordinates of the collision geometry
     D3DXVECTOR3 m_colour;       ///< Colour to render
+    Data m_data;                ///< Data for the collision geometry
 
-    std::shared_ptr<Geometry> m_data;         ///< Data for the collision geometry
+    std::shared_ptr<Geometry> m_geometry; ///< Collision geometry mesh shared accross instances
     static std::shared_ptr<Shader> sm_shader; ///< Shared shader of all collision geometry
-};
-
-class CollisionTester
-{
-public:
-
-    /**
-    * Tests Cube-Sphere collision
-    * @param the cube/sphere to test
-    * @return whether collision is occurring
-    */
-    static bool TestBoxSphereCollision(const Collision* box, const Collision* sphere);
-
-    /**
-    * Tests Sphere-Sphere collision
-    * @param the sphere/sphere to test
-    * @return whether collision is occurring
-    */
-    static bool TestSphereSphereCollision(const Collision* sphere1, const Collision* sphere2);
-
-    /**
-    * Tests Cube-Cube collision
-    * @param the cube/cube to test
-    * @return whether collision is occurring
-    */
-    static bool TestBoxBoxCollision(const Collision* box1, const Collision* box2);
 };

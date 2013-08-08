@@ -8,6 +8,7 @@
 #include "common.h"
 #include "GUICallbacks.h"
 
+class ClothSolver;
 class MeshManager;
 class Camera;
 class Cloth;
@@ -61,11 +62,12 @@ private:
     */
     void LoadInput(HINSTANCE hInstance, HWND hWnd);
 
-    std::shared_ptr<Timer> m_timer;       ///< Simulation timer object
-    std::shared_ptr<Cloth> m_cloth;       ///< Simulation cloth object
-    std::shared_ptr<Input> m_input;       ///< Simulation input object
-    std::shared_ptr<Camera> m_camera;     ///< Main camera
-    std::shared_ptr<MeshManager> m_scene; ///< Mesh manager for the scene
-    LPDIRECT3DDEVICE9 m_d3ddev;           ///< DirectX device
-    static bool sm_drawCollisions;        ///< Whether to display collision models
+    std::shared_ptr<ClothSolver> m_solver; ///< Collision solver for cloth
+    std::shared_ptr<Timer> m_timer;        ///< Simulation timer object
+    std::shared_ptr<Cloth> m_cloth;        ///< Simulation cloth object
+    std::shared_ptr<Input> m_input;        ///< Simulation input object
+    std::shared_ptr<Camera> m_camera;      ///< Main camera
+    std::shared_ptr<MeshManager> m_scene;  ///< Mesh manager for the scene
+    LPDIRECT3DDEVICE9 m_d3ddev;            ///< DirectX device
+    static bool sm_drawCollisions;         ///< Whether to display collision models
 };

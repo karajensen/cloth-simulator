@@ -110,7 +110,7 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
 
         auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Transform& world)
         {
-            D3DXMATRIX wvp = world.Matrix * view.Matrix * projection.Matrix;
+            D3DXMATRIX wvp = world.Matrix() * view.Matrix() * projection.Matrix();
             pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
             pEffect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
 
@@ -125,15 +125,23 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
             pEffect->End();
         };
 
-        std::for_each(m_spheremap.begin(), m_spheremap.end(), [&](const SphereMap::value_type& sphere)
+        for(SphereMap::iterator it = m_spheremap.begin(); it != m_spheremap.end(); ++it)
         {
-            renderObject(m_sphere, sphere.second.color, sphere.second.world);
-        });
+            if(it->second.draw)
+            {
+                renderObject(m_sphere, it->second.color, it->second.world);
+                it->second.draw = false;
+            }
+        }
 
-        std::for_each(m_linemap.begin(), m_linemap.end(), [&](const LineMap::value_type& line)
+        for(LineMap::iterator it = m_linemap.begin(); it != m_linemap.end(); ++it)
         {
-            renderObject(m_cylinder, line.second.color, line.second.world);
-        });
+            if(it->second.draw)
+            {
+                renderObject(m_cylinder, it->second.color, it->second.world);
+                it->second.world.MakeIdentity();
+            }
+        }
     }
 }
 
@@ -145,6 +153,7 @@ void Diagnostic::UpdateSphere(const std::string& id,
         m_spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
     }
     m_spheremap[id].color = m_colourmap[color];
+    m_spheremap[id].draw = true;
     m_spheremap[id].world.MakeIdentity();
     m_spheremap[id].world.SetScale(radius);
     m_spheremap[id].world.SetPosition(position);
@@ -179,6 +188,7 @@ void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color,
         m_linemap[id].world.SetAxis(up, forward, right);
     }
     m_linemap[id].world.SetPosition(middle);
+    m_linemap[id].draw = true;
 }
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, const std::string& text)

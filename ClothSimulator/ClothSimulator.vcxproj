@@ -96,6 +96,7 @@
     <ClCompile Include="assimpmesh.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cloth.cpp" />
+    <ClCompile Include="clothsolver.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="meshmanager.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="assimpmesh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cloth.h" />
+    <ClInclude Include="clothsolver.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="common.h" />

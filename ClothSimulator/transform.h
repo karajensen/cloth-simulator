@@ -112,11 +112,25 @@ public:
     * @return the current scaling value applied to the matrix
     */
     const D3DXVECTOR3& GetScaleFactor() const { return m_scaleFactor; }
-    
+
     /**
-    * Easy access matrix for the transform
+    * @return the matrix for the transform
     */
-    D3DXMATRIX Matrix;
+    const D3DXMATRIX& Matrix() const { return m_matrix; }
+    D3DXMATRIX* MatrixPtr() { return &m_matrix; }
+
+    /**
+    * Matrix Equality
+    * @param the matrix to make equal to
+    * @param the scalefactor to make equal to
+    */
+    void Equals(const D3DXMATRIX& matrix, const D3DXVECTOR3& scalefactor);
+
+    /**
+    * Matrix multiplication with a matrix without scaling
+    * @param the matrix to multiply with
+    */
+    void Multiply(const D3DXMATRIX& matrix);
 
 private:
 
@@ -126,6 +140,7 @@ private:
     */
     void CallObserver(bool fullupdate);
 
+    D3DXMATRIX m_matrix;              ///< Matrix for the transform
     D3DXVECTOR3 m_scaleFactor;       ///< Current scaling value applied to the matrix
     UpdateFn m_fullUpdateFn;         ///< Function to call upon a full update
     UpdateFn m_positionalUpdateFn;   ///< Function to call upon a positional update

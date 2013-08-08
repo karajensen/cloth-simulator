@@ -121,12 +121,14 @@ private:
     {
         D3DXVECTOR3 color;  ///< Colour of the object
         Transform world;    ///< Matrix for sphere
+        bool draw;          ///< Whether to render the sphere
     };
 
     struct DiagLine
     {
         D3DXVECTOR3 color;  ///< Colour of the object
-        Transform world;    ///< Matrix for cylinder
+        Transform world;    ///< Matrix for line
+        bool draw;          ///< Whether to render the line
     };
 
     static std::shared_ptr<Shader> sm_shader; ///< Global diagnostic mesh shader

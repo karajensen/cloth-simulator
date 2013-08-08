@@ -101,16 +101,16 @@ void Camera::UpdateCamera()
         D3DXMatrixRotationX(&matRX, m_pitch); 
         D3DXMatrixRotationY(&matRY, m_yaw);
         D3DXMatrixRotationZ(&matRZ, m_roll);
-        World.Matrix *= matRZ*matRX*matRY;
+        World.Multiply(matRZ * matRX * matRY);
 
-        float determinant = D3DXMatrixDeterminant(&World.Matrix);
-        D3DXMatrixInverse(&View.Matrix, &determinant, &World.Matrix);
+        float determinant = D3DXMatrixDeterminant(&World.Matrix());
+        D3DXMatrixInverse(View.MatrixPtr(), &determinant, &World.Matrix());
     }
 }
 
 void Camera::CreateProjMatrix()
 {
-    D3DXMatrixPerspectiveFovLH(&Projection.Matrix,
+    D3DXMatrixPerspectiveFovLH(Projection.MatrixPtr(),
         D3DX_PI/4, //horizontal field of view
         static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT), //aspect ratio
         1.0f, //the near view-plane

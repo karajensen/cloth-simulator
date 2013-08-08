@@ -1,6 +1,7 @@
 #include "cloth.h"
 #include "input.h"
 #include "particle.h"
+#include "collision.h"
 #include "spring.h"
 #include <functional>
 #include <algorithm>
@@ -50,7 +51,8 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
     m_d3ddev(d3ddev)
 {
     m_data->shader = shader;
-    m_template.reset(new Collision::Sphere(d3ddev, 1.0f, 8));
+    m_template.reset(new Collision(*this));
+    m_template->LoadSphere(d3ddev, 1.0f, 8);
 
     if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_data->texture)))
     {
@@ -120,14 +122,15 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     //create particles
     m_particles.resize(m_vertexCount);
-    m_template->localRadius = m_spacing/2;
+    m_template->GetData().localWorld.SetScale(m_spacing/2);
     for(unsigned int i = 0; i < m_particles.size(); ++i)
     {
         if(!m_particles[i].get())
         {
             m_particles[i].reset(new Particle(m_d3ddev));
         }
-        m_particles[i]->Initialise(m_vertexData[i].position, i, m_template);
+        m_particles[i]->Initialise(m_vertexData[i].position, i,
+            m_template->GetGeometry(), m_template->GetData());
     }
 
     /* Connect neighbouring particles with springs
@@ -442,49 +445,6 @@ D3DXVECTOR3 Cloth::CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& 
     return normal;
 }
 
-void Cloth::SolveCollision(const Collision* object)
-{
-    switch(object->GetShape())
-    {
-        case Collision::SPHERE:
-        {
-            const Collision* sphere = static_cast<const Collision*>(object);
-            const Collision::Sphere& spheredata = sphere->GetSphereData();
-
-            D3DXVECTOR3 sphereCenter(sphere->GetPosition());
-            for(int i = 0; i < m_vertexCount; ++i)
-            {
-                D3DXVECTOR3 centerToParticle(m_particles[i]->GetPosition() - sphereCenter);
-                float length = D3DXVec3Length(&centerToParticle);
-
-                if (length < spheredata.radius)
-                {
-                    centerToParticle /= length;
-                    m_particles[i]->MovePosition(centerToParticle*(spheredata.radius-length)); 
-                }
-            }
-            break;
-        }
-        case Collision::BOX:
-        {
-            const Collision* box = static_cast<const Collision*>(object);
-            const Collision::Box& boxdata = box->GetBoxData();
-
-            for(int i = 0; i < m_vertexCount; ++i)
-            {
-                D3DXVECTOR3 pos = m_particles[i]->GetPosition();
-                if(pos.y <= boxdata.maxBounds.y)
-                {
-                    float distance = boxdata.maxBounds.y-pos.y;
-                    distance *= (distance < 0) ? -1.0f : 1.0f;
-                    m_particles[i]->MovePosition(D3DXVECTOR3(0,distance,0));
-                }
-            }
-            break;
-        }
-    }
-}
-
 void Cloth::MousePickingTest(Picking& input)
 {
     if(m_draw && m_drawVisualParticles)
@@ -493,7 +453,7 @@ void Cloth::MousePickingTest(Picking& input)
         for(int i = 0; i < m_vertexCount; ++i)
         {
             D3DXMATRIX worldInverse;
-            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->GetTransform().Matrix);
+            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->GetTransform().Matrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;
@@ -503,17 +463,17 @@ void Cloth::MousePickingTest(Picking& input)
             D3DXVec3Normalize(&rayObjDirection, &rayObjDirection);
     
             BOOL hasHit; 
-            float distanceToCollision;
             if(FAILED(D3DXIntersect(m_particles[i]->GetCollision()->GetMesh(), &rayObjOrigin, 
-                &rayObjDirection, &hasHit, NULL, NULL, NULL, &distanceToCollision, NULL, NULL)))
+                &rayObjDirection, &hasHit, NULL, NULL, NULL, NULL, NULL, NULL)))
             {
                 hasHit = false; //Call failed for any reason continue to next mesh.
             }
     
             if(hasHit)
             {
-                //if first mesh tested or if better than a previous test then save
-                if(input.GetMesh() == nullptr || distanceToCollision < input.GetDistanceToMesh())
+                D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-m_particles[i]->GetPosition();
+                float distanceToCollision = D3DXVec3Length(&cameraToMesh);
+                if(distanceToCollision < input.GetDistanceToMesh())
                 {
                     input.SetPickedMesh(this, distanceToCollision);
                     indexChosen = i;
@@ -643,4 +603,9 @@ double Cloth::GetVertexRows() const
 double Cloth::GetSpacing() const
 {
     return m_spacing;
+}
+
+std::vector<Cloth::ParticlePtr>& Cloth::GetParticles()
+{
+    return m_particles;
 }

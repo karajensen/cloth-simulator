@@ -22,10 +22,11 @@ public:
     * Create the particle
     * @param the intial position of the particle
     * @param the internal index of the particle
+    * @param the collision geometry for the particle
     * @param the collision data for the particle
     */
     void Initialise(const D3DXVECTOR3& position, unsigned int index,
-         std::shared_ptr<Collision::Sphere> spheredata);
+         std::shared_ptr<Collision::Geometry> geometry, const Collision::Data& data);
 
     /**
     * Draws the particle visual mesh

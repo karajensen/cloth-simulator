@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "text.h"
 #include "meshmanager.h"
+#include "clothsolver.h"
 #include <algorithm>
 #include <sstream>
 
@@ -79,7 +80,8 @@ void Simulation::Update()
     }
 
     m_cloth->UpdateState(deltaTime);
-    m_scene->SolveClothCollision(*m_cloth);
+    m_scene->SolveClothCollision(*m_solver);
+    m_solver->SolveSelfCollision();
     m_cloth->UpdateVertexBuffer();
 }
 
@@ -135,6 +137,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
 
         m_scene.reset(new MeshManager(d3ddev, meshShader));
         m_cloth.reset(new Cloth(m_d3ddev, clothShader));
+        m_solver.reset(new ClothSolver(m_cloth));
     }
 
     // Start the internal timer

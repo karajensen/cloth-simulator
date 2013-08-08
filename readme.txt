@@ -1,6 +1,7 @@
 
 • Scene mesh manipulation
-	- fix cloth-object collisions including cylinder
+	- fix box-cloth collision
+	- create cylinder-cloth collision
 	- create moving tools
 
 • Octree spacial partitioning inside cloth

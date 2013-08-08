@@ -19,18 +19,17 @@ Mesh::Mesh():
     m_initialcolor(1.0f, 1.0f, 1.0f)
 {
     m_data.reset(new MeshData());
-    m_data->collision.reset(new Collision(this));
+    m_collision.reset(new Collision(*this));
 
-    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
-    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
+    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_collision);
+    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_collision);
     SetObserver(fullFn, positionalFn);
 }
 
 Mesh::MeshData::MeshData() :
     mesh(nullptr),
     texture(nullptr),
-    shader(nullptr),
-    collision(nullptr)
+    shader(nullptr)
 {
 }
 
@@ -55,107 +54,6 @@ Mesh::Vertex::Vertex() :
     normal(0.0f, 0.0f, 0.0f),
     uvs(0.0f, 0.0f)
 {
-}
-
-void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
-{
-    if(m_data->mesh && m_draw)
-    {
-        LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() 
-            ? Shader_Manager::GetWorldEffect() : m_data->shader->GetEffect();
-
-        effect->SetTechnique(DxConstant::DefaultTechnique);
-        effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
-        effect->SetFloatArray(DxConstant::MeshColor, &(m_color.x), 3);
-        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-
-        Light_Manager::SendLightingToShader(effect);
-
-        D3DXMATRIX wit;
-        D3DXMATRIX wvp = Matrix * view.Matrix * projection.Matrix;
-        float det = D3DXMatrixDeterminant(&Matrix);
-        D3DXMatrixInverse(&wit, &det, &Matrix);
-        D3DXMatrixTranspose(&wit, &wit);
-
-        effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
-        effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-        effect->SetMatrix(DxConstant::World, &Matrix);
-
-        UINT nPasses = 0;
-        effect->Begin(&nPasses, 0);
-        for(UINT iPass = 0; iPass<nPasses; ++iPass)
-        {
-            effect->BeginPass(iPass);
-            m_data->mesh->DrawSubset(0);
-            effect->EndPass();
-        }
-        effect->End();
-    }
-}
-
-void Mesh::DrawCollision(const Transform& projection, const Transform& view)
-{
-    if(m_data->collision && m_draw)
-    {
-        m_data->collision->Draw(projection, view);
-    }
-}
-
-Collision* Mesh::GetCollision()
-{
-    return m_data->collision.get();
-}
-
-void Mesh::MousePickingTest(Picking& input)
-{
-    if(m_pickable && m_draw && m_data->mesh)
-    {
-        LPD3DXMESH meshToTest = m_data->collision ? m_data->collision->GetMesh() : m_data->mesh;
-
-        D3DXMATRIX worldInverse;
-        D3DXMatrixInverse(&worldInverse, NULL, &Matrix);
-
-        D3DXVECTOR3 rayOrigin;
-        D3DXVECTOR3 rayDirection;
-        D3DXVec3TransformCoord(&rayOrigin, &input.GetRayOrigin(), &worldInverse);
-        D3DXVec3TransformNormal(&rayDirection, &input.GetRayDirection(), &worldInverse);
-        D3DXVec3Normalize(&rayDirection, &rayDirection);
-
-        BOOL hasHit; 
-        float distanceToCollision;
-        if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, 
-            &hasHit, NULL, NULL, NULL, &distanceToCollision, NULL, NULL)))
-        {
-            hasHit = false; //Call failed for any reason continue to next mesh.
-        }
-
-        if(hasHit)
-        {
-            //if first mesh tested or if better than a previous test then save
-            if(input.GetMesh() == nullptr || distanceToCollision < input.GetDistanceToMesh())
-            {
-                input.SetPickedMesh(this, distanceToCollision);
-            }
-        }
-    }
-}
-
-void Mesh::SetCollisionVisibility(bool draw)
-{
-    if(m_data->collision)
-    {
-        m_data->collision->SetDraw(draw);
-    }
-}
-
-void Mesh::SetVisible(bool visible)
-{
-    m_draw = visible;
-}
-
-void Mesh::ToggleSelected()
-{
-    m_selected = !m_selected;
 }
 
 bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions)
@@ -258,30 +156,138 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
     return true;
 }
 
-bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<MeshData> data, int index)
+bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
+    std::shared_ptr<MeshData> data, int index)
 {
     m_index = index;
     m_data = data;
-    m_data->collision->SetParent(this);
-    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_data->collision);
-    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_data->collision);
-    SetObserver(fullFn, positionalFn);
+    SetObserver(std::bind(&Collision::FullUpdate, m_collision), 
+        std::bind(&Collision::PositionalUpdate, m_collision));
+    m_collision->LoadInstance(collision->GetData(), collision->GetGeometry());
     return true;
+}
+
+void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
+{
+    if(m_data->mesh && m_draw)
+    {
+        LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() 
+            ? Shader_Manager::GetWorldEffect() : m_data->shader->GetEffect();
+
+        effect->SetTechnique(DxConstant::DefaultTechnique);
+        effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+        effect->SetFloatArray(DxConstant::MeshColor, &(m_color.x), 3);
+        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
+
+        Light_Manager::SendLightingToShader(effect);
+
+        D3DXMATRIX wit;
+        D3DXMATRIX wvp = Matrix() * view.Matrix() * projection.Matrix();
+        float det = D3DXMatrixDeterminant(&Matrix());
+        D3DXMatrixInverse(&wit, &det, &Matrix());
+        D3DXMatrixTranspose(&wit, &wit);
+
+        effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
+        effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        effect->SetMatrix(DxConstant::World, &Matrix());
+
+        UINT nPasses = 0;
+        effect->Begin(&nPasses, 0);
+        for(UINT iPass = 0; iPass<nPasses; ++iPass)
+        {
+            effect->BeginPass(iPass);
+            m_data->mesh->DrawSubset(0);
+            effect->EndPass();
+        }
+        effect->End();
+    }
+}
+
+void Mesh::DrawCollision(const Transform& projection, const Transform& view)
+{
+    if(m_collision && m_draw)
+    {
+        m_collision->Draw(projection, view);
+    }
+}
+
+Collision* Mesh::GetCollision()
+{
+    return m_collision.get();
+}
+
+void Mesh::MousePickingTest(Picking& input)
+{
+    if(m_pickable && m_draw && m_data->mesh)
+    {
+        LPD3DXMESH meshToTest = m_collision ? m_collision->GetMesh() : m_data->mesh;
+        const Transform& world = m_collision ? m_collision->GetTransform() : *this;
+
+        D3DXMATRIX worldInverse;
+        D3DXMatrixInverse(&worldInverse, NULL, &world.Matrix());
+
+        D3DXVECTOR3 rayOrigin;
+        D3DXVECTOR3 rayDirection;
+        D3DXVec3TransformCoord(&rayOrigin, &input.GetRayOrigin(), &worldInverse);
+        D3DXVec3TransformNormal(&rayDirection, &input.GetRayDirection(), &worldInverse);
+        D3DXVec3Normalize(&rayDirection, &rayDirection);
+
+        BOOL hasHit; 
+        float distanceToCollision;
+        if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, 
+            &hasHit, NULL, NULL, NULL, &distanceToCollision, NULL, NULL)))
+        {
+            hasHit = false; //Call failed for any reason continue to next mesh.
+        }
+
+        if(hasHit)
+        {
+            D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-world.Position();
+            float distanceToCollision = D3DXVec3Length(&cameraToMesh);
+            if(distanceToCollision < input.GetDistanceToMesh())
+            {
+                input.SetPickedMesh(this, distanceToCollision);
+            }
+        }
+    }
+}
+
+void Mesh::SetCollisionVisibility(bool draw)
+{
+    if(m_collision)
+    {
+        m_collision->SetDraw(draw);
+    }
+}
+
+void Mesh::SetVisible(bool visible)
+{
+    m_draw = visible;
+}
+
+void Mesh::ToggleSelected()
+{
+    m_selected = !m_selected;
+}
+
+bool Mesh::HasCollision() const
+{
+    return m_collision->HasGeometry();
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality)
 {
-    m_data->collision->LoadCylinder(d3ddev, radius, length, quality);
+    m_collision->LoadCylinder(d3ddev, radius, length, quality);
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
 {
-    m_data->collision->LoadBox(d3ddev, width, height, depth);
+    m_collision->LoadBox(d3ddev, width, height, depth);
 }
 
 void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
 {
-    m_data->collision->LoadSphere(d3ddev, radius, quality);
+    m_collision->LoadSphere(d3ddev, radius, quality);
 }
 
 bool Mesh::IsVisible() const

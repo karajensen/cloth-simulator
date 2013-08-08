@@ -61,3 +61,8 @@ template<typename T> std::string StringCast(const T& value)
 {
     return static_cast<sstream&>(sstream() << value).str();
 }
+
+inline D3DXVECTOR3 MultiplyVector(const D3DXVECTOR3& vec1, const D3DXVECTOR3& vec2)
+{
+    return D3DXVECTOR3(vec1.x*vec2.x, vec1.y*vec2.y, vec1.z*vec2.z);
+}

@@ -5,10 +5,11 @@
 
 #pragma once
 
-#include "collision.h"
 #include "common.h"
 #include "mesh.h"
 
+class Collision;
+class ClothSolver;
 class Particle;
 class Shader;
 class Spring;
@@ -16,6 +17,9 @@ class Spring;
 class Cloth : public Mesh
 {
 public:
+
+    typedef std::shared_ptr<Particle> ParticlePtr;
+    typedef std::shared_ptr<Spring> SpringPtr;
 
     /**
     * Constructor; loads the cloth mesh
@@ -47,12 +51,6 @@ public:
     * Resets the cloth to its initial state
     */
     void Reset();
-
-    /**
-    * Solves collision between the cloth and an object
-    * @param the object to test against
-    */
-    void SolveCollision(const Collision* object);
     
     /**
     * Set whether the cloth is simulating
@@ -107,6 +105,11 @@ public:
     * @return the timestep for the simulation
     */
     double GetTimeStep() const;
+
+    /**
+    * @return the container of cloth particles
+    */
+    std::vector<ParticlePtr>& GetParticles();
     
     /**
     * Toggle whether vertex visual models are shown
@@ -160,9 +163,6 @@ public:
     bool UpdateVertexBuffer();
 
 private:
-
-    typedef std::shared_ptr<Particle> ParticlePtr;
-    typedef std::shared_ptr<Spring> SpringPtr;
 
     /**
     * Recreates the cloth
@@ -259,5 +259,6 @@ private:
     void* m_vertexBuffer;                   ///< Raw Pointer to DirectX Vertex Buffer
     void* m_indexBuffer;                    ///< Raw Pointer to DirectX Index Buffer
 
-    std::shared_ptr<Collision::Sphere> m_template;  ///< Template collision for all particles
+    std::shared_ptr<ClothSolver> m_collision; ///< Collision solver for the cloth
+    std::shared_ptr<Collision> m_template;   ///< Template collision for all particles
 };
