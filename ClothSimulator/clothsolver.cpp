@@ -65,13 +65,6 @@ void ClothSolver::SolveBoxCollision(const Collision& box)
     const D3DXVECTOR3& minBounds = box.GetMinBounds();
     const float boxRadius = D3DXVec3Length(&(maxBounds-minBounds));
 
-    auto hasCollision = [&maxBounds, &minBounds](const D3DXVECTOR3& collisionPoint) -> bool
-    {
-
-
-
-    };
-
     std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
     {
         D3DXVECTOR3 sphereToBox = box.GetPosition() - particle->GetPosition();
@@ -80,11 +73,6 @@ void ClothSolver::SolveBoxCollision(const Collision& box)
         //Test whether inside box radius
         if (length < particle->GetCollision()->GetRadius() + boxRadius)
         {
-
-
-
-
-
 
 
         }

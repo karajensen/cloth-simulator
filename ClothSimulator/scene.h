@@ -14,19 +14,11 @@ class Shader;
 class ClothSolver;
 class Mesh;
 class Picking;
+class Manipulator;
 
 class Scene
 {
 public:
-
-    enum Tool
-    {
-        NONE,
-        MOVE,
-        ROTATE,
-        SCALE,
-        ANIMATE
-    };
 
     enum Object
     {
@@ -40,8 +32,10 @@ public:
     * Constructor
     * @param the directx device
     * @param the shader for the meshes
+    * @param the shader for the manipulator tools
     */
-    Scene(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> meshshader);
+    Scene(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> meshshader,
+        std::shared_ptr<Shader> toolshader);
 
     /**
     * Draws all scene meshes
@@ -52,7 +46,15 @@ public:
     void Draw(const D3DXVECTOR3& position, const Transform& projection, const Transform& view);
 
     /**
-    * Draws all scene meshe collisions
+    * Draws the scene manipulator tool
+    * @param the camera position
+    * @param the camera projection matrix
+    * @param the camera view matrix
+    */
+    void DrawTools(const D3DXVECTOR3& position, const Transform& projection, const Transform& view);
+
+    /**
+    * Draws all scene mesh collisions
     * @param the camera projection matrix
     * @param the camera view matrix
     */
@@ -67,12 +69,6 @@ public:
     * Removes all objects in the scene
     */
     void RemoveScene();
-
-    /**
-    * Switches the currently active mesh tool
-    * @param the tool to change to
-    */
-    void ChangeTool(Tool tool);
 
     /**
     * Adds an object to the scene
@@ -99,10 +95,10 @@ public:
     void SetCollisionVisibility(bool visible);
 
     /**
-    * Enables/Disables the gui buttons for mesh creation
-    * @param a callback from the GUI to set whether meshes are enabled or not
+    * Loads the gui callbacks
+    * @param callbacks for the gui to fill in
     */
-    void SetMeshEnableCallback(SetFlag enableCreation);
+    void LoadGuiCallbacks(GuiCallbacks* callbacks);
 
 private:
 
@@ -118,8 +114,7 @@ private:
     std::queue<unsigned int> m_open; ///< Indices for the avaliable meshes
     std::vector<MeshPtr> m_meshes;  ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates; ///< Mesh templates for creating mesh instances
-    Tool m_selectedTool; ///< Currently selected tool
+    std::shared_ptr<Manipulator> m_manipulator; ///< manipulator tool for changing objects
     int m_selectedMesh; ///< Currently selected object
     SetFlag m_enableCreation; ///< Callback for enabled/disabling gui mesh creation
-
 };

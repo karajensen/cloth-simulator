@@ -1,9 +1,10 @@
 
 • Scene mesh manipulation
-	- box, cylinder cloth collision
-	- create moving tools
-	- moving, rotating, scaling, animating, deleting meshes
+	- create tool shader
+	- mouse picking for tools done before other picking
+	- moving, rotating, scaling, animating meshes
 
+• GJK collision detection for box/cylinder
 • Octree spacial partitioning
 • Soft shadow mapping
 

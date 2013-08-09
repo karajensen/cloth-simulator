@@ -65,7 +65,6 @@ void Light::SendLightToShader(LPD3DXEFFECT shader)
 {
     if(m_active)
     {
-        shader->SetFloat(DxConstant::LightOn, 1.0f);
         shader->SetFloatArray(DxConstant::AmbientColor, &m_ambient.x, 3);
         shader->SetFloatArray(DxConstant::DiffuseColor, &m_diffuse.x, 3);
         shader->SetFloatArray(DxConstant::SpecularColor, &m_specular.x, 3);
@@ -73,11 +72,7 @@ void Light::SendLightToShader(LPD3DXEFFECT shader)
         shader->SetFloat(DxConstant::DiffuseIntensity, m_diffuseIntensity);
         shader->SetFloat(DxConstant::SpecularIntensity, m_specularIntensity);
         shader->SetFloat(DxConstant::SpecularSize, m_specularSize);
-        shader->SetFloatArray(DxConstant::LightPos, &m_position.x, 3); 
-    }
-    else
-    {
-        shader->SetFloat(DxConstant::LightOn, 0.0f);
+        shader->SetFloatArray(DxConstant::LightPosition, &m_position.x, 3); 
     }
 }
 

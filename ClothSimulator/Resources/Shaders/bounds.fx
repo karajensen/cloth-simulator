@@ -4,25 +4,25 @@
 *****************************************************************/
 
 float4x4 WorldViewProjection : WorldViewProjection;
-float3 Color;
+float3 VertexColor;
 
 struct VS_OUTPUT
 {
-    float4 Pos : POSITION;
+    float4 Position : POSITION;
 };
 
 //Vertex Shader
 VS_OUTPUT VShader(float4 inPos : POSITION)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Pos = mul(inPos, WorldViewProjection);
+    output.Position = mul(inPos, WorldViewProjection);
     return output;
 }
 
 //Pixel Shader
 float4 PShader(VS_OUTPUT input) : COLOR0
 {   
-    return float4(Color.r, Color.g, Color.b, 0.2);
+    return float4(VertexColor.r, VertexColor.g, VertexColor.b, 0.2);
 }
 
 //Techniques

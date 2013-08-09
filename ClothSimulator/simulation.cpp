@@ -52,6 +52,7 @@ void Simulation::Render()
     m_cloth->DrawMesh(camPos, m_camera->Projection, m_camera->View);
     m_cloth->DrawCollision(m_camera->Projection, m_camera->View);
     m_scene->DrawCollision(m_camera->Projection, m_camera->View);
+    m_scene->DrawTools(camPos, m_camera->Projection, m_camera->View);
 
     Diagnostic::Get().DrawAllObjects(m_camera->Projection, m_camera->View);
     Diagnostic::Get().DrawAllText();
@@ -88,7 +89,7 @@ void Simulation::Update()
 void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
-    m_scene->SetMeshEnableCallback(callbacks->enableMeshCreation);
+    m_scene->LoadGuiCallbacks(callbacks);
 
     callbacks->setGravity = std::bind(&Cloth::SetSimulation, m_cloth.get(), _1);
     callbacks->resetCloth = std::bind(&Cloth::Reset, m_cloth.get());
@@ -133,7 +134,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
 
-        m_scene.reset(new Scene(d3ddev, meshShader));
+        m_scene.reset(new Scene(d3ddev, meshShader, boundsShader));
         m_cloth.reset(new Cloth(m_d3ddev, clothShader));
         m_solver.reset(new ClothSolver(m_cloth));
     }

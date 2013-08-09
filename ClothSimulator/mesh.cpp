@@ -161,9 +161,10 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
 {
     m_index = index;
     m_data = data;
-    SetObserver(std::bind(&Collision::FullUpdate, m_collision), 
-        std::bind(&Collision::PositionalUpdate, m_collision));
-    m_collision->LoadInstance(collision->GetData(), collision->GetGeometry());
+    if(collision)
+    {
+        m_collision->LoadInstance(collision->GetData(), collision->GetGeometry());
+    }
     return true;
 }
 
@@ -176,7 +177,7 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
-        effect->SetFloatArray(DxConstant::MeshColor, &(m_color.x), 3);
+        effect->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
         effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
 
         Light_Manager::SendLightingToShader(effect);

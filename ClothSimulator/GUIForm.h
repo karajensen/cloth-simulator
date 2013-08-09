@@ -277,6 +277,7 @@ namespace GUI
         {         
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
+            m_callbacks->setMoveTool();
         }
 
         /// <summary>
@@ -286,6 +287,7 @@ namespace GUI
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
+            m_callbacks->setRotateTool();
         }
 
         /// <summary>
@@ -295,6 +297,7 @@ namespace GUI
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
+            m_callbacks->setScaleTool();
         }
 
         /// <summary>

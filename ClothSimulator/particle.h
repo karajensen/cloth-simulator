@@ -53,6 +53,11 @@ public:
     void ResetPosition();
 
     /**
+    * Moves the particle back to its previous position
+    */
+    void ResetToPreviousPosition();
+
+    /**
     * Adds force to the particle
     * @param the force to add
     */
