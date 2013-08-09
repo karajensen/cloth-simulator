@@ -7,7 +7,7 @@
 #include "collision.h"
 #include "timer.h"
 #include "text.h"
-#include "meshmanager.h"
+#include "scene.h"
 #include "clothsolver.h"
 #include <algorithm>
 #include <sstream>
@@ -99,10 +99,10 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->setWireframeMode = [&](bool set){m_d3ddev->SetRenderState(
         D3DRS_FILLMODE, set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); };
 
-    callbacks->createBox = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::BOX);
-    callbacks->createSphere = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::SPHERE);
-    callbacks->createCylinder = std::bind(&MeshManager::AddObject, m_scene.get(), MeshManager::CYLINDER);
-    callbacks->clearScene = std::bind(&MeshManager::RemoveScene, m_scene.get());
+    callbacks->createBox = std::bind(&Scene::AddObject, m_scene.get(), Scene::BOX);
+    callbacks->createSphere = std::bind(&Scene::AddObject, m_scene.get(), Scene::SPHERE);
+    callbacks->createCylinder = std::bind(&Scene::AddObject, m_scene.get(), Scene::CYLINDER);
+    callbacks->clearScene = std::bind(&Scene::RemoveScene, m_scene.get());
 
     callbacks->setTimestep = std::bind(&Cloth::SetTimeStep, m_cloth.get(), _1);
     callbacks->setVertexRows = std::bind(&Cloth::SetVertexRows, m_cloth.get(), _1);
@@ -118,8 +118,6 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
 {   
     m_d3ddev = d3ddev;
-    LoadInput(hInstance, hWnd);
-
     m_camera.reset(new Camera(D3DXVECTOR3(0.0f,0.0f,-30.0f), D3DXVECTOR3(0.0f,0.0f,0.0f)));
     m_camera->CreateProjMatrix();
 
@@ -135,10 +133,12 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         Collision::Initialise(boundsShader);
         Diagnostic::Initialise(d3ddev, boundsShader);
 
-        m_scene.reset(new MeshManager(d3ddev, meshShader));
+        m_scene.reset(new Scene(d3ddev, meshShader));
         m_cloth.reset(new Cloth(m_d3ddev, clothShader));
         m_solver.reset(new ClothSolver(m_cloth));
     }
+
+    LoadInput(hInstance, hWnd);
 
     // Start the internal timer
     m_timer.reset(new Timer());
@@ -202,28 +202,32 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
 
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
-        [&](){ m_cloth->ChangeRow(1); }); 
+        std::bind(&Cloth::ChangeRow, m_cloth.get(), 1));
 
     m_input->SetKeyCallback(DIK_2, false, 
-        [&](){ m_cloth->ChangeRow(2); }); 
+        std::bind(&Cloth::ChangeRow, m_cloth.get(), 2));
 
     m_input->SetKeyCallback(DIK_3, false, 
-        [&](){ m_cloth->ChangeRow(3); }); 
+        std::bind(&Cloth::ChangeRow, m_cloth.get(), 3));
 
     m_input->SetKeyCallback(DIK_4, false, 
-        [&](){ m_cloth->ChangeRow(4); }); 
+        std::bind(&Cloth::ChangeRow, m_cloth.get(), 4));
+
+    // Scene shortcut keys
+    m_input->SetKeyCallback(DIK_BACKSPACE, false,
+        std::bind(&Scene::RemoveObject, m_scene.get()));
 
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_0, false, 
-        [&](){ Diagnostic::ToggleText(); });
+        std::bind(&Diagnostic::ToggleText));
 
     m_input->SetKeyCallback(DIK_9, false, 
-        [&](){ Diagnostic::ToggleDiagnostics(); });
+        std::bind(&Diagnostic::ToggleDiagnostics));
 
     // Allow diagnostic selection of particles
     m_input->SetKeyCallback(DIK_RALT, true, 
-        [&](){ m_cloth->SetDiagnosticSelect(true); },
-        [&](){ m_cloth->SetDiagnosticSelect(false); });
+        std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), true),
+        std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
 
     // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_8, false, [&]()

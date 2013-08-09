@@ -15,7 +15,7 @@ class ClothSolver;
 class Mesh;
 class Picking;
 
-class MeshManager
+class Scene
 {
 public:
 
@@ -41,7 +41,7 @@ public:
     * @param the directx device
     * @param the shader for the meshes
     */
-    MeshManager(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> meshshader);
+    Scene(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> meshshader);
 
     /**
     * Draws all scene meshes

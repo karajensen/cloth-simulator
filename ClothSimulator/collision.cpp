@@ -120,6 +120,21 @@ float Collision::GetRadius() const
     return m_data.localWorld.GetScaleFactor().x;
 }
 
+float Collision::GetLength() const
+{
+    return m_data.localWorld.GetScaleFactor().z;
+}
+
+const D3DXVECTOR3& Collision::GetMinBounds() const
+{
+    return m_data.minBounds;
+}
+
+const D3DXVECTOR3& Collision::GetMaxBounds() const
+{
+    return m_data.maxBounds;
+}
+
 D3DXVECTOR3 Collision::GetPosition() const
 {
     return m_world.Position();

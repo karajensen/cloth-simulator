@@ -13,7 +13,25 @@ void ClothSolver::SolveSelfCollision()
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
+    for(unsigned int i = 0; i < particles.size(); ++i)
+    {
+        D3DXVECTOR3 centerToParticle;
+        D3DXVECTOR3 center(particles[i]->GetPosition());
+        const float radius = particles[i]->GetCollision()->GetRadius() * 2.0f;
 
+        for(unsigned int j = i+1; j < particles.size(); ++j)
+        {
+            centerToParticle = particles[j]->GetPosition() - center;
+            const float length = D3DXVec3Length(&centerToParticle);
+
+            if (length < radius)
+            {
+                centerToParticle /= length;
+                particles[i]->MovePosition(-centerToParticle*fabs(radius-length));
+                particles[j]->MovePosition(centerToParticle*fabs(radius-length)); 
+            }
+        }
+    }
 }
 
 void ClothSolver::SolveSphereCollision(const Collision& sphere)
@@ -26,13 +44,14 @@ void ClothSolver::SolveSphereCollision(const Collision& sphere)
 
     std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
     {
-        centerToParticle = particle->GetCollision()->GetPosition() - sphereCenter;
+        centerToParticle = particle->GetPosition() - sphereCenter;
         float length = D3DXVec3Length(&centerToParticle);
+        float radius = sphere.GetRadius() + particle->GetCollision()->GetRadius();
 
-        if (length < sphere.GetRadius())
+        if (length < radius)
         {
             centerToParticle /= length;
-            particle->MovePosition(centerToParticle*(sphere.GetRadius()-length)); 
+            particle->MovePosition(centerToParticle*fabs(radius-length)); 
         }
     });
 }
@@ -42,23 +61,74 @@ void ClothSolver::SolveBoxCollision(const Collision& box)
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
-    for(unsigned int i = 0; i < particles.size(); ++i)
+    const D3DXVECTOR3& maxBounds = box.GetMaxBounds();
+    const D3DXVECTOR3& minBounds = box.GetMinBounds();
+    const float boxRadius = D3DXVec3Length(&(maxBounds-minBounds));
+
+    auto hasCollision = [&maxBounds, &minBounds](const D3DXVECTOR3& collisionPoint) -> bool
     {
-        D3DXVECTOR3 pos = particles[i]->GetPosition();
-        if(pos.y <= box.GetData().maxBounds.y)
+
+
+
+    };
+
+    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
+    {
+        D3DXVECTOR3 sphereToBox = box.GetPosition() - particle->GetPosition();
+        float length = D3DXVec3Length(&sphereToBox);
+
+        //Test whether inside box radius
+        if (length < particle->GetCollision()->GetRadius() + boxRadius)
         {
-            float distance = box.GetData().maxBounds.y-pos.y;
-            distance *= (distance < 0) ? -1.0f : 1.0f;
-            particles[i]->MovePosition(D3DXVECTOR3(0,distance,0));
+
+
+
+
+
+
+
         }
-    }
+    });
 }
 
 void ClothSolver::SolveCylinderCollision(const Collision& cylinder)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
+    const float cylinderRadius = cylinder.GetRadius();
 
+    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
+    {
+        D3DXVECTOR3 sphereToCylinder = cylinder.GetPosition() - particle->GetPosition();
+        float length = D3DXVec3Length(&sphereToCylinder);
+
+        //Test whether inside cylinder radius
+        if (length < particle->GetCollision()->GetRadius() + cylinderRadius)
+        {
+
+
+
+
+
+
+
+        }
+    });
+}
+
+void ClothSolver::SolveGroundCollision(const Collision& box)
+{
+    auto cloth = GetCloth();
+    auto& particles = cloth->GetParticles();
+
+    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
+    {
+        if(particle->GetPosition().y <= box.GetMaxBounds().y)
+        {
+            float distance = fabs(box.GetMaxBounds().y-particle->GetPosition().y);
+            particle->MovePosition(D3DXVECTOR3(0.0f, distance, 0.0f));
+        }
+    });
 }
 
 std::shared_ptr<Cloth> ClothSolver::GetCloth()

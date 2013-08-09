@@ -1,11 +1,10 @@
 
 • Scene mesh manipulation
-	- fix box-cloth collision
-	- create cylinder-cloth collision
+	- box, cylinder cloth collision
 	- create moving tools
+	- moving, rotating, scaling, animating, deleting meshes
 
-• Octree spacial partitioning inside cloth
-• Cloth self-collision
+• Octree spacial partitioning
 • Soft shadow mapping
 
 =================================================================

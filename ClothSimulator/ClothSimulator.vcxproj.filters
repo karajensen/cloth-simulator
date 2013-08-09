@@ -65,10 +65,10 @@
     <ClCompile Include="winmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="meshmanager.cpp">
+    <ClCompile Include="clothsolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="clothsolver.cpp">
+    <ClCompile Include="scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -124,10 +124,10 @@
     <ClInclude Include="timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="meshmanager.h">
+    <ClInclude Include="clothsolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="clothsolver.h">
+    <ClInclude Include="scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

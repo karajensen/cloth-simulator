@@ -9,7 +9,7 @@
 #include "GUICallbacks.h"
 
 class ClothSolver;
-class MeshManager;
+class Scene;
 class Camera;
 class Cloth;
 class Input;
@@ -67,7 +67,7 @@ private:
     std::shared_ptr<Cloth> m_cloth;        ///< Simulation cloth object
     std::shared_ptr<Input> m_input;        ///< Simulation input object
     std::shared_ptr<Camera> m_camera;      ///< Main camera
-    std::shared_ptr<MeshManager> m_scene;  ///< Mesh manager for the scene
+    std::shared_ptr<Scene> m_scene;  ///< Mesh manager for the scene
     LPDIRECT3DDEVICE9 m_d3ddev;            ///< DirectX device
     static bool sm_drawCollisions;         ///< Whether to display collision models
 };

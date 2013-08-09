@@ -99,7 +99,7 @@
     <ClCompile Include="clothsolver.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="diagnostic.cpp" />
-    <ClCompile Include="meshmanager.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
@@ -124,7 +124,7 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="meshmanager.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />
     <ClInclude Include="shader.h" />

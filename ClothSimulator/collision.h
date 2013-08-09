@@ -101,6 +101,21 @@ public:
     float GetRadius() const;
 
     /**
+    * @return the length of the cylinder
+    */
+    float GetLength() const;
+
+    /**
+    * @return the minbounds of the box
+    */
+    const D3DXVECTOR3& GetMinBounds() const;
+
+    /**
+    * @return the minbounds of the box
+    */
+    const D3DXVECTOR3& GetMaxBounds() const;
+
+    /**
     * @return the world matrix of the collision geometry
     */
     const Transform& GetTransform() const;

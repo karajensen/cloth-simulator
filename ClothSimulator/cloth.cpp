@@ -122,7 +122,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     //create particles
     m_particles.resize(m_vertexCount);
-    m_template->GetData().localWorld.SetScale(m_spacing/2);
+    m_template->GetData().localWorld.SetScale(m_spacing/2.0f);
     for(unsigned int i = 0; i < m_particles.size(); ++i)
     {
         if(!m_particles[i].get())
