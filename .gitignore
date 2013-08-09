@@ -9,6 +9,7 @@
 *.dll.metagen
 ipch/
 Versions/
+Graphics/
 ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
 ClothSimulator/Release/
