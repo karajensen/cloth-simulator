@@ -10,6 +10,7 @@
 ipch/
 Versions/
 Graphics/
+html/
 ClothSimulator/._LOG.txt
 ClothSimulator/Debug/
 ClothSimulator/Release/

@@ -54,9 +54,9 @@ namespace GUI
         }
 
         /// <summary> 
-        /// Sets all native callbacks and fills in the spinbox values 
+        /// Recieves the native callbacks and fills in the spinbox values 
         /// </summary>
-        /// <param> The callbacks from the native application </param>
+        /// <param name="callbacks"> The callbacks from the native application </param>
         void SetCallbacks(GuiCallbacks* callbacks)
         {
             m_callbacks = callbacks;
@@ -69,7 +69,7 @@ namespace GUI
         /// <summary> 
         /// Enables/Disables the gui controls conditional on scene creation 
         /// </summary>
-        /// <param> Whether to enable/disable mesh creation </param>
+        /// <param name="enable"> Whether to enable/disable mesh creation </param>
         void EnableMeshCreation(bool enable)
         {
             m_cynlinderBtn->BackColor = enable ? m_unpressedColor : m_pressedColor;
@@ -559,8 +559,8 @@ namespace GUI
             double increment, double minimum, double maximum, EventHandler^ callback)
         {
             const int controlSize = 32;
-            const int panelX = 690;
-            const int panelY = 466 + (index*controlSize);
+            const int panelX = 680;
+            const int panelY = 456 + (index*controlSize);
             const int panelHeight = controlSize-4;
             const int numericX = panelX + controlSize + 3;
             const int numericY = panelY + 5;

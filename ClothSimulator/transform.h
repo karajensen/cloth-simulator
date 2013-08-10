@@ -39,7 +39,7 @@ public:
 
     /**
     * Rotates the matrix
-    * @param randians The amount to rotate in radians
+    * @param radians The amount to rotate in radians
     * @param local Whether to rotate around the local y axis
     */
     void RotateY(float radians, bool local);

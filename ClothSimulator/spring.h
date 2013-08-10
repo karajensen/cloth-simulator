@@ -32,6 +32,7 @@ public:
     /**
     * Creates the spring
     * @param p1/p2 The two particles connected by the spring
+    * @param id The ID of the particle
     * @param type The type of spring created
     */
     void Initialise(Particle& p1, Particle& p2, int id, Type type);

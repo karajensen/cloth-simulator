@@ -30,7 +30,7 @@ public:
 
     /**
     * Draw the cloth visual and collision models
-    * @Param projection The projection matrix
+    * @param projection The projection matrix
     * @param view The view matrix
     */
     virtual void DrawCollision(const Transform& projection, const Transform& view) override;

@@ -70,7 +70,7 @@ public:
     /**
     * Draw the visual model of the mesh
     * @param cameraPos the position of the camera in world coordinates
-    * @Param projection the projection matrix
+    * @param projection the projection matrix
     * @param view the view matrix
     */
     virtual void DrawMesh(const D3DXVECTOR3& cameraPos, 
@@ -78,7 +78,7 @@ public:
 
     /**
     * Draw the collision model of the mesh
-    * @Param projection the projection matrix
+    * @param projection the projection matrix
     * @param view the view matrix
     */
     virtual void DrawCollision(const Transform& projection, const Transform& view);

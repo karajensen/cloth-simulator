@@ -82,7 +82,6 @@ public:
     * @param width The initial width of the box
     * @param height The initial height of the box
     * @param depth The initial depth of the box
-    * @param Whether to load the box as an instance
     */
     void LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
 
