@@ -1,7 +1,6 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Common functions/variables for the simulator
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -24,25 +23,6 @@ static const int HALF_ALPHA = 128;
 static const LPCSTR WINDOW_NAME("Cloth Simulator");
 static const D3DFORMAT BACKBUFFER_FORMAT(D3DFMT_D16);
 static const D3DFORMAT TEXTURE_FORMAT(D3DFMT_A8R8G8B8);
-
-namespace DxConstant
-{
-    static const D3DXHANDLE DefaultTechnique("MAIN");
-    static const D3DXHANDLE VertexColor("VertexColor");
-    static const D3DXHANDLE DiffuseTexture("DiffuseTexture");
-    static const D3DXHANDLE CameraPosition("CameraPosition");
-    static const D3DXHANDLE WorldInverseTranspose("WorldInvTrans");
-    static const D3DXHANDLE WordViewProjection("WorldViewProjection");
-    static const D3DXHANDLE World("World");
-    static const D3DXHANDLE AmbientColor("AmbientColor");
-    static const D3DXHANDLE DiffuseColor("DiffuseColor");
-    static const D3DXHANDLE SpecularColor("SpecularIntensity");
-    static const D3DXHANDLE AmbientIntensity("AmbientIntensity");
-    static const D3DXHANDLE DiffuseIntensity("DiffuseIntensity");
-    static const D3DXHANDLE SpecularIntensity("SpecularIntensity");
-    static const D3DXHANDLE SpecularSize("SpecularSize");
-    static const D3DXHANDLE LightPosition("LightPosition");
-}
 
 template<typename T> T DegToRad(T degrees)
 {

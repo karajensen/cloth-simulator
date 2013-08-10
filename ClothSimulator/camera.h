@@ -1,19 +1,21 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Maya styled camera class 
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include "common.h"
 
+/**
+* Maya styled camera class 
+*/
 class Camera
 {
 public:
 
     /**
     * Constructor
-    * @param the initial position of the camera
-    * @param the target the camera looks at
+    * @param position The initial position of the camera
+    * @param target The target the camera looks at
     */
     Camera(const D3DXVECTOR3& position, const D3DXVECTOR3& target);
 
@@ -34,48 +36,68 @@ public:
 
     /**
     * Generates forward movement for the camera
-    * @param the direction the mouse has moved
-    * @param the speed for the movement (negative for reverse)
-    * @param whether the mouse is pressed or not
+    * @param mouseDir The direction the mouse has moved
+    * @param speed The speed for the movement (negative for reverse)
+    * @param isMouseDown Whether the mouse is pressed or not
     */
     void ForwardMovement(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
 
     /**
     * Generates side movement for the camera
-    * @param the direction the mouse has moved
-    * @param the speed for the movement (negative for reverse)
-    * @param whether the mouse is pressed or not
+    * @param mouseDir The direction the mouse has moved
+    * @param speed The speed for the movement (negative for reverse)
+    * @param isMouseDown Whether the mouse is pressed or not
     */
     void SideMovement(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
 
     /**
     * Generates rotation for the camera around the world origin
-    * @param the direction the mouse has moved
-    * @param the speed for the rotation (negative for reverse)
-    * @param whether the mouse is pressed or not
+    * @param mouseDir The direction the mouse has moved
+    * @param speed The speed for the movement (negative for reverse)
+    * @param isMouseDown Whether the mouse is pressed or not
     */
     void Rotation(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
 
-    Transform Projection; ///< Projection Matrix for the camera
-    Transform View;       ///< View Matrix for the camera
-    Transform World;      ///< World Matrix for the camera
+    Transform Projection;   ///< Projection Matrix for the camera
+    Transform View;         ///< View Matrix for the camera
+    Transform World;        ///< World Matrix for the camera
 
 private:
 
     /**
     * Rotate the camera
-    * @param angle the angle to rotate in radians
+    * @param angle The angle to rotate in radians
     */
     void Yaw(float angle);
+
+    /**
+    * Rotate the camera
+    * @param angle The angle to rotate in radians
+    */
     void Pitch(float angle);
+
+    /**
+    * Rotate the camera
+    * @param angle The angle to rotate in radians
+    */
     void Roll(float angle);
 
     /**
     * Translates the camera
-    * @param the amount to move the camera
+    * @param val The amount to move the camera
     */
     void Forward(float val);
+
+    /**
+    * Translates the camera
+    * @param val The amount to move the camera
+    */
     void Right(float val);
+
+    /**
+    * Translates the camera
+    * @param val The amount to move the camera
+    */
     void Up(float val);
 
     bool m_cameraNeedsUpdate;  ///< Whether the camera requires updating or not

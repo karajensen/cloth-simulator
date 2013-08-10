@@ -1,7 +1,6 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Class for solving cloth-object and cloth-cloth collisions
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "common.h"
@@ -9,15 +8,18 @@
 
 class Cloth;
 
+/**
+* Class for solving cloth-object and cloth-cloth collisions
+*/
 class ClothSolver
 {
 public:
 
     /**
     * Constructor
-    * @param the cloth to solve collisions for
+    * @param cloth The cloth to solve collisions for
     */
-    ClothSolver(std::shared_ptr<Cloth> cloth);
+    explicit ClothSolver(std::shared_ptr<Cloth> cloth);
 
     /**
     * Solves the collisions between the cloth particles
@@ -26,29 +28,35 @@ public:
 
     /**
     * Solves a collision between a sphere and the cloth
-    * @param the sphere collision geometry
+    * @param sphere The sphere collision geometry
     */
     void SolveSphereCollision(const Collision& sphere);
 
     /**
     * Solves a collision between a box and the cloth
-    * @param the box collision geometry
+    * @param box The box collision geometry
     */
     void SolveBoxCollision(const Collision& box);
 
     /**
     * Solves a collision between a cylinder and the cloth
-    * @param the cylinder collision geometry
+    * @param cylinder The cylinder collision geometry
     */
     void SolveCylinderCollision(const Collision& cylinder);
 
     /**
     * Simplified box-cloth collision for the ground plane
-    * @param the ground collision geometry
+    * @param ground The ground collision geometry
     */
-    void SolveGroundCollision(const Collision& box);
+    void SolveGroundCollision(const Collision& ground);
 
 private:
+
+    /**
+    * Prevent copying
+    */
+    ClothSolver(const ClothSolver&);
+    ClothSolver& operator=(const ClothSolver&);
 
     /**
     * @return the cloth from the weak pointer

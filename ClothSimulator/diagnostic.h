@@ -1,9 +1,8 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Diagnostic static drawing class
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include <unordered_map>
 #include <array>
 #include "common.h"
@@ -11,12 +10,15 @@
 class Shader;
 class Text;
 
+/**
+* Diagnostic static drawing class
+*/
 class Diagnostic
 {
 public:
 
     /**
-    * Easy access diagnostic colours
+    * Available diagnostic colours
     */
     enum Colour
     {
@@ -28,80 +30,84 @@ public:
     };
 
     /**
-    * @return the diagnostics object
-    */
-    static Diagnostic& Get() { return *sm_diag; }
-
-    /**
     * Initialise the use of diagnostics 
-    * @param the directX device
-    * @param the shader to apply to diagnostics meshes
+    * @param d3ddev The directX device
+    * @param boundsShader The shader to apply to diagnostics meshes
     */
-    static void Initialise(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader);
+    static void Initialise(LPDIRECT3DDEVICE9 d3ddev, 
+        std::shared_ptr<Shader> boundsShader);
 
     /**
     * Shows a popup box with a message
-    * @param the message to show
+    * @param message The message to show
     */
     static void ShowMessage(const std::string& message);
 
     /**
-    * Sets/Gets whether to render diagnostics
+    * Toggles whether diagnostics are on
     */
     static void ToggleDiagnostics();
+
+    /**
+    * @return whether diagnostics are on
+    */
     static bool AllowDiagnostics();
 
     /**
-    * Sets/Gets whether to render text diagnostics
+    * Toggles whether text diagnostics are on
     */
     static void ToggleText();
+
+    /**
+    * @return whether text diagnostics are on
+    */
     static bool AllowText();
 
     /**
     * Adds a sphere for diagnostic rendering. Will only add once per id and update each call
-    * @param the id of the sphere
-    * @param the colour of the sphere
-    * @param the poition in world coordinates
-    * @param the radius of the sphere
+    * @param id The id of the sphere
+    * @param color The colour of the sphere
+    * @param position The poition in world coordinates
+    * @param radius The radius of the sphere
     */
-    void UpdateSphere(const std::string& id, Colour color, const D3DXVECTOR3& position, float radius);
+    static void UpdateSphere(const std::string& id, Colour color, const D3DXVECTOR3& position, float radius);
 
     /**
     * Adds text for diagnostic rendering. Will only add once per id and update each call
-    * @param the id of the text
-    * @param the colour of the text
-    * @param the text to draw
+    * @param id The id of the text
+    * @param color The colour of the text
+    * @param text The text to draw
     */
-    void UpdateText(const std::string& id, Colour color, const std::string& text);
+    static void UpdateText(const std::string& id, Colour color, const std::string& text);
 
     /**
     * Adds text for diagnostic rendering. Will only add once per id and update each call
-    * @param the id of the text
-    * @param the colour of the text
-    * @param whether to increase the counter or not
+    * @param id The id of the text
+    * @param color The colour of the text
+    * @param increaseCounter Whether to increase the counter or not
     */
-    void UpdateText(const std::string& id, Colour color, bool increaseCounter);
+    static void UpdateText(const std::string& id, Colour color, bool increaseCounter);
 
     /**
     * Adds a cylinder line for diagnostic rendering. Will only add once per id and update each call
-    * @param the id of the line
-    * @param the colour of the line
-    * @param the start position in world coordinates
-    * @param the end position in world coordinates
+    * @param id The id of the line
+    * @param color The colour of the line
+    * @param start The start position in world coordinates
+    * @param end The end position in world coordinates
     */
-    void UpdateLine(const std::string& id, Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
+    static void UpdateLine(const std::string& id, Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
 
     /**
     * Draws all 3D diagnostics
-    * @param the projection matrix
-    * @param the view matrix
+    * @param projection The projection matrix
+    * @param view The view matrix
     */
-    void DrawAllObjects(const Transform& projection, const Transform& view);
+    static void DrawAllObjects(const Transform& projection, const Transform& view);
 
     /**
     * Draws all 2D diagnostics
     */
-    void DrawAllText();
+    static void DrawAllText();
 
     /**
     * Destructor
@@ -131,14 +137,18 @@ private:
         bool draw;          ///< Whether to render the line
     };
 
-    static std::shared_ptr<Shader> sm_shader; ///< Global diagnostic mesh shader
-    static std::shared_ptr<Diagnostic> sm_diag; ///< Diagnostic singleton pointer
-    static bool sm_showText; ///< Whether text diagnostics are visible or not
-    static bool sm_showDiagnostics; ///< Whether diagnostics are visible or not
+    /**
+    * Constructor
+    * @param d3ddev The directX device
+    * @param boundsShader The shader to render diagnostics
+    */
+    Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader);
 
-    Diagnostic(LPDIRECT3DDEVICE9 d3ddev);
+    /**
+    * Prevent copying
+    */
+    Diagnostic(const Diagnostic&);
     Diagnostic& operator=(const Diagnostic&);
-    Diagnostic(const Diagnostic&);  
 
     typedef std::string KeyType;
     typedef std::unordered_map<KeyType, DiagSphere> SphereMap;
@@ -151,8 +161,13 @@ private:
     LineMap m_linemap;       ///< Map of cylinder diagnostics
     ColorMap m_colourmap;    ///< Easy access diagnostic colours
 
-    LPDIRECT3DDEVICE9 m_d3ddev;     ///< DirectX Device
-    LPD3DXMESH m_sphere;            ///< Diagnostic geometry sphere
-    LPD3DXMESH m_cylinder;          ///< Diagnostic geometry sphere
-    std::shared_ptr<Text> m_text;   ///< Diagnostic text
+    LPDIRECT3DDEVICE9 m_d3ddev;       ///< DirectX Device
+    LPD3DXMESH m_sphere;              ///< Diagnostic geometry sphere
+    LPD3DXMESH m_cylinder;            ///< Diagnostic geometry sphere
+    std::shared_ptr<Text> m_text;     ///< Diagnostic text
+    std::shared_ptr<Shader> m_shader; ///< Global diagnostic mesh shader
+    bool m_showText;                  ///< Whether text diagnostics are visible or not
+    bool m_showDiagnostics;           ///< Whether diagnostics are visible or not
+
+    static std::shared_ptr<Diagnostic> sm_diag; ///< Diagnostic singleton pointer
 };

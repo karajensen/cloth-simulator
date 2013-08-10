@@ -1,12 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "picking.h"
 #include "diagnostic.h"
 
 Picking::Picking():
-    m_mesh(nullptr),
-    m_distanceToMesh(0.0f),
     m_rayDirection(0.0f, 0.0f, 0.0f),
-    m_rayOrigin(0.0f, 0.0f, 0.0f)
+    m_rayOrigin(0.0f, 0.0f, 0.0f),
+    m_mesh(nullptr),
+    m_distanceToMesh(0.0f)    
 { 
+}
+
+PickableMesh::PickableMesh() :
+    m_meshPickFn(nullptr)
+{
+}
+
+PickableMesh::~PickableMesh()
+{
 }
 
 void Picking::UpdatePicking(Transform& projection, Transform& view, int x, int y)
@@ -37,7 +50,7 @@ void Picking::SolvePicking()
 {
     if(Diagnostic::AllowText())
     {
-        Diagnostic::Get().UpdateText("DistanceToPick", Diagnostic::WHITE, 
+        Diagnostic::UpdateText("DistanceToPick", Diagnostic::WHITE, 
             StringCast(m_distanceToMesh == FLT_MAX ? 0.0f : m_distanceToMesh));
     }
 
@@ -51,15 +64,6 @@ void Picking::SetPickedMesh(PickableMesh* mesh, float distance)
 {
     m_mesh = mesh;
     m_distanceToMesh = distance;
-}
-
-PickableMesh::PickableMesh() :
-    m_meshPickFn(nullptr)
-{
-}
-
-PickableMesh::~PickableMesh()
-{
 }
 
 void PickableMesh::SetMeshPickFunction(MeshPickFn fn)

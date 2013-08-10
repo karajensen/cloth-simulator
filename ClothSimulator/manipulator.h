@@ -1,22 +1,27 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Tools for manipulating selected objects
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include "common.h"
 
 class Mesh;
-class Shader;
+class ShaderManager;
 class Picking;
+struct RenderCallbacks;
 
+/**
+* Tools for manipulating selected objects
+*/
 class Manipulator
 {
 public:
 
     typedef std::shared_ptr<Mesh> MeshPtr;
 
+    /**
+    * Available tools for manipulating
+    */
     enum ToolType
     {
         MOVE,
@@ -29,36 +34,39 @@ public:
 
     /**
     * Constructor
-    * @param the directx device
-    * @param the shader to use for the tools
+    * @param d3ddev The directx device
+    * @param callbacks The callbacks for rendering a mesh
     */
-    Manipulator(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> toolshader);
+    Manipulator(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
 
     /**
     * Renders the currently selected tool
-    * @param the projection matrix for the camera
-    * @param the view matrix for the camera
-    * @param the position of the camera in world space
-    * @param the selected mesh the tool is working on
+    * @param projection The projection matrix for the camera
+    * @param view The view matrix for the camera
+    * @param position The position of the camera in world space
+    * @param selectedMesh The selected mesh the tool is working on
     */
     void Render(const Transform& projection, const Transform& view,
-        const D3DXVECTOR3& position, const Manipulator::MeshPtr& selectedMesh);
+        const D3DXVECTOR3& position, const MeshPtr& selectedMesh);
 
     /**
     * Updates the tool through mouse picking and movement
-    * @param the picking input object
-    * @param the selected mesh the tool is working on
+    * @param input The picking input object
+    * @param selectedMesh The selected mesh the tool is working on
     */
     void Update(Picking& input, MeshPtr selectedMesh);
 
     /**
     * Switches the currently active mesh tool
-    * @param the tool to change to
+    * @param type The tool to change to
     */
     void ChangeTool(ToolType type);
 
 private:
 
+    /**
+    * The axis associated with a tool mesh
+    */
     enum ToolAxis
     {
         X_AXIS,
@@ -72,17 +80,23 @@ private:
     {
         /**
         * Constructor
-        * @param the directx device
-        * @param the name of the tool
-        * @param the index of the tool
-        * @param the shader to use for the tools
+        * @param d3ddev The directx device
+        * @param name The name of the tool
+        * @param index The index of the tool
+        * @param callbacks The callbacks for rendering a mesh
         */
         Tool(LPDIRECT3DDEVICE9 d3ddev, const std::string& name, 
-            int index, std::shared_ptr<Shader> toolshader);
+            int index, const RenderCallbacks& callbacks);
 
         std::vector<MeshPtr> axis; ///< meshes for the tool
         ToolAxis selectedAxis; ///< currently selected axis
     };
+
+    /**
+    * Prevent copying
+    */
+    Manipulator(const Manipulator&);
+    Manipulator& operator=(const Manipulator&);
 
     /**
     * @return a string description of the given tool

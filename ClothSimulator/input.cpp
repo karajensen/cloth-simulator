@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "input.h"
 #include <algorithm>
 
@@ -9,10 +13,15 @@ namespace
 }
 
 Input::Input(HINSTANCE hInstance, HWND hWnd) :
-    m_directInput(nullptr),
+    m_hWnd(hWnd),
+    m_mouseClicked(false),
+    m_mouse(0),
     m_x(-1),
     m_y(-1),
-    m_hWnd(hWnd)
+    m_mouseDirection(0.0f, 0.0f),
+    m_directInput(nullptr),
+    m_keyboardInput(nullptr),
+    m_mouseInput(nullptr)
 {
     DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, nullptr);
 
@@ -29,23 +38,23 @@ Input::Input(HINSTANCE hInstance, HWND hWnd) :
     m_keyboardInput->Acquire();
 }
 
-void Input::GetKeys(BYTE* KeyState)
+void Input::GetKeys(BYTE* keyState)
 {
-    m_keyboardInput->GetDeviceState(KEY_BUFFER_SIZE, (LPVOID)KeyState);
+    m_keyboardInput->GetDeviceState(KEY_BUFFER_SIZE, (LPVOID)keyState);
 
     for(int Index = 0; Index < KEY_BUFFER_SIZE; ++Index)
     {
-        *(KeyState + Index) &= 0x80;
+        *(keyState + Index) &= 0x80;
     }
 }
 
-void Input::GetMouse(DIMOUSESTATE* MouseState)
+void Input::GetMouse(DIMOUSESTATE* mouseState)
 {
-    m_mouseInput->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)MouseState);
-    MouseState->rgbButtons[0] &= 0x80;
-    MouseState->rgbButtons[1] &= 0x80;
-    MouseState->rgbButtons[2] &= 0x80;
-    MouseState->rgbButtons[3] &= 0x80;
+    m_mouseInput->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)mouseState);
+    mouseState->rgbButtons[0] &= 0x80;
+    mouseState->rgbButtons[1] &= 0x80;
+    mouseState->rgbButtons[2] &= 0x80;
+    mouseState->rgbButtons[3] &= 0x80;
 }
 
 Input::~Input()
@@ -105,12 +114,12 @@ void Input::UpdateInput()
 
     if(Diagnostic::AllowText())
     {
-        Diagnostic::Get().UpdateText("MouseDirection", Diagnostic::WHITE, 
+        Diagnostic::UpdateText("MouseDirection", Diagnostic::WHITE, 
             StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
 
-        Diagnostic::Get().UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
-        Diagnostic::Get().UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
-        Diagnostic::Get().UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
+        Diagnostic::UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
+        Diagnostic::UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
+        Diagnostic::UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
 
     m_mouseDirection.x = 0.0f;

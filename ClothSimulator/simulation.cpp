@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "simulation.h"
 #include "cloth.h"
 #include "camera.h"
@@ -14,19 +18,18 @@
 
 namespace
 {
-    const float CAMERA_MOVE_SPEED = 40.0f;  
-    const float CAMERA_ROT_SPEED = 2.0f;    
-    const float HANDLE_SPEED = 20.0f;
+    const float CAMERA_MOVE_SPEED = 40.0f;  ///< The speed the camera will translate
+    const float CAMERA_ROT_SPEED = 2.0f;    ///< The speed the camera will rotate
+    const float HANDLE_SPEED = 20.0f;       ///< The speed the cloth will move in handle move
 
-    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< CLear colour of the back buffer
+    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< Clear colour of the back buffer
     const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          ///< Render event colour
     const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          ///< Update event colour
 }
 
-bool Simulation::sm_drawCollisions = false;
-
 Simulation::Simulation() :
-    m_d3ddev(nullptr)
+    m_d3ddev(nullptr),
+    m_drawCollisions(false)
 {
 }
 
@@ -54,8 +57,8 @@ void Simulation::Render()
     m_scene->DrawCollision(m_camera->Projection, m_camera->View);
     m_scene->DrawTools(camPos, m_camera->Projection, m_camera->View);
 
-    Diagnostic::Get().DrawAllObjects(m_camera->Projection, m_camera->View);
-    Diagnostic::Get().DrawAllText();
+    Diagnostic::DrawAllObjects(m_camera->Projection, m_camera->View);
+    Diagnostic::DrawAllText();
 
     m_d3ddev->EndScene();
     m_d3ddev->Present(NULL, NULL, NULL, NULL);
@@ -122,20 +125,28 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     m_camera.reset(new Camera(D3DXVECTOR3(0.0f,0.0f,-30.0f), D3DXVECTOR3(0.0f,0.0f,0.0f)));
     m_camera->CreateProjMatrix();
 
-    bool success = Shader_Manager::Inititalise(d3ddev) 
-        && Light_Manager::Inititalise();
+    m_shader.reset(new ShaderManager());
+    m_light.reset(new LightManager());
+    bool success = m_shader->Inititalise(d3ddev) && m_light->Inititalise();
 
     if(success)
     {
-        auto boundsShader = Shader_Manager::GetShader(Shader_Manager::BOUNDS_SHADER);
-        auto meshShader = Shader_Manager::GetShader(Shader_Manager::MAIN_SHADER);
-        auto clothShader = Shader_Manager::GetShader(Shader_Manager::CLOTH_SHADER);
+        auto boundsShader = m_shader->GetShader(ShaderManager::BOUNDS_SHADER);
+        auto clothShader = m_shader->GetShader(ShaderManager::CLOTH_SHADER);
 
-        Collision::Initialise(boundsShader);
+        RenderCallbacks callbacks;
+        callbacks.getWorldEffect = std::bind(&ShaderManager::GetWorldEffect, m_shader.get());
+        callbacks.useWorldShader = std::bind(&ShaderManager::UseWorldShader, m_shader.get());
+
+        callbacks.sendLightingToEffect = std::bind(&LightManager::SendLightingToShader,
+            m_light.get(), std::placeholders::_1);
+
+        callbacks.getShader = [&](ShaderManager::SceneShader shader) -> ShaderManager::ShaderPtr
+            { return m_shader->GetShader(shader); };
+
         Diagnostic::Initialise(d3ddev, boundsShader);
-
-        m_scene.reset(new Scene(d3ddev, meshShader, boundsShader));
-        m_cloth.reset(new Cloth(m_d3ddev, clothShader));
+        m_scene.reset(new Scene(d3ddev, callbacks));
+        m_cloth.reset(new Cloth(m_d3ddev, callbacks));
         m_solver.reset(new ClothSolver(m_cloth));
     }
 
@@ -203,16 +214,16 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
 
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
-        std::bind(&Cloth::ChangeRow, m_cloth.get(), 1));
+        [&](){ m_cloth->ChangeRow(1); });
 
     m_input->SetKeyCallback(DIK_2, false, 
-        std::bind(&Cloth::ChangeRow, m_cloth.get(), 2));
+        [&](){ m_cloth->ChangeRow(2); });
 
     m_input->SetKeyCallback(DIK_3, false, 
-        std::bind(&Cloth::ChangeRow, m_cloth.get(), 3));
+        [&](){ m_cloth->ChangeRow(3); });
 
     m_input->SetKeyCallback(DIK_4, false, 
-        std::bind(&Cloth::ChangeRow, m_cloth.get(), 4));
+        [&](){ m_cloth->ChangeRow(4); });
 
     // Scene shortcut keys
     m_input->SetKeyCallback(DIK_BACKSPACE, false,
@@ -233,8 +244,8 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_8, false, [&]()
     {
-        sm_drawCollisions = !sm_drawCollisions;
-        m_cloth->SetCollisionVisibility(sm_drawCollisions);
-        m_scene->SetCollisionVisibility(sm_drawCollisions);
+        this->m_drawCollisions = !this->m_drawCollisions;
+        m_cloth->SetCollisionVisibility(this->m_drawCollisions);
+        m_scene->SetCollisionVisibility(this->m_drawCollisions);
     });
 }

@@ -1,7 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "light.h"
+#include "shader.h"
 #include <algorithm>
 
-std::vector<Light_Manager::LightPtr> Light_Manager::m_lights;
+LightManager::LightManager()
+{
+}
 
 Light::Light() :
     m_position(0.0f, 0.0f, 0.0f),
@@ -76,10 +83,10 @@ void Light::SendLightToShader(LPD3DXEFFECT shader)
     }
 }
 
-bool Light_Manager::Inititalise()
+bool LightManager::Inititalise()
 {
     m_lights.resize(MAX_LIGHTS);
-    std::generate(m_lights.begin(), m_lights.end(), [&](){ return Light_Manager::LightPtr(new Light()); });
+    std::generate(m_lights.begin(), m_lights.end(), [&](){ return LightManager::LightPtr(new Light()); });
 
     m_lights[MAIN_LIGHT]->SetIndex(MAIN_LIGHT);
     m_lights[MAIN_LIGHT]->SetPosition(D3DXVECTOR3(-10.0f,5.0f,-18.0f));
@@ -88,9 +95,9 @@ bool Light_Manager::Inititalise()
     return true;
 }
 
-void Light_Manager::SendLightingToShader(LPD3DXEFFECT shader)
+void LightManager::SendLightingToShader(LPD3DXEFFECT shader)
 {
     //For now only one light is needed. When multiple lights are needed, change to allow this
-    auto sendLight = [&](const Light_Manager::LightPtr& light){ light->SendLightToShader(shader); };
-    std::for_each(Light_Manager::m_lights.begin(), Light_Manager::m_lights.end(), sendLight);
+    auto sendLight = [&](const LightManager::LightPtr& light){ light->SendLightToShader(shader); };
+    std::for_each(LightManager::m_lights.begin(), LightManager::m_lights.end(), sendLight);
 }

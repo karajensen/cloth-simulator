@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "mesh.h"
 #include "assimpmesh.h"
 #include "collision.h"
@@ -5,21 +9,23 @@
 #include "input.h"
 #include "light.h"
 
-namespace /*anon*/
+namespace
 {
     const D3DXVECTOR3 SELECTED_COLOR(0.7f, 0.7f, 1.0f);
 }
 
-Mesh::Mesh():
-    m_selected(false),
-    m_draw(true),
-    m_pickable(true),
-    m_index(NO_INDEX),
+Mesh::Mesh(const RenderCallbacks& callbacks):
+    m_callbacks(callbacks),
     m_color(1.0f, 1.0f, 1.0f),
-    m_initialcolor(1.0f, 1.0f, 1.0f)
+    m_initialcolor(1.0f, 1.0f, 1.0f),
+    m_index(NO_INDEX),
+    m_pickable(true),
+    m_selected(false),
+    m_draw(true)
 {
+    auto boundshader = callbacks.getShader(ShaderManager::BOUNDS_SHADER);
     m_data.reset(new MeshData());
-    m_collision.reset(new Collision(*this));
+    m_collision.reset(new Collision(*this, boundshader));
 
     Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_collision);
     Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_collision);
@@ -172,15 +178,15 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, c
 {
     if(m_data->mesh && m_draw)
     {
-        LPD3DXEFFECT effect = Shader_Manager::UseWorldShader() 
-            ? Shader_Manager::GetWorldEffect() : m_data->shader->GetEffect();
+        LPD3DXEFFECT effect = m_callbacks.useWorldShader() 
+            ? m_callbacks.getWorldEffect() : m_data->shader->GetEffect();
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
         effect->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
         effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
 
-        Light_Manager::SendLightingToShader(effect);
+        m_callbacks.sendLightingToEffect(effect);
 
         D3DXMATRIX wit;
         D3DXMATRIX wvp = Matrix() * view.Matrix() * projection.Matrix();

@@ -1,8 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "cloth.h"
 #include "input.h"
 #include "particle.h"
 #include "collision.h"
 #include "spring.h"
+#include "shader.h"
 #include <functional>
 #include <algorithm>
 
@@ -29,7 +34,8 @@ namespace
     const float SPACING = 0.75f; 
 }
 
-Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
+Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks) :
+    Mesh(callbacks),
     m_selectedRow(1),
     m_timestep(TIMESTEP),
     m_timestepSquared(TIMESTEP*TIMESTEP),
@@ -40,18 +46,20 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader) :
     m_vertexWidth(0),
     m_vertexCount(0),
     m_simulation(false),
-    m_selfCollide(false),
     m_drawVisualParticles(false),
     m_drawColParticles(false),
-    m_gravity(0,-9.8f,0),
-    m_diagnosticParticle(0),
-    m_diagnosticSelect(false),
-    m_handleMode(false),
     m_spacing(0.0f),
-    m_d3ddev(d3ddev)
+    m_handleMode(false),
+    m_gravity(0,-9.8f,0),
+    m_diagnosticSelect(false),
+    m_diagnosticParticle(0),
+    m_d3ddev(d3ddev),
+    m_vertexBuffer(nullptr),
+    m_indexBuffer(nullptr),
+    m_callbacks(callbacks)
 {
-    m_data->shader = shader;
-    m_template.reset(new Collision(*this));
+    m_data->shader = callbacks.getShader(ShaderManager::CLOTH_SHADER);;
+    m_template.reset(new Collision(*this, callbacks.getShader(ShaderManager::BOUNDS_SHADER)));
     m_template->LoadSphere(d3ddev, 1.0f, 8);
 
     if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_data->texture)))
@@ -127,7 +135,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         if(!m_particles[i].get())
         {
-            m_particles[i].reset(new Particle(m_d3ddev));
+            m_particles[i].reset(new Particle(m_d3ddev, m_callbacks));
         }
         m_particles[i]->Initialise(m_vertexData[i].position, i,
             m_template->GetGeometry(), m_template->GetData());
@@ -399,7 +407,7 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
         const float radius = 0.4f;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
 
-        Diagnostic::Get().UpdateSphere("Particle", 
+        Diagnostic::UpdateSphere("Particle", 
             Diagnostic::YELLOW, position, radius);
 
         std::for_each(m_springs.begin(), m_springs.end(), 
@@ -412,13 +420,13 @@ void Cloth::DrawCollision(const Transform& projection, const Transform& view)
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
         const auto& collision = m_particles[m_diagnosticParticle]->GetCollision()->GetPosition();
 
-        Diagnostic::Get().UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
+        Diagnostic::UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
             + ", " + StringCast(position.y) + ", " + StringCast(position.z));
 
-        Diagnostic::Get().UpdateText("Collision", Diagnostic::YELLOW, StringCast(collision.x) 
+        Diagnostic::UpdateText("Collision", Diagnostic::YELLOW, StringCast(collision.x) 
             + ", " + StringCast(collision.y) + ", " + StringCast(collision.z));
 
-        Diagnostic::Get().UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
+        Diagnostic::UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
             + ", " + StringCast(vertex.y) + ", " + StringCast(vertex.z));
     }
 

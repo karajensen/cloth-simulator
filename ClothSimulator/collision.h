@@ -1,17 +1,22 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Basic collision geometry class
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include "common.h"
+
 class Shader;
 
+/**
+* Basic collision geometry class
+*/
 class Collision
 {
 public:
 
+    /**
+    * Available shapes for collision geometry
+    */
     enum Shape
     {
         NONE,
@@ -20,62 +25,80 @@ public:
         CYLINDER
     };
 
+    /**
+    * Instantable Geometry for the collision
+    */
     struct Geometry
     {
+        /**
+        * Constructor
+        */
         Geometry();
+
+        /**
+        * Destructor
+        */
         ~Geometry();
 
         Shape shape;     ///< Type of shape of the collision geometry
         LPD3DXMESH mesh; ///< Collision geometry mesh
     };
 
+    /**
+    * Shape data for the collision
+    */
     struct Data
     {
+        /**
+        * Constructor
+        */
         Data();
+
         D3DXVECTOR3 localMinBounds; ///< Untransformed min bounds for box geometry
-        D3DXVECTOR3 localMaxBounds; ///< Untransformed max bounds for cube geometry
-        D3DXVECTOR3 minBounds;      ///< Transformed world min bounds of the cube
-        D3DXVECTOR3 maxBounds;      ///< Transformed world max bounds of the cube
+        D3DXVECTOR3 localMaxBounds; ///< Untransformed max bounds for box geometry
+        D3DXVECTOR3 minBounds;      ///< Transformed world min bounds for box geometry
+        D3DXVECTOR3 maxBounds;      ///< Transformed world max bounds for box geometry
         Transform localWorld;       ///< Local transform before any calculations of the geometry
     };
 
     /**
     * Constructor
-    * @param the transform of the mesh parent
+    * @param parent The transform of the mesh parent
+    * @param boundsShader The shader for the collision mesh
     */
-    Collision(const Transform& parent);
+    Collision(const Transform& parent, std::shared_ptr<Shader> boundsShader);
 
     /**
     * Creates a sphere collision model
-    * @param the directX device
-    * @param the initial radius of the sphere
-    * @param the amount of divisions of the mesh
+    * @param d3ddev The directX device
+    * @param radius The initial radius of the sphere
+    * @param divisions The amount of divisions of the mesh
     */
     void LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions);
 
     /**
     * Creates a box collision model
-    * @param the directX device
-    * @param the initial width of the box
-    * @param the initial height of the box
-    * @param the initial depth of the box
-    * @param whether to load the box as an instance
+    * @param d3ddev The directX device
+    * @param width The initial width of the box
+    * @param height The initial height of the box
+    * @param depth The initial depth of the box
+    * @param Whether to load the box as an instance
     */
     void LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
 
     /**
     * Creates a cylinder collision model
-    * @param the directX device
-    * @param the initial radius of the cylinder
-    * @param the length of the cylinder
-    * @param the amount of divisions of the mesh
+    * @param d3ddev The directX device
+    * @param radius The initial radius of the cylinder
+    * @param length The length of the cylinder
+    * @param divisions The amount of divisions of the mesh
     */
     void LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions);
 
     /**
     * Loads the collision as an instance of another
-    * @param the data to load
-    * @param geometry mesh instance
+    * @param data The data to load
+    * @param geometry Mesh instance
     */
     void LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry);
 
@@ -86,7 +109,7 @@ public:
 
     /**
     * Sets the colour the collision mesh appears
-    * @param the colour to set in rgb from 0->1.0
+    * @param color The colour to set in rgb from 0->1.0
     */
     void SetColor(const D3DXVECTOR3& color);
 
@@ -127,13 +150,13 @@ public:
     
     /**
     * Draw the collision geometry. Assumes Update() has been called as needed
-    * @param the projection matrix
-    * @param the view matrix
+    * @param projection The projection matrix
+    * @param view The view matrix
     */
     void Draw(const Transform& projection, const Transform& view);
 
     /**
-    * Set visiblity of the collision geometry
+    * @param draw Set whether the collision mesh is drawn
     */
     void SetDraw(bool draw);
 
@@ -153,16 +176,20 @@ public:
     std::shared_ptr<Geometry> GetGeometry() const;
 
     /**
-    * @return the geometry data
+    * @return the const geometry data
     */
     const Data& GetData() const;
+
+    /**
+    * @return the geometry data
+    */
     Data& GetData();
 
     /**
     * Draw the collision geometry with a specific radius.
-    * @param the projection matrix
-    * @param the view matrix
-    * @param the radius to override
+    * @param projection The projection matrix
+    * @param view The view matrix
+    * @param radius The radius to override
     */
     void DrawWithRadius(const Transform& projection, 
         const Transform& view, float radius);
@@ -172,13 +199,13 @@ public:
     */
     bool HasGeometry() const;
 
-    /**
-    * Initialise the use of collisions 
-    * @param the shader to apply to collision meshes
-    */
-    static void Initialise(std::shared_ptr<Shader> boundsShader);
-
 private:
+
+    /**
+    * Prevent copying
+    */
+    Collision(const Collision&);
+    Collision& operator=(const Collision&);
 
     bool m_draw;                ///< Whether to draw the geometry
     const Transform& m_parent;  ///< Parent transform of the collision geometry
@@ -187,5 +214,5 @@ private:
     Data m_data;                ///< Data for the collision geometry
 
     std::shared_ptr<Geometry> m_geometry; ///< Collision geometry mesh shared accross instances
-    static std::shared_ptr<Shader> sm_shader; ///< Shared shader of all collision geometry
+    std::shared_ptr<Shader> m_shader;     ///< Shader for the collision geometry
 };

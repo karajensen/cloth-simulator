@@ -1,56 +1,71 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Class for displaying text
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include "common.h"
 
+/**
+* Class for displaying text
+*/
 class Text
 {
 public:
 
+    /**
+    * Constructor
+    */
     Text();
+
+    /**
+    * Destructor
+    */
     ~Text();
 
     /**
-    * Draw the text
+    * Render the text to screen
     */
     void Draw();
 
     /**
     * Load the text
-    * @param the directX device
-    * @param whether the text is italic
-    * @param the weight [0-1000] of the text
-    * @param the font size of the text
-    * @param the alignment of the text within the textbox
-    * @param the top left corner of the textbox
-    * @param the bottom right corner of the textbox
+    * @param d3ddev The directX device
+    * @param italic Whether the text is italic
+    * @param weight The weight [0-1000] of the text
+    * @param size The font size of the text
+    * @param align The alignment of the text within the textbox
+    * @param xtl/ytl The top left corner of the textbox
+    * @param xbr/ybr The bottom right corner of the textbox
+    * @return whether creation was successful
     */
     bool Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight, 
         int size, UINT align, int xtl, int ytl, int xbr, int ybr);
     
     /**
     * Set a new position for the text box
-    * @param the top left corner of the textbox
+    * @param xtl/ytl The top left corner of the textbox
     */
     void SetPosition(int xtl, int ytl);
 
     /**
     * Set the text to display
-    * @param the new text
+    * @param text The new text
     */
     void SetText(const std::string& text);
 
     /**
     * Set the text colour
-    * @param the new colour from 0.0-1.0
+    * @param color The new colour from 0.0-1.0
     */
     void SetColour(const D3DXVECTOR3& color);
 
 private:
+
+    /**
+    * Prevent copying
+    */
+    Text(const Text&);
+    Text& operator=(const Text&);
 
     D3DCOLOR m_color;   ///< Colour of the text from 0-255
     RECT m_textbox;     ///< Text bounding area

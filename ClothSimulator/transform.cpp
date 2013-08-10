@@ -1,11 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #include "transform.h"
 #include "common.h"
 
 Transform::Transform():
+    m_scaleFactor(1.0f,1.0f,1.0f),
     m_fullUpdateFn(nullptr),
-    m_positionalUpdateFn(nullptr),
-    m_scaleFactor(1.0f,1.0f,1.0f)
+    m_positionalUpdateFn(nullptr)
 { 
     D3DXMatrixIdentity(&m_matrix);
 }
@@ -140,11 +143,11 @@ void Transform::RotateZ(float radians, bool local)
     CallObserver(true);
 }
 
-void Transform::SetPosition(const D3DXVECTOR3& pos)
+void Transform::SetPosition(const D3DXVECTOR3& position)
 {
-    m_matrix._41 = pos.x;
-    m_matrix._42 = pos.y;
-    m_matrix._43 = pos.z;
+    m_matrix._41 = position.x;
+    m_matrix._42 = position.y;
+    m_matrix._43 = position.z;
     CallObserver(false);
 }
 
@@ -156,11 +159,11 @@ void Transform::SetPosition(float x, float y, float z)
     CallObserver(false);
 }
 
-void Transform::Translate(const D3DXVECTOR3& pos)
+void Transform::Translate(const D3DXVECTOR3& position)
 {
-    m_matrix._41 += pos.x;
-    m_matrix._42 += pos.y;
-    m_matrix._43 += pos.z;
+    m_matrix._41 += position.x;
+    m_matrix._42 += position.y;
+    m_matrix._43 += position.z;
     CallObserver(false);
 }
 
@@ -181,7 +184,8 @@ void Transform::MakeIdentity()
     CallObserver(true);
 }
 
-void Transform::SetAxis(const D3DXVECTOR3& up, const D3DXVECTOR3& forward, const D3DXVECTOR3& right)
+void Transform::SetAxis(const D3DXVECTOR3& up,
+    const D3DXVECTOR3& forward, const D3DXVECTOR3& right)
 {
     m_matrix._11 = right.x;
     m_matrix._12 = right.y;

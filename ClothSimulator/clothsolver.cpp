@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "clothsolver.h"
 #include "diagnostic.h"
 #include "particle.h"
@@ -104,16 +108,16 @@ void ClothSolver::SolveCylinderCollision(const Collision& cylinder)
     });
 }
 
-void ClothSolver::SolveGroundCollision(const Collision& box)
+void ClothSolver::SolveGroundCollision(const Collision& ground)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
     std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
     {
-        if(particle->GetPosition().y <= box.GetMaxBounds().y)
+        if(particle->GetPosition().y <= ground.GetMaxBounds().y)
         {
-            float distance = fabs(box.GetMaxBounds().y-particle->GetPosition().y);
+            float distance = fabs(ground.GetMaxBounds().y-particle->GetPosition().y);
             particle->MovePosition(D3DXVECTOR3(0.0f, distance, 0.0f));
         }
     });

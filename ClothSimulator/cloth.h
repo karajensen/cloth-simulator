@@ -1,19 +1,19 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Single cloth class for application
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include "common.h"
 #include "mesh.h"
 
 class Collision;
 class ClothSolver;
 class Particle;
-class Shader;
 class Spring;
 
+/**
+* Dynamic mesh with soft body physics
+*/
 class Cloth : public Mesh
 {
 public:
@@ -24,26 +24,26 @@ public:
     /**
     * Constructor; loads the cloth mesh
     * @param d3ddev the directX device
-    * @param shader the shader for the mesh
+    * @param callbacks The callbacks for rendering a mesh
     */
-    Cloth(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> shader);
+    Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
 
     /**
     * Draw the cloth visual and collision models
-    * @Param the projection matrix
-    * @param the view matrix
+    * @Param projection The projection matrix
+    * @param view The view matrix
     */
     virtual void DrawCollision(const Transform& projection, const Transform& view) override;
 
     /**
     * Test if cloth m_vertices have been clicked
-    * @param the mouse picking input
+    * @param input The mouse picking input
     */
     virtual void MousePickingTest(Picking& input) override;
 
     /**
     * Updates the cloth state
-    * @param delta time
+    * @param deltatime the time between frames
     */
     void UpdateState(double deltatime);
 
@@ -53,9 +53,9 @@ public:
     void Reset();
     
     /**
-    * Set whether the cloth is simulating
+    * @param simulating Set whether the cloth is simulating
     */
-    void SetSimulation(bool sim) { m_simulation = sim; }
+    void SetSimulation(bool simulating) { m_simulation = simulating; }
 
     /**
     * @return whether the cloth is simulating
@@ -64,7 +64,7 @@ public:
 
     /**
     * Sets the size of the cloth  between vertices
-    * @param the spacing to set
+    * @param size The spacing to set
     */
     void SetSpacing(double size);
 
@@ -75,7 +75,7 @@ public:
 
     /**
     * Sets the amount of vertex rows for the cloth
-    * @param the vertice count to set to
+    * @param number The vertex count to set to
     */
     void SetVertexRows(double number);
 
@@ -86,7 +86,7 @@ public:
 
     /**
     * Sets the particle solver iteration amount
-    * @param the iterations to set to
+    * @param iterations The iterations to set to
     */
     void SetIterations(double iterations);
 
@@ -97,7 +97,7 @@ public:
 
     /**
     * Sets the cloth timestep
-    * @param the timeset to set to
+    * @param timestep The timestep to set to
     */
     void SetTimeStep(double timestep);
 
@@ -112,17 +112,17 @@ public:
     std::vector<ParticlePtr>& GetParticles();
     
     /**
-    * Toggle whether vertex visual models are shown
+    * @param draw Set whether the vertices are visible or not
     */
     void SetVertexVisibility(bool draw);
 
     /**
-    * Toggle whether vertex visual models are shown
+    * @param draw Set whether the collision meshes are visible or not
     */
     virtual void SetCollisionVisibility(bool draw) override;
 
     /**
-    * Set whether handle mode is active or not
+    * @param set Shether handle mode is active or not
     */
     void SetHandleMode(bool set);
 
@@ -133,26 +133,26 @@ public:
 
     /**
     * Switches the currently selected row
-    * @param the row to switch to
+    * @param row The row to switch to
     */
     void ChangeRow(int row);
 
     /**
     * Send a force to the currently selected row of the cloth
-    * @param right,up,forward the direction and amount of force
+    * @param right/up/forward the direction and amount of force
     */
     void MovePinnedRow(float right, float up, float forward);
 
     /**
     * Selects the given particle
-    * @param the particle to select
+    * @param index The particle to select
     */
     void SelectParticle(int index);
 
     /**
     * Allows Diagnostic select which involes selecting a 
     * particle and displaying it's information 
-    * @param sets whether diagnostic select is allowed
+    * @param set Whether diagnostic select is allowed
     */
     void SetDiagnosticSelect(bool set) { m_diagnosticSelect = set; }
 
@@ -166,36 +166,37 @@ private:
 
     /**
     * Recreates the cloth
-    * @param the number of rows for the cloth
-    * @param the spacing between vertices
+    * @param rows The number of rows for the cloth
+    * @param spacing The spacing between vertices
     */
     void CreateCloth(int rows, float spacing);
 
     /**
-    * Adds a force to each vertex in the cloth
-    * @param the force to add
+    * @param force Adds a force to each vertex in the cloth
     */
     void AddForce(const D3DXVECTOR3& force);
 
     /**
     * Selects the given particle for diagnostic purposes
-    * @param the particle to select
+    * @param index The particle to select
     */
     void SelectParticleForDiagnostics(int index);
 
     /**
     * Changes a particular row
-    * @param the row to change
-    * @param whether to select/deselect the row
+    * @param row The row to change
+    * @param select Whether to select/deselect the row
     */
     void ChangeRow(int row, bool select);
 
     /**
+    * @param row/col The row and column of the required particle
     * @return the particle in grid at row/col
     */
     ParticlePtr& GetParticle(int row, int col);
 
     /**
+    * @param row/col The row and column of the required vertex
     * @return the vertex in grid at row/col
     */
     Vertex& GetVertex(int row, int col);
@@ -207,28 +208,27 @@ private:
 
     /**
     * Creates a normal from the given three particles
-    * @param the three vertices to generate the normal
+    * @param p1/p2/p3 The three vertices to generate the normal
     * @return the generated normal
     */
     D3DXVECTOR3 CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& p2, const ParticlePtr& p3);
     
     /**
     * Adds a force to the given particle
-    * @param particle to add the force to
-    * @param the force to add
+    * @param particle Particle to add the force to
+    * @param force The force to add
     */
     void AddForce(const ParticlePtr& particle, const D3DXVECTOR3& force);
 
     /**
-    * @param the particle to set the color for
-    * @param whether to set color for diagnostics or not
+    * @param particle The particle to set the color for
     */
     void SetParticleColor(const ParticlePtr& particle);
 
     /**
-    * Not implemented
+    * Prevent copying
     */
-    Cloth(const Cloth&);              
+    Cloth(const Cloth&);
     Cloth& operator=(const Cloth&);
 
     int m_selectedRow;          ///< Current row selected when in manipulate mode
@@ -241,7 +241,6 @@ private:
     int m_vertexWidth;          ///< Width between particles in the cloth
     int m_vertexCount;          ///< Overall number of particles in the cloth
     bool m_simulation;          ///< Whether the cloth is currently simulating
-    bool m_selfCollide;         ///< Whether the cloth is currently self-colliding
     bool m_drawVisualParticles; ///< Whether particle visual models are drawn
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
     float m_spacing;            ///< Current spacing between vertices
@@ -250,15 +249,15 @@ private:
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 
-    LPDIRECT3DDEVICE9 m_d3ddev;             ///< DirextX device
-    std::vector<D3DXVECTOR3> m_colors;      ///< Viable colors for the particles
-    std::vector<SpringPtr> m_springs;       ///< Springs connecting particles together
-    std::vector<ParticlePtr> m_particles;   ///< Particles across the cloth grid
-    std::vector<Vertex> m_vertexData;       ///< DirectX Vertex data
-    std::vector<DWORD> m_indexData;         ///< DirectX Index data
-    void* m_vertexBuffer;                   ///< Raw Pointer to DirectX Vertex Buffer
-    void* m_indexBuffer;                    ///< Raw Pointer to DirectX Index Buffer
-
+    LPDIRECT3DDEVICE9 m_d3ddev;               ///< DirextX device
+    std::vector<D3DXVECTOR3> m_colors;        ///< Viable colors for the particles
+    std::vector<SpringPtr> m_springs;         ///< Springs connecting particles together
+    std::vector<ParticlePtr> m_particles;     ///< Particles across the cloth grid
+    std::vector<Vertex> m_vertexData;         ///< DirectX Vertex data
+    std::vector<DWORD> m_indexData;           ///< DirectX Index data
+    void* m_vertexBuffer;                     ///< Raw Pointer to DirectX Vertex Buffer
+    void* m_indexBuffer;                      ///< Raw Pointer to DirectX Index Buffer
+    RenderCallbacks m_callbacks;              ///< Callbacks for rendering a mesh
     std::shared_ptr<ClothSolver> m_collision; ///< Collision solver for the cloth
-    std::shared_ptr<Collision> m_template;   ///< Template collision for all particles
+    std::shared_ptr<Collision> m_template;    ///< Template collision for all particles
 };

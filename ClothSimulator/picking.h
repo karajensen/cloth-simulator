@@ -1,9 +1,8 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Picking mesh and structures
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include "common.h"
 #include <functional>
 
@@ -17,14 +16,18 @@ public:
     typedef std::function<void(void)> MeshPickFn;
 
     /**
-    * Constructor/Destructor.
+    * Constructor.
     */
     PickableMesh();
+
+    /**
+    * Destructor
+    */
     virtual ~PickableMesh();
 
     /**
     * Set mesh pick function
-    * @param the function to set
+    * @param fn the function to set
     */
     void SetMeshPickFunction(MeshPickFn fn);
 
@@ -45,13 +48,16 @@ class Picking
 {
 public:
 
+    /**
+    * Constructor
+    */
     Picking();
 
     /**
     * Send a ray into the scene to determine if mouse clicked an object
-    * @param the camera projection matrix
-    * @param the camera view matrix
-    * @param the mouse click screen coordinates
+    * @param projection The camera projection matrix
+    * @param view The camera view matrix
+    * @param x/y The mouse click screen coordinates
     */
     void UpdatePicking(Transform& projection, Transform& view, int x, int y);
 
@@ -62,8 +68,8 @@ public:
 
     /**
     * Set the picked mesh
-    * @param the chosen mesh
-    * @param the distance to the chosen mesh
+    * @param mesh The chosen mesh
+    * @param distance The distance to the chosen mesh
     */
     void SetPickedMesh(PickableMesh* mesh, float distance);
 

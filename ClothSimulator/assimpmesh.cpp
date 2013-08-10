@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "assimpmesh.h"
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"
@@ -14,11 +18,11 @@ Assimpmesh::~Assimpmesh()
 bool Assimpmesh::Initialise(const std::string& path, std::string& errorBuffer)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|aiProcess_Triangulate|
-                                             aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
-                                             aiProcess_CalcTangentSpace|aiProcess_JoinIdenticalVertices|
-                                             aiProcess_GenSmoothNormals|aiProcess_LimitBoneWeights|
-                                             aiProcess_RemoveRedundantMaterials|aiProcess_OptimizeMeshes);
+    const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
+        aiProcess_Triangulate|aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
+        aiProcess_CalcTangentSpace|aiProcess_JoinIdenticalVertices|aiProcess_GenSmoothNormals|
+        aiProcess_LimitBoneWeights|aiProcess_RemoveRedundantMaterials|aiProcess_OptimizeMeshes);
+
     if(!scene)
     {
         errorBuffer = "Assimp import error for mesh " + path + ": " + importer.GetErrorString();

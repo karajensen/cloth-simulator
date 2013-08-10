@@ -1,7 +1,7 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Main GUI Window Form, usable with the designer
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #include <vcclr.h>
 #include "GUICallbacks.h"
@@ -15,12 +15,15 @@ namespace GUI
     using namespace System::Data;
     using namespace System::Drawing;
 
+    /// <summary> 
+    /// Main GUI Window Form, usable with the designer 
+    /// </summary>
     public ref class GUIForm : public System::Windows::Forms::Form
     {
     public:
 
         /// <summary>
-        /// Constructor
+        /// Default Constructor 
         /// </summary>
         GUIForm(void) :
             m_callbacks(nullptr),
@@ -33,8 +36,9 @@ namespace GUI
         }
 
         /// <summary>
-        /// Returns the handle to the simulation window/instance
+        /// Determines and returns the window/instance handles of the gui
         /// </summary>
+        /// <returns> The handles to the simulation window/instance </returns>
         WindowHandle GetWindowHandle()
         {
             Form^ simForm = (Form^)*m_pinnedSimForm;
@@ -49,9 +53,10 @@ namespace GUI
             return window;
         }
 
-        /// <summary>
-        /// Sets all native callbacks and fills in the initial spin box values
+        /// <summary> 
+        /// Sets all native callbacks and fills in the spinbox values 
         /// </summary>
+        /// <param> The callbacks from the native application </param>
         void SetCallbacks(GuiCallbacks* callbacks)
         {
             m_callbacks = callbacks;
@@ -61,9 +66,10 @@ namespace GUI
             m_vertRows->numeric->Value = Decimal(callbacks->getVertexRows());
         }
 
-        /// <summary>
-        /// Enables/Disables the gui controls conditional on scene information
+        /// <summary> 
+        /// Enables/Disables the gui controls conditional on scene creation 
         /// </summary>
+        /// <param> Whether to enable/disable mesh creation </param>
         void EnableMeshCreation(bool enable)
         {
             m_cynlinderBtn->BackColor = enable ? m_unpressedColor : m_pressedColor;
@@ -76,8 +82,8 @@ namespace GUI
 
     protected:
 
-        /// <summary>
-        /// Finaliser: Clean up any resources being used.
+        /// <summary> 
+        /// Finaliser: Clean up any resources being used 
         /// </summary>
         !GUIForm()
         {
@@ -114,8 +120,8 @@ namespace GUI
         /// </summary>
         ref struct SpinBox
         {
-            Panel^ panel;
-            NumericUpDown^ numeric;
+            Panel^ panel;               ///< Panel to encase the spinbox
+            NumericUpDown^ numeric;     ///< Spin box control
         };
 
         GuiCallbacks* m_callbacks;      ///< Callbacks for the gui
@@ -175,8 +181,13 @@ namespace GUI
         }
 
         /// <summary>
-        /// Creates/adds a checkbox button
+        /// Creates and adds a checkbox to the gui
         /// </summary>
+        /// <param name="checkbox"> A tracker reference to the checkbox control </param>
+        /// <param name="image"> The image filename for the checkbox icon </param>
+        /// <param name="tip"> A tooltip description for the checkbox </param>
+        /// <param name="index"> The index for the checkbox, used to determine positioning </param>
+        /// <param name="callback"> The method to call when the checkbox value changes </param>
         void CreateCheckBox(CheckBox^% checkbox, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             checkbox = gcnew CheckBox();
@@ -186,8 +197,13 @@ namespace GUI
         }
 
         /// <summary>
-        /// Creates/adds a radio button
+        /// Creates and adds a radio button to the gui
         /// </summary>
+        /// <param name="button"> A tracker reference to the radiobutton control </param>
+        /// <param name="image"> The image filename for the radiobutton icon </param>
+        /// <param name="tip"> A tooltip description for the radiobutton </param>
+        /// <param name="index"> The index for the radiobutton, used to determine positioning </param>
+        /// <param name="callback"> The method to call when the radiobutton value changes </param>
         void CreateRadioButton(RadioButton^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew RadioButton();
@@ -197,8 +213,13 @@ namespace GUI
         }
 
         /// <summary>
-        /// Creates/adds a button
+        /// Creates and adds a button to the gui
         /// </summary>
+        /// <param name="button"> A tracker reference to the button control </param>
+        /// <param name="image"> The image filename for the button icon </param>
+        /// <param name="tip"> A tooltip description for the button </param>
+        /// <param name="index"> The index for the button, used to determine positioning </param>
+        /// <param name="callback"> The method to call when the button is clicked </param>
         void CreateButton(Button^% button, String^ image, String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew Button();
@@ -399,6 +420,7 @@ namespace GUI
         /// <summary>
         /// Chooses the selected radio button
         /// </summary>
+        /// <param name="button"> The button to choose as selected </param>
         void SelectRadioButton(RadioButton^ button)
         {
             if(m_toolSelected == button)
@@ -491,6 +513,10 @@ namespace GUI
         /// <summary>
         /// Creates a gui control
         /// </summary>
+        /// <param name="control"> The control to add to the gui </param>
+        /// <param name="image"> The image filename for the control icon </param>
+        /// <param name="tip"> A tooltip description for the control </param>
+        /// <param name="index"> The index for the control, used to determine positioning </param>        
         void CreateControl(ButtonBase^ control, String^ image, String^ tip, int index)
         {
             const int buttonSize = 32;
@@ -521,6 +547,14 @@ namespace GUI
         /// <summary>
         /// Creates a spinbox control
         /// </summary>
+        /// <param name="spinbox"> A tracker reference to the spinbox control </param>
+        /// <param name="image"> The image filename for the spinbox icon </param>
+        /// <param name="tip"> A tooltip description for the spinbox </param>
+        /// <param name="index"> The index for the spinbox, used to determine positioning </param>
+        /// <param name="increment"> The amount to increment the value when arrows are pressed </param>
+        /// <param name="minimum"> The minimum value the spinbox can hold </param>
+        /// <param name="maximum"> The maximum value the spinbox can hold </param>
+        /// <param name="callback"> The method to call when the spinbox value changes </param>
         void CreateSpinBox(SpinBox^% spinbox, String^ image, String^ tip, int index,
             double increment, double minimum, double maximum, EventHandler^ callback)
         {

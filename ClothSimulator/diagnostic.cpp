@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "diagnostic.h"
 #include "shader.h"
 #include "text.h"
@@ -15,15 +19,15 @@ namespace
     D3DXVECTOR3 ZAXIS(0.0f, 0.0f, 1.0f);    ///< World z axis
 }
 
-bool Diagnostic::sm_showDiagnostics = false;
-bool Diagnostic::sm_showText = false;
-std::shared_ptr<Shader> Diagnostic::sm_shader = nullptr;
 std::shared_ptr<Diagnostic> Diagnostic::sm_diag = nullptr;
 
-Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev) :
+Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader) :
+    m_d3ddev(d3ddev),
     m_sphere(nullptr),
     m_cylinder(nullptr),
-    m_d3ddev(d3ddev)
+    m_shader(boundsShader),
+    m_showText(false),
+    m_showDiagnostics(false)
 {
     D3DXCreateSphere(d3ddev, 1.0f, MESH_SEGMENTS, MESH_SEGMENTS, &m_sphere, NULL);
     D3DXCreateCylinder(d3ddev, CYLINDER_SIZE, CYLINDER_SIZE, 1.0f, MESH_SEGMENTS, 1, &m_cylinder, NULL);
@@ -57,22 +61,22 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::ToggleText()
 {
-    sm_showText = !sm_showText;
+    sm_diag->m_showText = !sm_diag->m_showText;
 }
 
 void Diagnostic::ToggleDiagnostics()
 {
-    sm_showDiagnostics = !sm_showDiagnostics;
+    sm_diag->m_showDiagnostics = !sm_diag->m_showDiagnostics;
 }
 
 bool Diagnostic::AllowDiagnostics()
 {
-    return sm_showDiagnostics;
+    return sm_diag->m_showDiagnostics;
 }
 
 bool Diagnostic::AllowText()
 {
-    return sm_showText;
+    return sm_diag->m_showText;
 }
 
 void Diagnostic::ShowMessage(const std::string& message)
@@ -82,30 +86,29 @@ void Diagnostic::ShowMessage(const std::string& message)
 
 void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader)
 {
-    sm_shader = boundsShader;
-    sm_diag.reset(new Diagnostic(d3ddev));
+    sm_diag.reset(new Diagnostic(d3ddev, boundsShader));
 }
 
 void Diagnostic::DrawAllText()
 {
-    if(sm_showText)
+    if(sm_diag->m_showText)
     {
         int counter = 0;
-        for(TextMap::iterator it = m_textmap.begin(); it != m_textmap.end(); ++it)
+        for(TextMap::iterator it = sm_diag->m_textmap.begin(); it != sm_diag->m_textmap.end(); ++it)
         {
-            m_text->SetText(it->second.text);
-            m_text->SetColour(it->second.color);
-            m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
-            m_text->Draw();
+            sm_diag->m_text->SetText(it->second.text);
+            sm_diag->m_text->SetColour(it->second.color);
+            sm_diag->m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
+            sm_diag->m_text->Draw();
         }
     }
 }
 
 void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& view)
 {
-    if(sm_showDiagnostics)
+    if(sm_diag->m_showDiagnostics)
     {
-        LPD3DXEFFECT pEffect(sm_shader->GetEffect());
+        LPD3DXEFFECT pEffect(sm_diag->m_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
         auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Transform& world)
@@ -125,20 +128,20 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
             pEffect->End();
         };
 
-        for(SphereMap::iterator it = m_spheremap.begin(); it != m_spheremap.end(); ++it)
+        for(SphereMap::iterator it = sm_diag->m_spheremap.begin(); it != sm_diag->m_spheremap.end(); ++it)
         {
             if(it->second.draw)
             {
-                renderObject(m_sphere, it->second.color, it->second.world);
+                renderObject(sm_diag->m_sphere, it->second.color, it->second.world);
                 it->second.draw = false;
             }
         }
 
-        for(LineMap::iterator it = m_linemap.begin(); it != m_linemap.end(); ++it)
+        for(LineMap::iterator it = sm_diag->m_linemap.begin(); it != sm_diag->m_linemap.end(); ++it)
         {
             if(it->second.draw)
             {
-                renderObject(m_cylinder, it->second.color, it->second.world);
+                renderObject(sm_diag->m_cylinder, it->second.color, it->second.world);
                 it->second.world.MakeIdentity();
             }
         }
@@ -148,32 +151,32 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
 void Diagnostic::UpdateSphere(const std::string& id, 
     Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
 {
-    if(m_spheremap.find(id) == m_spheremap.end())
+    if(sm_diag->m_spheremap.find(id) == sm_diag->m_spheremap.end())
     {
-        m_spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
+        sm_diag->m_spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
     }
-    m_spheremap[id].color = m_colourmap[color];
-    m_spheremap[id].draw = true;
-    m_spheremap[id].world.MakeIdentity();
-    m_spheremap[id].world.SetScale(radius);
-    m_spheremap[id].world.SetPosition(position);
+    sm_diag->m_spheremap[id].color = sm_diag->m_colourmap[color];
+    sm_diag->m_spheremap[id].draw = true;
+    sm_diag->m_spheremap[id].world.MakeIdentity();
+    sm_diag->m_spheremap[id].world.SetScale(radius);
+    sm_diag->m_spheremap[id].world.SetPosition(position);
 }
 
 void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color, 
     const D3DXVECTOR3& start, const D3DXVECTOR3& end)
 {
-    if(m_linemap.find(id) == m_linemap.end())
+    if(sm_diag->m_linemap.find(id) == sm_diag->m_linemap.end())
     {
-        m_linemap.insert(LineMap::value_type(id,DiagLine())); 
+        sm_diag->m_linemap.insert(LineMap::value_type(id,DiagLine())); 
     }
-    m_linemap[id].color = m_colourmap[color];
+    sm_diag->m_linemap[id].color = sm_diag->m_colourmap[color];
 
     D3DXVECTOR3 forward = end-start;
     D3DXVECTOR3 middle = start + (forward*0.5f);
     float size = D3DXVec3Length(&forward);
     forward /= size;
 
-    m_linemap[id].world.MakeIdentity();
+    sm_diag->m_linemap[id].world.MakeIdentity();
     if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > 0)
     {
         D3DXVECTOR3 up;
@@ -185,33 +188,33 @@ void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color,
         D3DXVec3Normalize(&right, &right);
 
         forward *= size;
-        m_linemap[id].world.SetAxis(up, forward, right);
+        sm_diag->m_linemap[id].world.SetAxis(up, forward, right);
     }
-    m_linemap[id].world.SetPosition(middle);
-    m_linemap[id].draw = true;
+    sm_diag->m_linemap[id].world.SetPosition(middle);
+    sm_diag->m_linemap[id].draw = true;
 }
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, const std::string& text)
 {
-    if(m_textmap.find(id) == m_textmap.end())
+    if(sm_diag->m_textmap.find(id) == sm_diag->m_textmap.end())
     {
-        m_textmap.insert(TextMap::value_type(id,DiagText())); 
+        sm_diag->m_textmap.insert(TextMap::value_type(id,DiagText())); 
     }
-    m_textmap[id].color = m_colourmap[color];
-    m_textmap[id].text = id + ": " + text;
+    sm_diag->m_textmap[id].color = sm_diag->m_colourmap[color];
+    sm_diag->m_textmap[id].text = id + ": " + text;
 }
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, bool increaseCounter)
 {
-    if(m_textmap.find(id) == m_textmap.end())
+    if(sm_diag->m_textmap.find(id) == sm_diag->m_textmap.end())
     {
-        m_textmap.insert(TextMap::value_type(id,DiagText())); 
-        m_textmap[id].counter = 0;
+        sm_diag->m_textmap.insert(TextMap::value_type(id,DiagText())); 
+        sm_diag->m_textmap[id].counter = 0;
     }
     else if(increaseCounter)
     {
-        ++m_textmap[id].counter;
+        ++sm_diag->m_textmap[id].counter;
     }
-    m_textmap[id].color = m_colourmap[color];
-    m_textmap[id].text = id + ": " + StringCast(m_textmap[id].counter);
+    sm_diag->m_textmap[id].color = sm_diag->m_colourmap[color];
+    sm_diag->m_textmap[id].text = id + ": " + StringCast(sm_diag->m_textmap[id].counter);
 }

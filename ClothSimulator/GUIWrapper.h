@@ -1,7 +1,6 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Interface that native code will talk to
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "GUICallbacks.h"
@@ -14,6 +13,9 @@
 
 namespace GUI
 {
+    /**
+    * Interface that native code will talk to
+    */
     class GUIINTAPI GuiWrapper
     {
     public:
@@ -23,13 +25,13 @@ namespace GUI
 
         /**
         * Sets the native callbacks for the GUI
-        * @param a struct of all callbacks
+        * @param callbacks A struct of all callbacks
         */
         void SetCallbacks(GuiCallbacks* callbacks);
 
         /**
         * Sets whether the mesh creation gui buttons are enabled
-        * @param whether the buttons are enabled/disabled
+        * @param enable Whether the buttons are enabled/disabled
         */
         void EnableMeshCreation(bool enable);
 

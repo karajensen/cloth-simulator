@@ -1,13 +1,9 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Direct Input and mouse picking wrapper
-* Note: Some keys do not work with continuous keypress/
-* mouse click combination (ie. Space/Tab)
-*****************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-
 #define DIRECTINPUT_VERSION 0x0800 //for direct input
-
 #include "common.h"
 #include "picking.h"
 #include <dinput.h>
@@ -15,6 +11,11 @@
 
 class Mesh;
 
+/*
+* Direct Input and mouse picking wrapper
+* Note: Some keys do not work with continuous 
+* keypress/mouse click combination (ie. Space/Tab)
+*/
 class Input
 {
 public:
@@ -23,8 +24,8 @@ public:
 
     /**
     * Constructor
-    * @param handle to the instance of the application
-    * @param handle to the window of the application
+    * @param hInstance Handle to the instance of the application
+    * @param hWnd Handle to the window of the application
     */
     Input(HINSTANCE hInstance, HWND hWnd);
 
@@ -50,15 +51,16 @@ public:
 
     /**
     * Adds key to a list that prevents mouse clicking when held
+    * @param key The DirectInput keyboard scan code
     */
     void AddClickPreventionKey(unsigned int key);
 
     /**
     * Set the function to call upon toggle of the input key
-    * @param the DirectInput keyboard scan code
-    * @param whether to call on key press or key press continously
-    * @param the function to call
-    * @param an optional function to call if key is no longer pressed
+    * @param key The DirectInput keyboard scan code
+    * @param onContinous Whether to call on key press or key press continously
+    * @param onKeyFn The function to call
+    * @param offKeyFn An optional function to call if key is no longer pressed
     */
     void SetKeyCallback(unsigned int key, bool onContinous, KeyFn onKeyFn, KeyFn offKeyFn = nullptr);
 
@@ -69,8 +71,8 @@ public:
 
     /**
     * Send a ray into the scene to determine if mouse clicked an object
-    * @param the camera projection matrix
-    * @param the camera view matrix
+    * @param projection The camera projection matrix
+    * @param view The camera view matrix
     */
     void UpdatePicking(Transform& projection, Transform& view);
 
@@ -80,9 +82,13 @@ public:
     void SolvePicking();
 
     /**
-    * @return the mouse click position
+    * @return the mouse click X position
     */
     int GetMouseX() const { return m_x; }
+
+    /**
+    * @return the mouse click Y position
+    */
     int GetMouseY() const { return m_y; }
 
     /**
@@ -93,41 +99,49 @@ public:
 private:
 
     /**
-    * Set the x/y mouse coordinates
+    * @param x/y the mouse coordinates to set
     */
     void SetMouseCoord(int x, int y);
 
     /**
-    * Whether a key is currently being pressed or not
-    * @param the state of the key
-    * @param whether the key is being pressed
+    * Determines if a key is being pressed and held
+    * @param state The state of the key
+    * @return Whether a key is currently being pressed or not
     */
     bool IsKeyDownContinous(unsigned int& state);
 
     /**
-    * Whether a key was pressed. Once queried will return false until key is released
-    * @param the state of the key
-    * @param whether the key was pressed
+    * Whether a key was pressed but not held
+    * Once queried will return false until key is released
+    * @param state The state of the key
+    * @return Whether a key is currently being pressed or not
     */
     bool IsKeyDown(unsigned int& state);
 
     /**
     * Recieves states of keys from directInput
+    * @param keyState The state of the keyboard
     */
-    void GetKeys(BYTE* KeyState);
+    void GetKeys(BYTE* keyState);
 
     /**
     * Recieves state of mouse from directInput
-    * @param the state of the mouse
+    * @param mouseState The state of the mouse
     */
-    void GetMouse(DIMOUSESTATE* MouseState);
+    void GetMouse(DIMOUSESTATE* mouseState);
 
     /**
     * Updates the cached key array from the direct input state
-    * @param whether the key is currently being pressed
-    * @param the state of the key
+    * @param pressed Whether the key is currently being pressed
+    * @param state The state of the key
     */
     void UpdateKey(BYTE pressed, unsigned int& state);
+
+    /**
+    * Prevent copying
+    */
+    Input(const Input&);
+    Input& operator=(const Input&);
 
     /**
     * Masks for state of input key

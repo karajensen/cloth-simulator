@@ -1,15 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
 #include "collision.h"
 #include "shader.h"
 #include "diagnostic.h"
 
-std::shared_ptr<Shader> Collision::sm_shader = nullptr;
-
-Collision::Collision(const Transform& parent) :
+Collision::Collision(const Transform& parent, std::shared_ptr<Shader> boundsShader) :
     m_draw(false),
-    m_colour(0.0f, 0.0f, 1.0f),
     m_parent(parent),
-    m_geometry(nullptr)
+    m_colour(0.0f, 0.0f, 1.0f),
+    m_geometry(nullptr),
+    m_shader(boundsShader)
 {
 }
 
@@ -100,11 +102,6 @@ bool Collision::HasGeometry() const
     return m_geometry != nullptr;
 }
 
-void Collision::Initialise(std::shared_ptr<Shader> boundsShader)
-{
-    sm_shader = boundsShader;
-}
-
 LPD3DXMESH Collision::GetMesh()
 {
     return m_geometry->mesh;
@@ -169,17 +166,17 @@ void Collision::Draw(const Transform& projection, const Transform& view)
             const float radius = 0.2f;
             if(m_geometry->shape == BOX)
             {
-                Diagnostic::Get().UpdateSphere(StringCast(this) + "MinBounds", 
+                Diagnostic::UpdateSphere(StringCast(this) + "MinBounds", 
                     Diagnostic::GREEN, m_data.minBounds, radius);
                 
-                Diagnostic::Get().UpdateSphere(StringCast(this) + "MaxBounds", 
+                Diagnostic::UpdateSphere(StringCast(this) + "MaxBounds", 
                     Diagnostic::GREEN, m_data.maxBounds, radius);
             }
             else if(m_geometry->shape == SPHERE)
             {
                 D3DXVECTOR3 centerToRadius = GetPosition();
                 centerToRadius.y += m_data.localWorld.GetScaleFactor().x;
-                Diagnostic::Get().UpdateSphere(StringCast(this) + "Radius", 
+                Diagnostic::UpdateSphere(StringCast(this) + "Radius", 
                     Diagnostic::GREEN, centerToRadius, radius);
             }
             else if(m_geometry->shape == CYLINDER)
@@ -195,14 +192,14 @@ void Collision::Draw(const Transform& projection, const Transform& view)
                 end2 -= m_parent.Forward()*halflength;
                 end2 -= m_parent.Right()*scale.x;
 
-                Diagnostic::Get().UpdateSphere(StringCast(this) + "End1", 
+                Diagnostic::UpdateSphere(StringCast(this) + "End1", 
                     Diagnostic::GREEN, end1, radius);
-                Diagnostic::Get().UpdateSphere(StringCast(this) + "End2", 
+                Diagnostic::UpdateSphere(StringCast(this) + "End2", 
                     Diagnostic::GREEN, end2, radius);
             }
         }
 
-        LPD3DXEFFECT pEffect(sm_shader->GetEffect());
+        LPD3DXEFFECT pEffect(m_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
         D3DXMATRIX wvp = m_world.Matrix() * view.Matrix() * projection.Matrix();

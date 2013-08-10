@@ -1,11 +1,13 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com) 
-* Basic lights for scene with multiple light support
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include "common.h"
 
+/**
+* Basic lights for scene with multiple light shader support
+*/
 class Light
 {
 public:
@@ -16,49 +18,49 @@ public:
     Light();
 
     /**
-    * @param the unique index of the light
+    * @param index The unique index of the light
     */
     void SetIndex(int index);
 
     /**
     * Set the ambient colour of the light
-    * @param Ambient color of light from 0-1
-    * @param the intensity of the ambient colour
+    * @param color Ambient color of light from 0-1
+    * @param intensity The intensity of the ambient colour
     */
     void SetAmbient(const D3DXVECTOR3& color, float intensity);
 
     /**
     * Set the diffuse colour of the light
-    * @param diffuse color of light from 0-1
-    * @param the intensity of the diffuse colour
+    * @param color Diffuse color of light from 0-1
+    * @param intensity The intensity of the diffuse colour
     */
     void SetDiffuse(const D3DXVECTOR3& color, float intensity);
 
     /**
     * Set the specular colour of the light
-    * @param specular color of light from 0-1
-    * @param the intensity of the specular colour
-    * @param the size of the specular highlight
+    * @param color Specular color of light from 0-1
+    * @param intensity The intensity of the specular colour
+    * @param size The size of the specular highlight
     */
     void SetSpecular(const D3DXVECTOR3& color, float intensity, float size);
 
     /**
-    * Set the attenuation of the light
-    * @param the Constant attenuation value
-    * @param the Linear attenuation value
-    * @param the Quadratic attenuation value
+    * Set the Attenuation of the light
+    * @param a0 The Constant attenuation value
+    * @param a1 The Linear attenuation value
+    * @param a2 The Quadratic attenuation value
     */
     void SetAttenuation(float a0, float a1, float a2);
 
     /**
     * Sets the light posiiton
-    * @param the position to set in world coordinates
+    * @param position The position to set in world coordinates
     */
     void SetPosition(const D3DXVECTOR3& position);
 
     /**
     * Send all parameters to the given shader
-    * @param the shader to send to
+    * @param shader The shader to send to
     */
     void SendLightToShader(LPD3DXEFFECT shader);
 
@@ -84,7 +86,10 @@ private:
     int m_index;               ///< The unique index of the light
 };
 
-class Light_Manager
+/**
+* Manager for simulation lights
+*/
+class LightManager
 {
 public:
 
@@ -98,18 +103,31 @@ public:
     };
 
     /**
-    * Initialise all lighting
-    * @param whether initialisation succeeded or not
+    * Constructor
     */
-    static bool Inititalise();
+    LightManager();
+
+    /**
+    * Initialise all lighting
+    * @return whether initialisation succeeded or not
+    */
+    bool Inititalise();
 
     /**
     * Sends all lighting to the given shader
+    * @param shader The shader to send lighting data to
     */
-    static void SendLightingToShader(LPD3DXEFFECT shader);
+    void SendLightingToShader(LPD3DXEFFECT shader);
 
 private:
 
     typedef std::shared_ptr<Light> LightPtr;
-    static std::vector<LightPtr> m_lights; ///< All lights in scene
+
+    /**
+    * Prevent copying
+    */
+    LightManager(const LightManager&);
+    LightManager& operator=(const LightManager&);
+
+    std::vector<LightPtr> m_lights; ///< All lights in scene
 };
