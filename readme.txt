@@ -16,7 +16,7 @@ www.KaraJensen.com
 https://github.com/karajensen/cloth-simulator.git
 =================================================================
 
-VISUAL STUDIO VERSION REQUIRED: 2010
+VISUAL STUDIO VERSION REQUIRED: 2012
 ENVIRONMENT VARIABLES REQUIRED: $(DXSDK_DIR) DirectX SDK
 
 LALT-CLICK:     Rotate the camera
