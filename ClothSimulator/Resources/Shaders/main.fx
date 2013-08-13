@@ -2,9 +2,9 @@
 // Kara Jensen - mail@karajensen.com
 ////////////////////////////////////////////////////////////////////////////////////////
 
-float4x4 World                 : World;
-float4x4 WorldViewProjection   : WorldViewProjection;
-float4x4 WorldInvTrans         : WorldInverseTranspose;
+float4x4 World                 :World;
+float4x4 WorldViewProjection   :WorldViewProjection;
+float4x4 WorldInvTrans         :WorldInverseTranspose;
 
 float3 LightPosition;
 float AmbientIntensity;     
@@ -26,16 +26,16 @@ sampler ColorSampler = sampler_state
 
 struct VS_OUTPUT
 {
-    float4 Position     : POSITION;
-    float3 Normal       : TEXCOORD0;
-    float3 LightVector  : TEXCOORD1;
-	float2 UV           : TEXCOORD2;
+    float4 Position     :POSITION;
+    float3 Normal       :TEXCOORD0;
+    float3 LightVector  :TEXCOORD1;
+	float2 UV           :TEXCOORD2;
 };                 
                         
 // Vertex Shader
-VS_OUTPUT VShader(float4 inPos    : POSITION, 
-                  float3 inNormal : NORMAL,
-				  float2 inUV     : TEXCOORD0)
+VS_OUTPUT VShader(float4 inPos    :POSITION, 
+                  float3 inNormal :NORMAL,
+				  float2 inUV     :TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
@@ -48,7 +48,7 @@ VS_OUTPUT VShader(float4 inPos    : POSITION,
 }
 
 //Pixel Shader
-float4 PShader(VS_OUTPUT input) : COLOR0
+float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     input.LightVector = normalize(input.LightVector);
     input.Normal = normalize(input.Normal);

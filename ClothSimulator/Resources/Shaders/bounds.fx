@@ -7,11 +7,11 @@ float3 VertexColor;
 
 struct VS_OUTPUT
 {
-    float4 Position : POSITION;
+    float4 Position :POSITION;
 };
 
 //Vertex Shader
-VS_OUTPUT VShader(float4 inPos : POSITION)
+VS_OUTPUT VShader(float4 inPos :POSITION)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.Position = mul(inPos, WorldViewProjection);
@@ -19,7 +19,7 @@ VS_OUTPUT VShader(float4 inPos : POSITION)
 }
 
 //Pixel Shader
-float4 PShader(VS_OUTPUT input) : COLOR0
+float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     return float4(VertexColor.r, VertexColor.g, VertexColor.b, 0.2);
 }
