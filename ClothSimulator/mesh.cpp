@@ -9,15 +9,11 @@
 #include "input.h"
 #include "light.h"
 
-namespace
-{
-    const D3DXVECTOR3 SELECTED_COLOR(0.7f, 0.7f, 1.0f);
-}
-
 Mesh::Mesh(const RenderCallbacks& callbacks):
     m_callbacks(callbacks),
     m_color(1.0f, 1.0f, 1.0f),
     m_initialcolor(1.0f, 1.0f, 1.0f),
+    m_selectedcolor(0.7f, 0.7f, 1.0f),
     m_index(NO_INDEX),
     m_pickable(true),
     m_selected(false),
@@ -223,12 +219,15 @@ Collision* Mesh::GetCollision()
     return m_collision.get();
 }
 
-void Mesh::MousePickingTest(Picking& input)
+bool Mesh::MousePickingTest(Picking& input)
 {
-    if(m_pickable && m_draw && m_data->mesh)
+    if(m_pickable && m_draw && m_data->mesh && !input.IsLocked())
     {
-        LPD3DXMESH meshToTest = m_collision ? m_collision->GetMesh() : m_data->mesh;
-        const Transform& world = m_collision ? m_collision->GetTransform() : *this;
+        LPD3DXMESH meshToTest = m_collision->HasGeometry()
+            ? m_collision->GetMesh() : m_data->mesh;
+
+        const Transform& world = m_collision->HasGeometry()
+            ? m_collision->GetTransform() : *this;
 
         D3DXMATRIX worldInverse;
         D3DXMatrixInverse(&worldInverse, NULL, &world.Matrix());
@@ -254,9 +253,11 @@ void Mesh::MousePickingTest(Picking& input)
             if(distanceToCollision < input.GetDistanceToMesh())
             {
                 input.SetPickedMesh(this, distanceToCollision);
+                return true;
             }
         }
     }
+    return false;
 }
 
 void Mesh::SetCollisionVisibility(bool draw)
@@ -320,7 +321,7 @@ int Mesh::GetIndex() const
 void Mesh::SetSelected(bool selected)
 {
     m_selected = selected;
-    m_color = selected ? SELECTED_COLOR : m_initialcolor;
+    m_color = selected ? m_selectedcolor : m_initialcolor;
 }
 
 void Mesh::SetColor(float r, float g, float b)
@@ -329,4 +330,11 @@ void Mesh::SetColor(float r, float g, float b)
     m_initialcolor.y = g;
     m_initialcolor.z = b;
     m_color = m_initialcolor;
+}
+
+void Mesh::SetSelectedColor(float r, float g, float b)
+{
+    m_selectedcolor.x = r;
+    m_selectedcolor.y = g;
+    m_selectedcolor.z = b;
 }

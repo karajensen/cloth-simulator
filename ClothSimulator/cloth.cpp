@@ -453,9 +453,9 @@ D3DXVECTOR3 Cloth::CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& 
     return normal;
 }
 
-void Cloth::MousePickingTest(Picking& input)
+bool Cloth::MousePickingTest(Picking& input)
 {
-    if(m_draw && m_drawVisualParticles)
+    if(m_draw && m_drawVisualParticles && !input.IsLocked())
     {
         int indexChosen = NO_INDEX;
         for(int i = 0; i < m_vertexCount; ++i)
@@ -494,8 +494,10 @@ void Cloth::MousePickingTest(Picking& input)
         {
             auto selectFn = m_diagnosticSelect ? &Cloth::SelectParticleForDiagnostics : &Cloth::SelectParticle;
             SetMeshPickFunction(std::bind(selectFn, this, indexChosen));
+            return true;
         }
     }
+    return false;
 }
 
 void Cloth::SetParticleColor(const Cloth::ParticlePtr& particle)

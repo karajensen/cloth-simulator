@@ -11,7 +11,7 @@ class Cloth;
 /**
 * Class for solving cloth-object and cloth-cloth collisions
 */
-class ClothSolver
+class CollisionSolver
 {
 public:
 
@@ -19,7 +19,7 @@ public:
     * Constructor
     * @param cloth The cloth to solve collisions for
     */
-    explicit ClothSolver(std::shared_ptr<Cloth> cloth);
+    explicit CollisionSolver(std::shared_ptr<Cloth> cloth);
 
     /**
     * Solves the collisions between the cloth particles
@@ -55,8 +55,8 @@ private:
     /**
     * Prevent copying
     */
-    ClothSolver(const ClothSolver&);
-    ClothSolver& operator=(const ClothSolver&);
+    CollisionSolver(const CollisionSolver&);
+    CollisionSolver& operator=(const CollisionSolver&);
 
     /**
     * @return the cloth from the weak pointer

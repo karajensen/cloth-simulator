@@ -47,7 +47,7 @@ public:
     /**
     * @return whether the mouse is being held down
     */
-    bool IsMousePressed();
+    bool IsMousePressed() const;
 
     /**
     * Adds key to a list that prevents mouse clicking when held
@@ -108,7 +108,7 @@ private:
     * @param state The state of the key
     * @return Whether a key is currently being pressed or not
     */
-    bool IsKeyDownContinous(unsigned int& state);
+    bool IsKeyDownContinous(unsigned int state) const;
 
     /**
     * Whether a key was pressed but not held

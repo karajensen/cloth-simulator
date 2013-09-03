@@ -48,12 +48,14 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
     const std::string ShaderFolder(".\\Resources\\Shaders\\");
 
     m_shaders.resize(MAX_SHADERS);
-    std::generate(m_shaders.begin(), m_shaders.end(), [&](){ return ShaderManager::ShaderPtr(new Shader()); });
+    std::generate(m_shaders.begin(), m_shaders.end(), 
+        [&](){ return ShaderManager::ShaderPtr(new Shader()); });
     
     bool success = true;
     success = (success ? m_shaders[MAIN_SHADER]->Load(d3ddev,ShaderFolder+"main.fx") : false);
     success = (success ? m_shaders[CLOTH_SHADER]->Load(d3ddev,ShaderFolder+"cloth.fx") : false);
     success = (success ? m_shaders[BOUNDS_SHADER]->Load(d3ddev,ShaderFolder+"bounds.fx") : false);
+    success = (success ? m_shaders[TOOL_SHADER]->Load(d3ddev,ShaderFolder+"tool.fx") : false);
     return success;
 }
 

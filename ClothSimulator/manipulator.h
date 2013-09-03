@@ -8,6 +8,7 @@
 class Mesh;
 class ShaderManager;
 class Picking;
+class Input;
 struct RenderCallbacks;
 
 /**
@@ -52,15 +53,22 @@ public:
     /**
     * Updates the tool through mouse picking and movement
     * @param input The picking input object
-    * @param selectedMesh The selected mesh the tool is working on
     */
-    void Update(Picking& input, MeshPtr selectedMesh);
+    void MousePickTest(Picking& input);
 
     /**
     * Switches the currently active mesh tool
     * @param type The tool to change to
     */
     void ChangeTool(ToolType type);
+
+    /**
+    * Updates the state of the manipulator
+    * @param mesh the currently selected mesh
+    * @param input The simulation input
+    */
+    void UpdateState(MeshPtr mesh, const Input& input, 
+        const Transform& view, const Transform& projection);
 
 private:
 
@@ -89,7 +97,6 @@ private:
             int index, const RenderCallbacks& callbacks);
 
         std::vector<MeshPtr> axis; ///< meshes for the tool
-        ToolAxis selectedAxis; ///< currently selected axis
     };
 
     /**
@@ -99,10 +106,16 @@ private:
     Manipulator& operator=(const Manipulator&);
 
     /**
+    * @return a string description of the given axis
+    */
+    std::string GetDescription(ToolAxis axis) const;
+
+    /**
     * @return a string description of the given tool
     */
     std::string GetDescription(ToolType type) const;
 
     std::vector<std::shared_ptr<Tool>> m_tools; ///< all usable tool
     ToolType m_selectedTool; ///< Currently selected tool
+    ToolAxis m_selectedAxis; ///< currently selected axis
 };

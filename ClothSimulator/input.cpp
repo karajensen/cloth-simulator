@@ -80,6 +80,8 @@ void Input::UpdateInput()
     BYTE keys[KEY_BUFFER_SIZE];
     GetMouse(&mouse);
     GetKeys(keys);
+    m_mouseDirection.x = 0.0f;
+    m_mouseDirection.y = 0.0f;
 
     // Update mouse position
     GetCursorPos(&cursor);
@@ -121,12 +123,9 @@ void Input::UpdateInput()
         Diagnostic::UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
         Diagnostic::UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
-
-    m_mouseDirection.x = 0.0f;
-    m_mouseDirection.y = 0.0f;
 }
 
-bool Input::IsMousePressed() 
+bool Input::IsMousePressed() const
 {
     return IsKeyDownContinous(m_mouse);
 }
@@ -150,7 +149,7 @@ void Input::UpdateKey(BYTE pressed, unsigned int& state)
     }
 }
 
-bool Input::IsKeyDownContinous(unsigned int& state)
+bool Input::IsKeyDownContinous(unsigned int state) const
 {
     return (state & KEY_DOWN) == KEY_DOWN;
 }

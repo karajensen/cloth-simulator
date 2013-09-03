@@ -63,6 +63,7 @@ public:
         MAIN_SHADER, 
         CLOTH_SHADER, 
         BOUNDS_SHADER,
+        TOOL_SHADER,
         MAX_SHADERS 
     };
 

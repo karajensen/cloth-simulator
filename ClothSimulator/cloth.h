@@ -7,7 +7,7 @@
 #include "mesh.h"
 
 class Collision;
-class ClothSolver;
+class CollisionSolver;
 class Particle;
 class Spring;
 
@@ -38,8 +38,9 @@ public:
     /**
     * Test if cloth m_vertices have been clicked
     * @param input The mouse picking input
+    * @return whether this mesh was picked
     */
-    virtual void MousePickingTest(Picking& input) override;
+    virtual bool MousePickingTest(Picking& input) override;
 
     /**
     * Updates the cloth state
@@ -258,6 +259,6 @@ private:
     void* m_vertexBuffer;                     ///< Raw Pointer to DirectX Vertex Buffer
     void* m_indexBuffer;                      ///< Raw Pointer to DirectX Index Buffer
     RenderCallbacks m_callbacks;              ///< Callbacks for rendering a mesh
-    std::shared_ptr<ClothSolver> m_collision; ///< Collision solver for the cloth
+    std::shared_ptr<CollisionSolver> m_collision; ///< Collision solver for the cloth
     std::shared_ptr<Collision> m_template;    ///< Template collision for all particles
 };

@@ -1,12 +1,15 @@
 
+• Fix pressing alt flickers screen
 • Scene mesh manipulation
-	- create tool shader
-	- mouse picking for tools done before other picking
-	- moving, rotating, scaling, animating meshes
-
+    - clean translate usage
+    - make scale/rotate/animate tools
+	- scale/rotate/animate tool usage
 • GJK collision detection for box/cylinder
 • Octree spacial partitioning
-• Soft shadow mapping
+
+IDEAS:
+• Shadows
+• Switching type of cloth solver
 
 =================================================================
 CLOTH SIMULATOR
@@ -16,8 +19,9 @@ www.KaraJensen.com
 https://github.com/karajensen/cloth-simulator.git
 =================================================================
 
-VISUAL STUDIO VERSION REQUIRED: 2012
-ENVIRONMENT VARIABLES REQUIRED: $(DXSDK_DIR) DirectX SDK
+PLATFORM: Windows
+VISUAL STUDIO VERSION: 2012
+VS ENVIRONMENT VARIABLES: $(DXSDK_DIR) DirectX SDK
 
 LALT-CLICK:     Rotate the camera
 LSHIFT-CLICK:   Move back/forwards with the camera

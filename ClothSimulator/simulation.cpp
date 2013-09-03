@@ -12,19 +12,19 @@
 #include "timer.h"
 #include "text.h"
 #include "scene.h"
-#include "clothsolver.h"
+#include "collisionsolver.h"
 #include <algorithm>
 #include <sstream>
 
 namespace
 {
-    const float CAMERA_MOVE_SPEED = 40.0f;  ///< The speed the camera will translate
-    const float CAMERA_ROT_SPEED = 2.0f;    ///< The speed the camera will rotate
-    const float HANDLE_SPEED = 20.0f;       ///< The speed the cloth will move in handle move
+    const float CAMERA_MOVE_SPEED = 40.0f;  ///< Speed the camera will translate
+    const float CAMERA_ROT_SPEED = 2.0f;    ///< Speed the camera will rotate
+    const float HANDLE_SPEED = 20.0f;       ///< Speed the cloth will move in handle mode
 
-    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); ///< Clear colour of the back buffer
-    const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          ///< Render event colour
-    const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          ///< Update event colour
+    const D3DCOLOR BACK_BUFFER_COLOR(D3DCOLOR_XRGB(190, 190, 195)); 
+    const D3DCOLOR RENDER_COLOR(D3DCOLOR_XRGB(0, 0, 255));          
+    const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          
 }
 
 Simulation::Simulation() :
@@ -42,10 +42,7 @@ Simulation::~Simulation()
 
 void Simulation::Render()
 {
-    #ifdef _DEBUG
     D3DPERF_BeginEvent(RENDER_COLOR, L"Simulation::Render");
-    #endif
-
     m_d3ddev->BeginScene();
     m_d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, BACK_BUFFER_COLOR, 1.0f, 0);
     m_d3ddev->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
@@ -62,14 +59,12 @@ void Simulation::Render()
 
     m_d3ddev->EndScene();
     m_d3ddev->Present(NULL, NULL, NULL, NULL);
+    D3DPERF_EndEvent();
 }
 
 void Simulation::Update()
 {
-    #ifdef _DEBUG
     D3DPERF_BeginEvent(UPDATE_COLOR, L"Simulation::Update");
-    #endif
-
     double deltaTime = m_timer->UpdateTimer();
 
     m_input->UpdateInput();
@@ -83,10 +78,13 @@ void Simulation::Update()
         m_input->SolvePicking();
     }
 
+    m_scene->UpdateState(m_camera->View, m_camera->Projection, *m_input);
     m_cloth->UpdateState(deltaTime);
     m_scene->SolveClothCollision(*m_solver);
     m_solver->SolveSelfCollision();
     m_cloth->UpdateVertexBuffer();
+
+    D3DPERF_EndEvent();
 }
 
 void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
@@ -100,8 +98,6 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->resetCamera = std::bind(&Camera::Reset, m_camera.get());
     callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(), _1);
     callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(), _1);
-    callbacks->setWireframeMode = [&](bool set){m_d3ddev->SetRenderState(
-        D3DRS_FILLMODE, set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); };
 
     callbacks->createBox = std::bind(&Scene::AddObject, m_scene.get(), Scene::BOX);
     callbacks->createSphere = std::bind(&Scene::AddObject, m_scene.get(), Scene::SPHERE);
@@ -117,6 +113,12 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
     callbacks->getIterations = std::bind(&Cloth::GetIterations, m_cloth.get());
     callbacks->getVertexRows = std::bind(&Cloth::GetVertexRows, m_cloth.get());
     callbacks->getTimestep = std::bind(&Cloth::GetTimeStep, m_cloth.get());
+
+    callbacks->setWireframeMode = [&](bool set)
+    { 
+        m_d3ddev->SetRenderState(D3DRS_FILLMODE, 
+            set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); 
+    };
 }
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
@@ -137,17 +139,16 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         RenderCallbacks callbacks;
         callbacks.getWorldEffect = std::bind(&ShaderManager::GetWorldEffect, m_shader.get());
         callbacks.useWorldShader = std::bind(&ShaderManager::UseWorldShader, m_shader.get());
-
         callbacks.sendLightingToEffect = std::bind(&LightManager::SendLightingToShader,
             m_light.get(), std::placeholders::_1);
 
-        callbacks.getShader = [&](ShaderManager::SceneShader shader) -> ShaderManager::ShaderPtr
+        callbacks.getShader = [&](ShaderManager::SceneShader shader)
             { return m_shader->GetShader(shader); };
 
         Diagnostic::Initialise(d3ddev, boundsShader);
         m_scene.reset(new Scene(d3ddev, callbacks));
         m_cloth.reset(new Cloth(m_d3ddev, callbacks));
-        m_solver.reset(new ClothSolver(m_cloth));
+        m_solver.reset(new CollisionSolver(m_cloth));
     }
 
     LoadInput(hInstance, hWnd);

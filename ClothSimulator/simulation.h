@@ -8,7 +8,7 @@
 
 class LightManager;
 class ShaderManager;
-class ClothSolver;
+class CollisionSolver;
 class Scene;
 class Camera;
 class Cloth;
@@ -78,14 +78,14 @@ private:
     Simulation(const Simulation&);
     Simulation& operator=(const Simulation&);
 
-    std::shared_ptr<LightManager> m_light;   ///< Manager for the simulation lights
-    std::shared_ptr<ShaderManager> m_shader; ///< Manager for the simulation shaders
-    std::shared_ptr<ClothSolver> m_solver;   ///< Collision solver for cloth
-    std::shared_ptr<Timer> m_timer;          ///< Simulation timer object
-    std::shared_ptr<Cloth> m_cloth;          ///< Simulation cloth object
-    std::shared_ptr<Input> m_input;          ///< Simulation input object
-    std::shared_ptr<Camera> m_camera;        ///< Main camera
-    std::shared_ptr<Scene> m_scene;          ///< Mesh manager for the scene
-    LPDIRECT3DDEVICE9 m_d3ddev;              ///< DirectX device
-    bool m_drawCollisions;                   ///< Whether to display collision models
+    std::shared_ptr<LightManager> m_light;       ///< Manager for the simulation lights
+    std::shared_ptr<ShaderManager> m_shader;     ///< Manager for the simulation shaders
+    std::shared_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth
+    std::shared_ptr<Timer> m_timer;              ///< Simulation timer object
+    std::shared_ptr<Cloth> m_cloth;              ///< Simulation cloth object
+    std::shared_ptr<Input> m_input;              ///< Simulation input object
+    std::shared_ptr<Camera> m_camera;            ///< Main camera
+    std::shared_ptr<Scene> m_scene;              ///< Mesh manager for the scene
+    LPDIRECT3DDEVICE9 m_d3ddev;                  ///< DirectX device
+    bool m_drawCollisions;                       ///< Whether to display collision models
 };

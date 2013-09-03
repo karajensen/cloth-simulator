@@ -74,6 +74,12 @@ public:
     void SetPickedMesh(PickableMesh* mesh, float distance);
 
     /**
+    * Locks the currently set mesh as picked for this tick
+    * @param lock Whether to lock the mesh or not
+    */
+    void LockMesh(bool lock);
+
+    /**
     * @return the ray origin
     */
     const D3DXVECTOR3& GetRayOrigin() const { return m_rayOrigin; }
@@ -93,8 +99,14 @@ public:
     */
     float GetDistanceToMesh() const { return m_distanceToMesh; }
 
+    /**
+    * @return whether picking can occur this tick
+    */
+    bool IsLocked() const;
+
 private:
 
+    bool m_locked;               ///< Stops picking from overwriting current mesh
     D3DXVECTOR3 m_rayOrigin;     ///< World coordinates origin of picking ray
     D3DXVECTOR3 m_rayDirection;  ///< Direction vector from origin
     PickableMesh* m_mesh;        ///< Raw pointer to mesh that was clicked

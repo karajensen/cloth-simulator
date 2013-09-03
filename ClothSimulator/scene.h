@@ -9,10 +9,11 @@
 
 using namespace GUI;
 class Shader;
-class ClothSolver;
+class CollisionSolver;
 class Mesh;
 class Picking;
 class Manipulator;
+class Input;
 struct RenderCallbacks;
 
 /**
@@ -46,7 +47,8 @@ public:
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void Draw(const D3DXVECTOR3& position, const Transform& projection, const Transform& view);
+    void Draw(const D3DXVECTOR3& position,
+        const Transform& projection, const Transform& view);
 
     /**
     * Draws the scene manipulator tool
@@ -54,7 +56,8 @@ public:
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void DrawTools(const D3DXVECTOR3& position, const Transform& projection, const Transform& view);
+    void DrawTools(const D3DXVECTOR3& position,
+        const Transform& projection, const Transform& view);
 
     /**
     * Draws all scene mesh collisions
@@ -81,15 +84,22 @@ public:
 
     /**
     * Tests all scene objects for mouse picking
-    * @param input the mouse picking object
+    * @param picking The mouse picking object
     */
-    void MousePickingTest(Picking& input);
+    void MousePickingTest(Picking& picking);
+
+    /**
+    * Updates the state of the scene
+    * @param input The simulation input
+    */
+    void UpdateState(const Transform& view,
+        const Transform& projection, const Input& input);
 
     /**
     * Solves the collision between scene objects and the cloth
     * @param solver the cloth solver for object-cloth collisions
     */
-    void SolveClothCollision(ClothSolver& solver);
+    void SolveClothCollision(CollisionSolver& solver);
 
     /**
     * Set the visibility of the collision mesh

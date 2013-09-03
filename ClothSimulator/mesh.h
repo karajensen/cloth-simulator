@@ -86,8 +86,9 @@ public:
     /**
     * Tests whether mesh was clicked
     * @param input the picking input structure
+    * @return whether this mesh was picked
     */
-    virtual void MousePickingTest(Picking& input);
+    virtual bool MousePickingTest(Picking& input);
 
     /**
     * Sets visibility of the mesh
@@ -161,6 +162,12 @@ public:
     void SetColor(float r, float g, float b);
 
     /**
+    * Sets the mesh selected color
+    * @param r/g/b The rgb color components from 0->1
+    */
+    void SetSelectedColor(float r, float g, float b);
+
+    /**
     * Loads a texture for the mesh
     * @param d3ddev the directX device
     * @param filename the filename for the texture
@@ -206,6 +213,7 @@ protected:
     std::shared_ptr<Collision> m_collision;  ///< The collision geometry attached to the mesh
     std::shared_ptr<MeshData> m_data;        ///< Data for rendering/instancing the mesh
     D3DXVECTOR3 m_color;                     ///< Color for the mesh
+    D3DXVECTOR3 m_selectedcolor;             ///< Color for the selected mesh
     D3DXVECTOR3 m_initialcolor;              ///< initial color for the mesh
     int m_index;                             ///< User defined index for the mesh
     bool m_pickable;                         ///< Whether the mesh can be mouse picked or not

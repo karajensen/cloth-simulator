@@ -2,18 +2,20 @@
 // Kara Jensen - mail@karajensen.com - clothsolver.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "clothsolver.h"
+#include "collisionsolver.h"
 #include "diagnostic.h"
 #include "particle.h"
 #include "cloth.h"
 
-ClothSolver::ClothSolver(std::shared_ptr<Cloth> cloth) :
+CollisionSolver::CollisionSolver(std::shared_ptr<Cloth> cloth) :
     m_cloth(cloth)
 {
 }
 
-void ClothSolver::SolveSelfCollision()
+void CollisionSolver::SolveSelfCollision()
 {
+    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollision");
+
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
@@ -36,9 +38,11 @@ void ClothSolver::SolveSelfCollision()
             }
         }
     }
+
+    D3DPERF_EndEvent();
 }
 
-void ClothSolver::SolveSphereCollision(const Collision& sphere)
+void CollisionSolver::SolveSphereCollision(const Collision& sphere)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -60,7 +64,7 @@ void ClothSolver::SolveSphereCollision(const Collision& sphere)
     });
 }
 
-void ClothSolver::SolveBoxCollision(const Collision& box)
+void CollisionSolver::SolveBoxCollision(const Collision& box)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -83,7 +87,7 @@ void ClothSolver::SolveBoxCollision(const Collision& box)
     });
 }
 
-void ClothSolver::SolveCylinderCollision(const Collision& cylinder)
+void CollisionSolver::SolveCylinderCollision(const Collision& cylinder)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -108,7 +112,7 @@ void ClothSolver::SolveCylinderCollision(const Collision& cylinder)
     });
 }
 
-void ClothSolver::SolveGroundCollision(const Collision& ground)
+void CollisionSolver::SolveGroundCollision(const Collision& ground)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -123,7 +127,7 @@ void ClothSolver::SolveGroundCollision(const Collision& ground)
     });
 }
 
-std::shared_ptr<Cloth> ClothSolver::GetCloth()
+std::shared_ptr<Cloth> CollisionSolver::GetCloth()
 {
     if(m_cloth.expired())
     {

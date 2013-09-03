@@ -456,7 +456,7 @@ namespace GUI
             index = 0;
 
             CreateSpinBox(m_vertRows, path+"vertrows.png",
-                "Change the number of vertex rows", index++, 2.0, 4.0, 50.0,
+                "Change the number of vertex rows", index++, 2.0, 4.0, 30.0,
                 gcnew System::EventHandler(this, &GUIForm::VertexRowsChanged));
 
             CreateSpinBox(m_iterations, path+"iterations.png", 
