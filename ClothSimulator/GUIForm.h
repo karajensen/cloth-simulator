@@ -113,6 +113,19 @@ namespace GUI
             this->!GUIForm(); 
         }
 
+        /**
+        * Overrides the form message handler. This prevents the
+        * window from redrawing when the alt key is pressed
+        * @param m The windows message to handle
+        */
+        virtual void WndProc(System::Windows::Forms::Message% m) override
+        {
+            if (m.Msg != WM_UPDATEUISTATE)
+            {
+                System::Windows::Forms::Form::WndProc(m);
+            }
+        }
+
     private:
 
         /**
@@ -120,8 +133,8 @@ namespace GUI
         */
         ref struct SpinBox
         {
-            Panel^ panel;               ///< Panel to encase the spinbox
-            NumericUpDown^ numeric;     ///< Spin box control
+            Panel^ panel;           ///< Panel to encase the spinbox
+            NumericUpDown^ numeric; ///< Spin box control
         };
 
         /**
@@ -150,7 +163,8 @@ namespace GUI
         * @param index The index for the checkbox, used to determine positioning 
         * @param callback The method to call when the checkbox value changes 
         */
-        void CreateCheckBox(CheckBox^% checkbox, String^ image, String^ tip, int index, EventHandler^ callback)
+        void CreateCheckBox(CheckBox^% checkbox, String^ image, 
+            String^ tip, int index, EventHandler^ callback)
         {
             checkbox = gcnew CheckBox();
             checkbox->Appearance = System::Windows::Forms::Appearance::Button;
@@ -166,7 +180,8 @@ namespace GUI
         * @param index The index for the radiobutton, used to determine positioning 
         * @param callback The method to call when the radiobutton value changes 
         */
-        void CreateRadioButton(RadioButton^% button, String^ image, String^ tip, int index, EventHandler^ callback)
+        void CreateRadioButton(RadioButton^% button, String^ image, 
+            String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew RadioButton();
             button->Appearance = System::Windows::Forms::Appearance::Button;
@@ -182,7 +197,8 @@ namespace GUI
         * @param index The index for the button, used to determine positioning 
         * @param callback The method to call when the button is clicked 
         */
-        void CreateButton(Button^% button, String^ image, String^ tip, int index, EventHandler^ callback)
+        void CreateButton(Button^% button, String^ image, 
+            String^ tip, int index, EventHandler^ callback)
         {
             button = gcnew Button();
             button->Click += callback;
@@ -192,7 +208,7 @@ namespace GUI
         /**
         * On GUI Close Event
         */
-        System::Void GUIFormClosed(System::Object^ sender, System::Windows::Forms::FormClosedEventArgs^ e) 
+        System::Void GUIFormClosed(System::Object^ sender, FormClosedEventArgs^ e) 
         {
             m_callbacks->quitFn();
         }
@@ -601,7 +617,7 @@ namespace GUI
             this->MinimumSize = System::Drawing::Size(806, 633);
             this->Name = L"GUIForm";
             this->Text = L"Cloth Simulator";
-            this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &GUIForm::GUIFormClosed);
+            this->FormClosed += gcnew FormClosedEventHandler(this, &GUIForm::GUIFormClosed);
             this->m_mainPanel->ResumeLayout(false);
             this->ResumeLayout(false);
 

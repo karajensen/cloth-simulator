@@ -142,7 +142,7 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
             if(it->second.draw)
             {
                 renderObject(sm_diag->m_cylinder, it->second.color, it->second.world);
-                it->second.world.MakeIdentity();
+                it->second.draw = false;
             }
         }
     }

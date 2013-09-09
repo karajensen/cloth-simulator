@@ -1,7 +1,6 @@
 
-• Fix pressing alt flickers screen
 • Scene mesh manipulation
-    - clean translate usage
+    - Fix translation usage
     - make scale/rotate/animate tools
 	- scale/rotate/animate tool usage
 • GJK collision detection for box/cylinder
