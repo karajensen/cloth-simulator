@@ -10,31 +10,31 @@
 class Collision;
 
 /**
+* Data for rendering and instancing a mesh
+*/
+struct MeshData
+{
+    LPD3DXMESH mesh;                 ///< The directX mesh
+    LPDIRECT3DTEXTURE9 texture;      ///< The texture attached to the mesh
+    std::shared_ptr<Shader> shader;  ///< The shader attached to the mesh
+
+    /**
+    * Constructor
+    */
+    MeshData();
+
+    /**
+    * Destructor
+    */
+    ~MeshData();
+};
+
+/**
 * DirectX renderable, pickable and collidable mesh class
 */
 class Mesh : public Transform, public PickableMesh
 {
 public:
-
-    /**
-    * Data for rendering and instancing a mesh
-    */
-    struct MeshData
-    {
-        LPD3DXMESH mesh;                 ///< The directX mesh
-        LPDIRECT3DTEXTURE9 texture;      ///< The texture attached to the mesh
-        std::shared_ptr<Shader> shader;  ///< The shader attached to the mesh
-
-        /**
-        * Constructor
-        */
-        MeshData();
-
-        /**
-        * Destructor
-        */
-        ~MeshData();
-    };
 
     /**
     * Constructor
@@ -45,7 +45,7 @@ public:
     /**
     * Destructor
     */
-    virtual ~Mesh();
+    ~Mesh();
 
     /**
     * Load the mesh
@@ -73,7 +73,7 @@ public:
     * @param projection the projection matrix
     * @param view the view matrix
     */
-    virtual void DrawMesh(const D3DXVECTOR3& cameraPos, 
+    void DrawMesh(const D3DXVECTOR3& cameraPos, 
         const Transform& projection, const Transform& view);
 
     /**
@@ -81,14 +81,14 @@ public:
     * @param projection the projection matrix
     * @param view the view matrix
     */
-    virtual void DrawCollision(const Transform& projection, const Transform& view);
+    void DrawCollision(const Transform& projection, const Transform& view);
 
     /**
     * Tests whether mesh was clicked
     * @param input the picking input structure
     * @return whether this mesh was picked
     */
-    virtual bool MousePickingTest(Picking& input);
+    bool MousePickingTest(Picking& input);
 
     /**
     * Sets visibility of the mesh
@@ -181,7 +181,27 @@ public:
     */
     bool HasCollision() const;
 
-protected:
+    /**
+    * Resets the animation
+    */
+    void ResetAnimation();
+
+    /**
+    * Saves the mesh current position into the list of animation points
+    */
+    void SavePosition();
+
+    /**
+    * @return the list of saved animation points
+    */
+    const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
+
+private:
+
+    /**
+    * Animates the mesh through the list of animation points
+    */
+    void Animate();
 
     /**
     * Toggle whether this mesh is selected or not
@@ -194,21 +214,6 @@ protected:
     Mesh(const Mesh&);
     Mesh& operator=(const Mesh&);
 
-    /**
-    * Mesh vertex structure
-    */
-    struct Vertex
-    {
-        D3DXVECTOR3 position;   ///< Vertex position
-        D3DXVECTOR3 normal;     ///< Vertex normal
-        D3DXVECTOR2 uvs;        ///< Vertex UV information
-
-        /**
-        * Constructor
-        */
-        Vertex();
-    };
-
     RenderCallbacks m_callbacks;             ///< Callbacks for rendering the mesh
     std::shared_ptr<Collision> m_collision;  ///< The collision geometry attached to the mesh
     std::shared_ptr<MeshData> m_data;        ///< Data for rendering/instancing the mesh
@@ -219,4 +224,10 @@ protected:
     bool m_pickable;                         ///< Whether the mesh can be mouse picked or not
     bool m_selected;                         ///< Whether the mesh is selected or not
     bool m_draw;                             ///< Whether the mesh is visible or not
+
+    int m_target;                            ///< Animation index target
+    bool m_animating;                        ///< Whether the mesh is animating or not
+    bool m_reversing;                        ///< Whether animating in reverse or not
+    float m_speed;                           ///< The speed the mesh will animate
+    std::vector<D3DXVECTOR3> m_animation;    ///< Animation points for the mesh
 };

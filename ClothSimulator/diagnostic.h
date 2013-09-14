@@ -64,16 +64,19 @@ public:
     static bool AllowText();
 
     /**
-    * Adds a sphere for diagnostic rendering. Will only add once per id and update each call
+    * Adds a sphere for diagnostic rendering. 
+    * Will only add once per id and update each call
     * @param id The id of the sphere
     * @param color The colour of the sphere
     * @param position The poition in world coordinates
     * @param radius The radius of the sphere
     */
-    static void UpdateSphere(const std::string& id, Colour color, const D3DXVECTOR3& position, float radius);
+    static void UpdateSphere(const std::string& id, Colour color, 
+        const D3DXVECTOR3& position, float radius);
 
     /**
-    * Adds text for diagnostic rendering. Will only add once per id and update each call
+    * Adds text for diagnostic rendering.
+    * Will only add once per id and update each call
     * @param id The id of the text
     * @param color The colour of the text
     * @param text The text to draw
@@ -81,7 +84,8 @@ public:
     static void UpdateText(const std::string& id, Colour color, const std::string& text);
 
     /**
-    * Adds text for diagnostic rendering. Will only add once per id and update each call
+    * Adds text for diagnostic rendering.
+    * Will only add once per id and update each call
     * @param id The id of the text
     * @param color The colour of the text
     * @param increaseCounter Whether to increase the counter or not
@@ -89,13 +93,15 @@ public:
     static void UpdateText(const std::string& id, Colour color, bool increaseCounter);
 
     /**
-    * Adds a cylinder line for diagnostic rendering. Will only add once per id and update each call
+    * Adds a cylinder line for diagnostic rendering.
+    * Will only add once per id and update each call
     * @param id The id of the line
     * @param color The colour of the line
     * @param start The start position in world coordinates
     * @param end The end position in world coordinates
     */
-    static void UpdateLine(const std::string& id, Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
+    static void UpdateLine(const std::string& id, Colour color, 
+        const D3DXVECTOR3& start, const D3DXVECTOR3& end);
 
     /**
     * Draws all 3D diagnostics

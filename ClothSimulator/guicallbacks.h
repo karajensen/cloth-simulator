@@ -26,6 +26,7 @@ namespace GUI
         VoidFn setMoveTool; ///< Change the manipulator to translation
         VoidFn setRotateTool; ///< Change the manipulator to rotation
         VoidFn setScaleTool; ///< Change the manipulator to scaling
+        VoidFn setAnimateTool; ///< Change the manipulator to animating
         VoidFn resetCamera; ///< Resets the camera to the default position 
         VoidFn resetCloth; ///< Resets the cloth to the default position
         VoidFn unpinCloth; ///< Removes any pinned verts 

@@ -90,10 +90,12 @@ public:
 
     /**
     * Updates the state of the scene
-    * @param input The simulation input
+    * @param pressed Whether the mouse is currently being pressed
+    * @param direction The mouse movement direction
+    * @param cameraWorld The camera world transform
     */
-    void UpdateState(const Transform& view,
-        const Transform& projection, const Input& input);
+    void UpdateState(bool pressed, const D3DXVECTOR2& direction,
+        const Transform& cameraWorld);
 
     /**
     * Solves the collision between scene objects and the cloth

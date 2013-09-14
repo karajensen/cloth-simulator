@@ -1,9 +1,6 @@
 
-• Scene mesh manipulation
-    - Fix translation usage
-    - make scale/rotate/animate tools
-	- scale/rotate/animate tool usage
-• GJK collision detection for box/cylinder
+• Fix scale/rotate tools
+• GJK collision detection
 • Octree spacial partitioning
 
 IDEAS:
@@ -27,9 +24,9 @@ LSHIFT-CLICK:   Move back/forwards with the camera
 LCTRL-CLICK:    Move sideways with the camera
 1-4:            Toggle different cloth edge in handle mode
 WASDQE:         Control the cloth in handle mode
+BACKSPACE:      Delete currently selected object
 
 0:              Toggle text diagnostics
 9:              Toggle object diagnostics
 8:              Toggle collision models
-7:              Toggle wireframe mode
 RALT-CLICK:     Allows selection of particle. Diagnostics must be toggled

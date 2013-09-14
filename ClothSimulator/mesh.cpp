@@ -17,25 +17,33 @@ Mesh::Mesh(const RenderCallbacks& callbacks):
     m_index(NO_INDEX),
     m_pickable(true),
     m_selected(false),
-    m_draw(true)
+    m_draw(true),
+    m_target(1),
+    m_animating(false),
+    m_reversing(false),
+    m_speed(0.1f)
 {
     auto boundshader = callbacks.getShader(ShaderManager::BOUNDS_SHADER);
     m_data.reset(new MeshData());
     m_collision.reset(new Collision(*this, boundshader));
 
-    Transform::UpdateFn fullFn = std::bind(&Collision::FullUpdate, m_collision);
-    Transform::UpdateFn positionalFn = std::bind(&Collision::PositionalUpdate, m_collision);
+    Transform::UpdateFn fullFn =
+        std::bind(&Collision::FullUpdate, m_collision);
+
+    Transform::UpdateFn positionalFn =
+        std::bind(&Collision::PositionalUpdate, m_collision);
+
     SetObserver(fullFn, positionalFn);
 }
 
-Mesh::MeshData::MeshData() :
+MeshData::MeshData() :
     mesh(nullptr),
     texture(nullptr),
     shader(nullptr)
 {
 }
 
-Mesh::MeshData::~MeshData()
+MeshData::~MeshData()
 {
     if(texture != nullptr)
     { 
@@ -48,13 +56,6 @@ Mesh::MeshData::~MeshData()
 }
 
 Mesh::~Mesh()
-{
-}
-
-Mesh::Vertex::Vertex() :
-    position(0.0f, 0.0f, 0.0f),
-    normal(0.0f, 0.0f, 0.0f),
-    uvs(0.0f, 0.0f)
 {
 }
 
@@ -170,10 +171,13 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
     return true;
 }
 
-void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
+void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, 
+    const Transform& projection, const Transform& view)
 {
     if(m_data->mesh && m_draw)
     {
+        Animate();
+
         LPD3DXEFFECT effect = m_callbacks.useWorldShader() 
             ? m_callbacks.getWorldEffect() : m_data->shader->GetEffect();
 
@@ -271,6 +275,7 @@ void Mesh::SetCollisionVisibility(bool draw)
 void Mesh::SetVisible(bool visible)
 {
     m_draw = visible;
+    m_animation.clear();
 }
 
 void Mesh::ToggleSelected()
@@ -308,7 +313,7 @@ void Mesh::SetPickable(bool pickable)
     m_pickable = pickable;
 }
 
-std::shared_ptr<Mesh::MeshData> Mesh::GetData()
+std::shared_ptr<MeshData> Mesh::GetData()
 {
     return m_data;
 }
@@ -322,6 +327,15 @@ void Mesh::SetSelected(bool selected)
 {
     m_selected = selected;
     m_color = selected ? m_selectedcolor : m_initialcolor;
+    m_animating = !selected;
+
+    if(selected && !m_animation.empty())
+    {
+        // snap mesh to end of animation
+        SetPosition(m_animation[m_animation.size()-1]);
+        m_target = m_animation.size()-1;
+        m_reversing = false;
+    }
 }
 
 void Mesh::SetColor(float r, float g, float b)
@@ -337,4 +351,55 @@ void Mesh::SetSelectedColor(float r, float g, float b)
     m_selectedcolor.x = r;
     m_selectedcolor.y = g;
     m_selectedcolor.z = b;
+}
+
+const std::vector<D3DXVECTOR3>& Mesh::GetAnimationPoints() const
+{
+    return m_animation;
+}
+
+void Mesh::ResetAnimation()
+{
+    m_animation.clear();
+    m_target = 1;
+}
+
+void Mesh::SavePosition()
+{
+    D3DXVECTOR3 position = Position();
+    if(m_animation.empty() || m_animation[m_animation.size()-1] != position)
+    {
+        m_animation.push_back(position);
+        m_target = m_animation.size()-1;
+    }
+}
+
+void Mesh::Animate()
+{
+    if(m_animating && !m_animation.empty())
+    {
+        const float threshold = 1.0f;
+        const float length = D3DXVec3Length(&(m_animation[m_target]-Position()));
+
+        if(length < threshold)
+        {
+            m_target += m_reversing ? -1 : 1;
+            if(m_target < 0)
+            {
+                m_reversing = !m_reversing;
+                m_target = 1;
+            }
+            else if(m_target >= static_cast<int>(m_animation.size()))
+            {
+                m_reversing = !m_reversing;
+                m_target = static_cast<int>(m_animation.size()-2);
+            }
+        }
+
+        D3DXVECTOR3 path = m_animation[m_target] - 
+            m_animation[m_target+(m_reversing ? 1 : -1)];
+
+        D3DXVec3Normalize(&path, &path);
+        Translate(path * m_speed);
+    }
 }

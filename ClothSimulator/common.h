@@ -24,23 +24,55 @@ static const LPCSTR WINDOW_NAME("Cloth Simulator");
 static const D3DFORMAT BACKBUFFER_FORMAT(D3DFMT_D16);
 static const D3DFORMAT TEXTURE_FORMAT(D3DFMT_A8R8G8B8);
 
+/**
+* Converts degrees to radians
+*/
 template<typename T> T DegToRad(T degrees)
 {
     return (D3DX_PI / 180.0f) * (degrees);
 }
 
+/**
+* Converts radians to degrees
+*/
 template<typename T> T RadToDeg(T radians)
 {
     return (180.0f / D3DX_PI) * (radians);
 }
 
+/**
+* Output the given value as a string
+*/
 typedef std::stringstream sstream;
 template<typename T> std::string StringCast(const T& value)
 {
     return static_cast<sstream&>(sstream() << value).str();
 }
 
+/**
+* Multiplies the vector components together and returns the result
+*/
 inline D3DXVECTOR3 MultiplyVector(const D3DXVECTOR3& vec1, const D3DXVECTOR3& vec2)
 {
     return D3DXVECTOR3(vec1.x*vec2.x, vec1.y*vec2.y, vec1.z*vec2.z);
 }
+
+/**
+* Mesh vertex structure
+*/
+struct Vertex
+{
+    D3DXVECTOR3 position;   ///< Vertex position
+    D3DXVECTOR3 normal;     ///< Vertex normal
+    D3DXVECTOR2 uvs;        ///< Vertex UV information
+
+    /**
+    * Constructor
+    */
+    Vertex() :
+        position(0.0f, 0.0f, 0.0f),
+        normal(0.0f, 0.0f, 0.0f),
+        uvs(0.0f, 0.0f)
+    {
+    }
+};

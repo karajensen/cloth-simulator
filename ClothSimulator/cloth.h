@@ -14,7 +14,7 @@ class Spring;
 /**
 * Dynamic mesh with soft body physics
 */
-class Cloth : public Mesh
+class Cloth : public PickableMesh, public Transform
 {
 public:
 
@@ -33,14 +33,23 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    virtual void DrawCollision(const Transform& projection, const Transform& view) override;
+    void DrawCollision(const Transform& projection, const Transform& view);
+
+    /**
+    * Draw the visual model of the mesh
+    * @param cameraPos the position of the camera in world coordinates
+    * @param projection the projection matrix
+    * @param view the view matrix
+    */
+    void DrawMesh(const D3DXVECTOR3& cameraPos, 
+        const Transform& projection, const Transform& view);
 
     /**
     * Test if cloth m_vertices have been clicked
     * @param input The mouse picking input
     * @return whether this mesh was picked
     */
-    virtual bool MousePickingTest(Picking& input) override;
+    bool MousePickingTest(Picking& input);
 
     /**
     * Updates the cloth state
@@ -120,7 +129,7 @@ public:
     /**
     * @param draw Set whether the collision meshes are visible or not
     */
-    virtual void SetCollisionVisibility(bool draw) override;
+    void SetCollisionVisibility(bool draw);
 
     /**
     * @param set Shether handle mode is active or not
@@ -261,4 +270,5 @@ private:
     RenderCallbacks m_callbacks;              ///< Callbacks for rendering a mesh
     std::shared_ptr<CollisionSolver> m_collision; ///< Collision solver for the cloth
     std::shared_ptr<Collision> m_template;    ///< Template collision for all particles
+    std::shared_ptr<MeshData> m_data;         ///< Data for rendering/instancing the mesh
 };

@@ -35,7 +35,6 @@ namespace
 }
 
 Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks) :
-    Mesh(callbacks),
     m_selectedRow(1),
     m_timestep(TIMESTEP),
     m_timestepSquared(TIMESTEP*TIMESTEP),
@@ -58,6 +57,7 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks) :
     m_indexBuffer(nullptr),
     m_callbacks(callbacks)
 {
+    m_data.reset(new MeshData());
     m_data->shader = callbacks.getShader(ShaderManager::CLOTH_SHADER);;
     m_template.reset(new Collision(*this, callbacks.getShader(ShaderManager::BOUNDS_SHADER)));
     m_template->LoadSphere(d3ddev, 1.0f, 8);
@@ -270,6 +270,40 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_data->mesh->UnlockIndexBuffer();
 }
 
+void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
+{
+    if(m_data->mesh)
+    {
+        LPD3DXEFFECT effect = m_callbacks.useWorldShader() 
+            ? m_callbacks.getWorldEffect() : m_data->shader->GetEffect();
+
+        effect->SetTechnique(DxConstant::DefaultTechnique);
+        effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
+        m_callbacks.sendLightingToEffect(effect);
+
+        D3DXMATRIX wit;
+        D3DXMATRIX wvp = Matrix() * view.Matrix() * projection.Matrix();
+        float det = D3DXMatrixDeterminant(&Matrix());
+        D3DXMatrixInverse(&wit, &det, &Matrix());
+        D3DXMatrixTranspose(&wit, &wit);
+
+        effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
+        effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        effect->SetMatrix(DxConstant::World, &Matrix());
+
+        UINT nPasses = 0;
+        effect->Begin(&nPasses, 0);
+        for(UINT iPass = 0; iPass<nPasses; ++iPass)
+        {
+            effect->BeginPass(iPass);
+            m_data->mesh->DrawSubset(0);
+            effect->EndPass();
+        }
+        effect->End();
+    }
+}
+
 void Cloth::SetHandleMode(bool set)
 {
     m_handleMode = set;
@@ -366,7 +400,7 @@ Cloth::ParticlePtr& Cloth::GetParticle(int row, int col)
     return m_particles[col*m_vertexWidth + row];
 }
 
-Mesh::Vertex& Cloth::GetVertex(int row, int col)
+Vertex& Cloth::GetVertex(int row, int col)
 {
     return m_vertexData[col*m_vertexWidth + row];
 }
@@ -455,7 +489,7 @@ D3DXVECTOR3 Cloth::CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& 
 
 bool Cloth::MousePickingTest(Picking& input)
 {
-    if(m_draw && m_drawVisualParticles && !input.IsLocked())
+    if(m_drawVisualParticles && !input.IsLocked())
     {
         int indexChosen = NO_INDEX;
         for(int i = 0; i < m_vertexCount; ++i)

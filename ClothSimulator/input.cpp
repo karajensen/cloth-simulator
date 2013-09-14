@@ -16,6 +16,7 @@ Input::Input(HINSTANCE hInstance, HWND hWnd) :
     m_hWnd(hWnd),
     m_mouseClicked(false),
     m_mouse(0),
+    m_clickPrevention(false),
     m_x(-1),
     m_y(-1),
     m_mouseDirection(0.0f, 0.0f),
@@ -23,7 +24,8 @@ Input::Input(HINSTANCE hInstance, HWND hWnd) :
     m_keyboardInput(nullptr),
     m_mouseInput(nullptr)
 {
-    DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, nullptr);
+    DirectInput8Create(hInstance, DIRECTINPUT_VERSION, 
+        IID_IDirectInput8, (void**)&m_directInput, nullptr);
 
     m_directInput->CreateDevice(GUID_SysKeyboard, &m_keyboardInput, NULL);
     m_directInput->CreateDevice(GUID_SysMouse, &m_mouseInput, NULL);
@@ -111,17 +113,32 @@ void Input::UpdateInput()
     UpdateKey(mouse.rgbButtons[MOUSE_LEFT], m_mouse);
     m_mouseClicked = IsKeyDown(m_mouse);
 
-    std::for_each(m_clickPreventionKeys.begin(), m_clickPreventionKeys.end(),
-        [&](const unsigned int& key){ if(IsKeyDownContinous(m_keys[key].state)){ m_mouseClicked = false; }});
+    // Test whether click prevention is active
+    m_clickPrevention = false;
+    auto testPrevention = [&](const unsigned int& key)
+    { 
+        if(IsKeyDownContinous(m_keys[key].state))
+        { 
+            m_clickPrevention = true;
+            m_mouseClicked = false; 
+        }
+    };
+    std::for_each(m_clickPreventionKeys.begin(),
+        m_clickPreventionKeys.end(), testPrevention);
 
     if(Diagnostic::AllowText())
     {
         Diagnostic::UpdateText("MouseDirection", Diagnostic::WHITE, 
             StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
 
-        Diagnostic::UpdateText("MousePosition", Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
-        Diagnostic::UpdateText("MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
-        Diagnostic::UpdateText("MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
+        Diagnostic::UpdateText("MousePosition", Diagnostic::WHITE,
+            StringCast(m_x)+", "+StringCast(m_y));
+
+        Diagnostic::UpdateText("MousePress", Diagnostic::WHITE, 
+            StringCast(IsMousePressed()));
+
+        Diagnostic::UpdateText("MouseClick", Diagnostic::WHITE, 
+            StringCast(IsMouseClicked()));
     }
 }
 
@@ -188,7 +205,8 @@ void Input::SetMouseCoord(int x, int y)
     m_y = y;
 }
 
-void Input::SetKeyCallback(unsigned int key, bool onContinous, KeyFn onKeyFn, KeyFn offKeyFn)
+void Input::SetKeyCallback(unsigned int key,
+    bool onContinous, KeyFn onKeyFn, KeyFn offKeyFn)
 {
     m_keys[key] = Key();
     m_keys[key].state = BLANK_KEY;
@@ -213,4 +231,14 @@ void Input::AddClickPreventionKey(unsigned int key)
     {
         m_clickPreventionKeys.push_back(key);
     }
+}
+
+const D3DXVECTOR2& Input::GetMouseDirection() const 
+{
+    return m_mouseDirection;
+}
+
+bool Input::IsClickPreventionActive() const 
+{
+    return m_clickPrevention;
 }

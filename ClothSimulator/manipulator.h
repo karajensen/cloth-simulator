@@ -8,7 +8,6 @@
 class Mesh;
 class ShaderManager;
 class Picking;
-class Input;
 struct RenderCallbacks;
 
 /**
@@ -65,10 +64,12 @@ public:
     /**
     * Updates the state of the manipulator
     * @param mesh the currently selected mesh
-    * @param input The simulation input
+    * @param direction The mouse movement direction
+    * @param cameraWorld The camera world transform
+    * @param pressed Whether the mouse is pressed or not
     */
-    void UpdateState(MeshPtr mesh, const Input& input, 
-        const Transform& view, const Transform& projection);
+    void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
+        const Transform& cameraWorld, bool pressed);
 
 private:
 
@@ -115,7 +116,50 @@ private:
     */
     std::string GetDescription(ToolType type) const;
 
-    std::vector<std::shared_ptr<Tool>> m_tools; ///< all usable tool
-    ToolType m_selectedTool; ///< Currently selected tool
-    ToolAxis m_selectedAxis; ///< currently selected axis
+    /**
+    * Render an animation point/line sphere
+    * @param effect The shader to render the mesh with
+    * @param projection The projection matrix for the camera
+    * @param view The view matrix for the camera
+    * @param color The color to render the sphere in
+    * @param world The world matrix for scaling/position
+    */
+    void RenderSphere(LPD3DXEFFECT effect,
+        const Transform& projection, const Transform& view,
+        const D3DXVECTOR3& color, const Transform& world);
+
+    /**
+    * Translates the selected mesh
+    * @param mesh The mesh to manipulate
+    * @param value The value to manipulate by
+    */
+    void TranslateMesh(MeshPtr mesh, float value);
+
+    /**
+    * Rotates the selected mesh
+    * @param mesh The mesh to manipulate
+    * @param value The value to manipulate by
+    */
+    void RotateMesh(MeshPtr mesh, float value);
+
+    /**
+    * Scales the selected mesh
+    * @param mesh The mesh to manipulate
+    * @param value The value to manipulate by
+    */
+    void ScaleMesh(MeshPtr mesh, float value);
+
+    /**
+    * Animates the selected mesh
+    * @param mesh The mesh to manipulate
+    * @param value The value to manipulate by
+    */
+    void AnimateMesh(MeshPtr mesh, float value);
+
+    std::vector<std::shared_ptr<Tool>> m_tools; ///< all usable tools
+    ToolType m_selectedTool;                    ///< Currently selected tool
+    ToolAxis m_selectedAxis;                    ///< currently selected axis
+    LPD3DXMESH m_sphere;                        ///< Animation geometry sphere
+    std::shared_ptr<Shader> m_shader;           ///< Animation point shader
+    bool m_saveAnimation;                       ///< Whether to allow the position to be saved
 };

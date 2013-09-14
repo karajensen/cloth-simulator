@@ -94,7 +94,12 @@ public:
     /**
     * @return the direction the mouse has moved since last tick
     */
-    const D3DXVECTOR2& GetMouseDirection() const { return m_mouseDirection; }
+    const D3DXVECTOR2& GetMouseDirection() const;
+
+    /**
+    * @return whether click prevention is currently active
+    */
+    bool IsClickPreventionActive() const;
     
 private:
 
@@ -171,6 +176,7 @@ private:
     KeyList m_clickPreventionKeys;         ///< Keys that will prevent clicking of the mouse
     bool m_mouseClicked;                   ///< Whether mouse was clicked this tick
     unsigned int m_mouse;                  ///< Cached mouse state
+    bool m_clickPrevention;                ///< Whether click prevention is occuring
     int m_x, m_y;                          ///< Mouse clicked screen coordinates
     Picking m_picking;                     ///< Mouse picking
     D3DXVECTOR2 m_mouseDirection;          ///< Direction mouse has moved (normalized) between ticks

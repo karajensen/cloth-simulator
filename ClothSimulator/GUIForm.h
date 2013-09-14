@@ -267,6 +267,7 @@ namespace GUI
         {
             RadioButton^ button = static_cast<RadioButton^>(sender);
             SelectRadioButton(button);
+            m_callbacks->setAnimateTool();
         }
 
         /**
