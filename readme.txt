@@ -1,5 +1,5 @@
 
-• Fix scale/rotate tools
+• Fix rotate
 • GJK collision detection
 • Octree spacial partitioning
 

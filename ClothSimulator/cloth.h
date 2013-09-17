@@ -33,7 +33,7 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawCollision(const Transform& projection, const Transform& view);
+    void DrawCollision(const Matrix& projection, const Matrix& view);
 
     /**
     * Draw the visual model of the mesh
@@ -42,7 +42,7 @@ public:
     * @param view the view matrix
     */
     void DrawMesh(const D3DXVECTOR3& cameraPos, 
-        const Transform& projection, const Transform& view);
+        const Matrix& projection, const Matrix& view);
 
     /**
     * Test if cloth m_vertices have been clicked

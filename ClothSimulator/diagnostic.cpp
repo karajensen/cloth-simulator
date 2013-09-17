@@ -104,7 +104,7 @@ void Diagnostic::DrawAllText()
     }
 }
 
-void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& view)
+void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 {
     if(sm_diag->m_showDiagnostics)
     {
@@ -113,7 +113,7 @@ void Diagnostic::DrawAllObjects(const Transform& projection, const Transform& vi
 
         auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Transform& world)
         {
-            D3DXMATRIX wvp = world.Matrix() * view.Matrix() * projection.Matrix();
+            D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
             pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
             pEffect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
 

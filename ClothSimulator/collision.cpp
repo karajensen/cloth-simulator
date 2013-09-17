@@ -25,7 +25,8 @@ Collision::Data::Data() :
     localMinBounds(0.0f, 0.0f, 0.0f),
     localMaxBounds(0.0f, 0.0f, 0.0f),
     minBounds(0.0f, 0.0f, 0.0f),
-    maxBounds(0.0f, 0.0f, 0.0f)
+    maxBounds(0.0f, 0.0f, 0.0f),
+    radius(0.0f)
 {
 }
 
@@ -45,9 +46,10 @@ void Collision::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, flo
         m_geometry->shape = BOX;
         D3DXCreateBox(d3ddev, 1.0f, 1.0f, 1.0f, &m_geometry->mesh, NULL);
     }
+
     m_data.localWorld.SetScale(width, height, depth);
-    m_data.localMinBounds = -m_data.localWorld.GetScaleFactor() * 0.5f;
-    m_data.localMaxBounds = m_data.localWorld.GetScaleFactor() * 0.5f;
+    m_data.localMinBounds = -m_data.localWorld.GetScale() * 0.5f;
+    m_data.localMaxBounds = m_data.localWorld.GetScale() * 0.5f;
     FullUpdate();
 }
 
@@ -82,7 +84,7 @@ void Collision::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float lengt
 void Collision::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry)
 {
     m_geometry = geometry;
-    const D3DXVECTOR3 scale = data.localWorld.GetScaleFactor();
+    const D3DXVECTOR3 scale = data.localWorld.GetScale();
     switch(geometry->shape)
     {
     case SPHERE:
@@ -114,12 +116,7 @@ void Collision::SetDraw(bool draw)
 
 float Collision::GetRadius() const
 {
-    return m_data.localWorld.GetScaleFactor().x;
-}
-
-float Collision::GetLength() const
-{
-    return m_data.localWorld.GetScaleFactor().z;
+    return m_data.radius;
 }
 
 const D3DXVECTOR3& Collision::GetMinBounds() const
@@ -137,7 +134,7 @@ D3DXVECTOR3 Collision::GetPosition() const
     return m_world.Position();
 }
 
-const Transform& Collision::GetTransform() const
+const Matrix& Collision::CollisionMatrix() const
 {
     return m_world;
 }
@@ -157,7 +154,7 @@ void Collision::SetColor(const D3DXVECTOR3& color)
     m_colour = color;
 }
 
-void Collision::Draw(const Transform& projection, const Transform& view)
+void Collision::Draw(const Matrix& projection, const Matrix& view)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
@@ -175,13 +172,13 @@ void Collision::Draw(const Transform& projection, const Transform& view)
             else if(m_geometry->shape == SPHERE)
             {
                 D3DXVECTOR3 centerToRadius = GetPosition();
-                centerToRadius.y += m_data.localWorld.GetScaleFactor().x;
+                centerToRadius.y += m_data.localWorld.GetScale().x;
                 Diagnostic::UpdateSphere(StringCast(this) + "Radius", 
                     Diagnostic::GREEN, centerToRadius, radius);
             }
             else if(m_geometry->shape == CYLINDER)
             {
-                const D3DXVECTOR3& scale = m_data.localWorld.GetScaleFactor();
+                const D3DXVECTOR3& scale = m_data.localWorld.GetScale();
                 float halflength = scale.z*0.5f;
 
                 D3DXVECTOR3 end1 = GetPosition();
@@ -202,7 +199,7 @@ void Collision::Draw(const Transform& projection, const Transform& view)
         LPD3DXEFFECT pEffect(m_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
-        D3DXMATRIX wvp = m_world.Matrix() * view.Matrix() * projection.Matrix();
+        D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
         pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
 
         pEffect->SetFloatArray(DxConstant::VertexColor, &(m_colour.x), 3);
@@ -236,14 +233,12 @@ void Collision::PositionalUpdate()
         if(m_geometry->shape == BOX)
         {
             D3DXVECTOR3 difference(m_parent.Position()-m_world.Position());
-            m_world.Translate(difference);
             m_data.minBounds += difference;
             m_data.maxBounds += difference;
         }
-        else
-        {
-            m_world.SetPosition(m_parent.Position());
-        }
+
+        //DirectX: World = LocalWorld * ParentWorld
+        m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
     }
 }
 
@@ -252,25 +247,29 @@ void Collision::FullUpdate()
     if(m_geometry)
     {
         //DirectX: World = LocalWorld * ParentWorld
-        m_world.Equals(m_data.localWorld.Matrix()*m_parent.Matrix(), 
-            MultiplyVector(m_data.localWorld.GetScaleFactor(), m_parent.GetScaleFactor()));
+        m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
+
+        //z component for local world is largest for cylinder and uniform
+        //with other components for box/sphere
+        m_data.radius = m_parent.GetScale().z * m_data.localWorld.GetScale().z;
 
         if(m_geometry->shape == BOX)
         {
-            D3DXVec3TransformCoord(&m_data.minBounds, &m_data.localMinBounds, &m_parent.Matrix());
-            D3DXVec3TransformCoord(&m_data.maxBounds, &m_data.localMaxBounds, &m_parent.Matrix());
+            D3DXVec3TransformCoord(&m_data.minBounds, &m_data.localMinBounds, &m_parent.GetMatrix());
+            D3DXVec3TransformCoord(&m_data.maxBounds, &m_data.localMaxBounds, &m_parent.GetMatrix());
         }
     }
 }
 
-void Collision::DrawWithRadius(const Transform& projection, const Transform& view, float radius)
+void Collision::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
 {
     //assumes collision is a sphere with no scaling from parent
+    float scale = m_data.localWorld.GetScale().x;
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;
     m_world.MatrixPtr()->_33 = radius;
     Draw(projection, view);
-    m_world.MatrixPtr()->_11 = m_data.localWorld.GetScaleFactor().x;
-    m_world.MatrixPtr()->_22 = m_data.localWorld.GetScaleFactor().x;
-    m_world.MatrixPtr()->_33 = m_data.localWorld.GetScaleFactor().x;
+    m_world.MatrixPtr()->_11 = scale;
+    m_world.MatrixPtr()->_22 = scale;
+    m_world.MatrixPtr()->_33 = scale;
 }

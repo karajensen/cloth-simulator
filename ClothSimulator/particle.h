@@ -38,14 +38,14 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawVisualMesh(const Transform& projection, const Transform& view);
+    void DrawVisualMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * Draws the particle collision mesh
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawCollisionMesh(const Transform& projection, const Transform& view);
+    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * @return the particle collision mesh object

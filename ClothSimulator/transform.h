@@ -3,14 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <d3d9.h>
-#include <d3dx9.h>
 #include <functional>
+#include "matrix.h"
 
 /**
-* Wrapper around D3DXMATRIX for easy access
+* Matrix with rotation and scale components
 */
-class Transform
+class Transform : public Matrix
 {
 public:
 
@@ -22,34 +21,7 @@ public:
     /**
     * Set the transform matrix to the identity
     */
-    void MakeIdentity();
-
-    /**
-    * Scales the matrix using local axis
-    * @param x/y/z The amount to scale each component
-    */
-    void ScaleLocal(float x, float y, float z);
-
-    /**
-    * Rotates the matrix
-    * @param radians The amount to rotate in radians
-    * @param local Whether to rotate around the local x axis
-    */
-    void RotateX(float radians, bool local);
-
-    /**
-    * Rotates the matrix
-    * @param radians The amount to rotate in radians
-    * @param local Whether to rotate around the local y axis
-    */
-    void RotateY(float radians, bool local);
-
-    /**
-    * Rotates the matrix 
-    * @param radians The amount to rotate in radians
-    * @param local Whether to rotate around the local z axis
-    */
-    void RotateZ(float radians, bool local);
+    virtual void MakeIdentity() override;
 
     /**
     * Adds a given vector in world coordinates to the position
@@ -64,16 +36,28 @@ public:
     void Translate(float x, float y, float z);
 
     /**
-    * Explicitly set the transform to a position
+    * Explicitly set the matrix to a position
     * @param x/y/z The components to set as the position
     */
-    void SetPosition(float x, float y, float z);
+    virtual void SetPosition(float x, float y, float z) override;
 
     /**
-    * Explicitly set the transform to a position
+    * Explicitly set the matrix to a position
     * @param position The vector to set as the position
     */
-    void SetPosition(const D3DXVECTOR3& position);
+    virtual void SetPosition(const D3DXVECTOR3& position) override;
+
+    /**
+    * Scales the matrix using local axis
+    * @param x/y/z The amount to scale each component
+    */
+    void Scale(float x, float y, float z);
+
+    /**
+    * Rotates the matrix 
+    * @param x/y/z The amount to rotate each component
+    */
+    void Rotate(float x, float y, float z);
 
     /**
     * Explicitly set the transform to a scale
@@ -98,71 +82,29 @@ public:
     void SetObserver(UpdateFn fullUpdate, UpdateFn positionalUpdate);
 
     /**
-    * Explicitly set the transform axis
-    * @param up The up vector
-    * @param forward The forward vector
-    * @param right The right vector
-    */
-    void SetAxis(const D3DXVECTOR3& up, const D3DXVECTOR3& forward, const D3DXVECTOR3& right);
-
-    /**
-    * @return the transform right axis
-    */
-    D3DXVECTOR3 Right() const;
-
-    /**
-    * @return the transform up axis
-    */
-    D3DXVECTOR3 Up() const;
-
-    /**
-    * @return the transform forward axis
-    */
-    D3DXVECTOR3 Forward() const;
-
-    /**
-    * @return the transform position
-    */
-    D3DXVECTOR3 Position() const;
-
-    /**
     * @return the current scaling value applied to the matrix
     */
-    const D3DXVECTOR3& GetScaleFactor() const { return m_scaleFactor; }
+    D3DXVECTOR3 GetScale() const;
 
     /**
-    * @return the const matrix for the transform
+    * @return the rotation matrix
     */
-    const D3DXMATRIX& Matrix() const { return m_matrix; }
-
-    /**
-    * @return the matrix pointer for the transform
-    */
-    D3DXMATRIX* MatrixPtr() { return &m_matrix; }
-
-    /**
-    * Matrix Equality
-    * @param matrix The matrix to make equal to
-    * @param scalefactor The scalefactor to make equal to
-    */
-    void Equals(const D3DXMATRIX& matrix, const D3DXVECTOR3& scalefactor);
-
-    /**
-    * Matrix multiplication for a matrix without scaling
-    * @param matrix The matrix to multiply with
-    */
-    void Multiply(const D3DXMATRIX& matrix);
+    const D3DXMATRIX& GetRotationMatrix() const { return m_rotation; }
 
 private:
 
     /**
-    * Calls observer function if set
+    * Calls observer function if set and updates the transform
     * @param fullupdate Whether to call the full update funtion or not
     */
-    void CallObserver(bool fullupdate);
+    void Update(bool fullupdate);
 
-    D3DXMATRIX m_matrix;             ///< Matrix for the transform
-    D3DXVECTOR3 m_scaleFactor;       ///< Current scaling value applied to the matrix
+    float m_yaw;                     ///< Radian amount of yaw
+    float m_pitch;                   ///< Radian amount of pitch
+    float m_roll;                    ///< Radian amount of roll
+    D3DXVECTOR3 m_position;          ///< Position for the transform
+    D3DXMATRIX m_rotation;           ///< Current rotation applied to the matrix
+    D3DXMATRIX m_scale;              ///< Current scaling applied to the matrix
     UpdateFn m_fullUpdateFn;         ///< Function to call upon a full update
     UpdateFn m_positionalUpdateFn;   ///< Function to call upon a positional update
 };

@@ -23,7 +23,7 @@ PickableMesh::~PickableMesh()
 {
 }
 
-void Picking::UpdatePicking(Transform& projection, Transform& view, int x, int y)
+void Picking::UpdatePicking(const Matrix& projection, const Matrix& view, int x, int y)
 {
     m_locked = false;
     m_rayOrigin = D3DXVECTOR3();
@@ -32,12 +32,12 @@ void Picking::UpdatePicking(Transform& projection, Transform& view, int x, int y
     m_distanceToMesh = FLT_MAX;
 
     D3DXVECTOR3 mouseRay;
-    mouseRay.x =  (((2.0f*x)/WINDOW_WIDTH )-1) / projection.Matrix()._11;
-    mouseRay.y = -(((2.0f*y)/WINDOW_HEIGHT)-1) / projection.Matrix()._22;
+    mouseRay.x =  (((2.0f*x)/WINDOW_WIDTH )-1) / projection.GetMatrix()._11;
+    mouseRay.y = -(((2.0f*y)/WINDOW_HEIGHT)-1) / projection.GetMatrix()._22;
     mouseRay.z =  1.0f;
 
     D3DXMATRIX ViewInverse;
-    D3DXMatrixInverse(&ViewInverse, NULL, &view.Matrix());
+    D3DXMatrixInverse(&ViewInverse, NULL, &view.GetMatrix());
 
     //Transform the screen space pick ray into 3D world space
     m_rayDirection.x  = mouseRay.x * ViewInverse._11 + 

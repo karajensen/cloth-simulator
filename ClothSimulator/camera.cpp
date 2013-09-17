@@ -107,8 +107,8 @@ void Camera::UpdateCamera()
         D3DXMatrixRotationZ(&matRZ, m_roll);
         World.Multiply(matRZ * matRX * matRY);
 
-        float determinant = D3DXMatrixDeterminant(&World.Matrix());
-        D3DXMatrixInverse(View.MatrixPtr(), &determinant, &World.Matrix());
+        float determinant = D3DXMatrixDeterminant(&World.GetMatrix());
+        D3DXMatrixInverse(View.MatrixPtr(), &determinant, &World.GetMatrix());
     }
 }
 

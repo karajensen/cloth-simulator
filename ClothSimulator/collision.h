@@ -59,6 +59,7 @@ public:
         D3DXVECTOR3 minBounds;      ///< Transformed world min bounds for box geometry
         D3DXVECTOR3 maxBounds;      ///< Transformed world max bounds for box geometry
         Transform localWorld;       ///< Local transform before any calculations of the geometry
+        float radius;               ///< Transformed radius for all geometry
     };
 
     /**
@@ -123,11 +124,6 @@ public:
     float GetRadius() const;
 
     /**
-    * @return the length of the cylinder
-    */
-    float GetLength() const;
-
-    /**
     * @return the minbounds of the box
     */
     const D3DXVECTOR3& GetMinBounds() const;
@@ -140,7 +136,7 @@ public:
     /**
     * @return the world matrix of the collision geometry
     */
-    const Transform& GetTransform() const;
+    const Matrix& CollisionMatrix() const;
 
     /**
     * @return the collision geometry mesh
@@ -152,7 +148,7 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void Draw(const Transform& projection, const Transform& view);
+    void Draw(const Matrix& projection, const Matrix& view);
 
     /**
     * @param draw Set whether the collision mesh is drawn
@@ -190,8 +186,8 @@ public:
     * @param view The view matrix
     * @param radius The radius to override
     */
-    void DrawWithRadius(const Transform& projection, 
-        const Transform& view, float radius);
+    void DrawWithRadius(const Matrix& projection, 
+        const Matrix& view, float radius);
 
     /**
     * @return whether the collision has geometry attached to it or not
@@ -207,8 +203,8 @@ private:
     Collision& operator=(const Collision&);
 
     bool m_draw;                ///< Whether to draw the geometry
-    const Transform& m_parent;  ///< Parent transform of the collision geometry
-    Transform m_world;          ///< World transform of the collision geometry
+    const Transform& m_parent;  ///< Parent matrix of the collision geometry
+    Matrix m_world;             ///< World matrix of the collision geometry
     D3DXVECTOR3 m_colour;       ///< Colour to render
     Data m_data;                ///< Data for the collision geometry
 

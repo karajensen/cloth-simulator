@@ -46,7 +46,7 @@ public:
     * @param position The position of the camera in world space
     * @param selectedMesh The selected mesh the tool is working on
     */
-    void Render(const Transform& projection, const Transform& view,
+    void Render(const Matrix& projection, const Matrix& view,
         const D3DXVECTOR3& position, const MeshPtr& selectedMesh);
 
     /**
@@ -69,7 +69,7 @@ public:
     * @param pressed Whether the mouse is pressed or not
     */
     void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
-        const Transform& cameraWorld, bool pressed);
+        const Matrix& cameraWorld, bool pressed);
 
 private:
 
@@ -125,7 +125,7 @@ private:
     * @param world The world matrix for scaling/position
     */
     void RenderSphere(LPD3DXEFFECT effect,
-        const Transform& projection, const Transform& view,
+        const Matrix& projection, const Matrix& view,
         const D3DXVECTOR3& color, const Transform& world);
 
     /**

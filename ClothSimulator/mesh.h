@@ -74,14 +74,14 @@ public:
     * @param view the view matrix
     */
     void DrawMesh(const D3DXVECTOR3& cameraPos, 
-        const Transform& projection, const Transform& view);
+        const Matrix& projection, const Matrix& view);
 
     /**
     * Draw the collision model of the mesh
     * @param projection the projection matrix
     * @param view the view matrix
     */
-    void DrawCollision(const Transform& projection, const Transform& view);
+    void DrawCollision(const Matrix& projection, const Matrix& view);
 
     /**
     * Tests whether mesh was clicked

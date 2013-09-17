@@ -48,7 +48,7 @@ public:
     * @param view The camera view matrix
     */
     void Draw(const D3DXVECTOR3& position,
-        const Transform& projection, const Transform& view);
+        const Matrix& projection, const Matrix& view);
 
     /**
     * Draws the scene manipulator tool
@@ -57,14 +57,14 @@ public:
     * @param view The camera view matrix
     */
     void DrawTools(const D3DXVECTOR3& position,
-        const Transform& projection, const Transform& view);
+        const Matrix& projection, const Matrix& view);
 
     /**
     * Draws all scene mesh collisions
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void DrawCollision(const Transform& projection, const Transform& view);
+    void DrawCollision(const Matrix& projection, const Matrix& view);
 
     /**
     * Removes the currently selected object if possible
@@ -95,7 +95,7 @@ public:
     * @param cameraWorld The camera world transform
     */
     void UpdateState(bool pressed, const D3DXVECTOR2& direction,
-        const Transform& cameraWorld);
+        const Matrix& cameraWorld);
 
     /**
     * Solves the collision between scene objects and the cloth

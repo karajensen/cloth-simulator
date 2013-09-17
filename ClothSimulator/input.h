@@ -74,7 +74,7 @@ public:
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void UpdatePicking(Transform& projection, Transform& view);
+    void UpdatePicking(const Matrix& projection, const Matrix& view);
 
     /**
     * If a mesh was picked, call the associated picking function

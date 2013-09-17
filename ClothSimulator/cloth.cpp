@@ -270,7 +270,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_data->mesh->UnlockIndexBuffer();
 }
 
-void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, const Transform& view)
+void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Matrix& projection, const Matrix& view)
 {
     if(m_data->mesh)
     {
@@ -283,14 +283,14 @@ void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Transform& projection, 
         m_callbacks.sendLightingToEffect(effect);
 
         D3DXMATRIX wit;
-        D3DXMATRIX wvp = Matrix() * view.Matrix() * projection.Matrix();
-        float det = D3DXMatrixDeterminant(&Matrix());
-        D3DXMatrixInverse(&wit, &det, &Matrix());
+        D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+        float det = D3DXMatrixDeterminant(&GetMatrix());
+        D3DXMatrixInverse(&wit, &det, &GetMatrix());
         D3DXMatrixTranspose(&wit, &wit);
 
         effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
         effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-        effect->SetMatrix(DxConstant::World, &Matrix());
+        effect->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
         effect->Begin(&nPasses, 0);
@@ -434,7 +434,7 @@ void Cloth::UpdateNormals()
     }
 }
 
-void Cloth::DrawCollision(const Transform& projection, const Transform& view)
+void Cloth::DrawCollision(const Matrix& projection, const Matrix& view)
 {
     if(Diagnostic::AllowDiagnostics())
     {
@@ -495,7 +495,7 @@ bool Cloth::MousePickingTest(Picking& input)
         for(int i = 0; i < m_vertexCount; ++i)
         {
             D3DXMATRIX worldInverse;
-            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->GetTransform().Matrix());
+            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->CollisionMatrix().GetMatrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;

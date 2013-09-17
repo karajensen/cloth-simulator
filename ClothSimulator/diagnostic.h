@@ -108,7 +108,7 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    static void DrawAllObjects(const Transform& projection, const Transform& view);
+    static void DrawAllObjects(const Matrix& projection, const Matrix& view);
 
     /**
     * Draws all 2D diagnostics

@@ -58,9 +58,9 @@ public:
     */
     void Rotation(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
 
-    Transform Projection;   ///< Projection Matrix for the camera
-    Transform View;         ///< View Matrix for the camera
-    Transform World;        ///< World Matrix for the camera
+    Matrix Projection;   ///< Projection Matrix for the camera
+    Matrix View;         ///< View Matrix for the camera
+    Matrix World;        ///< World Matrix for the camera
 
 private:
 

@@ -172,7 +172,7 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
 }
 
 void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, 
-    const Transform& projection, const Transform& view)
+    const Matrix& projection, const Matrix& view)
 {
     if(m_data->mesh && m_draw)
     {
@@ -189,14 +189,14 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
         m_callbacks.sendLightingToEffect(effect);
 
         D3DXMATRIX wit;
-        D3DXMATRIX wvp = Matrix() * view.Matrix() * projection.Matrix();
-        float det = D3DXMatrixDeterminant(&Matrix());
-        D3DXMatrixInverse(&wit, &det, &Matrix());
+        D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+        float det = D3DXMatrixDeterminant(&GetMatrix());
+        D3DXMatrixInverse(&wit, &det, &GetMatrix());
         D3DXMatrixTranspose(&wit, &wit);
 
         effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
         effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-        effect->SetMatrix(DxConstant::World, &Matrix());
+        effect->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
         effect->Begin(&nPasses, 0);
@@ -210,7 +210,7 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     }
 }
 
-void Mesh::DrawCollision(const Transform& projection, const Transform& view)
+void Mesh::DrawCollision(const Matrix& projection, const Matrix& view)
 {
     if(m_collision && m_draw)
     {
@@ -230,11 +230,11 @@ bool Mesh::MousePickingTest(Picking& input)
         LPD3DXMESH meshToTest = m_collision->HasGeometry()
             ? m_collision->GetMesh() : m_data->mesh;
 
-        const Transform& world = m_collision->HasGeometry()
-            ? m_collision->GetTransform() : *this;
+        const Matrix& world = m_collision->HasGeometry()
+            ? m_collision->CollisionMatrix() : *this;
 
         D3DXMATRIX worldInverse;
-        D3DXMatrixInverse(&worldInverse, NULL, &world.Matrix());
+        D3DXMatrixInverse(&worldInverse, NULL, &world.GetMatrix());
 
         D3DXVECTOR3 rayOrigin;
         D3DXVECTOR3 rayDirection;

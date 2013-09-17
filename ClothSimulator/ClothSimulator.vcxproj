@@ -100,6 +100,7 @@
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="manipulator.cpp" />
+    <ClCompile Include="matrix.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="input.cpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="manipulator.h" />
+    <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="particle.h" />
