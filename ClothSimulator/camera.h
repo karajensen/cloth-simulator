@@ -58,9 +58,25 @@ public:
     */
     void Rotation(const D3DXVECTOR2& mouseDir, float speed, bool isMouseDown);
 
-    Matrix Projection;   ///< Projection Matrix for the camera
-    Matrix View;         ///< View Matrix for the camera
-    Matrix World;        ///< World Matrix for the camera
+    /**
+    * @return the projection matrix
+    */
+    const Matrix& Projection() const { return m_projection; }
+
+    /**
+    * @return the inverse projection matrix
+    */
+    const Matrix& InverseProjection() const { return m_invProjection; }
+
+    /**
+    * @return the view matrix
+    */
+    const Matrix& View() const { return m_view; }
+
+    /**
+    * @return the world matrix
+    */
+    const Matrix& World() const { return m_world; }
 
 private:
 
@@ -100,6 +116,10 @@ private:
     */
     void Up(float val);
 
+    Matrix m_projection;       ///< Projection Matrix for the camera
+    Matrix m_view;             ///< View Matrix for the camera
+    Matrix m_world;            ///< World Matrix for the camera
+    Matrix m_invProjection;    ///< Inverse projection matrix
     bool m_cameraNeedsUpdate;  ///< Whether the camera requires updating or not
     D3DXVECTOR3 m_initialPos;  ///< Camera initial position in world space
     D3DXVECTOR3 m_pos;         ///< Camera position in world space

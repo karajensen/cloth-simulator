@@ -215,9 +215,9 @@ void Input::SetKeyCallback(unsigned int key,
     m_keys[key].offKeyFn = offKeyFn;
 }
 
-void Input::UpdatePicking(const Matrix& projection, const Matrix& view)
+void Input::UpdatePicking(const Matrix& projection, const Matrix& world)
 {
-    m_picking.UpdatePicking(projection, view, m_x, m_y);
+    m_picking.UpdatePicking(projection, world, m_x, m_y);
 }
 
 void Input::SolvePicking()

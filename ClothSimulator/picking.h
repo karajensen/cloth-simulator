@@ -56,10 +56,10 @@ public:
     /**
     * Send a ray into the scene to determine if mouse clicked an object
     * @param projection The camera projection matrix
-    * @param view The camera view matrix
+    * @param world The camera world matrix
     * @param x/y The mouse click screen coordinates
     */
-    void UpdatePicking(const Matrix& projection, const Matrix& view, int x, int y);
+    void UpdatePicking(const Matrix& projection, const Matrix& world, int x, int y);
 
     /**
     * If a mesh was picked, call the associated picking function

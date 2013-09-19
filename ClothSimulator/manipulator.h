@@ -65,11 +65,12 @@ public:
     * Updates the state of the manipulator
     * @param mesh the currently selected mesh
     * @param direction The mouse movement direction
-    * @param cameraWorld The camera world transform
+    * @param world The camera world matrix
+    * @param invProjection The camera inverse projection matrix
     * @param pressed Whether the mouse is pressed or not
     */
     void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
-        const Matrix& cameraWorld, bool pressed);
+        const Matrix& world, const Matrix& invProjection, bool pressed);
 
 private:
 
@@ -162,4 +163,7 @@ private:
     LPD3DXMESH m_sphere;                        ///< Animation geometry sphere
     std::shared_ptr<Shader> m_shader;           ///< Animation point shader
     bool m_saveAnimation;                       ///< Whether to allow the position to be saved
+
+    D3DXMATRIX proj;
+    D3DXMATRIX viewmat;
 };

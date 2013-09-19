@@ -72,9 +72,9 @@ public:
     /**
     * Send a ray into the scene to determine if mouse clicked an object
     * @param projection The camera projection matrix
-    * @param view The camera view matrix
+    * @param world The camera world matrix
     */
-    void UpdatePicking(const Matrix& projection, const Matrix& view);
+    void UpdatePicking(const Matrix& projection, const Matrix& world);
 
     /**
     * If a mesh was picked, call the associated picking function

@@ -121,20 +121,16 @@ void Transform::SetPosition(float x, float y, float z)
     Update(false);
 }
 
-void Transform::Translate(const D3DXVECTOR3& position)
+void Transform::Translate(D3DXVECTOR3 position)
 {
-    m_position.x += position.x;
-    m_position.y += position.y;
-    m_position.z += position.z;
+    D3DXVec3TransformCoord(&position, &position, &m_rotation);
+    m_position += position;
     Update(false);
 }
 
 void Transform::Translate(float x, float y, float z)
 { 
-    m_position.x += x;
-    m_position.y += y;
-    m_position.z += z;
-    Update(false);
+    Translate(D3DXVECTOR3(x, y, z));
 }
 
 void Transform::MakeIdentity()

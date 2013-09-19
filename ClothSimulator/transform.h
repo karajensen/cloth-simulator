@@ -27,7 +27,7 @@ public:
     * Adds a given vector in world coordinates to the position
     * @param position The vector to translate along
     */
-    void Translate(const D3DXVECTOR3& position);
+    void Translate(D3DXVECTOR3 position);
 
     /**
     * Adds the components in world coordinates to the position
@@ -90,6 +90,11 @@ public:
     * @return the rotation matrix
     */
     const D3DXMATRIX& GetRotationMatrix() const { return m_rotation; }
+
+    /**
+    * Sets the rotation matrix
+    */
+    void SetRotationMatrix(const D3DXMATRIX& mat) { m_rotation = mat; }
 
 private:
 

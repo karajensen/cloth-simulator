@@ -98,25 +98,26 @@ void Camera::UpdateCamera()
     {
         m_cameraNeedsUpdate = false;
 
-        World.MakeIdentity();
-        World.SetPosition(m_pos);
+        m_world.MakeIdentity();
+        m_world.SetPosition(m_pos);
 
         D3DXMATRIX matRX, matRY, matRZ;
         D3DXMatrixRotationX(&matRX, m_pitch); 
         D3DXMatrixRotationY(&matRY, m_yaw);
         D3DXMatrixRotationZ(&matRZ, m_roll);
-        World.Multiply(matRZ * matRX * matRY);
+        m_world.Multiply(matRZ * matRX * matRY);
 
-        float determinant = D3DXMatrixDeterminant(&World.GetMatrix());
-        D3DXMatrixInverse(View.MatrixPtr(), &determinant, &World.GetMatrix());
+        D3DXMatrixInverse(m_view.MatrixPtr(), nullptr, &m_world.GetMatrix());
     }
 }
 
 void Camera::CreateProjMatrix()
 {
-    D3DXMatrixPerspectiveFovLH(Projection.MatrixPtr(),
+    D3DXMatrixPerspectiveFovLH(m_projection.MatrixPtr(),
         D3DX_PI/4, //horizontal field of view
         static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT), //aspect ratio
-        1.0f, //the near view-plane
-        1000.0f); //the far view-plane
+        CAMERA_NEAR, //the near view-plane
+        CAMERA_FAR); //the far view-plane
+
+    D3DXMatrixInverse(m_invProjection.MatrixPtr(), NULL, &m_projection.GetMatrix());
 }

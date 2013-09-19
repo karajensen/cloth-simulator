@@ -33,13 +33,13 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     input.LightVector = normalize(input.LightVector);
     input.Normal = normalize(input.Normal);
     
-    // bring diffuse into range of 0.4->1.0
-    float inner = 0.4;
+    // bring diffuse into range of 0.6->1.0
+    float inner = 0.6;
     float3 diffuse = ((dot(input.LightVector, input.Normal)
         +1.0)*((1.0-inner)/(2.0)))+inner;
     diffuse *= VertexColor;
 
-    return float4(diffuse.r, diffuse.g, diffuse.b, 0.75);
+    return float4(diffuse.r, diffuse.g, diffuse.b, 0.7);
 }
 
 //Techniques

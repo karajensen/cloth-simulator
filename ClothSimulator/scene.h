@@ -86,16 +86,23 @@ public:
     * Tests all scene objects for mouse picking
     * @param picking The mouse picking object
     */
-    void MousePickingTest(Picking& picking);
+    void ScenePickingTest(Picking& picking);
+
+    /**
+    * Tests all manipulator axis for mouse picking
+    * @param picking The mouse picking object
+    */
+    void ManipulatorPickingTest(Picking& picking);
 
     /**
     * Updates the state of the scene
     * @param pressed Whether the mouse is currently being pressed
     * @param direction The mouse movement direction
-    * @param cameraWorld The camera world transform
+    * @param world The camera world matrix
+    * @param invProjection The camera inverse projection matrix
     */
     void UpdateState(bool pressed, const D3DXVECTOR2& direction,
-        const Matrix& cameraWorld);
+        const Matrix& world, const Matrix& invProjection);
 
     /**
     * Solves the collision between scene objects and the cloth

@@ -43,28 +43,31 @@ Simulation::~Simulation()
 void Simulation::Render()
 {
     D3DPERF_BeginEvent(RENDER_COLOR, L"Simulation::Render");
+
     m_d3ddev->BeginScene();
     m_d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, BACK_BUFFER_COLOR, 1.0f, 0);
     m_d3ddev->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
-    D3DXVECTOR3 camPos(m_camera->World.Position());
-    m_scene->Draw(camPos, m_camera->Projection, m_camera->View);
-    m_cloth->DrawMesh(camPos, m_camera->Projection, m_camera->View);
-    m_cloth->DrawCollision(m_camera->Projection, m_camera->View);
-    m_scene->DrawCollision(m_camera->Projection, m_camera->View);
-    m_scene->DrawTools(camPos, m_camera->Projection, m_camera->View);
+    D3DXVECTOR3 cameraPosition(m_camera->World().Position());
+    m_scene->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
+    m_cloth->DrawMesh(cameraPosition, m_camera->Projection(), m_camera->View());
+    m_cloth->DrawCollision(m_camera->Projection(), m_camera->View());
+    m_scene->DrawCollision(m_camera->Projection(), m_camera->View());
+    m_scene->DrawTools(cameraPosition, m_camera->Projection(), m_camera->View());
 
-    Diagnostic::DrawAllObjects(m_camera->Projection, m_camera->View);
+    Diagnostic::DrawAllObjects(m_camera->Projection(), m_camera->View());
     Diagnostic::DrawAllText();
 
     m_d3ddev->EndScene();
     m_d3ddev->Present(NULL, NULL, NULL, NULL);
+
     D3DPERF_EndEvent();
 }
 
 void Simulation::Update()
 {
     D3DPERF_BeginEvent(UPDATE_COLOR, L"Simulation::Update");
+
     double deltaTime = m_timer->UpdateTimer();
     bool pressed = m_input->IsClickPreventionActive() 
         ? false : m_input->IsMousePressed();
@@ -74,14 +77,16 @@ void Simulation::Update()
 
     if (m_input->IsMouseClicked())
     {
-        m_input->UpdatePicking(m_camera->Projection, m_camera->View); 
+        m_input->UpdatePicking(m_camera->Projection(), m_camera->World());
+        m_scene->ManipulatorPickingTest(m_input->GetMousePicking());
         m_cloth->MousePickingTest(m_input->GetMousePicking());
-        m_scene->MousePickingTest(m_input->GetMousePicking());
+        m_scene->ScenePickingTest(m_input->GetMousePicking());
         m_input->SolvePicking();
     }
 
     m_cloth->UpdateState(deltaTime);
-    m_scene->UpdateState(pressed, m_input->GetMouseDirection(), m_camera->World);
+    m_scene->UpdateState(pressed, m_input->GetMouseDirection(),
+        m_camera->World(), m_camera->InverseProjection());
 
     m_scene->SolveClothCollision(*m_solver);
     m_solver->SolveSelfCollision();

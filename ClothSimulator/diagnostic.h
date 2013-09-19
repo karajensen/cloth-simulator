@@ -139,7 +139,7 @@ private:
     struct DiagLine
     {
         D3DXVECTOR3 color;  ///< Colour of the object
-        Transform world;    ///< Matrix for line
+        Matrix world;       ///< Matrix for line
         bool draw;          ///< Whether to render the line
     };
 

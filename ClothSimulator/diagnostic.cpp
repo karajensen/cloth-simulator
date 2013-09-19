@@ -111,7 +111,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
         LPD3DXEFFECT pEffect(sm_diag->m_shader->GetEffect());
         pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
-        auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Transform& world)
+        auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Matrix& world)
         {
             D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
             pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
