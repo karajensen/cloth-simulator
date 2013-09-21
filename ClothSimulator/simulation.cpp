@@ -74,6 +74,7 @@ void Simulation::Update()
 
     m_input->UpdateInput();
     m_camera->UpdateCamera();
+    m_light->UpdateLights();
 
     if (m_input->IsMouseClicked())
     {

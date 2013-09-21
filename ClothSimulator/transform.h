@@ -54,10 +54,11 @@ public:
     void Scale(float x, float y, float z);
 
     /**
-    * Rotates the matrix 
-    * @param x/y/z The amount to rotate each component
+    * Rotates the matrix around an axis
+    * @param radians The angle in radians to rotate around
+    * @param axis The axis to rotate around
     */
-    void Rotate(float x, float y, float z);
+    void RotateAroundAxis(float radians, D3DXVECTOR3 axis);
 
     /**
     * Explicitly set the transform to a scale

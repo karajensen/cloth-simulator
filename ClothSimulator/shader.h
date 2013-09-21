@@ -145,7 +145,6 @@ namespace DxConstant
     static const D3DXHANDLE World("World");
     static const D3DXHANDLE AmbientColor("AmbientColor");
     static const D3DXHANDLE DiffuseColor("DiffuseColor");
-    static const D3DXHANDLE SpecularColor("SpecularIntensity");
     static const D3DXHANDLE AmbientIntensity("AmbientIntensity");
     static const D3DXHANDLE DiffuseIntensity("DiffuseIntensity");
     static const D3DXHANDLE SpecularIntensity("SpecularIntensity");

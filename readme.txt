@@ -1,10 +1,10 @@
 
-• Fix rotate
+
 • GJK collision detection
 • Octree spacial partitioning
 
 IDEAS:
-• Shadows
+• Shadows/SSAO
 • Switching type of cloth solver
 
 =================================================================

@@ -38,11 +38,10 @@ public:
 
     /**
     * Set the specular colour of the light
-    * @param color Specular color of light from 0-1
     * @param intensity The intensity of the specular colour
     * @param size The size of the specular highlight
     */
-    void SetSpecular(const D3DXVECTOR3& color, float intensity, float size);
+    void SetSpecular(float intensity, float size);
 
     /**
     * Set the Attenuation of the light
@@ -59,6 +58,11 @@ public:
     void SetPosition(const D3DXVECTOR3& position);
 
     /**
+    * @return the position of the light
+    */
+    const D3DXVECTOR3& GetPosition() const;
+
+    /**
     * Send all parameters to the given shader
     * @param shader The shader to send to
     */
@@ -73,7 +77,6 @@ private:
 
     D3DXVECTOR3 m_position;    ///< Position of the light
     D3DXVECTOR3 m_diffuse;     ///< Diffuse color of light from 0-1
-    D3DXVECTOR3 m_specular;    ///< Specular color of light from 0-1
     D3DXVECTOR3 m_ambient;     ///< Ambient color of light from 0-1
     float m_attenuation0;      ///< Constant attenuation
     float m_attenuation1;      ///< Linear attenuation
@@ -106,6 +109,11 @@ public:
     * Constructor
     */
     LightManager();
+
+    /**
+    * Updates the lights
+    */
+    void UpdateLights();
 
     /**
     * Initialise all lighting

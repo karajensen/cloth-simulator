@@ -119,5 +119,5 @@ void Camera::CreateProjMatrix()
         CAMERA_NEAR, //the near view-plane
         CAMERA_FAR); //the far view-plane
 
-    D3DXMatrixInverse(m_invProjection.MatrixPtr(), NULL, &m_projection.GetMatrix());
+    D3DXMatrixInverse(m_invProjection.MatrixPtr(), nullptr, &m_projection.GetMatrix());
 }

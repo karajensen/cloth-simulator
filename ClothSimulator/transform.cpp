@@ -68,39 +68,11 @@ void Transform::Scale(float x, float y, float z)
     Update(true);
 }
 
-void Transform::Rotate(float x, float y, float z)
+void Transform::RotateAroundAxis(float radians, D3DXVECTOR3 axis)
 {
     D3DXMATRIX rotation;
-    D3DXMatrixIdentity(&rotation);
-
-    if(x != 0.0f)
-    {
-        float c = cos(x);
-        float s = sin(x);
-        rotation._22 = c;
-        rotation._32 = s;
-        rotation._23 = -s;
-        rotation._33 = c;
-    }
-    else if(y != 0.0f)
-    {
-        float c = cos(y);
-        float s = sin(y);
-        rotation._11 = c;
-        rotation._13 = s;
-        rotation._31 = -s;
-        rotation._33 = c;
-    }
-    else if(z != 0.0f)
-    {
-        float c = cos(z);
-        float s = sin(z);
-        rotation._11 = c;
-        rotation._21 = s;
-        rotation._12 = -s;
-        rotation._22 = c;
-    }
-
+    D3DXVec3Normalize(&axis, &axis);
+    D3DXMatrixRotationAxis(&rotation, &axis, radians);
     m_rotation *= rotation;
     Update(true);
 }
