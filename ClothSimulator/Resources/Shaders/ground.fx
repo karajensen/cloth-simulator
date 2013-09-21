@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - main.fx
+// Kara Jensen - mail@karajensen.com - ground.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
 float4x4 World                 :World;
@@ -11,17 +11,16 @@ float AmbientIntensity;
 float3 AmbientColor;
 float DiffuseIntensity;     
 float3 DiffuseColor;
-float3 VertexColor;
 
 Texture DiffuseTexture;
 sampler ColorSampler = sampler_state 
 { 
     texture = <DiffuseTexture>; 
-    magfilter = POINT; 
-    minfilter = POINT; 
-    mipfilter = POINT; 
-    AddressU = CLAMP; 
-    AddressV = CLAMP; 
+    magfilter = ANISOTROPIC; 
+    minfilter = ANISOTROPIC; 
+    mipfilter = ANISOTROPIC; 
+    AddressU = WRAP; 
+    AddressV = WRAP; 
 };
 
 struct VS_OUTPUT
@@ -53,15 +52,14 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     input.LightVector = normalize(input.LightVector);
     input.Normal = normalize(input.Normal);
     
-    // bring diffuse into range of 0.2->1.0
+    // bring diffuse into range of 0.3->1.0
     float inner = 0.3;
     float3 diffuse = ((dot(input.LightVector, input.Normal)
         +1.0)*((1.0-inner)/(2.0)))+inner;
 
     diffuse *= DiffuseIntensity * DiffuseColor;
     float3 ambient = AmbientIntensity * AmbientColor;
-
-	float3 color = saturate(tex2D(ColorSampler, input.UV).xyz * VertexColor);
+	float3 color = saturate(tex2D(ColorSampler, input.UV).xyz);
 
     return float4(color * (diffuse + ambient), 1.0);
 }

@@ -242,8 +242,8 @@ void Cloth::CreateCloth(int rows, float spacing)
     }
 
     if(FAILED(D3DXCreateMesh(numOfFaces, m_vertexData.size(),
-                             D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
-                             VertexDec, m_d3ddev, &m_data->mesh)))
+        D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
+        VertexDec, m_d3ddev, &m_data->mesh)))
     {
         m_data->mesh = nullptr;
         Diagnostic::ShowMessage("Cloth Mesh creation failed");
@@ -408,28 +408,26 @@ Vertex& Cloth::GetVertex(int row, int col)
 void Cloth::UpdateNormals()
 {
     //reset normals
+    D3DXVECTOR3 normal(0.0f, 0.0f, 0.0f);
     for(int i = 0; i < m_vertexCount; ++i)
     {
-        m_vertexData[i].normal.x = 0.0;
-        m_vertexData[i].normal.y = 0.0;
-        m_vertexData[i].normal.z = 0.0;
+        m_vertexData[i].normal = normal;
     }
 
     //create smooth per particle normals
-    D3DXVECTOR3 normal;
     for(int x = 0; x < (m_vertexWidth-1); ++x)
     {
         for(int y = 0; y < (m_vertexLength-1); ++y)
         {
             normal = CalculateTriNormal(GetParticle(x+1,y),GetParticle(x,y),GetParticle(x,y+1));
             GetVertex(x+1,y).normal += normal;
-            GetVertex(x,y).normal = GetVertex(x,y).normal + normal;
-            GetVertex(x,y+1).normal = GetVertex(x,y+1).normal + normal;
+            GetVertex(x,y).normal += normal;
+            GetVertex(x,y+1).normal += normal;
 
             normal = CalculateTriNormal(GetParticle(x+1,y+1),GetParticle(x+1,y),GetParticle(x,y+1));
-            GetVertex(x+1,y+1).normal = GetVertex(x+1,y+1).normal + normal;
-            GetVertex(x+1,y).normal = GetVertex(x+1,y).normal + normal;
-            GetVertex(x,y+1).normal = GetVertex(x,y+1).normal + normal;
+            GetVertex(x+1,y+1).normal += normal;
+            GetVertex(x+1,y).normal += normal;
+            GetVertex(x,y+1).normal += normal;
         }
     }
 }
@@ -482,7 +480,7 @@ D3DXVECTOR3 Cloth::CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& 
     D3DXVECTOR3 normal;
     D3DXVECTOR3 p2p1(p2->GetPosition()-p1->GetPosition());
     D3DXVECTOR3 p3p1(p3->GetPosition()-p1->GetPosition());
-    D3DXVec3Cross(&normal, &p2p1, &p3p1);
+    D3DXVec3Cross(&normal, &p3p1, &p2p1);
     D3DXVec3Normalize(&normal, &normal);
     return normal;
 }

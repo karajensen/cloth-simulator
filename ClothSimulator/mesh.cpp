@@ -59,10 +59,10 @@ Mesh::~Mesh()
 {
 }
 
-bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions)
+bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions, int miplevels)
 {
     if(FAILED(D3DXCreateTextureFromFileEx(d3ddev, filename.c_str(), dimensions, 
-        dimensions, 6, NULL, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
+        dimensions, miplevels, NULL, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
         D3DX_DEFAULT, NULL, NULL, NULL, &m_data->texture)))
     {
         Diagnostic::ShowMessage("Cannot create texture " + filename);

@@ -63,8 +63,7 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     //Brings into range 0-1, abs to prevent one side of cloth being darker
     float3 diffuse = (abs(dot(input.LightVector, input.Normal))+1)*0.5;
 
-    //Negate half vector to get highlights on top side of cloth
-    float3 halfVector = -normalize(input.LightVector + input.CameraVector);                                         
+    float3 halfVector = normalize(input.LightVector + input.CameraVector);                                         
     float3 specular = SpecularIntensity*(pow(saturate(dot(input.Normal.rgb, halfVector)), SpecularSize));
     
     float4 color = tex2D(ColorSampler, input.UV);

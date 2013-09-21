@@ -172,9 +172,10 @@ public:
     * @param d3ddev the directX device
     * @param filename the filename for the texture
     * @param dimensions the size of the texture
+    * @param miplevels the number of mipmap levels to generate
     * @return whether loading was successful
     */
-    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions);
+    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions, int miplevels);
 
     /**
     * @return whether the mesh has collision geometry attached to it

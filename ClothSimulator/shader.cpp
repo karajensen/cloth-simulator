@@ -56,6 +56,7 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
     success = (success ? m_shaders[CLOTH_SHADER]->Load(d3ddev,ShaderFolder+"cloth.fx") : false);
     success = (success ? m_shaders[BOUNDS_SHADER]->Load(d3ddev,ShaderFolder+"bounds.fx") : false);
     success = (success ? m_shaders[TOOL_SHADER]->Load(d3ddev,ShaderFolder+"tool.fx") : false);
+    success = (success ? m_shaders[GROUND_SHADER]->Load(d3ddev,ShaderFolder+"ground.fx") : false);
     return success;
 }
 

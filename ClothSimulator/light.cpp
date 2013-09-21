@@ -89,10 +89,11 @@ void Light::SendLightToShader(LPD3DXEFFECT shader)
 bool LightManager::Inititalise()
 {
     m_lights.resize(MAX_LIGHTS);
-    std::generate(m_lights.begin(), m_lights.end(), [&](){ return LightManager::LightPtr(new Light()); });
+    std::generate(m_lights.begin(), m_lights.end(),
+        [&](){ return LightManager::LightPtr(new Light()); });
 
     m_lights[MAIN_LIGHT]->SetIndex(MAIN_LIGHT);
-    m_lights[MAIN_LIGHT]->SetPosition(D3DXVECTOR3(-10.0f,6.5f,-18.0f));
+    m_lights[MAIN_LIGHT]->SetPosition(D3DXVECTOR3(-10.0f,10.0f,-18.0f));
     m_lights[MAIN_LIGHT]->SetAmbient(D3DXVECTOR3(0.94f,0.94f,1.0f),0.05f);
     m_lights[MAIN_LIGHT]->SetDiffuse(D3DXVECTOR3(0.94f,0.94f,1.0f),0.7f);
     return true;

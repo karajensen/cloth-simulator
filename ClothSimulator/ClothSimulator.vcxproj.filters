@@ -161,4 +161,9 @@
   <ItemGroup>
     <Text Include="..\readme.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resources\Shaders\ground.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

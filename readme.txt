@@ -1,11 +1,12 @@
 
+• Texture lines on box/cylinder
 
+
+
+• Upgrade to directx11
+• Cloth tesselation
 • GJK collision detection
 • Octree spacial partitioning
-
-IDEAS:
-• Shadows/SSAO
-• Switching type of cloth solver
 
 =================================================================
 CLOTH SIMULATOR
