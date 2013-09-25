@@ -158,23 +158,23 @@ void Collision::Draw(const Matrix& projection, const Matrix& view)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
-        if(Diagnostic::AllowDiagnostics())
+        if(Diagnostic::AllowDiagnostics(Diagnostic::GENERAL))
         {
             const float radius = 0.2f;
             if(m_geometry->shape == BOX)
             {
-                Diagnostic::UpdateSphere(StringCast(this) + "MinBounds", 
-                    Diagnostic::GREEN, m_data.minBounds, radius);
+                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this)
+                    + "MinBounds", Diagnostic::GREEN, m_data.minBounds, radius);
                 
-                Diagnostic::UpdateSphere(StringCast(this) + "MaxBounds", 
-                    Diagnostic::GREEN, m_data.maxBounds, radius);
+                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
+                    + "MaxBounds", Diagnostic::GREEN, m_data.maxBounds, radius);
             }
             else if(m_geometry->shape == SPHERE)
             {
                 D3DXVECTOR3 centerToRadius = GetPosition();
                 centerToRadius.y += m_data.localWorld.GetScale().x;
-                Diagnostic::UpdateSphere(StringCast(this) + "Radius", 
-                    Diagnostic::GREEN, centerToRadius, radius);
+                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
+                    + "Radius", Diagnostic::GREEN, centerToRadius, radius);
             }
             else if(m_geometry->shape == CYLINDER)
             {
@@ -189,10 +189,11 @@ void Collision::Draw(const Matrix& projection, const Matrix& view)
                 end2 -= m_parent.Forward()*halflength;
                 end2 -= m_parent.Right()*scale.x;
 
-                Diagnostic::UpdateSphere(StringCast(this) + "End1", 
-                    Diagnostic::GREEN, end1, radius);
-                Diagnostic::UpdateSphere(StringCast(this) + "End2", 
-                    Diagnostic::GREEN, end2, radius);
+                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
+                    + "End1", Diagnostic::GREEN, end1, radius);
+
+                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
+                    + "End2", Diagnostic::GREEN, end2, radius);
             }
         }
 

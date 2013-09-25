@@ -206,22 +206,11 @@ private:
     ParticlePtr& GetParticle(int row, int col);
 
     /**
-    * @param row/col The row and column of the required vertex
-    * @return the vertex in grid at row/col
-    */
-    Vertex& GetVertex(int row, int col);
-
-    /**
-    * Updates the normals of the cloth for smooth shading
-    */
-    void UpdateNormals();
-
-    /**
     * Creates a normal from the given three particles
     * @param p1/p2/p3 The three vertices to generate the normal
     * @return the generated normal
     */
-    D3DXVECTOR3 CalculateTriNormal(const ParticlePtr& p1, const ParticlePtr& p2, const ParticlePtr& p3);
+    D3DXVECTOR3 CalculateNormal(const D3DXVECTOR3& p1, const D3DXVECTOR3& p2, const D3DXVECTOR3& p3);
     
     /**
     * Adds a force to the given particle
@@ -236,6 +225,11 @@ private:
     void SetParticleColor(const ParticlePtr& particle);
 
     /**
+    * Applies smoothing to the final mesh
+    */
+    void SmoothCloth();
+
+    /**
     * Prevent copying
     */
     Cloth(const Cloth&);
@@ -247,9 +241,9 @@ private:
     float m_damping;            ///< Damping to apply to movement of particles
     int m_springCount;          ///< Number of springs in cloth
     int m_springIterations;     ///< Number of solver iterations per tick
-    int m_vertexLength;         ///< Length between particles in the cloth
-    int m_vertexWidth;          ///< Width between particles in the cloth
-    int m_vertexCount;          ///< Overall number of particles in the cloth
+    int m_particleLength;       ///< Number of particles in a row/column
+    int m_particleCount;        ///< Overall number of particles in the cloth
+    int m_quadVertices;         ///< Number of vertices that center each quad
     bool m_simulation;          ///< Whether the cloth is currently simulating
     bool m_drawVisualParticles; ///< Whether particle visual models are drawn
     bool m_drawColParticles;    ///< Whether particle collision models are drawn

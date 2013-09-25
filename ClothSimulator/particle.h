@@ -26,11 +26,12 @@ public:
     /**
     * Create the particle
     * @param position The intial position of the particle
+    * @param uv The uvs for the particle
     * @param index The internal index of the particle
     * @param geometry The collision geometry for the particle
     * @param data The collision data for the particle
     */
-    void Initialise(const D3DXVECTOR3& position, unsigned int index,
+    void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
          std::shared_ptr<Collision::Geometry> geometry, const Collision::Data& data);
 
     /**
@@ -105,6 +106,11 @@ public:
     const D3DXVECTOR3& GetPosition() const { return m_position; }
 
     /**
+    * @return the uvs for the particle
+    */
+    const D3DXVECTOR2& GetUVs() const { return m_uvs; }
+
+    /**
     * Update the particles position
     * @param damping The damping to apply to the movement
     * @param timestepSqr Delta time squared
@@ -134,6 +140,7 @@ private:
     D3DXVECTOR3 m_oldPosition;       ///< Save position from last update
     D3DXVECTOR3 m_initialPosition;   ///< Initial position of particle 
     D3DXVECTOR3 m_position;          ///< Current position in world coordinates of particle
+    D3DXVECTOR2 m_uvs;               ///< Texture uvs for the particle
     Transform m_transform;           ///< Current transform of particle
     bool m_selected;                 ///< Whether particle is selected or not
     bool m_pinned;                   ///< Whether particle is pinned or not

@@ -1,10 +1,6 @@
 
-• Texture lines on box/cylinder
+• Fix smoothing code/buffer update 
 
-
-
-• Upgrade to directx11
-• Cloth tesselation
 • GJK collision detection
 • Octree spacial partitioning
 
@@ -28,6 +24,8 @@ WASDQE:         Control the cloth in handle mode
 BACKSPACE:      Delete currently selected object
 
 0:              Toggle text diagnostics
-9:              Toggle object diagnostics
-8:              Toggle collision models
+9:              Toggle collision models
+8:              Toggle general diagnostics
+7:              Toggle cloth diagnostics
+6:              Toggle octree diagnostics
 RALT-CLICK:     Allows selection of particle. Diagnostics must be toggled

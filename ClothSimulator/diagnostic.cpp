@@ -9,14 +9,14 @@
 
 namespace
 {
-    const int TEXT_BORDERX = 60;            ///< Border between diagnostic text and edge of screen
-    const int TEXT_BORDERY = 10;            ///< Border between diagnostic text and edge of screen
-    const int TEXT_SIZE = 16;               ///< Text Character size
-    const int TEXT_WEIGHT = 600;            ///< Boldness of text
-    const int MESH_SEGMENTS = 8;            ///< Quality of the diagnostic mesh
-    const int VARIADIC_BUFFER_SIZE = 32;    ///< Size of the character buffer for variadic text calls
-    const float CYLINDER_SIZE = 0.05f;      ///< Radius of the cylinder
-    D3DXVECTOR3 ZAXIS(0.0f, 0.0f, 1.0f);    ///< World z axis
+    const int TEXT_BORDERX = 60;          ///< Border between diagnostic text and edge of screen
+    const int TEXT_BORDERY = 10;          ///< Border between diagnostic text and edge of screen
+    const int TEXT_SIZE = 16;             ///< Text Character size
+    const int TEXT_WEIGHT = 600;          ///< Boldness of text
+    const int MESH_SEGMENTS = 8;          ///< Quality of the diagnostic mesh
+    const int VARIADIC_BUFFER_SIZE = 32;  ///< Size of the character buffer for variadic text calls
+    const float CYLINDER_SIZE = 0.05f;    ///< Radius of the cylinder
+    D3DXVECTOR3 ZAXIS(0.0f, 0.0f, 1.0f);  ///< World z axis
 }
 
 std::shared_ptr<Diagnostic> Diagnostic::sm_diag = nullptr;
@@ -26,17 +26,20 @@ Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsS
     m_sphere(nullptr),
     m_cylinder(nullptr),
     m_shader(boundsShader),
-    m_showText(false),
-    m_showDiagnostics(false)
+    m_showText(false)
 {
     D3DXCreateSphere(d3ddev, 1.0f, MESH_SEGMENTS, MESH_SEGMENTS, &m_sphere, NULL);
-    D3DXCreateCylinder(d3ddev, CYLINDER_SIZE, CYLINDER_SIZE, 1.0f, MESH_SEGMENTS, 1, &m_cylinder, NULL);
+
+    D3DXCreateCylinder(d3ddev, CYLINDER_SIZE, CYLINDER_SIZE,
+        1.0f, MESH_SEGMENTS, 1, &m_cylinder, NULL);
 
     m_colourmap.insert(ColorMap::value_type(RED, D3DXVECTOR3(1.0f, 0.0f, 0.0f)));
     m_colourmap.insert(ColorMap::value_type(GREEN, D3DXVECTOR3(0.0f, 1.0f, 0.0f)));
     m_colourmap.insert(ColorMap::value_type(BLUE, D3DXVECTOR3(0.0f, 0.0f, 1.0f)));
     m_colourmap.insert(ColorMap::value_type(WHITE, D3DXVECTOR3(1.0f, 1.0f, 1.0f)));
     m_colourmap.insert(ColorMap::value_type(YELLOW, D3DXVECTOR3(1.0f, 1.0f, 0.0f)));
+
+    m_groupvector.resize(MAX_GROUPS);
 
     const int border = 10;
     m_text.reset(new Text());
@@ -45,6 +48,11 @@ Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsS
     {
         m_text = nullptr;
     }
+}
+
+Diagnostic::DiagGroup::DiagGroup() :
+    render(false)
+{
 }
 
 Diagnostic::~Diagnostic()
@@ -64,14 +72,14 @@ void Diagnostic::ToggleText()
     sm_diag->m_showText = !sm_diag->m_showText;
 }
 
-void Diagnostic::ToggleDiagnostics()
+void Diagnostic::ToggleDiagnostics(Group group)
 {
-    sm_diag->m_showDiagnostics = !sm_diag->m_showDiagnostics;
+    sm_diag->m_groupvector[group].render = !sm_diag->m_groupvector[group].render;
 }
 
-bool Diagnostic::AllowDiagnostics()
+bool Diagnostic::AllowDiagnostics(Group group)
 {
-    return sm_diag->m_showDiagnostics;
+    return sm_diag->m_groupvector[group].render;
 }
 
 bool Diagnostic::AllowText()
@@ -106,77 +114,85 @@ void Diagnostic::DrawAllText()
 
 void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 {
-    if(sm_diag->m_showDiagnostics)
+    for(GroupVector::iterator gitr = sm_diag->m_groupvector.begin(); 
+        gitr != sm_diag->m_groupvector.end(); ++gitr)
     {
-        LPD3DXEFFECT pEffect(sm_diag->m_shader->GetEffect());
-        pEffect->SetTechnique(DxConstant::DefaultTechnique);
-
-        auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Matrix& world)
+        if(gitr->render)
         {
-            D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-            pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-            pEffect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
+            LPD3DXEFFECT pEffect(sm_diag->m_shader->GetEffect());
+            pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
-            UINT nPasses = 0;
-            pEffect->Begin(&nPasses, 0);
-            for(UINT iPass = 0; iPass < nPasses; iPass++)
+            auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Matrix& world)
             {
-                pEffect->BeginPass(iPass);
-                mesh->DrawSubset(0);
-                pEffect->EndPass();
+                D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+                pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
+                pEffect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
+
+                UINT nPasses = 0;
+                pEffect->Begin(&nPasses, 0);
+                for(UINT iPass = 0; iPass < nPasses; iPass++)
+                {
+                    pEffect->BeginPass(iPass);
+                    mesh->DrawSubset(0);
+                    pEffect->EndPass();
+                }
+                pEffect->End();
+            };
+
+            for(SphereMap::iterator sitr = gitr->spheremap.begin(); sitr != gitr->spheremap.end(); ++sitr)
+            {
+                if(sitr->second.draw)
+                {
+                    renderObject(sm_diag->m_sphere, sitr->second.color, sitr->second.world);
+                    sitr->second.draw = false;
+                }
             }
-            pEffect->End();
-        };
 
-        for(SphereMap::iterator it = sm_diag->m_spheremap.begin(); it != sm_diag->m_spheremap.end(); ++it)
-        {
-            if(it->second.draw)
+            for(LineMap::iterator litr = gitr->linemap.begin(); litr != gitr->linemap.end(); ++litr)
             {
-                renderObject(sm_diag->m_sphere, it->second.color, it->second.world);
-                it->second.draw = false;
-            }
-        }
-
-        for(LineMap::iterator it = sm_diag->m_linemap.begin(); it != sm_diag->m_linemap.end(); ++it)
-        {
-            if(it->second.draw)
-            {
-                renderObject(sm_diag->m_cylinder, it->second.color, it->second.world);
-                it->second.draw = false;
+                if(litr->second.draw)
+                {
+                    renderObject(sm_diag->m_cylinder, litr->second.color, litr->second.world);
+                    litr->second.draw = false;
+                }
             }
         }
     }
 }
 
-void Diagnostic::UpdateSphere(const std::string& id, 
+void Diagnostic::UpdateSphere(Group group, const std::string& id, 
     Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
 {
-    if(sm_diag->m_spheremap.find(id) == sm_diag->m_spheremap.end())
+    SphereMap& spheremap = sm_diag->m_groupvector[group].spheremap;
+
+    if(spheremap.find(id) == spheremap.end())
     {
-        sm_diag->m_spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
+        spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
     }
-    sm_diag->m_spheremap[id].color = sm_diag->m_colourmap[color];
-    sm_diag->m_spheremap[id].draw = true;
-    sm_diag->m_spheremap[id].world.MakeIdentity();
-    sm_diag->m_spheremap[id].world.SetScale(radius);
-    sm_diag->m_spheremap[id].world.SetPosition(position);
+    spheremap[id].color = sm_diag->m_colourmap[color];
+    spheremap[id].draw = true;
+    spheremap[id].world.MakeIdentity();
+    spheremap[id].world.SetScale(radius);
+    spheremap[id].world.SetPosition(position);
 }
 
-void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color, 
+void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colour color, 
     const D3DXVECTOR3& start, const D3DXVECTOR3& end)
 {
-    if(sm_diag->m_linemap.find(id) == sm_diag->m_linemap.end())
+    LineMap& linemap = sm_diag->m_groupvector[group].linemap;
+
+    if(linemap.find(id) == linemap.end())
     {
-        sm_diag->m_linemap.insert(LineMap::value_type(id,DiagLine())); 
+        linemap.insert(LineMap::value_type(id,DiagLine())); 
     }
-    sm_diag->m_linemap[id].color = sm_diag->m_colourmap[color];
+    linemap[id].color = sm_diag->m_colourmap[color];
 
     D3DXVECTOR3 forward = end-start;
     D3DXVECTOR3 middle = start + (forward*0.5f);
     float size = D3DXVec3Length(&forward);
     forward /= size;
 
-    sm_diag->m_linemap[id].world.MakeIdentity();
+    linemap[id].world.MakeIdentity();
     if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > 0)
     {
         D3DXVECTOR3 up;
@@ -188,10 +204,10 @@ void Diagnostic::UpdateLine(const std::string& id, Diagnostic::Colour color,
         D3DXVec3Normalize(&right, &right);
 
         forward *= size;
-        sm_diag->m_linemap[id].world.SetAxis(up, forward, right);
+        linemap[id].world.SetAxis(up, forward, right);
     }
-    sm_diag->m_linemap[id].world.SetPosition(middle);
-    sm_diag->m_linemap[id].draw = true;
+    linemap[id].world.SetPosition(middle);
+    linemap[id].draw = true;
 }
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, const std::string& text)

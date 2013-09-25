@@ -68,7 +68,7 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     
     float4 color = tex2D(ColorSampler, input.UV);
     color *= 0.04; // reduce brightness of grid texture
-    
+
     return float4(color.xyz + (diffuse * DiffuseIntensity * DiffuseColor) 
         + (AmbientIntensity * AmbientColor) + specular, 1.0);
 }

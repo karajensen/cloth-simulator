@@ -243,8 +243,14 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     m_input->SetKeyCallback(DIK_0, false, 
         std::bind(&Diagnostic::ToggleText));
 
-    m_input->SetKeyCallback(DIK_9, false, 
-        std::bind(&Diagnostic::ToggleDiagnostics));
+    m_input->SetKeyCallback(DIK_8, false, 
+        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::GENERAL));
+
+    m_input->SetKeyCallback(DIK_7, false, 
+        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::CLOTH));
+
+    m_input->SetKeyCallback(DIK_6, false, 
+        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::OCTREE));    
 
     // Allow diagnostic selection of particles
     m_input->SetKeyCallback(DIK_RALT, true, 
@@ -252,7 +258,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
 
     // Toggle mesh collision model diagnostics
-    m_input->SetKeyCallback(DIK_8, false, [&]()
+    m_input->SetKeyCallback(DIK_9, false, [&]()
     {
         this->m_drawCollisions = !this->m_drawCollisions;
         m_cloth->SetCollisionVisibility(this->m_drawCollisions);
