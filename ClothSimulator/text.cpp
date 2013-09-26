@@ -30,7 +30,7 @@ bool Text::Load(LPDIRECT3DDEVICE9 d3ddev, bool italic, int weight,
     if(FAILED(D3DXCreateFont(d3ddev, size, 0, weight, 1, italic, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
         ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, LPSTR("Tahoma"), &m_font)))
     {
-        Diagnostic::ShowMessage("Text failed to load");
+        ShowMessageBox("Text failed to load");
         return false;
     }
     SetRect(&m_textbox,xtl,ytl,xbr,ybr);

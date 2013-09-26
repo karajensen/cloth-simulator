@@ -4,11 +4,11 @@
 
 #pragma once
 #include "common.h"
+#include "callbacks.h"
 
 class Mesh;
 class ShaderManager;
 class Picking;
-struct RenderCallbacks;
 
 /**
 * Tools for manipulating selected objects
@@ -34,10 +34,9 @@ public:
 
     /**
     * Constructor
-    * @param d3ddev The directx device
-    * @param callbacks The callbacks for rendering a mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Manipulator(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
+    explicit Manipulator(EnginePtr engine);
 
     /**
     * Renders the currently selected tool
@@ -68,9 +67,11 @@ public:
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
     * @param pressed Whether the mouse is pressed or not
+    * @param deltatime Delta time for the simulation
     */
     void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
-        const Matrix& world, const Matrix& invProjection, bool pressed);
+        const Matrix& world, const Matrix& invProjection,
+        bool pressed, float deltatime);
 
 private:
 
@@ -90,13 +91,11 @@ private:
     {
         /**
         * Constructor
-        * @param d3ddev The directx device
         * @param name The name of the tool
         * @param index The index of the tool
-        * @param callbacks The callbacks for rendering a mesh
+        * @param engine Callbacks from the rendering engine
         */
-        Tool(LPDIRECT3DDEVICE9 d3ddev, const std::string& name, 
-            int index, const RenderCallbacks& callbacks);
+        Tool(const std::string& name, int index, EnginePtr engine);
 
         std::vector<MeshPtr> axis; ///< meshes for the tool
     };
@@ -157,6 +156,7 @@ private:
     */
     void AnimateMesh(MeshPtr mesh, float value);
 
+    EnginePtr m_engine;                         ///< Callbacks for the rendering engine
     std::vector<std::shared_ptr<Tool>> m_tools; ///< all usable tools
     ToolType m_selectedTool;                    ///< Currently selected tool
     ToolAxis m_selectedAxis;                    ///< currently selected axis

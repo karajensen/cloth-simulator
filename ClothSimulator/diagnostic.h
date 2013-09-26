@@ -41,40 +41,44 @@ public:
     };
 
     /**
+    * Constructor
+    */
+    Diagnostic();
+
+    /**
+    * Destructor
+    */
+    ~Diagnostic();
+
+    /**
     * Initialise the use of diagnostics 
     * @param d3ddev The directX device
     * @param boundsShader The shader to apply to diagnostics meshes
     */
-    static void Initialise(LPDIRECT3DDEVICE9 d3ddev, 
+    void Initialise(LPDIRECT3DDEVICE9 d3ddev, 
         std::shared_ptr<Shader> boundsShader);
-
-    /**
-    * Shows a popup box with a message
-    * @param message The message to show
-    */
-    static void ShowMessage(const std::string& message);
 
     /**
     * Toggles whether diagnostics are on
     * @param the diagnostic group to toggle
     */
-    static void ToggleDiagnostics(Group group);
+    void ToggleDiagnostics(Group group);
 
     /**
     * @return whether diagnostics are on
     * @param the diagnostic group to query
     */
-    static bool AllowDiagnostics(Group group);
+    bool AllowDiagnostics(Group group);
 
     /**
     * Toggles whether text diagnostics are on
     */
-    static void ToggleText();
+    void ToggleText();
 
     /**
     * @return whether text diagnostics are on
     */
-    static bool AllowText();
+    bool AllowText();
 
     /**
     * Adds a sphere for diagnostic rendering. 
@@ -85,7 +89,7 @@ public:
     * @param position The poition in world coordinates
     * @param radius The radius of the sphere
     */
-    static void UpdateSphere(Group group, const std::string& id, 
+    void UpdateSphere(Group group, const std::string& id, 
         Colour color, const D3DXVECTOR3& position, float radius);
 
     /**
@@ -95,7 +99,7 @@ public:
     * @param color The colour of the text
     * @param text The text to draw
     */
-    static void UpdateText(const std::string& id, Colour color, const std::string& text);
+    void UpdateText(const std::string& id, Colour color, const std::string& text);
 
     /**
     * Adds text for diagnostic rendering.
@@ -104,7 +108,7 @@ public:
     * @param color The colour of the text
     * @param increaseCounter Whether to increase the counter or not
     */
-    static void UpdateText(const std::string& id, Colour color, bool increaseCounter);
+    void UpdateText(const std::string& id, Colour color, bool increaseCounter);
 
     /**
     * Adds a cylinder line for diagnostic rendering.
@@ -115,7 +119,7 @@ public:
     * @param start The start position in world coordinates
     * @param end The end position in world coordinates
     */
-    static void UpdateLine(Group group, const std::string& id, 
+    void UpdateLine(Group group, const std::string& id, 
         Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
 
     /**
@@ -123,26 +127,14 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    static void DrawAllObjects(const Matrix& projection, const Matrix& view);
+    void DrawAllObjects(const Matrix& projection, const Matrix& view);
 
     /**
     * Draws all 2D diagnostics
     */
-    static void DrawAllText();
-
-    /**
-    * Destructor
-    */
-    ~Diagnostic();
+    void DrawAllText();
 
 private: 
-
-    /**
-    * Constructor
-    * @param d3ddev The directX device
-    * @param boundsShader The shader to render diagnostics
-    */
-    Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader);
 
     /**
     * Prevent copying
@@ -208,6 +200,4 @@ private:
     std::shared_ptr<Text> m_text;     ///< Diagnostic text
     std::shared_ptr<Shader> m_shader; ///< Global diagnostic mesh shader
     bool m_showText;                  ///< Whether text diagnostics are visible or not
-
-    static std::shared_ptr<Diagnostic> sm_diag; ///< Diagnostic singleton pointer
 };

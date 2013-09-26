@@ -13,7 +13,6 @@
 #include <sstream>
 #include <memory>
 #include "transform.h"
-#include "diagnostic.h"
 
 static const int NO_INDEX = -1;
 static const int WINDOW_WIDTH = 800;
@@ -49,6 +48,14 @@ typedef std::stringstream sstream;
 template<typename T> std::string StringCast(const T& value)
 {
     return static_cast<sstream&>(sstream() << value).str();
+}
+
+/**
+* Shows a popup message
+*/
+inline void ShowMessageBox(const std::string& message)
+{
+    MessageBox(NULL, message.c_str(), TEXT("ERROR"), MB_OK);
 }
 
 /**

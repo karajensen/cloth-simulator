@@ -9,8 +9,8 @@
 #include "input.h"
 #include "light.h"
 
-Mesh::Mesh(const RenderCallbacks& callbacks):
-    m_callbacks(callbacks),
+Mesh::Mesh(EnginePtr engine):
+    m_engine(engine),
     m_color(1.0f, 1.0f, 1.0f),
     m_initialcolor(1.0f, 1.0f, 1.0f),
     m_selectedcolor(0.7f, 0.7f, 1.0f),
@@ -23,9 +23,8 @@ Mesh::Mesh(const RenderCallbacks& callbacks):
     m_reversing(false),
     m_speed(0.1f)
 {
-    auto boundshader = callbacks.getShader(ShaderManager::BOUNDS_SHADER);
     m_data.reset(new MeshData());
-    m_collision.reset(new Collision(*this, boundshader));
+    m_collision.reset(new Collision(*this, m_engine));
 
     Transform::UpdateFn fullFn =
         std::bind(&Collision::FullUpdate, m_collision);
@@ -65,7 +64,7 @@ bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, in
         dimensions, miplevels, NULL, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
         D3DX_DEFAULT, NULL, NULL, NULL, &m_data->texture)))
     {
-        Diagnostic::ShowMessage("Cannot create texture " + filename);
+        ShowMessageBox("Cannot create texture " + filename);
         return false;
     }
     return true;
@@ -82,7 +81,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
     Assimpmesh mesh;
     if(!mesh.Initialise(filename, errorBuffer))
     {
-        Diagnostic::ShowMessage(errorBuffer);
+        ShowMessageBox(errorBuffer);
         return false;
     }
 
@@ -130,7 +129,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
                              d3ddev,
                              &m_data->mesh)))
     {
-        Diagnostic::ShowMessage("Mesh " + filename + " creation failed");
+        ShowMessageBox("Mesh " + filename + " creation failed");
         return false;
     }
 
@@ -138,7 +137,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
     Vertex* pVertexBuffer;
     if(FAILED( m_data->mesh->LockVertexBuffer(0, (void**)&pVertexBuffer)))
     {
-        Diagnostic::ShowMessage(filename + " Vertex buffer lock failed");
+        ShowMessageBox(filename + " Vertex buffer lock failed");
         return false;
     }
     #pragma warning(disable: 4996)
@@ -149,7 +148,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
     DWORD* pm_indexBuffer;
     if(FAILED(m_data->mesh->LockIndexBuffer(0, (void**)&pm_indexBuffer)))
     {
-        Diagnostic::ShowMessage(filename + " Index buffer lock failed");
+        ShowMessageBox(filename + " Index buffer lock failed");
         return false;
     }
     #pragma warning(disable: 4996)
@@ -178,15 +177,14 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     {
         Animate();
 
-        LPD3DXEFFECT effect = m_callbacks.useWorldShader() 
-            ? m_callbacks.getWorldEffect() : m_data->shader->GetEffect();
+        LPD3DXEFFECT effect = m_data->shader->GetEffect();
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
         effect->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
         effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
 
-        m_callbacks.sendLightingToEffect(effect);
+        m_engine->sendLightingToEffect(effect);
 
         D3DXMATRIX wit;
         D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();

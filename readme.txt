@@ -1,8 +1,27 @@
 
-• Fix smoothing code/buffer update 
-
 • GJK collision detection
 • Octree spacial partitioning
+• Video/update folio
+
+struct Partition
+{
+    Partition* parent;
+    std::list<Partition> child;
+    std::list<CollisionPtr> objects;
+    D3DXVECTOR3 minBounds;
+    D3DXVECTOR3 maxBounds;
+};
+
+On collision update, calls octree update
+    Check if object is still in partition
+    if not, moves to correct partition
+
+for each dynamic object
+    loop through all other objects in same partition and call given functions with them
+
+
+
+
 
 =================================================================
 CLOTH SIMULATOR
@@ -19,13 +38,12 @@ VS ENVIRONMENT VARIABLES: $(DXSDK_DIR) DirectX SDK
 LALT-CLICK:     Rotate the camera
 LSHIFT-CLICK:   Move back/forwards with the camera
 LCTRL-CLICK:    Move sideways with the camera
-1-4:            Toggle different cloth edge in handle mode
-WASDQE:         Control the cloth in handle mode
 BACKSPACE:      Delete currently selected object
-
+RALT-CLICK:     Allows selection of particle. Cloth diagnostics must be toggled
+WASDQE:         Control the cloth in handle mode
+1-4:            Toggle different cloth edge in handle mode
 0:              Toggle text diagnostics
 9:              Toggle collision models
 8:              Toggle general diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics
-RALT-CLICK:     Allows selection of particle. Diagnostics must be toggled

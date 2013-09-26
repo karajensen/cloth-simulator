@@ -4,8 +4,9 @@
 
 #pragma once
 #include "common.h"
-#include "GUICallbacks.h"
+#include "callbacks.h"
 
+class Diagnostic;
 class LightManager;
 class ShaderManager;
 class CollisionSolver;
@@ -45,7 +46,7 @@ public:
     * Loads the gui callbacks
     * @param callbacks Methods the gui can call for the simulation
     */
-    void LoadGuiCallbacks(GUI::GuiCallbacks* callbacks);
+    void LoadGuiCallbacks(GuiCallbacks* callbacks);
 
     /**
     * Renders the simulation
@@ -69,8 +70,9 @@ private:
     * Creates the input object and connects callbacks to input keys
     * @param hInstance The window instance
     * @param hWnd The handle to the window
+    * @param engine Callbacks from the rendering engine
     */
-    void LoadInput(HINSTANCE hInstance, HWND hWnd);
+    void LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine);
 
     /**
     * Prevent copying
@@ -86,6 +88,7 @@ private:
     std::shared_ptr<Input> m_input;              ///< Simulation input object
     std::shared_ptr<Camera> m_camera;            ///< Main camera
     std::shared_ptr<Scene> m_scene;              ///< Mesh manager for the scene
+    std::shared_ptr<Diagnostic> m_diagnostics;   ///< Diagnostic renderer
     LPDIRECT3DDEVICE9 m_d3ddev;                  ///< DirectX device
     bool m_drawCollisions;                       ///< Whether to display collision models
 };

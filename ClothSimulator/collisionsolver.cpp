@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "collisionsolver.h"
-#include "diagnostic.h"
 #include "particle.h"
 #include "cloth.h"
 
@@ -131,7 +130,7 @@ std::shared_ptr<Cloth> CollisionSolver::GetCloth()
 {
     if(m_cloth.expired())
     {
-        Diagnostic::ShowMessage("cloth asked for is non-existant");
+        ShowMessageBox("cloth asked for is non-existant");
         return nullptr;
     }
     return m_cloth.lock();

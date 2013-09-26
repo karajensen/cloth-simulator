@@ -4,10 +4,9 @@
 
 #pragma once
 #include "common.h"
+#include "callbacks.h"
 #include <queue>
-#include "GUICallbacks.h"
 
-using namespace GUI;
 class Shader;
 class CollisionSolver;
 class Mesh;
@@ -36,10 +35,9 @@ public:
 
     /**
     * Constructor
-    * @param d3ddev the directx device
-    * @param callbacks The callbacks for rendering a mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Scene(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
+    explicit Scene(EnginePtr engine);
 
     /**
     * Draws all scene meshes
@@ -100,9 +98,10 @@ public:
     * @param direction The mouse movement direction
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
+    * @param deltatime The deltatime for  the simulation
     */
     void UpdateState(bool pressed, const D3DXVECTOR2& direction,
-        const Matrix& world, const Matrix& invProjection);
+        const Matrix& world, const Matrix& invProjection, float deltatime);
 
     /**
     * Solves the collision between scene objects and the cloth
@@ -138,7 +137,7 @@ private:
 
     typedef std::shared_ptr<Mesh> MeshPtr;
 
-    LPDIRECT3DDEVICE9 m_d3ddev;                  ///< DirectX device
+    EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::queue<unsigned int> m_open;             ///< Indices for the avaliable meshes
     std::vector<MeshPtr> m_meshes;               ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates;            ///< Mesh templates for creating mesh instances

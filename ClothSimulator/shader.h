@@ -85,28 +85,6 @@ public:
     */
     std::shared_ptr<Shader> GetShader(SceneShader shader);
 
-    /**
-    * @return the shader effect for the world shader
-    */
-    LPD3DXEFFECT GetWorldEffect();
-
-    /**
-    * @return whether to use the world shader
-    */
-    bool UseWorldShader();
-
-    /**
-    * Switches to the set shader that every mesh will render with
-    * @param use Set whether to use the world shader
-    */
-    void SetUseWorldShader(bool use);
-
-    /**
-    * Set the world shader that every mesh will render with
-    * @param shader Set the currently used world shader
-    */
-    void SetWorldShader(SceneShader shader);
-
 private:
 
     /**
@@ -116,20 +94,6 @@ private:
     ShaderManager& operator=(const ShaderManager&);
 
     std::vector<ShaderPtr> m_shaders; ///< All shaders in scene
-    SceneShader m_worldShader;        ///< Index to the world shader
-    bool m_useWorldShader;            ///< Whether to use the world shader or not
-};
-
-
-/**
-* Functions required for mesh rendering
-*/
-struct RenderCallbacks
-{
-    std::function<ShaderManager::ShaderPtr(ShaderManager::SceneShader)> getShader;
-    std::function<void(LPD3DXEFFECT)> sendLightingToEffect;   
-    std::function<LPD3DXEFFECT(void)> getWorldEffect;
-    std::function<bool(void)> useWorldShader;        
 };
 
 /**

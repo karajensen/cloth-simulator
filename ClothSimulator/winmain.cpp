@@ -10,7 +10,7 @@
 
 #include "simulation.h"
 #include "GUIWrapper.h"
-#include "GUICallbacks.h"
+#include "callbacks.h"
 #include <windows.h>
 #include <windowsx.h>
 
@@ -22,7 +22,7 @@ LPDIRECT3DSURFACE9 backBuffer = nullptr; ///< Back buffer
 bool runSimulation = true;               ///< Whether simulation can be run or not
 std::unique_ptr<Simulation> simulation;  ///< Main simulation object
 std::unique_ptr<GUI::GuiWrapper> gui;    ///< Interface for .NET GUI
-GUI::GuiCallbacks callbacks;             ///< Callback list for the GUI
+GuiCallbacks callbacks;             ///< Callback list for the GUI
 
 bool InitialiseGUI();
 bool InitialiseDirectX();
@@ -79,7 +79,7 @@ bool InitialiseDirectX()
 {
     if(FAILED(d3d = Direct3DCreate9(D3D_SDK_VERSION)))
     {
-        Diagnostic::ShowMessage("Direct3D interface creation has failed");
+        ShowMessageBox("Direct3D interface creation has failed");
         return false;
     }
 
@@ -108,7 +108,7 @@ bool InitialiseDirectX()
     if(FAILED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, 
         D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &d3ddev)))
     {
-        Diagnostic::ShowMessage("Direct3D interface creation has failed");
+        ShowMessageBox("Direct3D interface creation has failed");
         return false;
     }
 
@@ -116,7 +116,7 @@ bool InitialiseDirectX()
     if(FAILED(d3ddev->CreateDepthStencilSurface(WINDOW_WIDTH, WINDOW_HEIGHT, BACKBUFFER_FORMAT,
         antiAliasing ? antiAliasingLvl : D3DMULTISAMPLE_NONE, NULL, TRUE, &backBuffer, NULL)))
     {
-        Diagnostic::ShowMessage("Z-buffer creation has failed");
+        ShowMessageBox("Z-buffer creation has failed");
         return false;
     }
     d3ddev->SetRenderTarget(0,backBuffer);
@@ -131,7 +131,7 @@ bool InitialiseDirectX()
     // Check for vertex shader version 2.0 support.
     if(caps.VertexShaderVersion < D3DVS_VERSION(2, 0)) 
     {
-        Diagnostic::ShowMessage("Shader model 2.0 or higher is required");
+        ShowMessageBox("Shader model 2.0 or higher is required");
         return false;
     }
 

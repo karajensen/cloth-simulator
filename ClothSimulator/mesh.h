@@ -6,6 +6,7 @@
 #include "common.h"
 #include "shader.h"
 #include "picking.h"
+#include "callbacks.h"
 
 class Collision;
 
@@ -38,9 +39,9 @@ public:
 
     /**
     * Constructor
-    * @param callbacks Methods to call when rendering the mesh
+    * @param engine Callbacks from the rendering engine
     */
-    explicit Mesh(const RenderCallbacks& callbacks);
+    explicit Mesh(EnginePtr engine);
 
     /**
     * Destructor
@@ -215,7 +216,7 @@ private:
     Mesh(const Mesh&);
     Mesh& operator=(const Mesh&);
 
-    RenderCallbacks m_callbacks;             ///< Callbacks for rendering the mesh
+    EnginePtr m_engine;                      ///< Callbacks for the rendering engine
     std::shared_ptr<Collision> m_collision;  ///< The collision geometry attached to the mesh
     std::shared_ptr<MeshData> m_data;        ///< Data for rendering/instancing the mesh
     D3DXVECTOR3 m_color;                     ///< Color for the mesh

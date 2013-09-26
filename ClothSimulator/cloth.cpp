@@ -34,7 +34,7 @@ namespace
     const float SPACING = 0.75f; 
 }
 
-Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks) :
+Cloth::Cloth(EnginePtr engine) :
     m_selectedRow(1),
     m_timestep(TIMESTEP),
     m_timestepSquared(TIMESTEP*TIMESTEP),
@@ -52,20 +52,20 @@ Cloth::Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks) :
     m_gravity(0,-9.8f,0),
     m_diagnosticSelect(false),
     m_diagnosticParticle(0),
-    m_d3ddev(d3ddev),
+    m_engine(engine),
     m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr),
-    m_callbacks(callbacks)
+    m_indexBuffer(nullptr)
 {
     m_data.reset(new MeshData());
-    m_data->shader = callbacks.getShader(ShaderManager::CLOTH_SHADER);;
-    m_template.reset(new Collision(*this, callbacks.getShader(ShaderManager::BOUNDS_SHADER)));
-    m_template->LoadSphere(d3ddev, 1.0f, 8);
+    m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
+    m_template.reset(new Collision(*this, m_engine));
+    m_template->LoadSphere(m_engine->device(), 1.0f, 8);
 
-    if(FAILED(D3DXCreateTextureFromFile(d3ddev, ".\\Resources\\Textures\\square.png", &m_data->texture)))
+    if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), 
+        ".\\Resources\\Textures\\square.png", &m_data->texture)))
     {
         m_data->texture = nullptr;
-        Diagnostic::ShowMessage("Cannot create cloth texture");
+        ShowMessageBox("Cannot create cloth texture");
     }
 
     m_colors.resize(MAX_COLORS);
@@ -105,7 +105,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
             if(!m_particles[index].get())
             {
-                m_particles[index].reset(new Particle(m_d3ddev, m_callbacks));
+                m_particles[index].reset(new Particle(m_engine));
             }
             m_particles[index]->Initialise(position, uvs,
                 index, m_template->GetGeometry(), m_template->GetData());
@@ -252,10 +252,10 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     if(FAILED(D3DXCreateMesh(triangleNumber, m_vertexData.size(),
         D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
-        VertexDec, m_d3ddev, &m_data->mesh)))
+        VertexDec, m_engine->device(), &m_data->mesh)))
     {
         m_data->mesh = nullptr;
-        Diagnostic::ShowMessage("Cloth Mesh creation failed");
+        ShowMessageBox("Cloth Mesh creation failed");
     }
     SmoothCloth();
 
@@ -263,7 +263,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_vertexBuffer = nullptr;
     if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
     {
-        Diagnostic::ShowMessage("Cloth Vertex buffer lock failed");
+        ShowMessageBox("Cloth Vertex buffer lock failed");
     }
     #pragma warning(disable: 4996)
     std::copy(m_vertexData.begin(), m_vertexData.end(),(Vertex*)m_vertexBuffer);
@@ -273,7 +273,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_indexBuffer = nullptr;
     if(FAILED(m_data->mesh->LockIndexBuffer(0,&m_indexBuffer)))
     {
-        Diagnostic::ShowMessage("Cloth Index buffer lock failed");
+        ShowMessageBox("Cloth Index buffer lock failed");
     }
     #pragma warning(disable: 4996)
     std::copy(m_indexData.begin(), m_indexData.end(), (DWORD*)m_indexBuffer);
@@ -284,13 +284,12 @@ void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Matrix& projection, con
 {
     if(m_data->mesh)
     {
-        LPD3DXEFFECT effect = m_callbacks.useWorldShader() 
-            ? m_callbacks.getWorldEffect() : m_data->shader->GetEffect();
+        LPD3DXEFFECT effect = m_data->shader->GetEffect();
 
         effect->SetTechnique(DxConstant::DefaultTechnique);
         effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
         effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-        m_callbacks.sendLightingToEffect(effect);
+        m_engine->sendLightingToEffect(effect);
 
         D3DXMATRIX wit;
         D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
@@ -383,32 +382,37 @@ Cloth::ParticlePtr& Cloth::GetParticle(int row, int col)
 
 void Cloth::DrawCollision(const Matrix& projection, const Matrix& view)
 {
-    if(Diagnostic::AllowDiagnostics(Diagnostic::CLOTH))
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
     {
         const float radius = 0.4f;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
 
-        Diagnostic::UpdateSphere(Diagnostic::CLOTH, "Particle", 
-            Diagnostic::YELLOW, position, radius);
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::CLOTH, 
+            "Particle", Diagnostic::YELLOW, position, radius);
 
-        std::for_each(m_springs.begin(), m_springs.end(), 
-            [&](const SpringPtr& spring){ spring->UpdateDiagnostic(); });
+        std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
+        { 
+            spring->UpdateDiagnostic(m_engine->diagnostic()); 
+        });
     }
 
-    if(Diagnostic::AllowText())
+    if(m_engine->diagnostic()->AllowText())
     {
         const auto& vertex = m_vertexData[m_diagnosticParticle].position;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
         const auto& collision = m_particles[m_diagnosticParticle]->GetCollision()->GetPosition();
 
-        Diagnostic::UpdateText("Particle", Diagnostic::YELLOW, StringCast(position.x) 
-            + ", " + StringCast(position.y) + ", " + StringCast(position.z));
+        m_engine->diagnostic()->UpdateText("Particle",
+            Diagnostic::YELLOW, StringCast(position.x) + ", " +
+            StringCast(position.y) + ", " + StringCast(position.z));
 
-        Diagnostic::UpdateText("Collision", Diagnostic::YELLOW, StringCast(collision.x) 
-            + ", " + StringCast(collision.y) + ", " + StringCast(collision.z));
+        m_engine->diagnostic()->UpdateText("Collision", 
+            Diagnostic::YELLOW, StringCast(collision.x) + ", " + 
+            StringCast(collision.y) + ", " + StringCast(collision.z));
 
-        Diagnostic::UpdateText("Vertex", Diagnostic::YELLOW, StringCast(vertex.x) 
-            + ", " + StringCast(vertex.y) + ", " + StringCast(vertex.z));
+        m_engine->diagnostic()->UpdateText("Vertex",
+            Diagnostic::YELLOW, StringCast(vertex.x) + ", " + 
+            StringCast(vertex.y) + ", " + StringCast(vertex.z));
     }
 
     if(m_drawColParticles)
@@ -432,7 +436,8 @@ bool Cloth::MousePickingTest(Picking& input)
         for(int i = 0; i < m_particleCount; ++i)
         {
             D3DXMATRIX worldInverse;
-            D3DXMatrixInverse(&worldInverse, NULL, &m_particles[i]->GetCollision()->CollisionMatrix().GetMatrix());
+            D3DXMatrixInverse(&worldInverse, NULL,
+                &m_particles[i]->GetCollision()->CollisionMatrix().GetMatrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;
@@ -494,7 +499,13 @@ void Cloth::MovePinnedRow(float right, float up, float forward)
     if(m_handleMode)
     {
         D3DXVECTOR3 direction(right,up,forward);
-        auto addForce = [&](const ParticlePtr& part){ if(part->IsSelected()){ part->AddForce(direction); } };
+        auto addForce = [&](const ParticlePtr& part)
+        { 
+            if(part->IsSelected())
+            { 
+                part->AddForce(direction); 
+            } 
+        };
         std::for_each(m_particles.begin(), m_particles.end(), addForce);
     }
 }
@@ -598,7 +609,7 @@ bool Cloth::UpdateVertexBuffer()
     //Lock the vertex buffer
     if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
     {
-        Diagnostic::ShowMessage("Vertex buffer lock failed");
+        ShowMessageBox("Vertex buffer lock failed");
         return false;
     }
 

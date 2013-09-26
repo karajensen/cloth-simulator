@@ -7,9 +7,7 @@
 #include "shader.h"
 #include "light.h"
 
-ShaderManager::ShaderManager() :
-    m_worldShader(ShaderManager::MAIN_SHADER),
-    m_useWorldShader(false)
+ShaderManager::ShaderManager()
 {
 }
 
@@ -37,7 +35,7 @@ bool Shader::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename)
         {
             errorMessage += (char*)errorlog->GetBufferPointer();
         }
-        Diagnostic::ShowMessage(errorMessage);
+        ShowMessageBox(errorMessage);
         return false;
     }
     return true;
@@ -63,24 +61,4 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
 std::shared_ptr<Shader> ShaderManager::GetShader(SceneShader shader)
 {
     return m_shaders[shader];
-}
-
-LPD3DXEFFECT ShaderManager::GetWorldEffect()
-{ 
-    return m_shaders[m_worldShader]->GetEffect(); 
-}
-
-bool ShaderManager::UseWorldShader()
-{ 
-    return m_useWorldShader; 
-}
-
-void ShaderManager::SetUseWorldShader(bool use)
-{ 
-    m_useWorldShader = use; 
-}
-
-void ShaderManager::SetWorldShader(SceneShader shader)
-{ 
-    m_worldShader = shader;
 }

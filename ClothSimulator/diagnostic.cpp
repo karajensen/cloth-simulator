@@ -19,15 +19,19 @@ namespace
     D3DXVECTOR3 ZAXIS(0.0f, 0.0f, 1.0f);  ///< World z axis
 }
 
-std::shared_ptr<Diagnostic> Diagnostic::sm_diag = nullptr;
-
-Diagnostic::Diagnostic(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader) :
-    m_d3ddev(d3ddev),
+Diagnostic::Diagnostic() :
+    m_d3ddev(nullptr),
     m_sphere(nullptr),
     m_cylinder(nullptr),
-    m_shader(boundsShader),
     m_showText(false)
 {
+}
+
+void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader)
+{
+    m_shader = boundsShader;
+    m_d3ddev = d3ddev;
+
     D3DXCreateSphere(d3ddev, 1.0f, MESH_SEGMENTS, MESH_SEGMENTS, &m_sphere, NULL);
 
     D3DXCreateCylinder(d3ddev, CYLINDER_SIZE, CYLINDER_SIZE,
@@ -69,57 +73,47 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::ToggleText()
 {
-    sm_diag->m_showText = !sm_diag->m_showText;
+    m_showText = !m_showText;
 }
 
 void Diagnostic::ToggleDiagnostics(Group group)
 {
-    sm_diag->m_groupvector[group].render = !sm_diag->m_groupvector[group].render;
+    m_groupvector[group].render = !m_groupvector[group].render;
 }
 
 bool Diagnostic::AllowDiagnostics(Group group)
 {
-    return sm_diag->m_groupvector[group].render;
+    return m_groupvector[group].render;
 }
 
 bool Diagnostic::AllowText()
 {
-    return sm_diag->m_showText;
-}
-
-void Diagnostic::ShowMessage(const std::string& message)
-{
-    MessageBox(NULL, message.c_str(), TEXT("ERROR"), MB_OK);
-}
-
-void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader)
-{
-    sm_diag.reset(new Diagnostic(d3ddev, boundsShader));
+    return m_showText;
 }
 
 void Diagnostic::DrawAllText()
 {
-    if(sm_diag->m_showText)
+    if(m_showText)
     {
         int counter = 0;
-        for(TextMap::iterator it = sm_diag->m_textmap.begin(); it != sm_diag->m_textmap.end(); ++it)
+        for(TextMap::iterator it = m_textmap.begin(); it != m_textmap.end(); ++it)
         {
-            sm_diag->m_text->SetText(it->second.text);
-            sm_diag->m_text->SetColour(it->second.color);
-            sm_diag->m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
-            sm_diag->m_text->Draw();
+            m_text->SetText(it->second.text);
+            m_text->SetColour(it->second.color);
+            m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
+            m_text->Draw();
         }
     }
 }
 
 void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 {
-    for(GroupVector::iterator gitr = sm_diag->m_groupvector.begin(); 
-        gitr != sm_diag->m_groupvector.end(); ++gitr)
+    for(GroupVector::iterator gitr = m_groupvector.begin(); 
+        gitr != m_groupvector.end(); ++gitr)
     {
         if(gitr->render)
         {
-            LPD3DXEFFECT pEffect(sm_diag->m_shader->GetEffect());
+            LPD3DXEFFECT pEffect(m_shader->GetEffect());
             pEffect->SetTechnique(DxConstant::DefaultTechnique);
 
             auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Matrix& world)
@@ -143,7 +137,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
             {
                 if(sitr->second.draw)
                 {
-                    renderObject(sm_diag->m_sphere, sitr->second.color, sitr->second.world);
+                    renderObject(m_sphere, sitr->second.color, sitr->second.world);
                     sitr->second.draw = false;
                 }
             }
@@ -152,7 +146,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
             {
                 if(litr->second.draw)
                 {
-                    renderObject(sm_diag->m_cylinder, litr->second.color, litr->second.world);
+                    renderObject(m_cylinder, litr->second.color, litr->second.world);
                     litr->second.draw = false;
                 }
             }
@@ -163,13 +157,13 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 void Diagnostic::UpdateSphere(Group group, const std::string& id, 
     Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
 {
-    SphereMap& spheremap = sm_diag->m_groupvector[group].spheremap;
+    SphereMap& spheremap = m_groupvector[group].spheremap;
 
     if(spheremap.find(id) == spheremap.end())
     {
         spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
     }
-    spheremap[id].color = sm_diag->m_colourmap[color];
+    spheremap[id].color = m_colourmap[color];
     spheremap[id].draw = true;
     spheremap[id].world.MakeIdentity();
     spheremap[id].world.SetScale(radius);
@@ -179,13 +173,13 @@ void Diagnostic::UpdateSphere(Group group, const std::string& id,
 void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colour color, 
     const D3DXVECTOR3& start, const D3DXVECTOR3& end)
 {
-    LineMap& linemap = sm_diag->m_groupvector[group].linemap;
+    LineMap& linemap = m_groupvector[group].linemap;
 
     if(linemap.find(id) == linemap.end())
     {
         linemap.insert(LineMap::value_type(id,DiagLine())); 
     }
-    linemap[id].color = sm_diag->m_colourmap[color];
+    linemap[id].color = m_colourmap[color];
 
     D3DXVECTOR3 forward = end-start;
     D3DXVECTOR3 middle = start + (forward*0.5f);
@@ -212,25 +206,25 @@ void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colo
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, const std::string& text)
 {
-    if(sm_diag->m_textmap.find(id) == sm_diag->m_textmap.end())
+    if(m_textmap.find(id) == m_textmap.end())
     {
-        sm_diag->m_textmap.insert(TextMap::value_type(id,DiagText())); 
+        m_textmap.insert(TextMap::value_type(id,DiagText())); 
     }
-    sm_diag->m_textmap[id].color = sm_diag->m_colourmap[color];
-    sm_diag->m_textmap[id].text = id + ": " + text;
+    m_textmap[id].color = m_colourmap[color];
+    m_textmap[id].text = id + ": " + text;
 }
 
 void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, bool increaseCounter)
 {
-    if(sm_diag->m_textmap.find(id) == sm_diag->m_textmap.end())
+    if(m_textmap.find(id) == m_textmap.end())
     {
-        sm_diag->m_textmap.insert(TextMap::value_type(id,DiagText())); 
-        sm_diag->m_textmap[id].counter = 0;
+        m_textmap.insert(TextMap::value_type(id,DiagText())); 
+        m_textmap[id].counter = 0;
     }
     else if(increaseCounter)
     {
-        ++sm_diag->m_textmap[id].counter;
+        ++m_textmap[id].counter;
     }
-    sm_diag->m_textmap[id].color = sm_diag->m_colourmap[color];
-    sm_diag->m_textmap[id].text = id + ": " + StringCast(sm_diag->m_textmap[id].counter);
+    m_textmap[id].color = m_colourmap[color];
+    m_textmap[id].text = id + ": " + StringCast(m_textmap[id].counter);
 }

@@ -6,6 +6,7 @@
 #define DIRECTINPUT_VERSION 0x0800 //for direct input
 #include "common.h"
 #include "picking.h"
+#include "callbacks.h"
 #include <dinput.h>
 #include <unordered_map>
 
@@ -26,8 +27,9 @@ public:
     * Constructor
     * @param hInstance Handle to the instance of the application
     * @param hWnd Handle to the window of the application
+    * @param engine Callbacks from the rendering engine
     */
-    Input(HINSTANCE hInstance, HWND hWnd);
+    Input(HINSTANCE hInstance, HWND hWnd, EnginePtr engine);
 
     /**
     * Destroy directinput
@@ -183,4 +185,5 @@ private:
     LPDIRECTINPUT8 m_directInput;          ///< DirectX input
     LPDIRECTINPUTDEVICE8 m_keyboardInput;  ///< DirectX keyboard device
     LPDIRECTINPUTDEVICE8 m_mouseInput;     ///< DirectX mouse device
+    EnginePtr m_engine;                    ///< Callbacks for the rendering engine
 };

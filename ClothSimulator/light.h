@@ -111,11 +111,6 @@ public:
     LightManager();
 
     /**
-    * Updates the lights
-    */
-    void UpdateLights();
-
-    /**
     * Initialise all lighting
     * @return whether initialisation succeeded or not
     */

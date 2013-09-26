@@ -23,10 +23,9 @@ public:
 
     /**
     * Constructor; loads the cloth mesh
-    * @param d3ddev the directX device
-    * @param callbacks The callbacks for rendering a mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Cloth(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
+    explicit Cloth(EnginePtr engine);
 
     /**
     * Draw the cloth visual and collision models
@@ -253,7 +252,7 @@ private:
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 
-    LPDIRECT3DDEVICE9 m_d3ddev;               ///< DirextX device
+    EnginePtr m_engine;                       ///< Callbacks for the rendering engine
     std::vector<D3DXVECTOR3> m_colors;        ///< Viable colors for the particles
     std::vector<SpringPtr> m_springs;         ///< Springs connecting particles together
     std::vector<ParticlePtr> m_particles;     ///< Particles across the cloth grid
@@ -261,7 +260,6 @@ private:
     std::vector<DWORD> m_indexData;           ///< DirectX Index data
     void* m_vertexBuffer;                     ///< Raw Pointer to DirectX Vertex Buffer
     void* m_indexBuffer;                      ///< Raw Pointer to DirectX Index Buffer
-    RenderCallbacks m_callbacks;              ///< Callbacks for rendering a mesh
     std::shared_ptr<CollisionSolver> m_collision; ///< Collision solver for the cloth
     std::shared_ptr<Collision> m_template;    ///< Template collision for all particles
     std::shared_ptr<MeshData> m_data;         ///< Data for rendering/instancing the mesh

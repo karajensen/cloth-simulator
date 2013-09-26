@@ -28,8 +28,8 @@ namespace
 }
 
 Simulation::Simulation() :
-    m_d3ddev(nullptr),
-    m_drawCollisions(false)
+    m_drawCollisions(false),
+    m_d3ddev(nullptr)
 {
 }
 
@@ -55,8 +55,8 @@ void Simulation::Render()
     m_scene->DrawCollision(m_camera->Projection(), m_camera->View());
     m_scene->DrawTools(cameraPosition, m_camera->Projection(), m_camera->View());
 
-    Diagnostic::DrawAllObjects(m_camera->Projection(), m_camera->View());
-    Diagnostic::DrawAllText();
+    m_diagnostics->DrawAllObjects(m_camera->Projection(), m_camera->View());
+    m_diagnostics->DrawAllText();
 
     m_d3ddev->EndScene();
     m_d3ddev->Present(NULL, NULL, NULL, NULL);
@@ -74,8 +74,7 @@ void Simulation::Update()
 
     m_input->UpdateInput();
     m_camera->UpdateCamera();
-    m_light->UpdateLights();
-
+    
     if (m_input->IsMouseClicked())
     {
         m_input->UpdatePicking(m_camera->Projection(), m_camera->World());
@@ -87,16 +86,16 @@ void Simulation::Update()
 
     m_cloth->UpdateState(deltaTime);
     m_scene->UpdateState(pressed, m_input->GetMouseDirection(),
-        m_camera->World(), m_camera->InverseProjection());
+        m_camera->World(), m_camera->InverseProjection(), 
+        static_cast<float>(deltaTime));
 
     m_scene->SolveClothCollision(*m_solver);
-    m_solver->SolveSelfCollision();
     m_cloth->UpdateVertexBuffer();
 
     D3DPERF_EndEvent();
 }
 
-void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
+void Simulation::LoadGuiCallbacks(GuiCallbacks* callbacks)
 {
     using namespace std::placeholders;
     m_scene->LoadGuiCallbacks(callbacks);
@@ -125,7 +124,7 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 
     callbacks->setWireframeMode = [&](bool set)
     { 
-        m_d3ddev->SetRenderState(D3DRS_FILLMODE, 
+         m_d3ddev->SetRenderState(D3DRS_FILLMODE, 
             set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); 
     };
 }
@@ -133,45 +132,56 @@ void Simulation::LoadGuiCallbacks(GUI::GuiCallbacks* callbacks)
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
 {   
     m_d3ddev = d3ddev;
-    m_camera.reset(new Camera(D3DXVECTOR3(0.0f,0.0f,-30.0f), D3DXVECTOR3(0.0f,0.0f,0.0f)));
-    m_camera->CreateProjMatrix();
-
+    m_diagnostics.reset(new Diagnostic());
     m_shader.reset(new ShaderManager());
     m_light.reset(new LightManager());
-    bool success = m_shader->Inititalise(d3ddev) && m_light->Inititalise();
 
-    if(success)
+    // Create the engine callbacks
+    EnginePtr engine(new Engine());
+    engine->device = [&](){ return m_d3ddev; };
+    engine->diagnostic = [&](){ return m_diagnostics.get(); };
+    
+    engine->getShader = [&](ShaderManager::SceneShader shader)
+        { return m_shader->GetShader(shader); };
+    
+    engine->sendLightingToEffect = std::bind(
+        &LightManager::SendLightingToShader,
+        m_light.get(), std::placeholders::_1);
+
+    // Initialise the camera
+    const D3DXVECTOR3 position(0.0f, 0.0f, -30.0f);
+    const D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+    m_camera.reset(new Camera(position, target));
+    m_camera->CreateProjMatrix();
+
+    // Initialise the shaders/lights
+    if(!m_shader->Inititalise(d3ddev) || !m_light->Inititalise())
     {
-        auto boundsShader = m_shader->GetShader(ShaderManager::BOUNDS_SHADER);
-        auto clothShader = m_shader->GetShader(ShaderManager::CLOTH_SHADER);
-
-        RenderCallbacks callbacks;
-        callbacks.getWorldEffect = std::bind(&ShaderManager::GetWorldEffect, m_shader.get());
-        callbacks.useWorldShader = std::bind(&ShaderManager::UseWorldShader, m_shader.get());
-        callbacks.sendLightingToEffect = std::bind(&LightManager::SendLightingToShader,
-            m_light.get(), std::placeholders::_1);
-
-        callbacks.getShader = [&](ShaderManager::SceneShader shader)
-            { return m_shader->GetShader(shader); };
-
-        Diagnostic::Initialise(d3ddev, boundsShader);
-        m_scene.reset(new Scene(d3ddev, callbacks));
-        m_cloth.reset(new Cloth(m_d3ddev, callbacks));
-        m_solver.reset(new CollisionSolver(m_cloth));
+        return false;
     }
 
-    LoadInput(hInstance, hWnd);
+    // Initialise diagnostics
+    m_diagnostics->Initialise(d3ddev,
+        m_shader->GetShader(ShaderManager::BOUNDS_SHADER));
+
+    // Initialise the simulation
+    m_scene.reset(new Scene(engine));
+    m_cloth.reset(new Cloth(engine));
+    m_solver.reset(new CollisionSolver(m_cloth));
+
+    // Initialise the input
+    LoadInput(hInstance, hWnd, engine);
 
     // Start the internal timer
-    m_timer.reset(new Timer());
+    m_timer.reset(new Timer(engine));
     m_timer->StartTimer();
 
-    return success;
+    return true;
 }
 
-void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
+void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
 {
-    m_input.reset(new Input(hInstance, hWnd));
+    m_input.reset(new Input(hInstance, hWnd, engine));
 
     // Camera forward movement
     auto cameraForward = [&]()
@@ -182,7 +192,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     };
     m_input->SetKeyCallback(DIK_LSHIFT, true, cameraForward);
     m_input->AddClickPreventionKey(DIK_LSHIFT);
-
+    
     // Camera side movement
     auto cameraSideways = [&]()
     {
@@ -192,7 +202,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     };
     m_input->SetKeyCallback(DIK_LCONTROL, true, cameraSideways);
     m_input->AddClickPreventionKey(DIK_LCONTROL);
-
+    
     // Camera rotation
     auto cameraRotation = [&]()
     {
@@ -202,61 +212,64 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd)
     };
     m_input->SetKeyCallback(DIK_LALT, true, cameraRotation);
     m_input->AddClickPreventionKey(DIK_LALT);
-
+    
     // Controlling the cloth
     m_input->SetKeyCallback(DIK_W, true, 
         [&](){ m_cloth->MovePinnedRow(-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
-
+    
     m_input->SetKeyCallback(DIK_S, true, 
         [&](){ m_cloth->MovePinnedRow(m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
-
+    
     m_input->SetKeyCallback(DIK_A, true, 
         [&](){ m_cloth->MovePinnedRow(0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
-
+    
     m_input->SetKeyCallback(DIK_D, true, 
         [&](){ m_cloth->MovePinnedRow(0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
-
+    
     m_input->SetKeyCallback(DIK_Q, true, 
         [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED); });
-
+    
     m_input->SetKeyCallback(DIK_E, true, 
         [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED); });
-
+    
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
         [&](){ m_cloth->ChangeRow(1); });
-
+    
     m_input->SetKeyCallback(DIK_2, false, 
         [&](){ m_cloth->ChangeRow(2); });
-
+    
     m_input->SetKeyCallback(DIK_3, false, 
         [&](){ m_cloth->ChangeRow(3); });
-
+    
     m_input->SetKeyCallback(DIK_4, false, 
         [&](){ m_cloth->ChangeRow(4); });
-
+    
     // Scene shortcut keys
     m_input->SetKeyCallback(DIK_BACKSPACE, false,
         std::bind(&Scene::RemoveObject, m_scene.get()));
-
+    
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_0, false, 
-        std::bind(&Diagnostic::ToggleText));
-
+        std::bind(&Diagnostic::ToggleText, m_diagnostics.get()));
+    
     m_input->SetKeyCallback(DIK_8, false, 
-        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::GENERAL));
-
+        std::bind(&Diagnostic::ToggleDiagnostics, 
+        m_diagnostics.get(), Diagnostic::GENERAL));
+    
     m_input->SetKeyCallback(DIK_7, false, 
-        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::CLOTH));
-
+        std::bind(&Diagnostic::ToggleDiagnostics,
+        m_diagnostics.get(), Diagnostic::CLOTH));
+    
     m_input->SetKeyCallback(DIK_6, false, 
-        std::bind(&Diagnostic::ToggleDiagnostics, Diagnostic::OCTREE));    
-
+        std::bind(&Diagnostic::ToggleDiagnostics,
+        m_diagnostics.get(), Diagnostic::OCTREE));    
+    
     // Allow diagnostic selection of particles
     m_input->SetKeyCallback(DIK_RALT, true, 
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), true),
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
-
+    
     // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_9, false, [&]()
     {

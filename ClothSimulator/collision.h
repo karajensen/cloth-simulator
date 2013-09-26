@@ -4,6 +4,7 @@
 
 #pragma once
 #include "common.h"
+#include "callbacks.h"
 
 class Shader;
 
@@ -65,9 +66,9 @@ public:
     /**
     * Constructor
     * @param parent The transform of the mesh parent
-    * @param boundsShader The shader for the collision mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Collision(const Transform& parent, std::shared_ptr<Shader> boundsShader);
+    Collision(const Transform& parent, EnginePtr engine);
 
     /**
     * Creates a sphere collision model
@@ -147,13 +148,21 @@ public:
     * Draw the collision geometry. Assumes Update() has been called as needed
     * @param projection The projection matrix
     * @param view The view matrix
+    * @param diagnostics whether to draw the collision diagnostics or not
     */
-    void Draw(const Matrix& projection, const Matrix& view);
+    void Draw(const Matrix& projection, const Matrix& view, bool diagnostics = true);
 
     /**
     * @param draw Set whether the collision mesh is drawn
     */
     void SetDraw(bool draw);
+
+    /**
+    * Set a function to call upon when the world transform updates
+    * These functions should not change the transform they are observing
+    * @param update The function to be called on full and partial updates
+    */
+    void SetObserver(Transform::UpdateFn update);
 
     /**
     * Updates the collision geometry upon scale/rotate/translate
@@ -202,9 +211,10 @@ private:
     Collision(const Collision&);
     Collision& operator=(const Collision&);
 
+    EnginePtr m_engine;         ///< Callbacks for the rendering engine
     bool m_draw;                ///< Whether to draw the geometry
-    const Transform& m_parent;  ///< Parent matrix of the collision geometry
-    Matrix m_world;             ///< World matrix of the collision geometry
+    const Transform& m_parent;  ///< Parent transform of the collision geometry
+    Transform m_world;          ///< World transform of the collision geometry
     D3DXVECTOR3 m_colour;       ///< Colour to render
     Data m_data;                ///< Data for the collision geometry
 

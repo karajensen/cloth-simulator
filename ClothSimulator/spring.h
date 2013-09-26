@@ -6,6 +6,7 @@
 #include "common.h"
 
 class Particle;
+class Diagnostic;
 
 /**
 * Spring between particles for the cloth
@@ -44,8 +45,9 @@ public:
 
     /**
     * Updates the line diagnostic for the spring
+    * @param diagnostic The diagnostic renderer
     */
-    void UpdateDiagnostic() const;
+    void UpdateDiagnostic(Diagnostic* diagnostic) const;
 
 private:
 

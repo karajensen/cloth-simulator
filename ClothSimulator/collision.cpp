@@ -4,14 +4,14 @@
 
 #include "collision.h"
 #include "shader.h"
-#include "diagnostic.h"
 
-Collision::Collision(const Transform& parent, std::shared_ptr<Shader> boundsShader) :
+Collision::Collision(const Transform& parent, EnginePtr engine) :
     m_draw(false),
     m_parent(parent),
     m_colour(0.0f, 0.0f, 1.0f),
     m_geometry(nullptr),
-    m_shader(boundsShader)
+    m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
+    m_engine(engine)
 {
 }
 
@@ -99,6 +99,11 @@ void Collision::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometr
     }
 }
 
+void Collision::SetObserver(Transform::UpdateFn update)
+{
+    m_world.SetObserver(update, update);
+}
+
 bool Collision::HasGeometry() const
 {
     return m_geometry != nullptr;
@@ -154,27 +159,31 @@ void Collision::SetColor(const D3DXVECTOR3& color)
     m_colour = color;
 }
 
-void Collision::Draw(const Matrix& projection, const Matrix& view)
+void Collision::Draw(const Matrix& projection, const Matrix& view, bool diagnostics)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
-        if(Diagnostic::AllowDiagnostics(Diagnostic::GENERAL))
+        if(diagnostics && m_engine->diagnostic()->AllowDiagnostics(Diagnostic::GENERAL))
         {
             const float radius = 0.2f;
             if(m_geometry->shape == BOX)
             {
-                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this)
-                    + "MinBounds", Diagnostic::GREEN, m_data.minBounds, radius);
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
+                    StringCast(this) + "MinBounds", Diagnostic::GREEN,
+                    m_data.minBounds, radius);
                 
-                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
-                    + "MaxBounds", Diagnostic::GREEN, m_data.maxBounds, radius);
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
+                    StringCast(this) + "MaxBounds", Diagnostic::GREEN,
+                    m_data.maxBounds, radius);
             }
             else if(m_geometry->shape == SPHERE)
             {
                 D3DXVECTOR3 centerToRadius = GetPosition();
                 centerToRadius.y += m_data.localWorld.GetScale().x;
-                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
-                    + "Radius", Diagnostic::GREEN, centerToRadius, radius);
+
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
+                    StringCast(this) + "Radius", Diagnostic::GREEN, 
+                    centerToRadius, radius);
             }
             else if(m_geometry->shape == CYLINDER)
             {
@@ -189,11 +198,11 @@ void Collision::Draw(const Matrix& projection, const Matrix& view)
                 end2 -= m_parent.Forward()*halflength;
                 end2 -= m_parent.Right()*scale.x;
 
-                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
-                    + "End1", Diagnostic::GREEN, end1, radius);
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL, 
+                    StringCast(this) + "End1", Diagnostic::GREEN, end1, radius);
 
-                Diagnostic::UpdateSphere(Diagnostic::GENERAL, StringCast(this) 
-                    + "End2", Diagnostic::GREEN, end2, radius);
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL, 
+                    StringCast(this) + "End2", Diagnostic::GREEN, end2, radius);
             }
         }
 
@@ -269,7 +278,7 @@ void Collision::DrawWithRadius(const Matrix& projection, const Matrix& view, flo
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;
     m_world.MatrixPtr()->_33 = radius;
-    Draw(projection, view);
+    Draw(projection, view, false);
     m_world.MatrixPtr()->_11 = scale;
     m_world.MatrixPtr()->_22 = scale;
     m_world.MatrixPtr()->_33 = scale;

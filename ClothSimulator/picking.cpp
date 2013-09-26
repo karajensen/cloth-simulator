@@ -3,14 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "picking.h"
-#include "diagnostic.h"
 
-Picking::Picking():
+Picking::Picking(EnginePtr engine):
     m_rayDirection(0.0f, 0.0f, 0.0f),
     m_rayOrigin(0.0f, 0.0f, 0.0f),
     m_mesh(nullptr),
     m_distanceToMesh(0.0f),
-    m_locked(false)
+    m_locked(false),
+    m_engine(engine)
 { 
 }
 
@@ -58,9 +58,9 @@ void Picking::LockMesh(bool lock)
 
 void Picking::SolvePicking()
 {
-    if(Diagnostic::AllowText())
+    if(m_engine->diagnostic()->AllowText())
     {
-        Diagnostic::UpdateText("DistanceToPick", Diagnostic::WHITE, 
+        m_engine->diagnostic()->UpdateText("DistanceToPick", Diagnostic::WHITE, 
             StringCast(m_distanceToMesh == FLT_MAX ? 0.0f : m_distanceToMesh));
     }
 

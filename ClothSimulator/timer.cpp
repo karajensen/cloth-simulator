@@ -4,15 +4,15 @@
 
 #include <Windows.h>
 #include "timer.h"
-#include "diagnostic.h"
 
-Timer::Timer() :
+Timer::Timer(EnginePtr engine) :
     m_frequency(0.0),
     m_previousTime(0.0),
     m_deltaTime(0.0),
     m_deltaTimeCounter(0.0),
     m_fps(0),
-    m_fpsCounter(0)
+    m_fpsCounter(0),
+    m_engine(engine)
 {
 }
 
@@ -40,12 +40,19 @@ double Timer::UpdateTimer()
         m_fpsCounter = 0;
     }
 
-    if(Diagnostic::AllowText())
+    if(m_engine->diagnostic()->AllowText())
     {
-        Diagnostic::UpdateText("FramePerSec", Diagnostic::WHITE, StringCast(m_fps));
-        Diagnostic::UpdateText("FramesCounter", Diagnostic::WHITE, StringCast(m_fpsCounter));
-        Diagnostic::UpdateText("DeltaTime", Diagnostic::WHITE, StringCast(m_deltaTime));
-        Diagnostic::UpdateText("DeltaTimeCounter", Diagnostic::WHITE, StringCast(m_deltaTimeCounter));
+        m_engine->diagnostic()->UpdateText("FramePerSec", 
+            Diagnostic::WHITE, StringCast(m_fps));
+
+        m_engine->diagnostic()->UpdateText("FramesCounter",
+            Diagnostic::WHITE, StringCast(m_fpsCounter));
+
+        m_engine->diagnostic()->UpdateText("DeltaTime",
+            Diagnostic::WHITE, StringCast(m_deltaTime));
+
+        m_engine->diagnostic()->UpdateText("DeltaTimeCounter", 
+            Diagnostic::WHITE, StringCast(m_deltaTimeCounter));
     }
     
     ++m_fpsCounter; //increment frame counter

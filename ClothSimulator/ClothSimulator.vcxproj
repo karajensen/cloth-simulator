@@ -101,6 +101,7 @@
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="manipulator.cpp" />
     <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="octree.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="input.cpp" />
@@ -117,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assimpmesh.h" />
+    <ClInclude Include="callbacks.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cloth.h" />
     <ClInclude Include="collisionsolver.h" />
@@ -128,6 +130,7 @@
     <ClInclude Include="manipulator.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="octree.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />

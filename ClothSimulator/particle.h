@@ -5,6 +5,7 @@
 #pragma once
 #include "common.h"
 #include "collision.h"
+#include "callbacks.h"
 
 class Shader;
 struct RenderCallbacks;
@@ -18,10 +19,9 @@ public:
 
     /**
     * Constructor
-    * @param d3ddev the directx device
-    * @param callbacks The callbacks for rendering a mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Particle(LPDIRECT3DDEVICE9 d3ddev, const RenderCallbacks& callbacks);
+    explicit Particle(EnginePtr engine);
 
     /**
     * Create the particle

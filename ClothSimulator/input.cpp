@@ -12,7 +12,8 @@ namespace
     const int KEY_BUFFER_SIZE = 256;    ///< Max buffer size allowable for keys
 }
 
-Input::Input(HINSTANCE hInstance, HWND hWnd) :
+Input::Input(HINSTANCE hInstance, HWND hWnd, EnginePtr engine) :
+    m_picking(engine),
     m_hWnd(hWnd),
     m_mouseClicked(false),
     m_mouse(0),
@@ -22,7 +23,8 @@ Input::Input(HINSTANCE hInstance, HWND hWnd) :
     m_mouseDirection(0.0f, 0.0f),
     m_directInput(nullptr),
     m_keyboardInput(nullptr),
-    m_mouseInput(nullptr)
+    m_mouseInput(nullptr),
+    m_engine(engine)
 {
     DirectInput8Create(hInstance, DIRECTINPUT_VERSION, 
         IID_IDirectInput8, (void**)&m_directInput, nullptr);
@@ -126,19 +128,19 @@ void Input::UpdateInput()
     std::for_each(m_clickPreventionKeys.begin(),
         m_clickPreventionKeys.end(), testPrevention);
 
-    if(Diagnostic::AllowText())
+    if(m_engine->diagnostic()->AllowText())
     {
-        Diagnostic::UpdateText("MouseDirection", Diagnostic::WHITE, 
+        m_engine->diagnostic()->UpdateText("MouseDirection", Diagnostic::WHITE, 
             StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
 
-        Diagnostic::UpdateText("MousePosition", Diagnostic::WHITE,
-            StringCast(m_x)+", "+StringCast(m_y));
+        m_engine->diagnostic()->UpdateText("MousePosition", 
+            Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
 
-        Diagnostic::UpdateText("MousePress", Diagnostic::WHITE, 
-            StringCast(IsMousePressed()));
+        m_engine->diagnostic()->UpdateText("MousePress", 
+            Diagnostic::WHITE, StringCast(IsMousePressed()));
 
-        Diagnostic::UpdateText("MouseClick", Diagnostic::WHITE, 
-            StringCast(IsMouseClicked()));
+        m_engine->diagnostic()->UpdateText("MouseClick", 
+            Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
 }
 

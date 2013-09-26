@@ -4,7 +4,7 @@
 
 #pragma once
 #include "common.h"
-#include <functional>
+#include "callbacks.h"
 
 /**
 * Base class for any mesh that is able to be picked
@@ -50,8 +50,9 @@ public:
 
     /**
     * Constructor
+    * @param engine Callbacks from the rendering engine
     */
-    Picking();
+    explicit Picking(EnginePtr engine);
 
     /**
     * Send a ray into the scene to determine if mouse clicked an object
@@ -111,4 +112,5 @@ private:
     D3DXVECTOR3 m_rayDirection;  ///< Direction vector from origin
     PickableMesh* m_mesh;        ///< Raw pointer to mesh that was clicked
     float m_distanceToMesh;      ///< Distance from origin to the mesh clicked
+    EnginePtr m_engine;          ///< Callbacks for the rendering engine
 };

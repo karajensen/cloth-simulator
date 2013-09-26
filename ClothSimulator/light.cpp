@@ -4,7 +4,6 @@
 
 #include "light.h"
 #include "shader.h"
-#include "diagnostic.h"
 #include <algorithm>
 
 LightManager::LightManager()
@@ -108,18 +107,4 @@ void LightManager::SendLightingToShader(LPD3DXEFFECT shader)
     {
         light->SendLightToShader(shader);
     });
-}
-
-void LightManager::UpdateLights()
-{
-    if(Diagnostic::AllowDiagnostics(Diagnostic::GENERAL))
-    {
-        const float radius = 0.5f;
-        std::for_each(LightManager::m_lights.begin(), LightManager::m_lights.end(),
-            [&](const LightManager::LightPtr& light)
-        {
-            Diagnostic::UpdateSphere(Diagnostic::GENERAL, "Light"+StringCast(&light), 
-                Diagnostic::RED, light->GetPosition(), radius);
-        });
-    }
 }

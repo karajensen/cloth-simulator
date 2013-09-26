@@ -4,6 +4,7 @@
 
 #pragma once
 #include <Windows.h>
+#include "callbacks.h"
 
 /**
 * FPS class for determining frame rate and delta time
@@ -15,7 +16,7 @@ public:
     /**
     * Constructor
     */
-    Timer();
+    explicit Timer(EnginePtr engine);
 
     /**
     * Starts the initial ticking of the timer
@@ -36,6 +37,7 @@ public:
 
 private:
 
+    EnginePtr m_engine;         ///< Callbacks for the rendering engine
     double m_frequency;         ///< The frequency of the high-resolution performance counter
     LARGE_INTEGER m_timer;      ///< The current time queried
     double m_previousTime;      ///< The previous time queried
