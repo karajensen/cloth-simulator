@@ -7,7 +7,6 @@
 #include "callbacks.h"
 #include <queue>
 
-class Cloth;
 class Octree;
 class Shader;
 class CollisionSolver;
@@ -146,6 +145,8 @@ private:
     std::vector<MeshPtr> m_templates;            ///< Mesh templates for creating mesh instances
     std::shared_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     std::shared_ptr<Octree> m_octree;            ///< octree paritioning for scene objects
+    MeshPtr m_ground;                            ///< Ground grid mesh
+    std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
     int m_selectedMesh;                          ///< Currently selected object
     bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation

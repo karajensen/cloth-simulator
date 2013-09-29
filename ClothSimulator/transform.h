@@ -24,13 +24,19 @@ public:
     virtual void MakeIdentity() override;
 
     /**
-    * Adds a given vector in world coordinates to the position
+    * Adds a given vector in local coordinates to the position
     * @param position The vector to translate along
     */
     void Translate(D3DXVECTOR3 position);
 
     /**
-    * Adds the components in world coordinates to the position
+    * Adds a given vector in world coordinates to the position
+    * @param position The vector to translate along
+    */
+    void TranslateGlobal(D3DXVECTOR3 position);
+
+    /**
+    * Adds the components in local coordinates to the position
     * @param x/y/z The components to translate along
     */
     void Translate(float x, float y, float z);

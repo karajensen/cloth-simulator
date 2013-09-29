@@ -273,8 +273,8 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_9, false, [&]()
     {
-        this->m_drawCollisions = !this->m_drawCollisions;
-        m_cloth->SetCollisionVisibility(this->m_drawCollisions);
-        m_scene->SetCollisionVisibility(this->m_drawCollisions);
+        m_drawCollisions = !m_drawCollisions;
+        m_cloth->SetCollisionVisibility(m_drawCollisions);
+        m_scene->SetCollisionVisibility(m_drawCollisions);
     });
 }

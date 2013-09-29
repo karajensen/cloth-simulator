@@ -485,7 +485,7 @@ namespace GUI
                 gcnew System::EventHandler(this, &GUIForm::TimestepChanged));
 
             CreateSpinBox(m_spacing, path+"spacing.png", 
-                "Change the spacing between vertices", index++, 0.05, 0.1, 10.0,
+                "Change the spacing between vertices", index++, 0.05, 0.1, 1.5,
                 gcnew System::EventHandler(this, &GUIForm::SpacingChanged));
         }
 

@@ -396,8 +396,9 @@ void Mesh::Animate(float deltatime)
 
         D3DXVECTOR3 path = m_animation[m_target] - 
             m_animation[m_target+(m_reversing ? 1 : -1)];
-
         D3DXVec3Normalize(&path, &path);
-        Translate(path * m_speed * deltatime);
+
+        // Translate along the global axis to prevent rotation changing animation path
+        TranslateGlobal(path * m_speed * deltatime);
     }
 }

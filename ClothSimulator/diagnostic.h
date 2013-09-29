@@ -24,9 +24,9 @@ public:
     {
         WHITE,
         RED,
-        GREEN,
         BLUE,
-        YELLOW
+        YELLOW,
+        GREEN
     };
 
     /**

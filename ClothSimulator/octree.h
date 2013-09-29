@@ -37,24 +37,11 @@ public:
     void AddObject(CollisionPtr object, bool dynamic);
 
     /**
-    * Updates the world transform of the octree
-    * This allows it to move/scale with the cloth
-    * @param transform The world transform to update to
-    */
-    void UpdateTransform(const Transform& transform);
-
-    /**
     * Renders the octree partition diagnostics
     */
     void RenderDiagnostics();
 
 private:
-
-    /**
-    * Prevent copying
-    */
-    Octree(const Octree&);
-    Octree& operator=(const Octree&);
 
     struct Node
     {
@@ -66,14 +53,23 @@ private:
     {
         std::string id;
         Partition* parent;
-        std::list<Partition> child;
+        std::list<Partition> children;
         std::list<Node> nodes;
         D3DXVECTOR3 minBounds;
         D3DXVECTOR3 maxBounds;
+        float size;
     };
+
+    /**
+    * Prevent copying
+    */
+    Octree(const Octree&);
+    Octree& operator=(const Octree&);
+
+    void RenderPartition(int recursionLevel, const Partition& partition);
+    void GenerateChildren(Partition& parent);
 
     EnginePtr m_engine;              ///< Callbacks for the rendering engine
     std::list<Partition> m_octree;   ///< Octree partitioning of collision objects
-    Transform m_world;               ///< World transform for scaling/centering the octree
 
 };

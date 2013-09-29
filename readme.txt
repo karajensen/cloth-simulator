@@ -1,11 +1,12 @@
 
+• Create wall collisions logic
 • GJK collision detection
 • Octree spacial partitioning
 • Video/update folio
 
 
-• Move cloth to scene
-• Add update function to cloth for octree scaling/positioning
+• Clean algorithm to generate root/children
+• Collision models know what partition they are in for diagnostics
 
 On collision update, calls octree update
     Check if object is still in partition

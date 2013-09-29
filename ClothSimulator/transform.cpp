@@ -98,6 +98,12 @@ void Transform::SetPosition(float x, float y, float z)
     Update(false);
 }
 
+void Transform::TranslateGlobal(D3DXVECTOR3 position)
+{
+    m_position += position;
+    Update(false);
+}
+
 void Transform::Translate(D3DXVECTOR3 position)
 {
     D3DXVec3TransformCoord(&position, &position, &m_rotation);
