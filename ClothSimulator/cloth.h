@@ -40,7 +40,7 @@ public:
     * @param projection the projection matrix
     * @param view the view matrix
     */
-    void DrawMesh(const D3DXVECTOR3& cameraPos, 
+    void Draw(const D3DXVECTOR3& cameraPos, 
         const Matrix& projection, const Matrix& view);
 
     /**
@@ -209,7 +209,8 @@ private:
     * @param p1/p2/p3 The three vertices to generate the normal
     * @return the generated normal
     */
-    D3DXVECTOR3 CalculateNormal(const D3DXVECTOR3& p1, const D3DXVECTOR3& p2, const D3DXVECTOR3& p3);
+    D3DXVECTOR3 CalculateNormal(const D3DXVECTOR3& p1,
+        const D3DXVECTOR3& p2, const D3DXVECTOR3& p3);
     
     /**
     * Adds a force to the given particle

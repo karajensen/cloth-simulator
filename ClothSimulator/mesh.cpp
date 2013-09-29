@@ -21,7 +21,7 @@ Mesh::Mesh(EnginePtr engine):
     m_target(1),
     m_animating(false),
     m_reversing(false),
-    m_speed(0.1f)
+    m_speed(10.0)
 {
     m_data.reset(new MeshData());
     m_collision.reset(new Collision(*this, m_engine));
@@ -170,12 +170,12 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
     return true;
 }
 
-void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos, 
-    const Matrix& projection, const Matrix& view)
+void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
+    const Matrix& projection, const Matrix& view, float deltatime)
 {
     if(m_data->mesh && m_draw)
     {
-        Animate();
+        Animate(deltatime);
 
         LPD3DXEFFECT effect = m_data->shader->GetEffect();
 
@@ -372,7 +372,7 @@ void Mesh::SavePosition()
     }
 }
 
-void Mesh::Animate()
+void Mesh::Animate(float deltatime)
 {
     if(m_animating && !m_animation.empty())
     {
@@ -398,6 +398,6 @@ void Mesh::Animate()
             m_animation[m_target+(m_reversing ? 1 : -1)];
 
         D3DXVec3Normalize(&path, &path);
-        Translate(path * m_speed);
+        Translate(path * m_speed * deltatime);
     }
 }

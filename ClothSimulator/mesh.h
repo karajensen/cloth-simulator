@@ -15,10 +15,6 @@ class Collision;
 */
 struct MeshData
 {
-    LPD3DXMESH mesh;                 ///< The directX mesh
-    LPDIRECT3DTEXTURE9 texture;      ///< The texture attached to the mesh
-    std::shared_ptr<Shader> shader;  ///< The shader attached to the mesh
-
     /**
     * Constructor
     */
@@ -28,6 +24,10 @@ struct MeshData
     * Destructor
     */
     ~MeshData();
+
+    LPD3DXMESH mesh;                 ///< The directX mesh
+    LPDIRECT3DTEXTURE9 texture;      ///< The texture attached to the mesh
+    std::shared_ptr<Shader> shader;  ///< The shader attached to the mesh
 };
 
 /**
@@ -73,9 +73,10 @@ public:
     * @param cameraPos the position of the camera in world coordinates
     * @param projection the projection matrix
     * @param view the view matrix
+    * @param deltatime the deltatime for the application
     */
-    void DrawMesh(const D3DXVECTOR3& cameraPos, 
-        const Matrix& projection, const Matrix& view);
+    void DrawMesh(const D3DXVECTOR3& cameraPos, const Matrix& projection,
+        const Matrix& view, float deltatime = 0.0f);
 
     /**
     * Draw the collision model of the mesh
@@ -176,7 +177,8 @@ public:
     * @param miplevels the number of mipmap levels to generate
     * @return whether loading was successful
     */
-    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions, int miplevels);
+    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
+        const std::string& filename, int dimensions, int miplevels);
 
     /**
     * @return whether the mesh has collision geometry attached to it
@@ -202,8 +204,9 @@ private:
 
     /**
     * Animates the mesh through the list of animation points
+    * @param deltatime The time passed since last frame
     */
-    void Animate();
+    void Animate(float deltatime);
 
     /**
     * Toggle whether this mesh is selected or not
@@ -222,14 +225,13 @@ private:
     D3DXVECTOR3 m_color;                     ///< Color for the mesh
     D3DXVECTOR3 m_selectedcolor;             ///< Color for the selected mesh
     D3DXVECTOR3 m_initialcolor;              ///< initial color for the mesh
+    std::vector<D3DXVECTOR3> m_animation;    ///< Animation points for the mesh
     int m_index;                             ///< User defined index for the mesh
     bool m_pickable;                         ///< Whether the mesh can be mouse picked or not
     bool m_selected;                         ///< Whether the mesh is selected or not
     bool m_draw;                             ///< Whether the mesh is visible or not
-
     int m_target;                            ///< Animation index target
     bool m_animating;                        ///< Whether the mesh is animating or not
     bool m_reversing;                        ///< Whether animating in reverse or not
     float m_speed;                           ///< The speed the mesh will animate
-    std::vector<D3DXVECTOR3> m_animation;    ///< Animation points for the mesh
 };

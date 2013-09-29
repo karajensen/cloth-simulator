@@ -59,6 +59,11 @@ void Transform::SetScale(float x, float y, float z)
     Update(true);
 }
 
+void Transform::SetScale(const D3DXVECTOR3& scale)
+{
+    SetScale(scale.x, scale.y, scale.z);
+}
+
 void Transform::Scale(float x, float y, float z)
 {
     const float minimum = 0.1f;

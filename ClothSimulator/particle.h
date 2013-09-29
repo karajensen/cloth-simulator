@@ -136,15 +136,14 @@ private:
     Particle(const Particle&);
     Particle& operator=(const Particle&);
 
-    D3DXVECTOR3 m_acceleration;      ///< Current acceleration of particle
-    D3DXVECTOR3 m_oldPosition;       ///< Save position from last update
-    D3DXVECTOR3 m_initialPosition;   ///< Initial position of particle 
-    D3DXVECTOR3 m_position;          ///< Current position in world coordinates of particle
-    D3DXVECTOR2 m_uvs;               ///< Texture uvs for the particle
-    Transform m_transform;           ///< Current transform of particle
-    bool m_selected;                 ///< Whether particle is selected or not
-    bool m_pinned;                   ///< Whether particle is pinned or not
-    unsigned int m_index;            ///< Internal index of the particle
-
-    std::shared_ptr<Collision> m_collision; ///< Collision geometry for particle
+    D3DXVECTOR3 m_acceleration;              ///< Current acceleration of particle
+    D3DXVECTOR3 m_oldPosition;               ///< Save position from last update
+    D3DXVECTOR3 m_initialPosition;           ///< Initial position of particle 
+    D3DXVECTOR3 m_position;                  ///< Current position in world coordinates of particle
+    D3DXVECTOR2 m_uvs;                       ///< Texture uvs for the particle
+    Transform m_transform;                   ///< Current transform of particle
+    bool m_selected;                         ///< Whether particle is selected or not
+    bool m_pinned;                           ///< Whether particle is pinned or not
+    unsigned int m_index;                    ///< Internal index of the particle
+    std::shared_ptr<Collision> m_collision;  ///< Collision geometry for particle
 };

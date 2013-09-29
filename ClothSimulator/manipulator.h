@@ -87,6 +87,9 @@ private:
         NO_AXIS
     };
 
+    /**
+    * The tool comprising of three axis
+    */
     struct Tool
     {
         /**
@@ -156,14 +159,11 @@ private:
     */
     void AnimateMesh(MeshPtr mesh, float value);
 
-    EnginePtr m_engine;                         ///< Callbacks for the rendering engine
-    std::vector<std::shared_ptr<Tool>> m_tools; ///< all usable tools
-    ToolType m_selectedTool;                    ///< Currently selected tool
-    ToolAxis m_selectedAxis;                    ///< currently selected axis
-    LPD3DXMESH m_sphere;                        ///< Animation geometry sphere
-    std::shared_ptr<Shader> m_shader;           ///< Animation point shader
-    bool m_saveAnimation;                       ///< Whether to allow the position to be saved
-
-    D3DXMATRIX proj;
-    D3DXMATRIX viewmat;
+    EnginePtr m_engine;                          ///< Callbacks for the rendering engine
+    std::vector<std::shared_ptr<Tool>> m_tools;  ///< all usable tools
+    ToolType m_selectedTool;                     ///< Currently selected tool
+    ToolAxis m_selectedAxis;                     ///< currently selected axis
+    LPD3DXMESH m_sphere;                         ///< Animation geometry sphere
+    std::shared_ptr<Shader> m_shader;            ///< Animation point shader
+    bool m_saveAnimation;                        ///< Whether to allow the position to be saved
 };

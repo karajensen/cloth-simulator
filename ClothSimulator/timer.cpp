@@ -60,3 +60,8 @@ double Timer::UpdateTimer()
 
     return m_deltaTime; 
 }
+
+float Timer::GetDeltaTime() const 
+{ 
+    return static_cast<float>(m_deltaTime); 
+}

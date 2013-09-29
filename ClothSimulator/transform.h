@@ -70,6 +70,13 @@ public:
     /**
     * Explicitly set the transform to a scale
     * Should be called before any rotation has been applied
+    * @param scale The scale to be set for each components
+    */
+    void SetScale(const D3DXVECTOR3& scale);
+
+    /**
+    * Explicitly set the transform to a scale
+    * Should be called before any rotation has been applied
     * @param scale The scale to be set to all components
     */
     void SetScale(float scale);

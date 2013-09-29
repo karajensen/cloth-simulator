@@ -187,19 +187,20 @@ void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colo
     forward /= size;
 
     linemap[id].world.MakeIdentity();
+    D3DXVECTOR3 up = linemap[id].world.Up();
+    D3DXVECTOR3 right = linemap[id].world.Right();
+    
     if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > 0)
     {
-        D3DXVECTOR3 up;
         D3DXVec3Cross(&up, &ZAXIS, &forward);
         D3DXVec3Normalize(&up, &up);
 
-        D3DXVECTOR3 right;
         D3DXVec3Cross(&right, &up, &forward);
         D3DXVec3Normalize(&right, &right);
-
-        forward *= size;
-        linemap[id].world.SetAxis(up, forward, right);
     }
+
+    forward *= size;
+    linemap[id].world.SetAxis(up, forward, right);
     linemap[id].world.SetPosition(middle);
     linemap[id].draw = true;
 }

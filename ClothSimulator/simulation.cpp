@@ -49,8 +49,8 @@ void Simulation::Render()
     m_d3ddev->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
     D3DXVECTOR3 cameraPosition(m_camera->World().Position());
-    m_scene->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
-    m_cloth->DrawMesh(cameraPosition, m_camera->Projection(), m_camera->View());
+    m_scene->Draw(m_timer->GetDeltaTime(), cameraPosition, m_camera->Projection(), m_camera->View());
+    m_cloth->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
     m_cloth->DrawCollision(m_camera->Projection(), m_camera->View());
     m_scene->DrawCollision(m_camera->Projection(), m_camera->View());
     m_scene->DrawTools(cameraPosition, m_camera->Projection(), m_camera->View());
@@ -165,8 +165,8 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         m_shader->GetShader(ShaderManager::BOUNDS_SHADER));
 
     // Initialise the simulation
-    m_scene.reset(new Scene(engine));
     m_cloth.reset(new Cloth(engine));
+    m_scene.reset(new Scene(engine));
     m_solver.reset(new CollisionSolver(m_cloth));
 
     // Initialise the input

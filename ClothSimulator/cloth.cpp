@@ -280,7 +280,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_data->mesh->UnlockIndexBuffer();
 }
 
-void Cloth::DrawMesh(const D3DXVECTOR3& cameraPos, const Matrix& projection, const Matrix& view)
+void Cloth::Draw(const D3DXVECTOR3& cameraPos, const Matrix& projection, const Matrix& view)
 {
     if(m_data->mesh)
     {

@@ -33,7 +33,7 @@ public:
     /**
     * @return delta time
     */
-    float GetDeltaTime() const { return static_cast<float>(m_deltaTime); }
+    float GetDeltaTime() const;
 
 private:
 

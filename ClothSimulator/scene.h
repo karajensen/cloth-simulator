@@ -7,6 +7,8 @@
 #include "callbacks.h"
 #include <queue>
 
+class Cloth;
+class Octree;
 class Shader;
 class CollisionSolver;
 class Mesh;
@@ -41,11 +43,12 @@ public:
 
     /**
     * Draws all scene meshes
+    * @param deltatime The deltatime for the application
     * @param position The camera position
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void Draw(const D3DXVECTOR3& position,
+    void Draw(float deltatime, const D3DXVECTOR3& position,
         const Matrix& projection, const Matrix& view);
 
     /**
@@ -142,6 +145,8 @@ private:
     std::vector<MeshPtr> m_meshes;               ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates;            ///< Mesh templates for creating mesh instances
     std::shared_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
+    std::shared_ptr<Octree> m_octree;            ///< octree paritioning for scene objects
     int m_selectedMesh;                          ///< Currently selected object
+    bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

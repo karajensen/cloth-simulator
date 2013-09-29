@@ -3,14 +3,9 @@
 • Octree spacial partitioning
 • Video/update folio
 
-struct Partition
-{
-    Partition* parent;
-    std::list<Partition> child;
-    std::list<CollisionPtr> objects;
-    D3DXVECTOR3 minBounds;
-    D3DXVECTOR3 maxBounds;
-};
+
+• Move cloth to scene
+• Add update function to cloth for octree scaling/positioning
 
 On collision update, calls octree update
     Check if object is still in partition

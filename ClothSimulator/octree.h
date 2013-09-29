@@ -4,6 +4,8 @@
 
 #pragma once
 #include "common.h"
+#include "callbacks.h"
+#include <list>
 
 class Collision;
 
@@ -17,9 +19,10 @@ public:
     typedef std::shared_ptr<Collision> CollisionPtr;
 
     /**
-    * Constructor
+    * Constructor; loads the cloth mesh
+    * @param engine Callbacks from the rendering engine
     */
-    Octree();
+    explicit Octree(EnginePtr engine);
 
     /**
     * Forms the initial tree of objects
@@ -33,6 +36,18 @@ public:
     */
     void AddObject(CollisionPtr object, bool dynamic);
 
+    /**
+    * Updates the world transform of the octree
+    * This allows it to move/scale with the cloth
+    * @param transform The world transform to update to
+    */
+    void UpdateTransform(const Transform& transform);
+
+    /**
+    * Renders the octree partition diagnostics
+    */
+    void RenderDiagnostics();
+
 private:
 
     /**
@@ -41,6 +56,24 @@ private:
     Octree(const Octree&);
     Octree& operator=(const Octree&);
 
-    std::vector<CollisionPtr> m_dynamic; ///< Can be moved through collision resolution
-    std::vector<CollisionPtr> m_static; ///< Cannot be moved through collision resolution
+    struct Node
+    {
+        CollisionPtr collision;
+        bool dynamic;
+    };
+
+    struct Partition
+    {
+        std::string id;
+        Partition* parent;
+        std::list<Partition> child;
+        std::list<Node> nodes;
+        D3DXVECTOR3 minBounds;
+        D3DXVECTOR3 maxBounds;
+    };
+
+    EnginePtr m_engine;              ///< Callbacks for the rendering engine
+    std::list<Partition> m_octree;   ///< Octree partitioning of collision objects
+    Transform m_world;               ///< World transform for scaling/centering the octree
+
 };
