@@ -28,7 +28,7 @@ namespace
 }
 
 Simulation::Simulation() :
-    m_drawCollisionMeshs(false),
+    m_drawCollisions(false),
     m_d3ddev(nullptr)
 {
 }
@@ -51,8 +51,8 @@ void Simulation::Render()
     D3DXVECTOR3 cameraPosition(m_camera->World().Position());
     m_scene->Draw(m_timer->GetDeltaTime(), cameraPosition, m_camera->Projection(), m_camera->View());
     m_cloth->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
-    m_cloth->DrawCollisionMesh(m_camera->Projection(), m_camera->View());
-    m_scene->DrawCollisionMesh(m_camera->Projection(), m_camera->View());
+    m_cloth->DrawCollisions(m_camera->Projection(), m_camera->View());
+    m_scene->DrawCollisions(m_camera->Projection(), m_camera->View());
     m_scene->DrawTools(cameraPosition, m_camera->Projection(), m_camera->View());
 
     m_diagnostics->DrawAllObjects(m_camera->Projection(), m_camera->View());
@@ -89,7 +89,7 @@ void Simulation::Update()
         m_camera->World(), m_camera->InverseProjection(), 
         static_cast<float>(deltaTime));
 
-    m_scene->SolveClothCollisionMesh(*m_solver);
+    m_scene->SolveClothCollisions(*m_solver);
     m_cloth->UpdateVertexBuffer();
 
     D3DPERF_EndEvent();
@@ -270,11 +270,11 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), true),
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
     
-    // Toggle mesh CollisionMesh model diagnostics
+    // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_9, false, [&]()
     {
-        m_drawCollisionMeshs = !m_drawCollisionMeshs;
-        m_cloth->SetCollisionMeshVisibility(m_drawCollisionMeshs);
-        m_scene->SetCollisionMeshVisibility(m_drawCollisionMeshs);
+        m_drawCollisions = !m_drawCollisions;
+        m_cloth->SetCollisionVisibility(m_drawCollisions);
+        m_scene->SetCollisionVisibility(m_drawCollisions);
     });
 }

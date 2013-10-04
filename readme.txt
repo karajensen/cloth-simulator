@@ -39,7 +39,7 @@ RALT-CLICK:     Allows selection of particle. Cloth diagnostics must be toggled
 WASDQE:         Control the cloth in handle mode
 1-4:            Toggle different cloth edge in handle mode
 0:              Toggle text diagnostics
-9:              Toggle CollisionMesh models
+9:              Toggle collision models
 8:              Toggle general diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics

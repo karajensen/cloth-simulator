@@ -28,11 +28,11 @@ public:
     explicit Cloth(EnginePtr engine);
 
     /**
-    * Draw the cloth visual and CollisionMesh models
+    * Draw the cloth visual and collision models
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
+    void DrawCollisions(const Matrix& projection, const Matrix& view);
 
     /**
     * Draw the visual model of the mesh
@@ -126,9 +126,9 @@ public:
     void SetVertexVisibility(bool draw);
 
     /**
-    * @param draw Set whether the CollisionMesh meshes are visible or not
+    * @param draw Set whether the collision meshes are visible or not
     */
-    void SetCollisionMeshVisibility(bool draw);
+    void SetCollisionVisibility(bool draw);
 
     /**
     * @param set Shether handle mode is active or not
@@ -246,22 +246,22 @@ private:
     int m_quadVertices;         ///< Number of vertices that center each quad
     bool m_simulation;          ///< Whether the cloth is currently simulating
     bool m_drawVisualParticles; ///< Whether particle visual models are drawn
-    bool m_drawColParticles;    ///< Whether particle CollisionMesh models are drawn
+    bool m_drawColParticles;    ///< Whether particle collision models are drawn
     float m_spacing;            ///< Current spacing between vertices
     bool m_handleMode;          ///< Whether the simulation is in handle mode
     D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
     bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
     int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
 
-    EnginePtr m_engine;                       ///< Callbacks for the rendering engine
-    std::vector<D3DXVECTOR3> m_colors;        ///< Viable colors for the particles
-    std::vector<SpringPtr> m_springs;         ///< Springs connecting particles together
-    std::vector<ParticlePtr> m_particles;     ///< Particles across the cloth grid
-    std::vector<Vertex> m_vertexData;         ///< DirectX Vertex data
-    std::vector<DWORD> m_indexData;           ///< DirectX Index data
-    void* m_vertexBuffer;                     ///< Raw Pointer to DirectX Vertex Buffer
-    void* m_indexBuffer;                      ///< Raw Pointer to DirectX Index Buffer
-    std::shared_ptr<CollisionSolver> m_CollisionMesh; ///< CollisionMesh solver for the cloth
-    std::shared_ptr<CollisionMesh> m_template;    ///< Template CollisionMesh for all particles
-    std::shared_ptr<MeshData> m_data;         ///< Data for rendering/instancing the mesh
+    EnginePtr m_engine;                           ///< Callbacks for the rendering engine
+    std::vector<D3DXVECTOR3> m_colors;            ///< Viable colors for the particles
+    std::vector<SpringPtr> m_springs;             ///< Springs connecting particles together
+    std::vector<ParticlePtr> m_particles;         ///< Particles across the cloth grid
+    std::vector<Vertex> m_vertexData;             ///< DirectX Vertex data
+    std::vector<DWORD> m_indexData;               ///< DirectX Index data
+    void* m_vertexBuffer;                         ///< Raw Pointer to DirectX Vertex Buffer
+    void* m_indexBuffer;                          ///< Raw Pointer to DirectX Index Buffer
+    std::shared_ptr<CollisionSolver> m_collision; ///< collision solver for the cloth
+    std::shared_ptr<CollisionMesh> m_template;    ///< Template collision for all particles
+    std::shared_ptr<MeshData> m_data;             ///< Data for rendering/instancing the mesh
 };

@@ -324,7 +324,7 @@ void Cloth::SetVertexVisibility(bool draw)
     m_drawVisualParticles = draw;
 }
 
-void Cloth::SetCollisionMeshVisibility(bool draw)
+void Cloth::SetCollisionVisibility(bool draw)
 {
     m_drawColParticles = draw;
 }
@@ -380,7 +380,7 @@ Cloth::ParticlePtr& Cloth::GetParticle(int row, int col)
     return m_particles[col*m_particleLength + row];
 }
 
-void Cloth::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
+void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
 {
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
     {
@@ -400,15 +400,15 @@ void Cloth::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
     {
         const auto& vertex = m_vertexData[m_diagnosticParticle].position;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-        const auto& CollisionMesh = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
+        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
 
         m_engine->diagnostic()->UpdateText("Particle",
             Diagnostic::YELLOW, StringCast(position.x) + ", " +
             StringCast(position.y) + ", " + StringCast(position.z));
 
-        m_engine->diagnostic()->UpdateText("CollisionMesh", 
-            Diagnostic::YELLOW, StringCast(CollisionMesh.x) + ", " + 
-            StringCast(CollisionMesh.y) + ", " + StringCast(CollisionMesh.z));
+        m_engine->diagnostic()->UpdateText("Collision", 
+            Diagnostic::YELLOW, StringCast(collision.x) + ", " + 
+            StringCast(collision.y) + ", " + StringCast(collision.z));
 
         m_engine->diagnostic()->UpdateText("Vertex",
             Diagnostic::YELLOW, StringCast(vertex.x) + ", " + 
@@ -437,7 +437,7 @@ bool Cloth::MousePickingTest(Picking& input)
         {
             D3DXMATRIX worldInverse;
             D3DXMatrixInverse(&worldInverse, NULL,
-                &m_particles[i]->GetCollisionMesh()->CollisionMeshMatrix().GetMatrix());
+                &m_particles[i]->GetCollisionMesh()->CollisionMatrix().GetMatrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;

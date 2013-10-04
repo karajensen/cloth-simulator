@@ -28,8 +28,8 @@ public:
     * @param position The intial position of the particle
     * @param uv The uvs for the particle
     * @param index The internal index of the particle
-    * @param geometry The CollisionMesh geometry for the particle
-    * @param data The CollisionMesh data for the particle
+    * @param geometry The collision geometry for the particle
+    * @param data The collision data for the particle
     */
     void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
          std::shared_ptr<CollisionMesh::Geometry> geometry, const CollisionMesh::Data& data);
@@ -42,14 +42,14 @@ public:
     void DrawVisualMesh(const Matrix& projection, const Matrix& view);
 
     /**
-    * Draws the particle CollisionMesh mesh
+    * Draws the particle collision mesh
     * @param projection The projection matrix
     * @param view The view matrix
     */
     void DrawCollisionMeshMesh(const Matrix& projection, const Matrix& view);
 
     /**
-    * @return the particle CollisionMesh mesh object
+    * @return the particle collision mesh object
     */
     CollisionMesh* GetCollisionMesh();
 
@@ -135,15 +135,15 @@ private:
     */
     Particle(const Particle&);
     Particle& operator=(const Particle&);
-
-    D3DXVECTOR3 m_acceleration;              ///< Current acceleration of particle
-    D3DXVECTOR3 m_oldPosition;               ///< Save position from last update
-    D3DXVECTOR3 m_initialPosition;           ///< Initial position of particle 
-    D3DXVECTOR3 m_position;                  ///< Current position in world coordinates of particle
-    D3DXVECTOR2 m_uvs;                       ///< Texture uvs for the particle
-    Transform m_transform;                   ///< Current transform of particle
-    bool m_selected;                         ///< Whether particle is selected or not
-    bool m_pinned;                           ///< Whether particle is pinned or not
-    unsigned int m_index;                    ///< Internal index of the particle
-    std::shared_ptr<CollisionMesh> m_CollisionMesh;  ///< CollisionMesh geometry for particle
+                                               
+    D3DXVECTOR3 m_acceleration;                  ///< Current acceleration of particle
+    D3DXVECTOR3 m_oldPosition;                   ///< Save position from last update
+    D3DXVECTOR3 m_initialPosition;               ///< Initial position of particle 
+    D3DXVECTOR3 m_position;                      ///< Current position in world coordinates of particle
+    D3DXVECTOR2 m_uvs;                           ///< Texture uvs for the particle
+    Transform m_transform;                       ///< Current transform of particle
+    bool m_selected;                             ///< Whether particle is selected or not
+    bool m_pinned;                               ///< Whether particle is pinned or not
+    unsigned int m_index;                        ///< Internal index of the particle
+    std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
 };

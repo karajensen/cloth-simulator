@@ -139,7 +139,7 @@ D3DXVECTOR3 CollisionMesh::GetPosition() const
     return m_world.Position();
 }
 
-const Matrix& CollisionMesh::CollisionMeshMatrix() const
+const Matrix& CollisionMesh::CollisionMatrix() const
 {
     return m_world;
 }
@@ -273,7 +273,7 @@ void CollisionMesh::FullUpdate()
 
 void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
 {
-    //assumes CollisionMesh is a sphere with no scaling from parent
+    //assumes the mesh is a sphere with no scaling from parent
     float scale = m_data.localWorld.GetScale().x;
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;

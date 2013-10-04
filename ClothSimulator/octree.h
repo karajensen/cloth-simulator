@@ -10,7 +10,7 @@
 class CollisionMesh;
 
 /**
-* Partitions the scene into sections for effecient CollisionMesh detection
+* Partitions the scene into sections for effecient collision detection
 */
 class Octree
 {
@@ -19,19 +19,19 @@ public:
     typedef std::shared_ptr<CollisionMesh> CollisionMeshPtr;
 
     /**
-    * Constructor; loads the cloth mesh
+    * Constructor
     * @param engine Callbacks from the rendering engine
     */
     explicit Octree(EnginePtr engine);
 
     /**
-    * Forms the initial tree of objects
+    * Forms the root partitions for the tree
     */
     void BuildInitialTree();
 
     /**
-    * Adds a CollisionMesh object to the octree
-    * @param object The CollisionMesh object to add
+    * Adds a collision object to the octree
+    * @param object The collision object to add
     * @param dynamic Whether the object is static or dynamic
     */
     void AddObject(CollisionMeshPtr object, bool dynamic);
@@ -70,6 +70,6 @@ private:
     void GenerateChildren(Partition& parent);
 
     EnginePtr m_engine;              ///< Callbacks for the rendering engine
-    std::list<Partition> m_octree;   ///< Octree partitioning of CollisionMesh objects
+    std::list<Partition> m_octree;   ///< Octree partitioning of collision objects
 
 };

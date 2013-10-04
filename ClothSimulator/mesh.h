@@ -61,11 +61,11 @@ public:
     /**
     * Load the mesh as an instance of another mesh
     * @param d3ddev The directX device
-    * @param CollisionMesh The CollisionMesh of the other mesh or null if none
+    * @param collisionmesh The collsion of the other mesh or null if none
     * @param data The meshdata from the other mesh
     * @param index A user defined index
     */
-    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* CollisionMesh, 
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisionmesh, 
         std::shared_ptr<MeshData> data, int index = NO_INDEX);
 
     /**
@@ -79,7 +79,7 @@ public:
         const Matrix& view, float deltatime = 0.0f);
 
     /**
-    * Draw the CollisionMesh model of the mesh
+    * Draw the collision model of the mesh
     * @param projection the projection matrix
     * @param view the view matrix
     */
@@ -114,22 +114,22 @@ public:
     CollisionMesh* GetCollisionMesh();
 
     /**
-    * Creates a CollisionMesh cube for the mesh
+    * Creates a collision cube for the mesh
     * @param d3ddev The directX device
-    * @param width/height/depth The dimensions of the CollisionMesh box
+    * @param width/height/depth The dimensions of the collision box
     */
     void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
 
     /**
-    * Creates a CollisionMesh sphere for the mesh
+    * Creates a collision sphere for the mesh
     * @param d3ddev The directX device
     * @param radius The initial radius of the sphere
-    * @param quality The detail of the CollisionMesh sphere
+    * @param quality The detail of the collision sphere
     */
     void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality);
 
     /**
-    * Creates a CollisionMesh cylinder for the mesh
+    * Creates a collision cylinder for the mesh
     * @param d3ddev The directX device
     * @param radius The initial radius of the cylinder
     * @param length The length of the cylinder.
@@ -138,9 +138,9 @@ public:
     void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality);
 
     /**
-    * @param draw whether the CollisionMesh mesh is visible
+    * @param draw whether the collision mesh is visible
     */
-    virtual void SetCollisionMeshVisibility(bool draw);
+    virtual void SetCollisionVisibility(bool draw);
 
     /**
     * @param pickable whether the mesh is pickable or not
@@ -181,7 +181,7 @@ public:
         const std::string& filename, int dimensions, int miplevels);
 
     /**
-    * @return whether the mesh has CollisionMesh geometry attached to it
+    * @return whether the mesh has collision geometry attached to it
     */
     bool HasCollisionMesh() const;
 
@@ -219,19 +219,19 @@ private:
     Mesh(const Mesh&);
     Mesh& operator=(const Mesh&);
 
-    EnginePtr m_engine;                      ///< Callbacks for the rendering engine
-    std::shared_ptr<CollisionMesh> m_CollisionMesh;  ///< The CollisionMesh geometry attached to the mesh
-    std::shared_ptr<MeshData> m_data;        ///< Data for rendering/instancing the mesh
-    D3DXVECTOR3 m_color;                     ///< Color for the mesh
-    D3DXVECTOR3 m_selectedcolor;             ///< Color for the selected mesh
-    D3DXVECTOR3 m_initialcolor;              ///< initial color for the mesh
-    std::vector<D3DXVECTOR3> m_animation;    ///< Animation points for the mesh
-    int m_index;                             ///< User defined index for the mesh
-    bool m_pickable;                         ///< Whether the mesh can be mouse picked or not
-    bool m_selected;                         ///< Whether the mesh is selected or not
-    bool m_draw;                             ///< Whether the mesh is visible or not
-    int m_target;                            ///< Animation index target
-    bool m_animating;                        ///< Whether the mesh is animating or not
-    bool m_reversing;                        ///< Whether animating in reverse or not
-    float m_speed;                           ///< The speed the mesh will animate
+    EnginePtr m_engine;                          ///< Callbacks for the rendering engine
+    std::shared_ptr<CollisionMesh> m_collision;  ///< The collision geometry attached to the mesh
+    std::shared_ptr<MeshData> m_data;            ///< Data for rendering/instancing the mesh
+    D3DXVECTOR3 m_color;                         ///< Color for the mesh
+    D3DXVECTOR3 m_selectedcolor;                 ///< Color for the selected mesh
+    D3DXVECTOR3 m_initialcolor;                  ///< initial color for the mesh
+    std::vector<D3DXVECTOR3> m_animation;        ///< Animation points for the mesh
+    int m_index;                                 ///< User defined index for the mesh
+    bool m_pickable;                             ///< Whether the mesh can be mouse picked or not
+    bool m_selected;                             ///< Whether the mesh is selected or not
+    bool m_draw;                                 ///< Whether the mesh is visible or not
+    int m_target;                                ///< Animation index target
+    bool m_animating;                            ///< Whether the mesh is animating or not
+    bool m_reversing;                            ///< Whether animating in reverse or not
+    float m_speed;                               ///< The speed the mesh will animate
 };

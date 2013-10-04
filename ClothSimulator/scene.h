@@ -60,11 +60,11 @@ public:
         const Matrix& projection, const Matrix& view);
 
     /**
-    * Draws all scene mesh CollisionMeshs
+    * Draws all scene mesh collisions
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
+    void DrawCollisions(const Matrix& projection, const Matrix& view);
 
     /**
     * Removes the currently selected object if possible
@@ -100,22 +100,22 @@ public:
     * @param direction The mouse movement direction
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
-    * @param deltatime The deltatime for  the simulation
+    * @param deltatime The deltatime for the simulation
     */
     void UpdateState(bool pressed, const D3DXVECTOR2& direction,
         const Matrix& world, const Matrix& invProjection, float deltatime);
 
     /**
-    * Solves the CollisionMesh between scene objects and the cloth
-    * @param solver the cloth solver for object-cloth CollisionMeshs
+    * Solves the collision between scene objects and the cloth
+    * @param solver The cloth solver for object-cloth collisions
     */
-    void SolveClothCollisionMesh(CollisionSolver& solver);
+    void SolveClothCollisions(CollisionSolver& solver);
 
     /**
-    * Set the visibility of the CollisionMesh mesh
-    * @param visible whether the CollisionMesh mesh if visible or not
+    * Set the visibility of the scene collision meshes
+    * @param visible whether the collision meshes are visible or not
     */
-    void SetCollisionMeshVisibility(bool visible);
+    void SetCollisionVisibility(bool visible);
 
     /**
     * Loads the gui callbacks
@@ -146,8 +146,8 @@ private:
     std::shared_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     std::shared_ptr<Octree> m_octree;            ///< octree paritioning for scene objects
     MeshPtr m_ground;                            ///< Ground grid mesh
-    std::vector<MeshPtr> m_walls;                ///< Wall CollisionMesh meshes
+    std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
     int m_selectedMesh;                          ///< Currently selected object
-    bool m_drawCollisionMeshs;                       ///< Whether to render the mesh CollisionMesh models or not
+    bool m_drawCollisions;                   ///< Whether to render the mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

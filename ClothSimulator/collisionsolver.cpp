@@ -11,9 +11,9 @@ CollisionSolver::CollisionSolver(std::shared_ptr<Cloth> cloth) :
 {
 }
 
-void CollisionSolver::SolveSelfCollisionMesh()
+void CollisionSolver::SolveSelfCollision()
 {
-    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollisionMesh");
+    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollision");
 
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
