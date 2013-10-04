@@ -7,16 +7,16 @@
 #include "callbacks.h"
 #include <list>
 
-class Collision;
+class CollisionMesh;
 
 /**
-* Partitions the scene into sections for effecient collision detection
+* Partitions the scene into sections for effecient CollisionMesh detection
 */
 class Octree
 {
 public:
 
-    typedef std::shared_ptr<Collision> CollisionPtr;
+    typedef std::shared_ptr<CollisionMesh> CollisionMeshPtr;
 
     /**
     * Constructor; loads the cloth mesh
@@ -30,11 +30,11 @@ public:
     void BuildInitialTree();
 
     /**
-    * Adds a collision object to the octree
-    * @param object The collision object to add
+    * Adds a CollisionMesh object to the octree
+    * @param object The CollisionMesh object to add
     * @param dynamic Whether the object is static or dynamic
     */
-    void AddObject(CollisionPtr object, bool dynamic);
+    void AddObject(CollisionMeshPtr object, bool dynamic);
 
     /**
     * Renders the octree partition diagnostics
@@ -45,7 +45,7 @@ private:
 
     struct Node
     {
-        CollisionPtr collision;
+        CollisionMeshPtr CollisionMesh;
         bool dynamic;
     };
 
@@ -70,6 +70,6 @@ private:
     void GenerateChildren(Partition& parent);
 
     EnginePtr m_engine;              ///< Callbacks for the rendering engine
-    std::list<Partition> m_octree;   ///< Octree partitioning of collision objects
+    std::list<Partition> m_octree;   ///< Octree partitioning of CollisionMesh objects
 
 };

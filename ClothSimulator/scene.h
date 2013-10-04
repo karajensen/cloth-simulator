@@ -60,11 +60,11 @@ public:
         const Matrix& projection, const Matrix& view);
 
     /**
-    * Draws all scene mesh collisions
+    * Draws all scene mesh CollisionMeshs
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void DrawCollision(const Matrix& projection, const Matrix& view);
+    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * Removes the currently selected object if possible
@@ -106,16 +106,16 @@ public:
         const Matrix& world, const Matrix& invProjection, float deltatime);
 
     /**
-    * Solves the collision between scene objects and the cloth
-    * @param solver the cloth solver for object-cloth collisions
+    * Solves the CollisionMesh between scene objects and the cloth
+    * @param solver the cloth solver for object-cloth CollisionMeshs
     */
-    void SolveClothCollision(CollisionSolver& solver);
+    void SolveClothCollisionMesh(CollisionSolver& solver);
 
     /**
-    * Set the visibility of the collision mesh
-    * @param visible whether the collision mesh if visible or not
+    * Set the visibility of the CollisionMesh mesh
+    * @param visible whether the CollisionMesh mesh if visible or not
     */
-    void SetCollisionVisibility(bool visible);
+    void SetCollisionMeshVisibility(bool visible);
 
     /**
     * Loads the gui callbacks
@@ -146,8 +146,8 @@ private:
     std::shared_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     std::shared_ptr<Octree> m_octree;            ///< octree paritioning for scene objects
     MeshPtr m_ground;                            ///< Ground grid mesh
-    std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
+    std::vector<MeshPtr> m_walls;                ///< Wall CollisionMesh meshes
     int m_selectedMesh;                          ///< Currently selected object
-    bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
+    bool m_drawCollisionMeshs;                       ///< Whether to render the mesh CollisionMesh models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

@@ -8,7 +8,7 @@
 #include "picking.h"
 #include "callbacks.h"
 
-class Collision;
+class CollisionMesh;
 
 /**
 * Data for rendering and instancing a mesh
@@ -61,11 +61,11 @@ public:
     /**
     * Load the mesh as an instance of another mesh
     * @param d3ddev The directX device
-    * @param collision The collision of the other mesh or null if none
+    * @param CollisionMesh The CollisionMesh of the other mesh or null if none
     * @param data The meshdata from the other mesh
     * @param index A user defined index
     */
-    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision, 
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* CollisionMesh, 
         std::shared_ptr<MeshData> data, int index = NO_INDEX);
 
     /**
@@ -79,11 +79,11 @@ public:
         const Matrix& view, float deltatime = 0.0f);
 
     /**
-    * Draw the collision model of the mesh
+    * Draw the CollisionMesh model of the mesh
     * @param projection the projection matrix
     * @param view the view matrix
     */
-    void DrawCollision(const Matrix& projection, const Matrix& view);
+    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * Tests whether mesh was clicked
@@ -111,36 +111,36 @@ public:
     /**
     * @return the collison mesh
     */
-    Collision* GetCollision();
+    CollisionMesh* GetCollisionMesh();
 
     /**
-    * Creates a collision cube for the mesh
+    * Creates a CollisionMesh cube for the mesh
     * @param d3ddev The directX device
-    * @param width/height/depth The dimensions of the collision box
+    * @param width/height/depth The dimensions of the CollisionMesh box
     */
-    void CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
+    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
 
     /**
-    * Creates a collision sphere for the mesh
+    * Creates a CollisionMesh sphere for the mesh
     * @param d3ddev The directX device
     * @param radius The initial radius of the sphere
-    * @param quality The detail of the collision sphere
+    * @param quality The detail of the CollisionMesh sphere
     */
-    void CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality);
+    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality);
 
     /**
-    * Creates a collision cylinder for the mesh
+    * Creates a CollisionMesh cylinder for the mesh
     * @param d3ddev The directX device
     * @param radius The initial radius of the cylinder
     * @param length The length of the cylinder.
     * @param quality The detail of the cylinder
     */
-    void CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality);
+    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality);
 
     /**
-    * @param draw whether the collision mesh is visible
+    * @param draw whether the CollisionMesh mesh is visible
     */
-    virtual void SetCollisionVisibility(bool draw);
+    virtual void SetCollisionMeshVisibility(bool draw);
 
     /**
     * @param pickable whether the mesh is pickable or not
@@ -181,9 +181,9 @@ public:
         const std::string& filename, int dimensions, int miplevels);
 
     /**
-    * @return whether the mesh has collision geometry attached to it
+    * @return whether the mesh has CollisionMesh geometry attached to it
     */
-    bool HasCollision() const;
+    bool HasCollisionMesh() const;
 
     /**
     * Resets the animation
@@ -220,7 +220,7 @@ private:
     Mesh& operator=(const Mesh&);
 
     EnginePtr m_engine;                      ///< Callbacks for the rendering engine
-    std::shared_ptr<Collision> m_collision;  ///< The collision geometry attached to the mesh
+    std::shared_ptr<CollisionMesh> m_CollisionMesh;  ///< The CollisionMesh geometry attached to the mesh
     std::shared_ptr<MeshData> m_data;        ///< Data for rendering/instancing the mesh
     D3DXVECTOR3 m_color;                     ///< Color for the mesh
     D3DXVECTOR3 m_selectedcolor;             ///< Color for the selected mesh

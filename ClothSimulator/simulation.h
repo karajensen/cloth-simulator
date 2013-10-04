@@ -82,7 +82,7 @@ private:
 
     std::shared_ptr<LightManager> m_light;       ///< Manager for the simulation lights
     std::shared_ptr<ShaderManager> m_shader;     ///< Manager for the simulation shaders
-    std::shared_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth
+    std::shared_ptr<CollisionSolver> m_solver;   ///< CollisionMesh solver for cloth
     std::shared_ptr<Timer> m_timer;              ///< Simulation timer object
     std::shared_ptr<Cloth> m_cloth;              ///< Simulation cloth object
     std::shared_ptr<Input> m_input;              ///< Simulation input object
@@ -90,5 +90,5 @@ private:
     std::shared_ptr<Scene> m_scene;              ///< Mesh manager for the scene
     std::shared_ptr<Diagnostic> m_diagnostics;   ///< Diagnostic renderer
     LPDIRECT3DDEVICE9 m_d3ddev;                  ///< DirectX device
-    bool m_drawCollisions;                       ///< Whether to display collision models
+    bool m_drawCollisionMeshs;                       ///< Whether to display CollisionMesh models
 };

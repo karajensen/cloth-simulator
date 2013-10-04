@@ -4,7 +4,7 @@
 
 #include "mesh.h"
 #include "assimpmesh.h"
-#include "collision.h"
+#include "collisionmesh.h"
 #include "Shader.h"
 #include "input.h"
 #include "light.h"
@@ -24,13 +24,13 @@ Mesh::Mesh(EnginePtr engine):
     m_speed(10.0)
 {
     m_data.reset(new MeshData());
-    m_collision.reset(new Collision(*this, m_engine));
+    m_CollisionMesh.reset(new CollisionMesh(*this, m_engine));
 
     Transform::UpdateFn fullFn =
-        std::bind(&Collision::FullUpdate, m_collision);
+        std::bind(&CollisionMesh::FullUpdate, m_CollisionMesh);
 
     Transform::UpdateFn positionalFn =
-        std::bind(&Collision::PositionalUpdate, m_collision);
+        std::bind(&CollisionMesh::PositionalUpdate, m_CollisionMesh);
 
     SetObserver(fullFn, positionalFn);
 }
@@ -158,14 +158,14 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename,
     return true;
 }
 
-bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const Collision* collision,
+bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* CollisionMesh,
     std::shared_ptr<MeshData> data, int index)
 {
     m_index = index;
     m_data = data;
-    if(collision)
+    if(CollisionMesh)
     {
-        m_collision->LoadInstance(collision->GetData(), collision->GetGeometry());
+        m_CollisionMesh->LoadInstance(CollisionMesh->GetData(), CollisionMesh->GetGeometry());
     }
     return true;
 }
@@ -208,28 +208,28 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     }
 }
 
-void Mesh::DrawCollision(const Matrix& projection, const Matrix& view)
+void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
 {
-    if(m_collision && m_draw)
+    if(m_CollisionMesh && m_draw)
     {
-        m_collision->Draw(projection, view);
+        m_CollisionMesh->Draw(projection, view);
     }
 }
 
-Collision* Mesh::GetCollision()
+CollisionMesh* Mesh::GetCollisionMesh()
 {
-    return m_collision.get();
+    return m_CollisionMesh.get();
 }
 
 bool Mesh::MousePickingTest(Picking& input)
 {
     if(m_pickable && m_draw && m_data->mesh && !input.IsLocked())
     {
-        LPD3DXMESH meshToTest = m_collision->HasGeometry()
-            ? m_collision->GetMesh() : m_data->mesh;
+        LPD3DXMESH meshToTest = m_CollisionMesh->HasGeometry()
+            ? m_CollisionMesh->GetMesh() : m_data->mesh;
 
-        const Matrix& world = m_collision->HasGeometry()
-            ? m_collision->CollisionMatrix() : *this;
+        const Matrix& world = m_CollisionMesh->HasGeometry()
+            ? m_CollisionMesh->CollisionMeshMatrix() : *this;
 
         D3DXMATRIX worldInverse;
         D3DXMatrixInverse(&worldInverse, NULL, &world.GetMatrix());
@@ -241,9 +241,9 @@ bool Mesh::MousePickingTest(Picking& input)
         D3DXVec3Normalize(&rayDirection, &rayDirection);
 
         BOOL hasHit; 
-        float distanceToCollision;
+        float distanceToCollisionMesh;
         if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, 
-            &hasHit, NULL, NULL, NULL, &distanceToCollision, NULL, NULL)))
+            &hasHit, NULL, NULL, NULL, &distanceToCollisionMesh, NULL, NULL)))
         {
             hasHit = false; //Call failed for any reason continue to next mesh.
         }
@@ -251,10 +251,10 @@ bool Mesh::MousePickingTest(Picking& input)
         if(hasHit)
         {
             D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-world.Position();
-            float distanceToCollision = D3DXVec3Length(&cameraToMesh);
-            if(distanceToCollision < input.GetDistanceToMesh())
+            float distanceToCollisionMesh = D3DXVec3Length(&cameraToMesh);
+            if(distanceToCollisionMesh < input.GetDistanceToMesh())
             {
-                input.SetPickedMesh(this, distanceToCollision);
+                input.SetPickedMesh(this, distanceToCollisionMesh);
                 return true;
             }
         }
@@ -262,11 +262,11 @@ bool Mesh::MousePickingTest(Picking& input)
     return false;
 }
 
-void Mesh::SetCollisionVisibility(bool draw)
+void Mesh::SetCollisionMeshVisibility(bool draw)
 {
-    if(m_collision)
+    if(m_CollisionMesh)
     {
-        m_collision->SetDraw(draw);
+        m_CollisionMesh->SetDraw(draw);
     }
 }
 
@@ -281,24 +281,24 @@ void Mesh::ToggleSelected()
     m_selected = !m_selected;
 }
 
-bool Mesh::HasCollision() const
+bool Mesh::HasCollisionMesh() const
 {
-    return m_collision->HasGeometry();
+    return m_CollisionMesh->HasGeometry();
 }
 
-void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality)
+void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality)
 {
-    m_collision->LoadCylinder(d3ddev, radius, length, quality);
+    m_CollisionMesh->LoadCylinder(d3ddev, radius, length, quality);
 }
 
-void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
+void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
 {
-    m_collision->LoadBox(d3ddev, width, height, depth);
+    m_CollisionMesh->LoadBox(d3ddev, width, height, depth);
 }
 
-void Mesh::CreateCollision(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
+void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
 {
-    m_collision->LoadSphere(d3ddev, radius, quality);
+    m_CollisionMesh->LoadSphere(d3ddev, radius, quality);
 }
 
 bool Mesh::IsVisible() const

@@ -5,7 +5,7 @@
 #include "cloth.h"
 #include "input.h"
 #include "particle.h"
-#include "collision.h"
+#include "collisionmesh.h"
 #include "spring.h"
 #include "shader.h"
 #include <functional>
@@ -58,7 +58,7 @@ Cloth::Cloth(EnginePtr engine) :
 {
     m_data.reset(new MeshData());
     m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
-    m_template.reset(new Collision(*this, m_engine));
+    m_template.reset(new CollisionMesh(*this, m_engine));
     m_template->LoadSphere(m_engine->device(), 1.0f, 8);
 
     if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), 
@@ -324,7 +324,7 @@ void Cloth::SetVertexVisibility(bool draw)
     m_drawVisualParticles = draw;
 }
 
-void Cloth::SetCollisionVisibility(bool draw)
+void Cloth::SetCollisionMeshVisibility(bool draw)
 {
     m_drawColParticles = draw;
 }
@@ -380,7 +380,7 @@ Cloth::ParticlePtr& Cloth::GetParticle(int row, int col)
     return m_particles[col*m_particleLength + row];
 }
 
-void Cloth::DrawCollision(const Matrix& projection, const Matrix& view)
+void Cloth::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
 {
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
     {
@@ -400,15 +400,15 @@ void Cloth::DrawCollision(const Matrix& projection, const Matrix& view)
     {
         const auto& vertex = m_vertexData[m_diagnosticParticle].position;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-        const auto& collision = m_particles[m_diagnosticParticle]->GetCollision()->GetPosition();
+        const auto& CollisionMesh = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
 
         m_engine->diagnostic()->UpdateText("Particle",
             Diagnostic::YELLOW, StringCast(position.x) + ", " +
             StringCast(position.y) + ", " + StringCast(position.z));
 
-        m_engine->diagnostic()->UpdateText("Collision", 
-            Diagnostic::YELLOW, StringCast(collision.x) + ", " + 
-            StringCast(collision.y) + ", " + StringCast(collision.z));
+        m_engine->diagnostic()->UpdateText("CollisionMesh", 
+            Diagnostic::YELLOW, StringCast(CollisionMesh.x) + ", " + 
+            StringCast(CollisionMesh.y) + ", " + StringCast(CollisionMesh.z));
 
         m_engine->diagnostic()->UpdateText("Vertex",
             Diagnostic::YELLOW, StringCast(vertex.x) + ", " + 
@@ -418,7 +418,7 @@ void Cloth::DrawCollision(const Matrix& projection, const Matrix& view)
     if(m_drawColParticles)
     {
         std::for_each(m_particles.begin(), m_particles.end(), 
-            [&](const ParticlePtr& part){ part->DrawCollisionMesh(projection, view); });
+            [&](const ParticlePtr& part){ part->DrawCollisionMeshMesh(projection, view); });
     }
 
     if(m_drawVisualParticles)
@@ -437,7 +437,7 @@ bool Cloth::MousePickingTest(Picking& input)
         {
             D3DXMATRIX worldInverse;
             D3DXMatrixInverse(&worldInverse, NULL,
-                &m_particles[i]->GetCollision()->CollisionMatrix().GetMatrix());
+                &m_particles[i]->GetCollisionMesh()->CollisionMeshMatrix().GetMatrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;
@@ -447,7 +447,7 @@ bool Cloth::MousePickingTest(Picking& input)
             D3DXVec3Normalize(&rayObjDirection, &rayObjDirection);
     
             BOOL hasHit; 
-            if(FAILED(D3DXIntersect(m_particles[i]->GetCollision()->GetMesh(), &rayObjOrigin, 
+            if(FAILED(D3DXIntersect(m_particles[i]->GetCollisionMesh()->GetMesh(), &rayObjOrigin, 
                 &rayObjDirection, &hasHit, NULL, NULL, NULL, NULL, NULL, NULL)))
             {
                 hasHit = false; //Call failed for any reason continue to next mesh.
@@ -456,10 +456,10 @@ bool Cloth::MousePickingTest(Picking& input)
             if(hasHit)
             {
                 D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-m_particles[i]->GetPosition();
-                float distanceToCollision = D3DXVec3Length(&cameraToMesh);
-                if(distanceToCollision < input.GetDistanceToMesh())
+                float distanceToCollisionMesh = D3DXVec3Length(&cameraToMesh);
+                if(distanceToCollisionMesh < input.GetDistanceToMesh())
                 {
-                    input.SetPickedMesh(this, distanceToCollision);
+                    input.SetPickedMesh(this, distanceToCollisionMesh);
                     indexChosen = i;
                 }
             }

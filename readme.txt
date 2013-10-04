@@ -1,14 +1,14 @@
 
-• Create wall collisions logic
-• GJK collision detection
+• Create wall CollisionMeshs logic
+• GJK CollisionMesh detection
 • Octree spacial partitioning
 • Video/update folio
 
 
 • Clean algorithm to generate root/children
-• Collision models know what partition they are in for diagnostics
+• CollisionMesh models know what partition they are in for diagnostics
 
-On collision update, calls octree update
+On CollisionMesh update, calls octree update
     Check if object is still in partition
     if not, moves to correct partition
 
@@ -39,7 +39,7 @@ RALT-CLICK:     Allows selection of particle. Cloth diagnostics must be toggled
 WASDQE:         Control the cloth in handle mode
 1-4:            Toggle different cloth edge in handle mode
 0:              Toggle text diagnostics
-9:              Toggle collision models
+9:              Toggle CollisionMesh models
 8:              Toggle general diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics

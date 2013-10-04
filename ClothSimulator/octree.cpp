@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "octree.h"
-#include "collision.h"
+#include "collisionmesh.h"
 
 namespace
 {
@@ -209,7 +209,7 @@ void Octree::GenerateChildren(Octree::Partition& parent)
     parent.children.push_back(eight);
 }
 
-void Octree::AddObject(CollisionPtr object, bool dynamic)
+void Octree::AddObject(CollisionMeshPtr object, bool dynamic)
 {
     
 

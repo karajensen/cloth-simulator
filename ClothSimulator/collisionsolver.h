@@ -4,12 +4,12 @@
 
 #pragma once
 #include "common.h"
-#include "collision.h"
+#include "collisionmesh.h"
 
 class Cloth;
 
 /**
-* Class for solving cloth-object and cloth-cloth collisions
+* Class for solving cloth-object and cloth-cloth CollisionMeshs
 */
 class CollisionSolver
 {
@@ -17,38 +17,38 @@ public:
 
     /**
     * Constructor
-    * @param cloth The cloth to solve collisions for
+    * @param cloth The cloth to solve CollisionMeshs for
     */
     explicit CollisionSolver(std::shared_ptr<Cloth> cloth);
 
     /**
-    * Solves the collisions between the cloth particles
+    * Solves the CollisionMeshs between the cloth particles
     */
-    void SolveSelfCollision();
+    void SolveSelfCollisionMesh();
 
     /**
-    * Solves a collision between a sphere and the cloth
-    * @param sphere The sphere collision geometry
+    * Solves a CollisionMesh between a sphere and the cloth
+    * @param sphere The sphere CollisionMesh geometry
     */
-    void SolveSphereCollision(const Collision& sphere);
+    void SolveSphereCollisionMesh(const CollisionMesh& sphere);
 
     /**
-    * Solves a collision between a box and the cloth
-    * @param box The box collision geometry
+    * Solves a CollisionMesh between a box and the cloth
+    * @param box The box CollisionMesh geometry
     */
-    void SolveBoxCollision(const Collision& box);
+    void SolveBoxCollisionMesh(const CollisionMesh& box);
 
     /**
-    * Solves a collision between a cylinder and the cloth
-    * @param cylinder The cylinder collision geometry
+    * Solves a CollisionMesh between a cylinder and the cloth
+    * @param cylinder The cylinder CollisionMesh geometry
     */
-    void SolveCylinderCollision(const Collision& cylinder);
+    void SolveCylinderCollisionMesh(const CollisionMesh& cylinder);
 
     /**
-    * Simplified box-cloth collision for the ground plane
-    * @param ground The ground collision geometry
+    * Simplified box-cloth CollisionMesh for the ground plane
+    * @param ground The ground CollisionMesh geometry
     */
-    void SolveGroundCollision(const Collision& ground);
+    void SolveGroundCollisionMesh(const CollisionMesh& ground);
 
 private:
 

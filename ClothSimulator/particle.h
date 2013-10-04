@@ -4,7 +4,7 @@
 
 #pragma once
 #include "common.h"
-#include "collision.h"
+#include "collisionmesh.h"
 #include "callbacks.h"
 
 class Shader;
@@ -28,11 +28,11 @@ public:
     * @param position The intial position of the particle
     * @param uv The uvs for the particle
     * @param index The internal index of the particle
-    * @param geometry The collision geometry for the particle
-    * @param data The collision data for the particle
+    * @param geometry The CollisionMesh geometry for the particle
+    * @param data The CollisionMesh data for the particle
     */
     void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
-         std::shared_ptr<Collision::Geometry> geometry, const Collision::Data& data);
+         std::shared_ptr<CollisionMesh::Geometry> geometry, const CollisionMesh::Data& data);
 
     /**
     * Draws the particle visual mesh
@@ -42,16 +42,16 @@ public:
     void DrawVisualMesh(const Matrix& projection, const Matrix& view);
 
     /**
-    * Draws the particle collision mesh
+    * Draws the particle CollisionMesh mesh
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
+    void DrawCollisionMeshMesh(const Matrix& projection, const Matrix& view);
 
     /**
-    * @return the particle collision mesh object
+    * @return the particle CollisionMesh mesh object
     */
-    Collision* GetCollision();
+    CollisionMesh* GetCollisionMesh();
 
     /**
     * Resets the particle back to its initial position
@@ -145,5 +145,5 @@ private:
     bool m_selected;                         ///< Whether particle is selected or not
     bool m_pinned;                           ///< Whether particle is pinned or not
     unsigned int m_index;                    ///< Internal index of the particle
-    std::shared_ptr<Collision> m_collision;  ///< Collision geometry for particle
+    std::shared_ptr<CollisionMesh> m_CollisionMesh;  ///< CollisionMesh geometry for particle
 };

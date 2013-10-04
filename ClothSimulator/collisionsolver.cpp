@@ -11,9 +11,9 @@ CollisionSolver::CollisionSolver(std::shared_ptr<Cloth> cloth) :
 {
 }
 
-void CollisionSolver::SolveSelfCollision()
+void CollisionSolver::SolveSelfCollisionMesh()
 {
-    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollision");
+    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollisionMesh");
 
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -22,7 +22,7 @@ void CollisionSolver::SolveSelfCollision()
     {
         D3DXVECTOR3 centerToParticle;
         D3DXVECTOR3 center(particles[i]->GetPosition());
-        const float radius = particles[i]->GetCollision()->GetRadius() * 2.0f;
+        const float radius = particles[i]->GetCollisionMesh()->GetRadius() * 2.0f;
 
         for(unsigned int j = i+1; j < particles.size(); ++j)
         {
@@ -41,7 +41,7 @@ void CollisionSolver::SolveSelfCollision()
     D3DPERF_EndEvent();
 }
 
-void CollisionSolver::SolveSphereCollision(const Collision& sphere)
+void CollisionSolver::SolveSphereCollisionMesh(const CollisionMesh& sphere)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -53,7 +53,7 @@ void CollisionSolver::SolveSphereCollision(const Collision& sphere)
     {
         centerToParticle = particle->GetPosition() - sphereCenter;
         float length = D3DXVec3Length(&centerToParticle);
-        float radius = sphere.GetRadius() + particle->GetCollision()->GetRadius();
+        float radius = sphere.GetRadius() + particle->GetCollisionMesh()->GetRadius();
 
         if (length < radius)
         {
@@ -63,7 +63,7 @@ void CollisionSolver::SolveSphereCollision(const Collision& sphere)
     });
 }
 
-void CollisionSolver::SolveBoxCollision(const Collision& box)
+void CollisionSolver::SolveBoxCollisionMesh(const CollisionMesh& box)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -78,7 +78,7 @@ void CollisionSolver::SolveBoxCollision(const Collision& box)
         float length = D3DXVec3Length(&sphereToBox);
 
         //Test whether inside box radius
-        if (length < particle->GetCollision()->GetRadius() + boxRadius)
+        if (length < particle->GetCollisionMesh()->GetRadius() + boxRadius)
         {
 
 
@@ -86,7 +86,7 @@ void CollisionSolver::SolveBoxCollision(const Collision& box)
     });
 }
 
-void CollisionSolver::SolveCylinderCollision(const Collision& cylinder)
+void CollisionSolver::SolveCylinderCollisionMesh(const CollisionMesh& cylinder)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
@@ -98,7 +98,7 @@ void CollisionSolver::SolveCylinderCollision(const Collision& cylinder)
         float length = D3DXVec3Length(&sphereToCylinder);
 
         //Test whether inside cylinder radius
-        if (length < particle->GetCollision()->GetRadius() + cylinderRadius)
+        if (length < particle->GetCollisionMesh()->GetRadius() + cylinderRadius)
         {
 
 
@@ -111,7 +111,7 @@ void CollisionSolver::SolveCylinderCollision(const Collision& cylinder)
     });
 }
 
-void CollisionSolver::SolveGroundCollision(const Collision& ground)
+void CollisionSolver::SolveGroundCollisionMesh(const CollisionMesh& ground)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();

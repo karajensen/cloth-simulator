@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - collision.cpp
+// Kara Jensen - mail@karajensen.com - collisionmesh.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "collision.h"
+#include "collisionmesh.h"
 #include "shader.h"
 
-Collision::Collision(const Transform& parent, EnginePtr engine) :
+CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_draw(false),
     m_parent(parent),
     m_colour(0.0f, 0.0f, 1.0f),
@@ -15,13 +15,13 @@ Collision::Collision(const Transform& parent, EnginePtr engine) :
 {
 }
 
-Collision::Geometry::Geometry() :
+CollisionMesh::Geometry::Geometry() :
     shape(NONE),
     mesh(nullptr)
 {
 }
 
-Collision::Data::Data() :
+CollisionMesh::Data::Data() :
     localMinBounds(0.0f, 0.0f, 0.0f),
     localMaxBounds(0.0f, 0.0f, 0.0f),
     minBounds(0.0f, 0.0f, 0.0f),
@@ -30,7 +30,7 @@ Collision::Data::Data() :
 {
 }
 
-Collision::Geometry::~Geometry()
+CollisionMesh::Geometry::~Geometry()
 { 
     if(mesh != nullptr)
     { 
@@ -38,7 +38,7 @@ Collision::Geometry::~Geometry()
     } 
 }
 
-void Collision::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
+void CollisionMesh::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
 {
     if(d3ddev)
     {
@@ -53,7 +53,7 @@ void Collision::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, flo
     FullUpdate();
 }
 
-void Collision::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
+void CollisionMesh::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
 {
     if(d3ddev)
     {
@@ -67,7 +67,7 @@ void Collision::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions
     FullUpdate();
 }
 
-void Collision::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions)
+void CollisionMesh::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions)
 {
     if(d3ddev)
     {
@@ -81,7 +81,7 @@ void Collision::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float lengt
     FullUpdate();
 }
 
-void Collision::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry)
+void CollisionMesh::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry)
 {
     m_geometry = geometry;
     const D3DXVECTOR3 scale = data.localWorld.GetScale();
@@ -99,67 +99,67 @@ void Collision::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometr
     }
 }
 
-void Collision::SetObserver(Transform::UpdateFn update)
+void CollisionMesh::SetObserver(Transform::UpdateFn update)
 {
     m_world.SetObserver(update, update);
 }
 
-bool Collision::HasGeometry() const
+bool CollisionMesh::HasGeometry() const
 {
     return m_geometry != nullptr;
 }
 
-LPD3DXMESH Collision::GetMesh()
+LPD3DXMESH CollisionMesh::GetMesh()
 {
     return m_geometry->mesh;
 }
 
-void Collision::SetDraw(bool draw) 
+void CollisionMesh::SetDraw(bool draw) 
 { 
     m_draw = draw;
 }
 
-float Collision::GetRadius() const
+float CollisionMesh::GetRadius() const
 {
     return m_data.radius;
 }
 
-const D3DXVECTOR3& Collision::GetMinBounds() const
+const D3DXVECTOR3& CollisionMesh::GetMinBounds() const
 {
     return m_data.minBounds;
 }
 
-const D3DXVECTOR3& Collision::GetMaxBounds() const
+const D3DXVECTOR3& CollisionMesh::GetMaxBounds() const
 {
     return m_data.maxBounds;
 }
 
-D3DXVECTOR3 Collision::GetPosition() const
+D3DXVECTOR3 CollisionMesh::GetPosition() const
 {
     return m_world.Position();
 }
 
-const Matrix& Collision::CollisionMatrix() const
+const Matrix& CollisionMesh::CollisionMeshMatrix() const
 {
     return m_world;
 }
 
-std::shared_ptr<Collision::Geometry> Collision::GetGeometry() const
+std::shared_ptr<CollisionMesh::Geometry> CollisionMesh::GetGeometry() const
 {
     return m_geometry;
 }
 
-Collision::Shape Collision::GetShape() const
+CollisionMesh::Shape CollisionMesh::GetShape() const
 { 
     return m_geometry->shape;
 }
 
-void Collision::SetColor(const D3DXVECTOR3& color)
+void CollisionMesh::SetColor(const D3DXVECTOR3& color)
 { 
     m_colour = color;
 }
 
-void Collision::Draw(const Matrix& projection, const Matrix& view, bool diagnostics)
+void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diagnostics)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
@@ -226,17 +226,17 @@ void Collision::Draw(const Matrix& projection, const Matrix& view, bool diagnost
     }
 }
 
-const Collision::Data& Collision::GetData() const
+const CollisionMesh::Data& CollisionMesh::GetData() const
 {
     return m_data;
 }
 
-Collision::Data& Collision::GetData()
+CollisionMesh::Data& CollisionMesh::GetData()
 {
     return m_data;
 }
 
-void Collision::PositionalUpdate()
+void CollisionMesh::PositionalUpdate()
 {
     if(m_geometry)
     {
@@ -252,7 +252,7 @@ void Collision::PositionalUpdate()
     }
 }
 
-void Collision::FullUpdate()
+void CollisionMesh::FullUpdate()
 {
     if(m_geometry)
     {
@@ -271,9 +271,9 @@ void Collision::FullUpdate()
     }
 }
 
-void Collision::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
+void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
 {
-    //assumes collision is a sphere with no scaling from parent
+    //assumes CollisionMesh is a sphere with no scaling from parent
     float scale = m_data.localWorld.GetScale().x;
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;
