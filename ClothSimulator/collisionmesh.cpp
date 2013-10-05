@@ -8,7 +8,7 @@
 namespace
 {
     const int MINBOUND = 0; ///< Index for the minbound entry in the AABB
-    const int MAXBOUND = 7; ///< Index for the maxbound entry in the AABB
+    const int MAXBOUND = 6; ///< Index for the maxbound entry in the AABB
     const int CORNERS = 8; ///< Number of corners in a cube
 }
 
@@ -46,14 +46,15 @@ CollisionMesh::Geometry::~Geometry()
 void CollisionMesh::CreateLocalBounds(float width, float height, float depth)
 {
     const D3DXVECTOR3 minBounds = -D3DXVECTOR3(width, height, depth) * 0.5f;
-    m_data.localBounds[MINBOUND] = minBounds;
-    m_data.localBounds[MAXBOUND] = -minBounds;
+
+    m_data.localBounds[0] = minBounds;
     m_data.localBounds[1] = minBounds + D3DXVECTOR3(width, 0, 0);
     m_data.localBounds[2] = minBounds + D3DXVECTOR3(width, height, 0);
     m_data.localBounds[3] = minBounds + D3DXVECTOR3(0, height, 0);
     m_data.localBounds[4] = minBounds + D3DXVECTOR3(0, 0, depth);
     m_data.localBounds[5] = minBounds + D3DXVECTOR3(width, 0, depth);
-    m_data.localBounds[6] = minBounds + D3DXVECTOR3(0, height, depth);
+    m_data.localBounds[6] = minBounds + D3DXVECTOR3(width, height, depth);
+    m_data.localBounds[7] = minBounds + D3DXVECTOR3(0, height, depth);
 }
 
 void CollisionMesh::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
@@ -81,7 +82,7 @@ void CollisionMesh::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divis
     }
     
     //radius of sphere is uniform across x/y/z axis
-    const float boundsRadius = radius * 1.2f;
+    const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
     m_data.localWorld.SetScale(radius);
     FullUpdate();
@@ -97,7 +98,7 @@ void CollisionMesh::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float l
     }
 
     //length of cylinder is along the z axis, radius is scaled uniformly across the x/y axis
-    const float boundsRadius = radius * 1.2f;
+    const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, length);
     m_data.localWorld.SetScale(radius, radius, length);
     FullUpdate();
@@ -195,15 +196,33 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
                 StringCast(this) + "Radius", Diagnostic::RED, 
                 centerToRadius, drawradius);
 
-            for(unsigned int i = 0; i < m_oabb.size(); ++i)
+            auto getPointColor = [=](int index) -> Diagnostic::Colour
             {
-                bool isExtreme = i == MINBOUND || i == MAXBOUND;
-                auto color = static_cast<Diagnostic::Colour>(isExtreme ?
-                    Diagnostic::GREEN : Diagnostic::YELLOW);
+                return index == MINBOUND || index == MAXBOUND ?
+                    Diagnostic::GREEN : Diagnostic::YELLOW;
+            };
+
+            for(unsigned int i = 0; i < CORNERS/2; ++i)
+            {
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
+                    StringCast(this) + StringCast(i), getPointColor(i),
+                    m_oabb[i], drawradius);
 
                 m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i), color,
-                    m_oabb[i], drawradius);
+                    StringCast(this) + StringCast(i+4), getPointColor(i+4),
+                    m_oabb[i+4], drawradius);
+
+                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
+                    StringCast(this) + StringCast(i) + "line1",
+                    Diagnostic::YELLOW, m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
+            
+                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
+                    StringCast(this) + StringCast(i) + "line2", 
+                    Diagnostic::YELLOW, m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
+                
+                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
+                    StringCast(this) + StringCast(i) + "line3",
+                    Diagnostic::YELLOW, m_oabb[i], m_oabb[i+4]);
             }
         }
 

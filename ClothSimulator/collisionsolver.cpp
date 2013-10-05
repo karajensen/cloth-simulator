@@ -49,18 +49,19 @@ void CollisionSolver::SolveSphereCollisionMesh(const CollisionMesh& sphere)
     D3DXVECTOR3 centerToParticle;
     D3DXVECTOR3 sphereCenter(sphere.GetPosition());
 
-    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
+    for(const Cloth::ParticlePtr& particle : particles)
     {
         centerToParticle = particle->GetPosition() - sphereCenter;
         float length = D3DXVec3Length(&centerToParticle);
-        float radius = sphere.GetRadius() + particle->GetCollisionMesh()->GetRadius();
+        float halfClothRadius = particle->GetCollisionMesh()->GetRadius() * 0.5f;
+        float radius = sphere.GetRadius() + halfClothRadius;
 
         if (length < radius)
         {
             centerToParticle /= length;
             particle->MovePosition(centerToParticle*fabs(radius-length)); 
         }
-    });
+    }
 }
 
 void CollisionSolver::SolveBoxCollisionMesh(const CollisionMesh& box)

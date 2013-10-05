@@ -173,12 +173,12 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
 
     if(linemap.find(id) == linemap.end())
     {
-        linemap.insert(LineMap::value_type(id,DiagLine())); 
+        linemap.insert(LineMap::value_type(id, DiagLine())); 
     }
     linemap[id].color = m_colourmap[color];
 
     D3DXVECTOR3 forward = end-start;
-    D3DXVECTOR3 middle = start + (forward*0.5f);
+    D3DXVECTOR3 middle = start + (forward * 0.5f);
     float size = D3DXVec3Length(&forward);
     forward /= size;
 
@@ -186,7 +186,8 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
     D3DXVECTOR3 up = linemap[id].world.Up();
     D3DXVECTOR3 right = linemap[id].world.Right();
     
-    if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > 0)
+    const float threshold = 0.05f;
+    if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > threshold)
     {
         D3DXVec3Cross(&up, &ZAXIS, &forward);
         D3DXVec3Normalize(&up, &up);

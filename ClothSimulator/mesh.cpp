@@ -208,11 +208,11 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     }
 }
 
-void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
+void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view, bool diagnostics)
 {
     if(m_collision && m_draw)
     {
-        m_collision->Draw(projection, view);
+        m_collision->Draw(projection, view, diagnostics);
     }
 }
 

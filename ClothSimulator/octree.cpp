@@ -176,21 +176,24 @@ bool Octree::AddToPartition(const CollisionMeshPtr& object, PartitionPtr& partit
             std::find_if(partition->children.begin(), partition->children.end(), 
                 std::bind(&Octree::AddToPartition, this, object, std::placeholders::_1));
         }
-        else if(partition->nodes.size() >= PARTITIONS && partition->level < MAX_LEVELS)
+        else if(partition->nodes.size() >= PARTITIONS && partition->level <= MAX_LEVELS)
         {
             GenerateChildren(partition);
-
             for(auto& node : partition->nodes)
             {
                 std::find_if(partition->children.begin(), partition->children.end(), 
                     std::bind(&Octree::AddToPartition, this, node, std::placeholders::_1));
             }
-
             partition->nodes.clear();
+
+            std::find_if(partition->children.begin(), partition->children.end(), 
+                std::bind(&Octree::AddToPartition, this, object, std::placeholders::_1));
         }
         else
         {
             partition->nodes.push_back(object);
+
+
         }
         return true;
     }
@@ -209,21 +212,13 @@ bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const PartitionPtr
 
 bool Octree::IsInsidePartition(const CollisionMeshPtr& object, const PartitionPtr& partition)
 {
-    auto shape = object->GetShape();
-    if(shape == CollisionMesh::SPHERE)
+    const std::vector<D3DXVECTOR3>& oabb = object->GetOABB();
+    for(const D3DXVECTOR3& point : oabb)
     {
-
-
-
-
+        if(IsPointInsidePartition(point, partition))
+        {
+            return true;
+        }
     }
-    else
-    {
-        // Use AABB of collision geometry. This will be inaccurate for 
-        // transformed shapes but close enough for sectioning into partitions
-
-
-    }
-
     return false;
 }

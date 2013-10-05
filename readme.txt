@@ -1,24 +1,19 @@
 
-• Fix cloth breaking
 • Octree spacial partitioning
 • Wall collision logic
 • GJK CollisionMesh detection
 • Video/update folio
 
-• Box-box, box-sphere oabb checking with partitions
+
+9 root -> 8 children -> 8 children -> n children
+Objects can exist in parent nodes if no children or exist in > 2 children
 
 • Updating octree location when transform changed
-• Multiple entries in octree (if exists in > x children, make global node of parent)
+• Adding cloth to octree
 • Removing collision mesh from octree
-• Collision mesh knows whether its dynamic or kinematic
-
-On CollisionMesh update, calls octree update
-    Check if object is still in partition
-    if not, moves to correct partition
-
-for each dynamic object
-    loop through all other objects in same partition and call given functions with them
-
+• Collision mesh knows whether its dynamic or kinematic 
+  (only collision test dynamic/dynamic, dynamic/kinematic)
+• Using octree for collision detection
 
 
 

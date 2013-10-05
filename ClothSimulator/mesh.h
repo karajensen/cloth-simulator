@@ -82,8 +82,10 @@ public:
     * Draw the collision model of the mesh
     * @param projection the projection matrix
     * @param view the view matrix
+    * @param diagnostics whether to draw the diagnostics or not
     */
-    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
+    void DrawCollisionMesh(const Matrix& projection, 
+        const Matrix& view, bool diagnostics = true);
 
     /**
     * Tests whether mesh was clicked
