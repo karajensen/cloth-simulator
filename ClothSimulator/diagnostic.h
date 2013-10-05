@@ -37,7 +37,8 @@ public:
         GENERAL,
         CLOTH,
         OCTREE,
-        MAX_GROUPS
+        TEXT,
+        MAX_GROUPS,
     };
 
     /**
@@ -71,16 +72,6 @@ public:
     bool AllowDiagnostics(Group group);
 
     /**
-    * Toggles whether text diagnostics are on
-    */
-    void ToggleText();
-
-    /**
-    * @return whether text diagnostics are on
-    */
-    bool AllowText();
-
-    /**
     * Adds a sphere for diagnostic rendering. 
     * Will only add once per id and update each call
     * @param group The group the diagnostics belong to
@@ -95,20 +86,24 @@ public:
     /**
     * Adds text for diagnostic rendering.
     * Will only add once per id and update each call
+    * @param group The group the diagnostics belong to
     * @param id The id of the text
     * @param color The colour of the text
     * @param text The text to draw
     */
-    void UpdateText(const std::string& id, Colour color, const std::string& text);
+    void UpdateText(Group group, const std::string& id,
+        Colour color, const std::string& text);
 
     /**
     * Adds text for diagnostic rendering.
     * Will only add once per id and update each call
+    * @param group The group the diagnostics belong to
     * @param id The id of the text
     * @param color The colour of the text
     * @param increaseCounter Whether to increase the counter or not
     */
-    void UpdateText(const std::string& id, Colour color, bool increaseCounter);
+    void UpdateText(Group group, const std::string& id,
+        Colour color, bool increaseCounter);
 
     /**
     * Adds a cylinder line for diagnostic rendering.
@@ -143,6 +138,19 @@ private:
     Diagnostic& operator=(const Diagnostic&);
 
     /**
+    * Renders a 3D object
+    * @param effect The shader effect to render with
+    * @param mesh The mesh to render
+    * @param color The color to render the mesh in
+    * @param world The mesh world matrix
+    * @param projection The projection matrix
+    * @param view The view matrix
+    */
+    void RenderObject(LPD3DXEFFECT effect, LPD3DXMESH mesh, 
+        const D3DXVECTOR3& color, const Matrix& world,
+        const Matrix& projection, const Matrix& view);
+
+    /**
     * Diagnostic text data
     */
     struct DiagText
@@ -175,6 +183,7 @@ private:
     typedef std::string KeyType;
     typedef std::unordered_map<KeyType, DiagSphere> SphereMap;
     typedef std::unordered_map<KeyType, DiagLine> LineMap;
+    typedef std::unordered_map<KeyType, DiagText> TextMap;
 
     /**
     * Holds a map of spheres/lines for the diagnostic group
@@ -182,22 +191,20 @@ private:
     struct DiagGroup
     {
         bool render;           ///< Whether to render the group
+        TextMap textmap;       ///< Map of text diagnostics
         SphereMap spheremap;   ///< Map of sphere diagnostics
         LineMap linemap;       ///< Map of cylinder diagnostics
         DiagGroup();           ///< Constructor
     };
 
     typedef std::vector<DiagGroup> GroupVector;
-    typedef std::unordered_map<KeyType, DiagText> TextMap;
     typedef std::unordered_map<Colour, D3DXVECTOR3> ColorMap;
 
     GroupVector m_groupvector;        ///< Vector of groups of geometry diagnostics
-    TextMap m_textmap;                ///< Map of text diagnostics
     ColorMap m_colourmap;             ///< Easy access diagnostic colours
     LPDIRECT3DDEVICE9 m_d3ddev;       ///< DirectX Device
     LPD3DXMESH m_sphere;              ///< Diagnostic geometry sphere
     LPD3DXMESH m_cylinder;            ///< Diagnostic geometry sphere
     std::shared_ptr<Text> m_text;     ///< Diagnostic text
     std::shared_ptr<Shader> m_shader; ///< Global diagnostic mesh shader
-    bool m_showText;                  ///< Whether text diagnostics are visible or not
 };

@@ -58,9 +58,10 @@ void Picking::LockMesh(bool lock)
 
 void Picking::SolvePicking()
 {
-    if(m_engine->diagnostic()->AllowText())
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::GENERAL))
     {
-        m_engine->diagnostic()->UpdateText("DistanceToPick", Diagnostic::WHITE, 
+        m_engine->diagnostic()->UpdateText(Diagnostic::GENERAL,
+            "DistanceToPick", Diagnostic::WHITE, 
             StringCast(m_distanceToMesh == FLT_MAX ? 0.0f : m_distanceToMesh));
     }
 

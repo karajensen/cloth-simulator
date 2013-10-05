@@ -251,7 +251,8 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_0, false, 
-        std::bind(&Diagnostic::ToggleText, m_diagnostics.get()));
+        std::bind(&Diagnostic::ToggleDiagnostics, 
+        m_diagnostics.get(), Diagnostic::TEXT));
     
     m_input->SetKeyCallback(DIK_8, false, 
         std::bind(&Diagnostic::ToggleDiagnostics, 

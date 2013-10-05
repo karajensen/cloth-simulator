@@ -55,12 +55,8 @@ public:
         */
         Data();
 
-        D3DXVECTOR3 localMinBounds; ///< Untransformed min bounds for box geometry
-        D3DXVECTOR3 localMaxBounds; ///< Untransformed max bounds for box geometry
-        D3DXVECTOR3 minBounds;      ///< Transformed world min bounds for box geometry
-        D3DXVECTOR3 maxBounds;      ///< Transformed world max bounds for box geometry
-        Transform localWorld;       ///< Local transform before any calculations of the geometry
-        float radius;               ///< Transformed radius for all geometry
+        std::vector<D3DXVECTOR3> localBounds; ///< Local AABB points
+        Transform localWorld;                 ///< Local transform
     };
 
     /**
@@ -203,6 +199,11 @@ public:
     */
     bool HasGeometry() const;
 
+    /**
+    * @return the OABB for the collision geometry
+    */
+    const std::vector<D3DXVECTOR3>& GetOABB() const;
+
 private:
 
     /**
@@ -211,13 +212,20 @@ private:
     CollisionMesh(const CollisionMesh&);
     CollisionMesh& operator=(const CollisionMesh&);
 
-    EnginePtr m_engine;         ///< Callbacks for the rendering engine
-    bool m_draw;                ///< Whether to draw the geometry
-    const Transform& m_parent;  ///< Parent transform of the collision geometry
-    Transform m_world;          ///< World transform of the collision geometry
-    D3DXVECTOR3 m_colour;       ///< Colour to render
-    Data m_data;                ///< Data for the collision geometry
+    /**
+    * Creates the local points of the OABB
+    * @param width/height/depth The dimensions of the geometry
+    */
+    void CreateLocalBounds(float width, float height, float depth);
 
+    EnginePtr m_engine;                   ///< Callbacks for the rendering engine
+    bool m_draw;                          ///< Whether to draw the geometry
+    const Transform& m_parent;            ///< Parent transform of the collision geometry
+    Transform m_world;                    ///< World transform of the collision geometry
+    D3DXVECTOR3 m_colour;                 ///< Colour to render
+    Data m_data;                          ///< Local data for the collision geometry
+    float m_radius;                       ///< Transformed radius that encases geometry
+    std::vector<D3DXVECTOR3> m_oabb;      ///< Bounds of the world coord OABB
     std::shared_ptr<Geometry> m_geometry; ///< collision geometry mesh shared accross instances
     std::shared_ptr<Shader> m_shader;     ///< Shader for the collision geometry
 };

@@ -65,50 +65,13 @@ void CollisionSolver::SolveSphereCollisionMesh(const CollisionMesh& sphere)
 
 void CollisionSolver::SolveBoxCollisionMesh(const CollisionMesh& box)
 {
-    auto cloth = GetCloth();
-    auto& particles = cloth->GetParticles();
 
-    const D3DXVECTOR3& maxBounds = box.GetMaxBounds();
-    const D3DXVECTOR3& minBounds = box.GetMinBounds();
-    const float boxRadius = D3DXVec3Length(&(maxBounds-minBounds));
-
-    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
-    {
-        D3DXVECTOR3 sphereToBox = box.GetPosition() - particle->GetPosition();
-        float length = D3DXVec3Length(&sphereToBox);
-
-        //Test whether inside box radius
-        if (length < particle->GetCollisionMesh()->GetRadius() + boxRadius)
-        {
-
-
-        }
-    });
 }
 
 void CollisionSolver::SolveCylinderCollisionMesh(const CollisionMesh& cylinder)
 {
-    auto cloth = GetCloth();
-    auto& particles = cloth->GetParticles();
-    const float cylinderRadius = cylinder.GetRadius();
-
-    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
-    {
-        D3DXVECTOR3 sphereToCylinder = cylinder.GetPosition() - particle->GetPosition();
-        float length = D3DXVec3Length(&sphereToCylinder);
-
-        //Test whether inside cylinder radius
-        if (length < particle->GetCollisionMesh()->GetRadius() + cylinderRadius)
-        {
 
 
-
-
-
-
-
-        }
-    });
 }
 
 void CollisionSolver::SolveGroundCollisionMesh(const CollisionMesh& ground)

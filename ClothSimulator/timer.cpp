@@ -40,19 +40,19 @@ double Timer::UpdateTimer()
         m_fpsCounter = 0;
     }
 
-    if(m_engine->diagnostic()->AllowText())
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::TEXT))
     {
-        m_engine->diagnostic()->UpdateText("FramePerSec", 
-            Diagnostic::WHITE, StringCast(m_fps));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "FramePerSec", Diagnostic::WHITE, StringCast(m_fps));
 
-        m_engine->diagnostic()->UpdateText("FramesCounter",
-            Diagnostic::WHITE, StringCast(m_fpsCounter));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "FramesCounter", Diagnostic::WHITE, StringCast(m_fpsCounter));
 
-        m_engine->diagnostic()->UpdateText("DeltaTime",
-            Diagnostic::WHITE, StringCast(m_deltaTime));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "DeltaTime", Diagnostic::WHITE, StringCast(m_deltaTime));
 
-        m_engine->diagnostic()->UpdateText("DeltaTimeCounter", 
-            Diagnostic::WHITE, StringCast(m_deltaTimeCounter));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "DeltaTimeCounter", Diagnostic::WHITE, StringCast(m_deltaTimeCounter));
     }
     
     ++m_fpsCounter; //increment frame counter

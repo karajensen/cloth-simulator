@@ -375,9 +375,9 @@ void Cloth::Reset()
     UpdateVertexBuffer();
 }
 
-Cloth::ParticlePtr& Cloth::GetParticle(int row, int col)
+Cloth::ParticlePtr& Cloth::GetParticle(int row, int column)
 {
-    return m_particles[col*m_particleLength + row];
+    return m_particles[column*m_particleLength + row];
 }
 
 void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
@@ -386,45 +386,44 @@ void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
     {
         const float radius = 0.4f;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-
-        m_engine->diagnostic()->UpdateSphere(Diagnostic::CLOTH, 
-            "Particle", Diagnostic::YELLOW, position, radius);
+        const auto& vertex = m_vertexData[m_diagnosticParticle].position;
+        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
 
         std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
         { 
             spring->UpdateDiagnostic(m_engine->diagnostic()); 
         });
-    }
 
-    if(m_engine->diagnostic()->AllowText())
-    {
-        const auto& vertex = m_vertexData[m_diagnosticParticle].position;
-        const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::CLOTH, 
+            "Particle", Diagnostic::YELLOW, position, radius);
 
-        m_engine->diagnostic()->UpdateText("Particle",
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Particle",
             Diagnostic::YELLOW, StringCast(position.x) + ", " +
             StringCast(position.y) + ", " + StringCast(position.z));
 
-        m_engine->diagnostic()->UpdateText("Collision", 
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Collision", 
             Diagnostic::YELLOW, StringCast(collision.x) + ", " + 
             StringCast(collision.y) + ", " + StringCast(collision.z));
 
-        m_engine->diagnostic()->UpdateText("Vertex",
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Vertex",
             Diagnostic::YELLOW, StringCast(vertex.x) + ", " + 
             StringCast(vertex.y) + ", " + StringCast(vertex.z));
     }
 
     if(m_drawColParticles)
     {
-        std::for_each(m_particles.begin(), m_particles.end(), 
-            [&](const ParticlePtr& part){ part->DrawCollisionMeshMesh(projection, view); });
+        for(const ParticlePtr& particle : m_particles)
+        {
+            particle->DrawCollisionMesh(projection, view);
+        }
     }
 
     if(m_drawVisualParticles)
     {
-        std::for_each(m_particles.begin(), m_particles.end(), 
-            [&](const ParticlePtr& part){ part->DrawVisualMesh(projection, view); });
+        for(const ParticlePtr& particle : m_particles)
+        {
+            particle->DrawVisualMesh(projection, view);
+        }
     }
 }
 

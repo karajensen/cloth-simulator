@@ -128,19 +128,21 @@ void Input::UpdateInput()
     std::for_each(m_clickPreventionKeys.begin(),
         m_clickPreventionKeys.end(), testPrevention);
 
-    if(m_engine->diagnostic()->AllowText())
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::TEXT))
     {
-        m_engine->diagnostic()->UpdateText("MouseDirection", Diagnostic::WHITE, 
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "MouseDirection", Diagnostic::WHITE, 
             StringCast(m_mouseDirection.x)+", "+StringCast(m_mouseDirection.y));
 
-        m_engine->diagnostic()->UpdateText("MousePosition", 
-            Diagnostic::WHITE, StringCast(m_x)+", "+StringCast(m_y));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "MousePosition", Diagnostic::WHITE, 
+            StringCast(m_x)+", "+StringCast(m_y));
 
-        m_engine->diagnostic()->UpdateText("MousePress", 
-            Diagnostic::WHITE, StringCast(IsMousePressed()));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT, 
+            "MousePress", Diagnostic::WHITE, StringCast(IsMousePressed()));
 
-        m_engine->diagnostic()->UpdateText("MouseClick", 
-            Diagnostic::WHITE, StringCast(IsMouseClicked()));
+        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+            "MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
 }
 

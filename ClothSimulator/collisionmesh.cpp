@@ -5,14 +5,23 @@
 #include "collisionmesh.h"
 #include "shader.h"
 
+namespace
+{
+    const int MINBOUND = 0; ///< Index for the minbound entry in the AABB
+    const int MAXBOUND = 7; ///< Index for the maxbound entry in the AABB
+    const int CORNERS = 8; ///< Number of corners in a cube
+}
+
 CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_draw(false),
     m_parent(parent),
     m_colour(0.0f, 0.0f, 1.0f),
     m_geometry(nullptr),
     m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
-    m_engine(engine)
+    m_engine(engine),
+    m_radius(0.0f)
 {
+    m_oabb.resize(CORNERS);
 }
 
 CollisionMesh::Geometry::Geometry() :
@@ -21,13 +30,9 @@ CollisionMesh::Geometry::Geometry() :
 {
 }
 
-CollisionMesh::Data::Data() :
-    localMinBounds(0.0f, 0.0f, 0.0f),
-    localMaxBounds(0.0f, 0.0f, 0.0f),
-    minBounds(0.0f, 0.0f, 0.0f),
-    maxBounds(0.0f, 0.0f, 0.0f),
-    radius(0.0f)
+CollisionMesh::Data::Data()
 {
+    localBounds.resize(CORNERS);
 }
 
 CollisionMesh::Geometry::~Geometry()
@@ -36,6 +41,19 @@ CollisionMesh::Geometry::~Geometry()
     { 
         mesh->Release(); 
     } 
+}
+
+void CollisionMesh::CreateLocalBounds(float width, float height, float depth)
+{
+    const D3DXVECTOR3 minBounds = -D3DXVECTOR3(width, height, depth) * 0.5f;
+    m_data.localBounds[MINBOUND] = minBounds;
+    m_data.localBounds[MAXBOUND] = -minBounds;
+    m_data.localBounds[1] = minBounds + D3DXVECTOR3(width, 0, 0);
+    m_data.localBounds[2] = minBounds + D3DXVECTOR3(width, height, 0);
+    m_data.localBounds[3] = minBounds + D3DXVECTOR3(0, height, 0);
+    m_data.localBounds[4] = minBounds + D3DXVECTOR3(0, 0, depth);
+    m_data.localBounds[5] = minBounds + D3DXVECTOR3(width, 0, depth);
+    m_data.localBounds[6] = minBounds + D3DXVECTOR3(0, height, depth);
 }
 
 void CollisionMesh::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
@@ -47,11 +65,11 @@ void CollisionMesh::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height,
         D3DXCreateBox(d3ddev, 1.0f, 1.0f, 1.0f, &m_geometry->mesh, NULL);
     }
 
+    CreateLocalBounds(width, height, depth);
     m_data.localWorld.SetScale(width, height, depth);
-    m_data.localMinBounds = -m_data.localWorld.GetScale() * 0.5f;
-    m_data.localMaxBounds = m_data.localWorld.GetScale() * 0.5f;
     FullUpdate();
 }
+
 
 void CollisionMesh::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
 {
@@ -63,6 +81,8 @@ void CollisionMesh::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divis
     }
     
     //radius of sphere is uniform across x/y/z axis
+    const float boundsRadius = radius * 1.2f;
+    CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
     m_data.localWorld.SetScale(radius);
     FullUpdate();
 }
@@ -77,6 +97,8 @@ void CollisionMesh::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float l
     }
 
     //length of cylinder is along the z axis, radius is scaled uniformly across the x/y axis
+    const float boundsRadius = radius * 1.2f;
+    CreateLocalBounds(boundsRadius, boundsRadius, length);
     m_data.localWorld.SetScale(radius, radius, length);
     FullUpdate();
 }
@@ -121,17 +143,17 @@ void CollisionMesh::SetDraw(bool draw)
 
 float CollisionMesh::GetRadius() const
 {
-    return m_data.radius;
+    return m_radius;
 }
 
 const D3DXVECTOR3& CollisionMesh::GetMinBounds() const
 {
-    return m_data.minBounds;
+    return m_oabb[MINBOUND];
 }
 
 const D3DXVECTOR3& CollisionMesh::GetMaxBounds() const
 {
-    return m_data.maxBounds;
+    return m_oabb[MAXBOUND];
 }
 
 D3DXVECTOR3 CollisionMesh::GetPosition() const
@@ -165,44 +187,23 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
     {
         if(diagnostics && m_engine->diagnostic()->AllowDiagnostics(Diagnostic::GENERAL))
         {
-            const float radius = 0.2f;
-            if(m_geometry->shape == BOX)
+            D3DXVECTOR3 centerToRadius = GetPosition();
+            centerToRadius.y += m_radius;
+            const float drawradius = 0.2f;
+
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
+                StringCast(this) + "Radius", Diagnostic::RED, 
+                centerToRadius, drawradius);
+
+            for(unsigned int i = 0; i < m_oabb.size(); ++i)
             {
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + "MinBounds", Diagnostic::GREEN,
-                    m_data.minBounds, radius);
-                
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + "MaxBounds", Diagnostic::GREEN,
-                    m_data.maxBounds, radius);
-            }
-            else if(m_geometry->shape == SPHERE)
-            {
-                D3DXVECTOR3 centerToRadius = GetPosition();
-                centerToRadius.y += m_data.localWorld.GetScale().x;
+                bool isExtreme = i == MINBOUND || i == MAXBOUND;
+                auto color = static_cast<Diagnostic::Colour>(isExtreme ?
+                    Diagnostic::GREEN : Diagnostic::YELLOW);
 
                 m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + "Radius", Diagnostic::GREEN, 
-                    centerToRadius, radius);
-            }
-            else if(m_geometry->shape == CYLINDER)
-            {
-                const D3DXVECTOR3& scale = m_data.localWorld.GetScale();
-                float halflength = scale.z*0.5f;
-
-                D3DXVECTOR3 end1 = GetPosition();
-                end1 += m_parent.Forward()*halflength;
-                end1 += m_parent.Right()*scale.y;
-
-                D3DXVECTOR3 end2 = GetPosition();
-                end2 -= m_parent.Forward()*halflength;
-                end2 -= m_parent.Right()*scale.x;
-
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL, 
-                    StringCast(this) + "End1", Diagnostic::GREEN, end1, radius);
-
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL, 
-                    StringCast(this) + "End2", Diagnostic::GREEN, end2, radius);
+                    StringCast(this) + StringCast(i), color,
+                    m_oabb[i], drawradius);
             }
         }
 
@@ -239,12 +240,11 @@ CollisionMesh::Data& CollisionMesh::GetData()
 void CollisionMesh::PositionalUpdate()
 {
     if(m_geometry)
-    {
-        if(m_geometry->shape == BOX)
+    { 
+        D3DXVECTOR3 difference(m_parent.Position()-m_world.Position());
+        for(D3DXVECTOR3& point : m_oabb)
         {
-            D3DXVECTOR3 difference(m_parent.Position()-m_world.Position());
-            m_data.minBounds += difference;
-            m_data.maxBounds += difference;
+            point += difference;
         }
 
         //DirectX: World = LocalWorld * ParentWorld
@@ -259,16 +259,26 @@ void CollisionMesh::FullUpdate()
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
 
-        //z component for local world is largest for cylinder and uniform
-        //with other components for box/sphere
-        m_data.radius = m_parent.GetScale().z * m_data.localWorld.GetScale().z;
-
-        if(m_geometry->shape == BOX)
+        for(unsigned int i = 0; i < m_oabb.size(); ++i)
         {
-            D3DXVec3TransformCoord(&m_data.minBounds, &m_data.localMinBounds, &m_parent.GetMatrix());
-            D3DXVec3TransformCoord(&m_data.maxBounds, &m_data.localMaxBounds, &m_parent.GetMatrix());
+            D3DXVec3TransformCoord(&m_oabb[i],
+                &m_data.localBounds[i], &m_parent.GetMatrix());  
+        }
+
+        if(m_geometry->shape == SPHERE)
+        {
+            m_radius = m_parent.GetScale().x * m_data.localWorld.GetScale().x;
+        }
+        else
+        {
+            m_radius = D3DXVec3Length(&(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
         }
     }
+}
+
+const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const
+{
+    return m_oabb;
 }
 
 void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)

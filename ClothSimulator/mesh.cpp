@@ -402,3 +402,8 @@ void Mesh::Animate(float deltatime)
         TranslateGlobal(path * m_speed * deltatime);
     }
 }
+
+std::shared_ptr<CollisionMesh> Mesh::GetCollisionPtr() const
+{
+    return m_collision;
+}

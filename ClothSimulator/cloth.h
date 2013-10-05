@@ -199,10 +199,10 @@ private:
     void ChangeRow(int row, bool select);
 
     /**
-    * @param row/col The row and column of the required particle
+    * @param row/column The row and column of the required particle
     * @return the particle in grid at row/col
     */
-    ParticlePtr& GetParticle(int row, int col);
+    ParticlePtr& GetParticle(int row, int column);
 
     /**
     * Creates a normal from the given three particles

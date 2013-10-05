@@ -200,6 +200,11 @@ public:
     */
     const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
 
+    /**
+    * @return the shared pointer for the collision mesh
+    */
+    std::shared_ptr<CollisionMesh> GetCollisionPtr() const;
+
 private:
 
     /**

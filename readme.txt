@@ -1,12 +1,16 @@
 
-• Create wall CollisionMeshs logic
-• GJK CollisionMesh detection
+• Fix cloth breaking
 • Octree spacial partitioning
+• Wall collision logic
+• GJK CollisionMesh detection
 • Video/update folio
 
+• Box-box, box-sphere oabb checking with partitions
 
-• Clean algorithm to generate root/children
-• CollisionMesh models know what partition they are in for diagnostics
+• Updating octree location when transform changed
+• Multiple entries in octree (if exists in > x children, make global node of parent)
+• Removing collision mesh from octree
+• Collision mesh knows whether its dynamic or kinematic
 
 On CollisionMesh update, calls octree update
     Check if object is still in partition

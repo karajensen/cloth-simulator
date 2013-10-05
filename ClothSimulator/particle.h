@@ -46,7 +46,7 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawCollisionMeshMesh(const Matrix& projection, const Matrix& view);
+    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * @return the particle collision mesh object

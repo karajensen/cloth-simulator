@@ -22,8 +22,7 @@ namespace
 Diagnostic::Diagnostic() :
     m_d3ddev(nullptr),
     m_sphere(nullptr),
-    m_cylinder(nullptr),
-    m_showText(false)
+    m_cylinder(nullptr)
 {
 }
 
@@ -71,11 +70,6 @@ Diagnostic::~Diagnostic()
     }
 }
 
-void Diagnostic::ToggleText()
-{
-    m_showText = !m_showText;
-}
-
 void Diagnostic::ToggleDiagnostics(Group group)
 {
     m_groupvector[group].render = !m_groupvector[group].render;
@@ -86,68 +80,70 @@ bool Diagnostic::AllowDiagnostics(Group group)
     return m_groupvector[group].render;
 }
 
-bool Diagnostic::AllowText()
-{
-    return m_showText;
-}
-
 void Diagnostic::DrawAllText()
 {
-    if(m_showText)
+    int counter = 0;
+    auto renderText = [&](const TextMap::value_type& text)
     {
-        int counter = 0;
-        for(TextMap::iterator it = m_textmap.begin(); it != m_textmap.end(); ++it)
+        m_text->SetText(text.second.text);
+        m_text->SetColour(text.second.color);
+        m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
+        m_text->Draw();
+    };
+
+    for(auto& group : m_groupvector)
+    {
+        if(group.render)
         {
-            m_text->SetText(it->second.text);
-            m_text->SetColour(it->second.color);
-            m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
-            m_text->Draw();
+            std::for_each(group.textmap.begin(), group.textmap.end(), renderText);
         }
     }
 }
 
+void Diagnostic::RenderObject(LPD3DXEFFECT effect, LPD3DXMESH mesh, const D3DXVECTOR3& color,
+    const Matrix& world, const Matrix& projection, const Matrix& view)
+{
+    D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+    effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
+    effect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
+
+    UINT nPasses = 0;
+    effect->Begin(&nPasses, 0);
+    for(UINT iPass = 0; iPass < nPasses; iPass++)
+    {
+        effect->BeginPass(iPass);
+        mesh->DrawSubset(0);
+        effect->EndPass();
+    }
+    effect->End();
+}
+
 void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 {
-    for(GroupVector::iterator gitr = m_groupvector.begin(); 
-        gitr != m_groupvector.end(); ++gitr)
+    for(auto& group : m_groupvector)
     {
-        if(gitr->render)
+        if(group.render)
         {
-            LPD3DXEFFECT pEffect(m_shader->GetEffect());
-            pEffect->SetTechnique(DxConstant::DefaultTechnique);
+            LPD3DXEFFECT effect(m_shader->GetEffect());
+            effect->SetTechnique(DxConstant::DefaultTechnique);
 
-            auto renderObject = [&](LPD3DXMESH mesh, const D3DXVECTOR3& color, const Matrix& world)
+            for(auto& sphere : group.spheremap)
             {
-                D3DXMATRIX wvp = world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-                pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-                pEffect->SetFloatArray(DxConstant::VertexColor, &color.x, 3);
-
-                UINT nPasses = 0;
-                pEffect->Begin(&nPasses, 0);
-                for(UINT iPass = 0; iPass < nPasses; iPass++)
+                if(sphere.second.draw)
                 {
-                    pEffect->BeginPass(iPass);
-                    mesh->DrawSubset(0);
-                    pEffect->EndPass();
-                }
-                pEffect->End();
-            };
-
-            for(SphereMap::iterator sitr = gitr->spheremap.begin(); sitr != gitr->spheremap.end(); ++sitr)
-            {
-                if(sitr->second.draw)
-                {
-                    renderObject(m_sphere, sitr->second.color, sitr->second.world);
-                    sitr->second.draw = false;
+                    RenderObject(effect, m_sphere, sphere.second.color, 
+                        sphere.second.world, projection, view);
+                    sphere.second.draw = false;
                 }
             }
 
-            for(LineMap::iterator litr = gitr->linemap.begin(); litr != gitr->linemap.end(); ++litr)
+            for(auto& line : group.linemap)
             {
-                if(litr->second.draw)
+                if(line.second.draw)
                 {
-                    renderObject(m_cylinder, litr->second.color, litr->second.world);
-                    litr->second.draw = false;
+                    RenderObject(effect, m_cylinder, line.second.color, 
+                        line.second.world, projection, view);
+                    line.second.draw = false;
                 }
             }
         }
@@ -170,8 +166,8 @@ void Diagnostic::UpdateSphere(Group group, const std::string& id,
     spheremap[id].world.SetPosition(position);
 }
 
-void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colour color, 
-    const D3DXVECTOR3& start, const D3DXVECTOR3& end)
+void Diagnostic::UpdateLine(Group group, const std::string& id, 
+    Diagnostic::Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end)
 {
     LineMap& linemap = m_groupvector[group].linemap;
 
@@ -205,27 +201,33 @@ void Diagnostic::UpdateLine(Group group, const std::string& id, Diagnostic::Colo
     linemap[id].draw = true;
 }
 
-void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, const std::string& text)
+void Diagnostic::UpdateText(Group group, const std::string& id, 
+    Diagnostic::Colour color, const std::string& text)
 {
-    if(m_textmap.find(id) == m_textmap.end())
+    TextMap& textmap = m_groupvector[group].textmap;
+
+    if(textmap.find(id) == textmap.end())
     {
-        m_textmap.insert(TextMap::value_type(id,DiagText())); 
+        textmap.insert(TextMap::value_type(id,DiagText())); 
     }
-    m_textmap[id].color = m_colourmap[color];
-    m_textmap[id].text = id + ": " + text;
+    textmap[id].color = m_colourmap[color];
+    textmap[id].text = id + ": " + text;
 }
 
-void Diagnostic::UpdateText(const std::string& id, Diagnostic::Colour color, bool increaseCounter)
+void Diagnostic::UpdateText(Group group, const std::string& id,
+    Diagnostic::Colour color, bool increaseCounter)
 {
-    if(m_textmap.find(id) == m_textmap.end())
+    TextMap& textmap = m_groupvector[group].textmap;
+
+    if(textmap.find(id) == textmap.end())
     {
-        m_textmap.insert(TextMap::value_type(id,DiagText())); 
-        m_textmap[id].counter = 0;
+        textmap.insert(TextMap::value_type(id,DiagText())); 
+        textmap[id].counter = 0;
     }
     else if(increaseCounter)
     {
-        ++m_textmap[id].counter;
+        ++textmap[id].counter;
     }
-    m_textmap[id].color = m_colourmap[color];
-    m_textmap[id].text = id + ": " + StringCast(m_textmap[id].counter);
+    textmap[id].color = m_colourmap[color];
+    textmap[id].text = id + ": " + StringCast(textmap[id].counter);
 }

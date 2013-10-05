@@ -4,15 +4,16 @@
 
 #include "octree.h"
 #include "collisionmesh.h"
+#include <assert.h>
 
 namespace
 {
-    const int ROOT_PARTITIONS = 16; ///< Number of partitions for the root
+    const int ROOT_PARTITIONS = 9; ///< Number of partitions for the root
     const int PARTITIONS = 8; ///< Number of partitions allowed within a parent
     const float PARITION_SIZE = 45.0f; ///< Initial dimensions of the root partitions
     const float GROUND_HEIGHT = -23.0f; ///< Height of the ground plane
     const int CORNERS = 8; ///< Number of corners in a cube
-    const int MAX_CHILDREN = 3; ///< Number of children allowed from the root
+    const int MAX_LEVELS = 3; ///< Number of levels allowed from the root
 }
 
 Octree::Octree(EnginePtr engine) :
@@ -20,199 +21,209 @@ Octree::Octree(EnginePtr engine) :
 {
 }
 
+Octree::Partition::Partition(float size, const D3DXVECTOR3& minPoint, PartitionPtr owner) :
+    parent(owner),
+    id(StringCast(this)),
+    minBounds(minPoint)
+{
+    const D3DXVECTOR3 minToMax(size, -size, size);
+    maxBounds = minBounds + minToMax;
+    level = owner ? owner->level + 1 : 0;
+}
+
+float Octree::Partition::GetSize() const
+{
+    return fabs(maxBounds.x - minBounds.x);
+}
+
 void Octree::RenderDiagnostics()
 {
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::OCTREE))
     {
-        std::for_each(m_octree.begin(), m_octree.end(), [&](const Partition& partition)
+        for(const PartitionPtr& partition : m_octree)
         {
-            //RenderPartition(0, partition);
-
-            std::for_each(partition.children.begin(), partition.children.end(), 
-                std::bind(&Octree::RenderPartition, this, 1, std::placeholders::_1));
-        });
+            RenderPartition(partition);
+        }
     }
 }
 
-void Octree::RenderPartition(int recursionLevel, const Partition& partition)
+void Octree::RenderPartition(const PartitionPtr& partition)
 {
-    std::for_each(partition.children.begin(), partition.children.end(), 
-        std::bind(&Octree::RenderPartition, this, recursionLevel+1, std::placeholders::_1));
+    for(const PartitionPtr& child : partition->children)
+    {
+        RenderPartition(child);
+    }
 
-    const float size = partition.size;
-    std::array<D3DXVECTOR3, CORNERS> corners =
+    auto colour = static_cast<Diagnostic::Colour>(min(MAX_LEVELS, partition->level));
+
+    m_engine->diagnostic()->UpdateText(Diagnostic::OCTREE, partition->id,
+        colour, StringCast(partition->nodes.size()));
+
+    if(!partition->nodes.empty() || !partition->children.empty())
     {
-        // top four corners
-        partition.minBounds,
-        partition.minBounds + D3DXVECTOR3(size, 0, 0),
-        partition.minBounds + D3DXVECTOR3(size, -size, 0),
-        partition.minBounds + D3DXVECTOR3(0, -size, 0),
+        const float size = partition->GetSize();
+        std::array<D3DXVECTOR3, CORNERS> corners =
+        {
+            // top four corners
+            partition->minBounds,
+            partition->minBounds + D3DXVECTOR3(size, 0, 0),
+            partition->minBounds + D3DXVECTOR3(size, -size, 0),
+            partition->minBounds + D3DXVECTOR3(0, -size, 0),
             
-        // bottom four corners
-        partition.minBounds + D3DXVECTOR3(0, 0, size),
-        partition.minBounds + D3DXVECTOR3(size, 0, size),
-        partition.minBounds + D3DXVECTOR3(size, -size, size),
-        partition.minBounds + D3DXVECTOR3(0, -size, size)
-    };
+            // bottom four corners
+            partition->minBounds + D3DXVECTOR3(0, 0, size),
+            partition->minBounds + D3DXVECTOR3(size, 0, size),
+            partition->minBounds + D3DXVECTOR3(size, -size, size),
+            partition->minBounds + D3DXVECTOR3(0, -size, size)
+        };
             
-    auto colour = static_cast<Diagnostic::Colour>(min(MAX_CHILDREN, recursionLevel));
-    for(unsigned int i = 0; i < CORNERS/2; ++i)
-    {
-        m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
-            partition.id + StringCast(i) + "line1", colour,
-            corners[i], corners[i+1 >= 4 ? 0 : i+1]);
+        for(unsigned int i = 0; i < CORNERS/2; ++i)
+        {
+            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
+                partition->id + StringCast(i) + "line1", colour,
+                corners[i], corners[i+1 >= 4 ? 0 : i+1]);
             
-        m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
-            partition.id + StringCast(i) + "line2", colour,
-            corners[i+4], corners[i+5 >= CORNERS ? 4 : i+5]);
+            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
+                partition->id + StringCast(i) + "line2", colour,
+                corners[i+4], corners[i+5 >= CORNERS ? 4 : i+5]);
             
-        m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
-            partition.id + StringCast(i) + "line3", colour,
-            corners[i], corners[i+4]);
+            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
+                partition->id + StringCast(i) + "line3", colour,
+                corners[i], corners[i+4]);
+        }
     }
 }
 
 void Octree::BuildInitialTree()
 {
+    assert(m_octree.empty());
+
     const float size = PARITION_SIZE;
     const D3DXVECTOR3 offset(-size/2.0f, GROUND_HEIGHT, -size/2.0f);
-    const D3DXVECTOR3 boundsOffset(size, -size, size);
-         
-    Partition one;
-    one.id = "one";
-    one.size = size;
-    one.minBounds = D3DXVECTOR3(-size, size, -size) + offset;
-    one.maxBounds = one.minBounds + boundsOffset;
-    m_octree.push_back(one);
 
-    Partition two;
-    two.id = "two";
-    two.size = size;
-    two.minBounds = D3DXVECTOR3(0, size, -size) + offset;
-    two.maxBounds = two.minBounds + boundsOffset;
-    m_octree.push_back(two);
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, size, -size) + offset)));
 
-    Partition three;
-    three.id = "three";
-    three.size = size;
-    three.minBounds = D3DXVECTOR3(-size, size, 0) + offset;
-    three.maxBounds = three.minBounds + boundsOffset;
-    m_octree.push_back(three);
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, size, -size) + offset)));
+
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, size, 0) + offset)));
+
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, size, 0) + offset)));
     
-    Partition four;
-    four.id = "four";
-    four.size = size;
-    four.minBounds = D3DXVECTOR3(0, size, 0) + offset;
-    four.maxBounds = four.minBounds + boundsOffset;
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, size, size) + offset)));
     
-    // Testing partitioning
-    GenerateChildren(four);
-    GenerateChildren(*four.children.begin());
-    m_octree.push_back(four);
-
-    Partition five;
-    five.id = "five";
-    five.size = size;
-    five.minBounds = D3DXVECTOR3(-size, size, size) + offset;
-    five.maxBounds = five.minBounds + boundsOffset;
-    m_octree.push_back(five);
-
-    Partition six;
-    six.id = "six";
-    six.size = size;
-    six.minBounds = D3DXVECTOR3(0, size, size) + offset;
-    six.maxBounds = six.minBounds + boundsOffset;
-    m_octree.push_back(six);
-
-    Partition seven;
-    seven.id = "seven";
-    seven.size = size;
-    seven.minBounds = D3DXVECTOR3(size, size, size) + offset;
-    seven.maxBounds = seven.minBounds + boundsOffset;
-    m_octree.push_back(seven);
-
-    Partition eight;
-    eight.id = "eight";
-    eight.size = size;
-    eight.minBounds = D3DXVECTOR3(size, size, 0) + offset;
-    eight.maxBounds = eight.minBounds + boundsOffset;
-    m_octree.push_back(eight);
-
-    Partition nine;
-    nine.size = size;
-    nine.id = "nine";
-    nine.minBounds = D3DXVECTOR3(size, size, -size) + offset;
-    nine.maxBounds = nine.minBounds + boundsOffset;
-    m_octree.push_back(nine);
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, size, size) + offset)));
+    
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(size, size, size) + offset)));
+    
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(size, size, 0) + offset)));
+    
+    m_octree.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(size, size, -size) + offset)));
 }
 
-void Octree::GenerateChildren(Octree::Partition& parent)
+void Octree::GenerateChildren(PartitionPtr& parent)
 {
-    const float size = parent.size * 0.5f;
-    const D3DXVECTOR3 offset((parent.minBounds + parent.maxBounds) * 0.5f);
-    const D3DXVECTOR3 boundsOffset(size, -size, size);
+    assert(parent->children.empty());
 
-    Partition one;
-    one.id = parent.id + "one";
-    one.size = size;
-    one.minBounds = D3DXVECTOR3(-size, size, -size) + offset;
-    one.maxBounds = one.minBounds + boundsOffset;
-    parent.children.push_back(one);
+    const float size = parent->GetSize() * 0.5f;
+    const D3DXVECTOR3 offset((parent->minBounds + parent->maxBounds) * 0.5f);
 
-    Partition two;
-    two.id = parent.id + "two";
-    two.size = size;
-    two.minBounds = D3DXVECTOR3(0, size, -size) + offset;
-    two.maxBounds = two.minBounds + boundsOffset;
-    parent.children.push_back(two);
+    parent->children.push_back(PartitionPtr(new Partition(size,
+        D3DXVECTOR3(-size, size, -size) + offset, parent)));
+
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, size, -size) + offset, parent)));
     
-    Partition three;
-    three.id = parent.id + "three";
-    three.size = size;
-    three.minBounds = D3DXVECTOR3(-size, 0, -size) + offset;
-    three.maxBounds = three.minBounds + boundsOffset;
-    parent.children.push_back(three);
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, 0, -size) + offset, parent)));
     
-    Partition four;
-    four.id = parent.id + "four";
-    four.size = size;
-    four.minBounds = D3DXVECTOR3(0, 0, -size) + offset;
-    four.maxBounds = four.minBounds + boundsOffset;
-    parent.children.push_back(four);
+    parent->children.push_back(PartitionPtr(new Partition(size,
+        D3DXVECTOR3(0, 0, -size) + offset, parent)));
     
-    Partition five;
-    five.id = parent.id + "five";
-    five.size = size;
-    five.minBounds = D3DXVECTOR3(-size, size, 0) + offset;
-    five.maxBounds = five.minBounds + boundsOffset;
-    parent.children.push_back(five);
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, size, 0) + offset, parent)));
     
-    Partition six;
-    six.id = parent.id + "six";
-    six.size = size;
-    six.minBounds = D3DXVECTOR3(0, size, 0) + offset;
-    six.maxBounds = six.minBounds + boundsOffset;
-    parent.children.push_back(six);
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, size, 0) + offset, parent)));
     
-    Partition seven;
-    seven.id = parent.id + "seven";
-    seven.size = size;
-    seven.minBounds = D3DXVECTOR3(-size, 0, 0) + offset;
-    seven.maxBounds = seven.minBounds + boundsOffset;
-    parent.children.push_back(seven);
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(-size, 0, 0) + offset, parent)));
     
-    Partition eight;
-    eight.id = parent.id + "eight";
-    eight.size = size;
-    eight.minBounds = D3DXVECTOR3(0, 0, 0) + offset;
-    eight.maxBounds = eight.minBounds + boundsOffset;
-    parent.children.push_back(eight);
+    parent->children.push_back(PartitionPtr(new Partition(size, 
+        D3DXVECTOR3(0, 0, 0) + offset, parent)));
 }
 
-void Octree::AddObject(CollisionMeshPtr object, bool dynamic)
+void Octree::AddObject(CollisionMeshPtr object)
 {
-    
+    std::find_if(m_octree.begin(), m_octree.end(), 
+        std::bind(&Octree::AddToPartition, this, object, std::placeholders::_1));
+}
+
+bool Octree::AddToPartition(const CollisionMeshPtr& object, PartitionPtr& partition)
+{
+    if(IsInsidePartition(object, partition))
+    {
+        if(!partition->children.empty())
+        {
+            std::find_if(partition->children.begin(), partition->children.end(), 
+                std::bind(&Octree::AddToPartition, this, object, std::placeholders::_1));
+        }
+        else if(partition->nodes.size() >= PARTITIONS && partition->level < MAX_LEVELS)
+        {
+            GenerateChildren(partition);
+
+            for(auto& node : partition->nodes)
+            {
+                std::find_if(partition->children.begin(), partition->children.end(), 
+                    std::bind(&Octree::AddToPartition, this, node, std::placeholders::_1));
+            }
+
+            partition->nodes.clear();
+        }
+        else
+        {
+            partition->nodes.push_back(object);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const PartitionPtr& partition)
+{
+    return point.x > partition->minBounds.x && 
+           point.x < partition->maxBounds.x &&
+           point.y < partition->minBounds.y && 
+           point.y > partition->maxBounds.y &&
+           point.z > partition->minBounds.z && 
+           point.z < partition->maxBounds.z;
+}
+
+bool Octree::IsInsidePartition(const CollisionMeshPtr& object, const PartitionPtr& partition)
+{
+    auto shape = object->GetShape();
+    if(shape == CollisionMesh::SPHERE)
+    {
 
 
 
+
+    }
+    else
+    {
+        // Use AABB of collision geometry. This will be inaccurate for 
+        // transformed shapes but close enough for sectioning into partitions
+
+
+    }
+
+    return false;
 }
