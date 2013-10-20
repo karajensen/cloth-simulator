@@ -7,6 +7,7 @@
 #include "callbacks.h"
 
 class Shader;
+class Partition;
 
 /**
 * Holds data for collision geometry
@@ -63,8 +64,10 @@ public:
     * Constructor
     * @param parent The transform of the mesh parent
     * @param engine Callbacks from the rendering engine
+    * @param resolveFn A function to call to resolve any collision
     */
-    CollisionMesh(const Transform& parent, EnginePtr engine);
+    CollisionMesh(const Transform& parent, EnginePtr engine, 
+        std::function<void(const D3DXVECTOR3&)> resolveFn = nullptr);
 
     /**
     * Creates a sphere collision model
@@ -204,6 +207,16 @@ public:
     */
     const std::vector<D3DXVECTOR3>& GetOABB() const;
 
+    /**
+    * Sets the partition for the mesh
+    */
+    void SetPartition(Partition* partition);
+
+    /**
+    * @return the partition for the mesh
+    */
+    Partition* GetPartition() const;
+
 private:
 
     /**
@@ -218,6 +231,11 @@ private:
     */
     void CreateLocalBounds(float width, float height, float depth);
 
+    /**
+    * Updates the partition the collision mesh exists in
+    */
+    void UpdatePartition();
+
     EnginePtr m_engine;                   ///< Callbacks for the rendering engine
     bool m_draw;                          ///< Whether to draw the geometry
     const Transform& m_parent;            ///< Parent transform of the collision geometry
@@ -227,5 +245,7 @@ private:
     float m_radius;                       ///< Transformed radius that encases geometry
     std::vector<D3DXVECTOR3> m_oabb;      ///< Bounds of the world coord OABB
     std::shared_ptr<Geometry> m_geometry; ///< collision geometry mesh shared accross instances
-    std::shared_ptr<Shader> m_shader;     ///< Shader for the collision geometry
+    LPD3DXEFFECT m_shader;                ///< Shader for the collision geometry
+    Partition* m_partition;               ///< Partition collision currently in
+    std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
 };

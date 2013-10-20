@@ -7,7 +7,7 @@
 #include "callbacks.h"
 #include <queue>
 
-class Octree;
+class IOctree;
 class Shader;
 class CollisionSolver;
 class Mesh;
@@ -39,6 +39,11 @@ public:
     * @param engine Callbacks from the rendering engine
     */
     explicit Scene(EnginePtr engine);
+     
+    /**
+    * Destructor
+    */
+    ~Scene();
 
     /**
     * Draws all scene meshes
@@ -125,6 +130,14 @@ public:
 
 private:
 
+    typedef std::shared_ptr<Mesh> MeshPtr;
+
+    /**
+    * Removes a mesh from the scene
+    * @param mesh The mesh to remove
+    */
+    void RemoveMesh(const MeshPtr& mesh);
+
     /**
     * Sets the selected mesh
     * @param mesh the selected mesh
@@ -137,17 +150,14 @@ private:
     Scene(const Scene&);
     Scene& operator=(const Scene&);
 
-    typedef std::shared_ptr<Mesh> MeshPtr;
-
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::queue<unsigned int> m_open;             ///< Indices for the avaliable meshes
     std::vector<MeshPtr> m_meshes;               ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates;            ///< Mesh templates for creating mesh instances
-    std::shared_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
-    std::shared_ptr<Octree> m_octree;            ///< octree paritioning for scene objects
+    std::unique_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     MeshPtr m_ground;                            ///< Ground grid mesh
     std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
     int m_selectedMesh;                          ///< Currently selected object
-    bool m_drawCollisions;                   ///< Whether to render the mesh collision models or not
+    bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

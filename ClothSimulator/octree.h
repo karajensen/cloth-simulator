@@ -5,24 +5,27 @@
 #pragma once
 #include "common.h"
 #include "callbacks.h"
-#include <deque>
+#include "octree_interface.h"
 
-class CollisionMesh;
+class Partition;
 
 /**
-* Partitions the scene into sections for effecient collision detection
+* Partitions the scene into sections for collision detection
 */
-class Octree
+class Octree : public IOctree
 {
 public:
-
-    typedef std::shared_ptr<CollisionMesh> CollisionMeshPtr;
 
     /**
     * Constructor
     * @param engine Callbacks from the rendering engine
     */
-    explicit Octree(EnginePtr engine);
+    explicit Octree(std::shared_ptr<Engine> engine);
+
+    /**
+    * Destructor
+    */
+    ~Octree();
 
     /**
     * Forms the root partitions for the tree
@@ -30,35 +33,29 @@ public:
     void BuildInitialTree();
 
     /**
-    * Adds a collision object to the octree
-    * @param object The collision object to add
-    */
-    void AddObject(CollisionMeshPtr object);
-
-    //void RemoveObject
-
-    /**
     * Renders the octree partition diagnostics
     */
     void RenderDiagnostics();
 
+    /**
+    * Adds a collision object to the octree
+    * @param object The collision object to add
+    */
+    virtual void AddObject(CollisionMesh* object) override;
+
+    /**
+    * Updates the partition the collision object exists in
+    * @param object The collision object to update
+    */
+    virtual void UpdateObject(CollisionMesh* object) override;
+
+    /**
+    * Removes the collision object from the octree
+    * @param object The collision object to remove
+    */
+    virtual void RemoveObject(CollisionMesh* object) override;
+
 private:
-
-    struct Partition
-    {
-        Partition(float size, const D3DXVECTOR3& minPoint,
-            std::shared_ptr<Partition> owner = nullptr);
-
-        float GetSize() const;
-
-        int level;
-        std::string id;
-        D3DXVECTOR3 minBounds;
-        D3DXVECTOR3 maxBounds;
-        std::shared_ptr<Partition> parent;
-        std::deque<std::shared_ptr<Partition>> children;
-        std::deque<CollisionMeshPtr> nodes;
-    };
 
     /**
     * Prevent copying
@@ -66,15 +63,51 @@ private:
     Octree(const Octree&);
     Octree& operator=(const Octree&);
 
-    typedef std::shared_ptr<Partition> PartitionPtr;
+    /**
+    * Determines if a point in global coordinates exists within the partition bounds
+    * @param point The point to test against
+    * @param partition The partition to test against
+    * @return whether the point is inside the partition bounds
+    */
+    bool IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition);
 
-    bool IsPointInsidePartition(const D3DXVECTOR3& point, const PartitionPtr& partition);
-    bool IsInsidePartition(const CollisionMeshPtr& object, const PartitionPtr& partition);
-    bool AddToPartition(const CollisionMeshPtr& object, PartitionPtr& partition);
-    void RenderPartition(const PartitionPtr& partition);
-    void GenerateChildren(PartitionPtr& parent);
+    /**
+    * Determines if a corner of an AABB exists within the partition bounds
+    * @param object The collision object holding the AABB
+    * @param partition The partition to test against
+    * @return whether a corner of the AABB is inside the partition bounds
+    */
+    bool IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition);
 
-    EnginePtr m_engine;              ///< Callbacks for the rendering engine
-    std::deque<PartitionPtr> m_octree;   ///< Octree partitioning of collision objects
+    /**
+    * Determines if all four corners of an AABB exist within the partition bounds
+    * @param object The collision object holding the AABB
+    * @param partition The partition to test against
+    * @return whether all four corners of the AABB are inside the partition bounds
+    */
+    bool IsAllInsidePartition(const CollisionMesh* object, const Partition* partition);
 
+    /**
+    * Renders the diagnostics for a partition
+    * @param partition The partition to render diagnostics for
+    */
+    void RenderPartition(const std::unique_ptr<Partition>& partition);
+
+    /**
+    * Generates child partitions for a partition
+    * @param parent The partition to generate children for
+    */
+    void GenerateChildren(std::unique_ptr<Partition>& parent);
+
+    /**
+    * Recursive searching of the octree to determine the best position for an object
+    * @param object The collision object to add
+    * @param partition The current partition to search
+    * @return the chosen partition the object is inserted into, or null if none found
+    */
+    Partition* AddToPartition(CollisionMesh* object, Partition* partition);
+
+    std::shared_ptr<Engine> m_engine;    ///< Callbacks for the rendering engine
+    std::unique_ptr<Partition> m_octree; ///< Octree partitioning of collision objects
 };
+

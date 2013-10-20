@@ -12,14 +12,17 @@ namespace
     const int CORNERS = 8; ///< Number of corners in a cube
 }
 
-CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
-    m_draw(false),
-    m_parent(parent),
-    m_colour(0.0f, 0.0f, 1.0f),
-    m_geometry(nullptr),
-    m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
-    m_engine(engine),
-    m_radius(0.0f)
+CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine, 
+    std::function<void(const D3DXVECTOR3&)> resolveFn) :
+        m_draw(false),
+        m_parent(parent),
+        m_colour(0.0f, 0.0f, 1.0f),
+        m_geometry(nullptr),
+        m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
+        m_engine(engine),
+        m_radius(0.0f),
+        m_partition(nullptr),
+        m_resolveFn(resolveFn)
 {
     m_oabb.resize(CORNERS);
 }
@@ -226,23 +229,22 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
             }
         }
 
-        LPD3DXEFFECT pEffect(m_shader->GetEffect());
-        pEffect->SetTechnique(DxConstant::DefaultTechnique);
+        m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
         D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-        pEffect->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
 
-        pEffect->SetFloatArray(DxConstant::VertexColor, &(m_colour.x), 3);
+        m_shader->SetFloatArray(DxConstant::VertexColor, &(m_colour.x), 3);
 
         UINT nPasses = 0;
-        pEffect->Begin(&nPasses, 0);
+        m_shader->Begin(&nPasses, 0);
         for( UINT iPass = 0; iPass<nPasses; iPass++)
         {
-            pEffect->BeginPass(iPass);
+            m_shader->BeginPass(iPass);
             m_geometry->mesh->DrawSubset(0);
-            pEffect->EndPass();
+            m_shader->EndPass();
         }
-        pEffect->End();
+        m_shader->End();
     }
 }
 
@@ -254,6 +256,14 @@ const CollisionMesh::Data& CollisionMesh::GetData() const
 CollisionMesh::Data& CollisionMesh::GetData()
 {
     return m_data;
+}
+
+void CollisionMesh::UpdatePartition()
+{
+    if(m_partition)
+    {
+        m_engine->octree()->UpdateObject(this);
+    }
 }
 
 void CollisionMesh::PositionalUpdate()
@@ -268,6 +278,8 @@ void CollisionMesh::PositionalUpdate()
 
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
+
+        UpdatePartition();
     }
 }
 
@@ -292,6 +304,8 @@ void CollisionMesh::FullUpdate()
         {
             m_radius = D3DXVec3Length(&(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
         }
+
+        UpdatePartition();
     }
 }
 
@@ -311,4 +325,14 @@ void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view,
     m_world.MatrixPtr()->_11 = scale;
     m_world.MatrixPtr()->_22 = scale;
     m_world.MatrixPtr()->_33 = scale;
+}
+
+void CollisionMesh::SetPartition(Partition* partition)
+{
+    m_partition = partition;
+}
+
+Partition* CollisionMesh::GetPartition() const
+{
+    return m_partition;
 }

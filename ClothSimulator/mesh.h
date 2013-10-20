@@ -8,7 +8,9 @@
 #include "picking.h"
 #include "callbacks.h"
 
+class IOctree;
 class CollisionMesh;
+class Partition;
 
 /**
 * Data for rendering and instancing a mesh
@@ -25,9 +27,9 @@ struct MeshData
     */
     ~MeshData();
 
-    LPD3DXMESH mesh;                 ///< The directX mesh
-    LPDIRECT3DTEXTURE9 texture;      ///< The texture attached to the mesh
-    std::shared_ptr<Shader> shader;  ///< The shader attached to the mesh
+    LPD3DXMESH mesh;             ///< The directX mesh
+    LPDIRECT3DTEXTURE9 texture;  ///< The texture attached to the mesh
+    LPD3DXEFFECT shader;         ///< The shader attached to the mesh
 };
 
 /**
@@ -56,7 +58,7 @@ public:
     * @param index A user defined index
     */
     bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
-        std::shared_ptr<Shader> shader, int index = NO_INDEX);
+        LPD3DXEFFECT shader, int index = NO_INDEX);
 
     /**
     * Load the mesh as an instance of another mesh
@@ -201,11 +203,6 @@ public:
     * @return the list of saved animation points
     */
     const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
-
-    /**
-    * @return the shared pointer for the collision mesh
-    */
-    std::shared_ptr<CollisionMesh> GetCollisionPtr() const;
 
 private:
 

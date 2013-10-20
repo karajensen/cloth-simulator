@@ -1,22 +1,11 @@
 
-• Octree spacial partitioning
+• Neighbour smoothing
 • Wall collision logic
 • GJK CollisionMesh detection
-• Video/update folio
 
-
-9 root -> 8 children -> 8 children -> n children
-Objects can exist in parent nodes if no children or exist in > 2 children
-
-• Updating octree location when transform changed
+• Test partition updates when object moves/deletes
 • Adding cloth to octree
-• Removing collision mesh from octree
-• Collision mesh knows whether its dynamic or kinematic 
-  (only collision test dynamic/dynamic, dynamic/kinematic)
 • Using octree for collision detection
-
-
-
 
 =================================================================
 CLOTH SIMULATOR
@@ -42,3 +31,7 @@ WASDQE:         Control the cloth in handle mode
 8:              Toggle general diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics
+
+DEVELOPMENT UPGRADE IDEAS
+• Switch between different cloth solvers
+• Soft shadow mapping

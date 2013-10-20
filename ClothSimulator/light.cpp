@@ -10,6 +10,10 @@ LightManager::LightManager()
 {
 }
 
+LightManager::~LightManager()
+{
+}
+
 Light::Light() :
     m_position(0.0f, 0.0f, 0.0f),
     m_diffuse(1.0f, 1.0f, 1.0f),
@@ -71,7 +75,7 @@ void Light::SetAttenuation(float a0, float a1, float a2)
     m_attenuation2 = a2;
 }
 
-void Light::SendLightToShader(LPD3DXEFFECT shader)
+void Light::SendLightsToShader(LPD3DXEFFECT shader)
 {
     if(m_active)
     {
@@ -89,7 +93,7 @@ bool LightManager::Inititalise()
 {
     m_lights.resize(MAX_LIGHTS);
     std::generate(m_lights.begin(), m_lights.end(),
-        [&](){ return LightManager::LightPtr(new Light()); });
+        [&](){ return std::unique_ptr<Light>(new Light()); });
 
     m_lights[MAIN_LIGHT]->SetIndex(MAIN_LIGHT);
     m_lights[MAIN_LIGHT]->SetPosition(D3DXVECTOR3(-10.0f,10.0f,-18.0f));
@@ -98,13 +102,13 @@ bool LightManager::Inititalise()
     return true;
 }
 
-void LightManager::SendLightingToShader(LPD3DXEFFECT shader)
+void LightManager::SendLightsToShader(LPD3DXEFFECT shader)
 {
     // For now only one light is needed. When multiple 
     // lights are needed, change to allow this
     std::for_each(LightManager::m_lights.begin(), LightManager::m_lights.end(),
-        [&](const LightManager::LightPtr& light)
+        [&](const std::unique_ptr<Light>& light)
     {
-        light->SendLightToShader(shader);
+        light->SendLightsToShader(shader);
     });
 }

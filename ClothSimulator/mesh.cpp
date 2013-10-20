@@ -70,8 +70,7 @@ bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, in
     return true;
 }
 
-bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
-    std::shared_ptr<Shader> shader, int index)
+bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFFECT shader, int index)
 {
     m_index = index;
     m_data->shader = shader;
@@ -177,14 +176,11 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     {
         Animate(deltatime);
 
-        LPD3DXEFFECT effect = m_data->shader->GetEffect();
-
-        effect->SetTechnique(DxConstant::DefaultTechnique);
-        effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
-        effect->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
-        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-
-        m_engine->sendLightingToEffect(effect);
+        m_data->shader->SetTechnique(DxConstant::DefaultTechnique);
+        m_data->shader->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+        m_data->shader->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
+        m_data->shader->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
+        m_engine->sendLightsToShader(m_data->shader);
 
         D3DXMATRIX wit;
         D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
@@ -192,19 +188,19 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
         D3DXMatrixInverse(&wit, &det, &GetMatrix());
         D3DXMatrixTranspose(&wit, &wit);
 
-        effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
-        effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-        effect->SetMatrix(DxConstant::World, &GetMatrix());
+        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
+        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_data->shader->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
-        effect->Begin(&nPasses, 0);
+        m_data->shader->Begin(&nPasses, 0);
         for(UINT iPass = 0; iPass<nPasses; ++iPass)
         {
-            effect->BeginPass(iPass);
+            m_data->shader->BeginPass(iPass);
             m_data->mesh->DrawSubset(0);
-            effect->EndPass();
+            m_data->shader->EndPass();
         }
-        effect->End();
+        m_data->shader->End();
     }
 }
 
@@ -401,9 +397,4 @@ void Mesh::Animate(float deltatime)
         // Translate along the global axis to prevent rotation changing animation path
         TranslateGlobal(path * m_speed * deltatime);
     }
-}
-
-std::shared_ptr<CollisionMesh> Mesh::GetCollisionPtr() const
-{
-    return m_collision;
 }

@@ -102,6 +102,7 @@
     <ClCompile Include="manipulator.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="octree.cpp" />
+    <ClCompile Include="partition.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="input.cpp" />
@@ -131,6 +132,8 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="octree.h" />
+    <ClInclude Include="octree_interface.h" />
+    <ClInclude Include="partition.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />

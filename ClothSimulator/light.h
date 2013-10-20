@@ -66,7 +66,7 @@ public:
     * Send all parameters to the given shader
     * @param shader The shader to send to
     */
-    void SendLightToShader(LPD3DXEFFECT shader);
+    void SendLightsToShader(LPD3DXEFFECT shader);
 
     /**
     * Toggle light on/off
@@ -111,6 +111,11 @@ public:
     LightManager();
 
     /**
+    * Destructor
+    */
+    ~LightManager();
+
+    /**
     * Initialise all lighting
     * @return whether initialisation succeeded or not
     */
@@ -120,11 +125,9 @@ public:
     * Sends all lighting to the given shader
     * @param shader The shader to send lighting data to
     */
-    void SendLightingToShader(LPD3DXEFFECT shader);
+    void SendLightsToShader(LPD3DXEFFECT shader);
 
 private:
-
-    typedef std::shared_ptr<Light> LightPtr;
 
     /**
     * Prevent copying
@@ -132,5 +135,5 @@ private:
     LightManager(const LightManager&);
     LightManager& operator=(const LightManager&);
 
-    std::vector<LightPtr> m_lights; ///< All lights in scene
+    std::vector<std::unique_ptr<Light>> m_lights; ///< All lights in scene
 };

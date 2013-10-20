@@ -18,14 +18,19 @@ class Cloth : public PickableMesh, public Transform
 {
 public:
 
-    typedef std::shared_ptr<Particle> ParticlePtr;
-    typedef std::shared_ptr<Spring> SpringPtr;
+    typedef std::unique_ptr<Particle> ParticlePtr;
+    typedef std::unique_ptr<Spring> SpringPtr;
 
     /**
     * Constructor; loads the cloth mesh
     * @param engine Callbacks from the rendering engine
     */
     explicit Cloth(EnginePtr engine);
+
+    /**
+    * Destructor
+    */
+    ~Cloth();
 
     /**
     * Draw the cloth visual and collision models

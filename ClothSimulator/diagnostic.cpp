@@ -26,7 +26,7 @@ Diagnostic::Diagnostic() :
 {
 }
 
-void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, std::shared_ptr<Shader> boundsShader)
+void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader)
 {
     m_shader = boundsShader;
     m_d3ddev = d3ddev;
@@ -124,14 +124,13 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
     {
         if(group.render)
         {
-            LPD3DXEFFECT effect(m_shader->GetEffect());
-            effect->SetTechnique(DxConstant::DefaultTechnique);
+            m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
             for(auto& sphere : group.spheremap)
             {
                 if(sphere.second.draw)
                 {
-                    RenderObject(effect, m_sphere, sphere.second.color, 
+                    RenderObject(m_shader, m_sphere, sphere.second.color, 
                         sphere.second.world, projection, view);
                     sphere.second.draw = false;
                 }
@@ -141,7 +140,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
             {
                 if(line.second.draw)
                 {
-                    RenderObject(effect, m_cylinder, line.second.color, 
+                    RenderObject(m_shader, m_cylinder, line.second.color, 
                         line.second.world, projection, view);
                     line.second.draw = false;
                 }

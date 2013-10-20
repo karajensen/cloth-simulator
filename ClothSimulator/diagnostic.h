@@ -56,8 +56,7 @@ public:
     * @param d3ddev The directX device
     * @param boundsShader The shader to apply to diagnostics meshes
     */
-    void Initialise(LPDIRECT3DDEVICE9 d3ddev, 
-        std::shared_ptr<Shader> boundsShader);
+    void Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader);
 
     /**
     * Toggles whether diagnostics are on
@@ -205,6 +204,6 @@ private:
     LPDIRECT3DDEVICE9 m_d3ddev;       ///< DirectX Device
     LPD3DXMESH m_sphere;              ///< Diagnostic geometry sphere
     LPD3DXMESH m_cylinder;            ///< Diagnostic geometry sphere
-    std::shared_ptr<Text> m_text;     ///< Diagnostic text
-    std::shared_ptr<Shader> m_shader; ///< Global diagnostic mesh shader
+    std::unique_ptr<Text> m_text;     ///< Diagnostic text
+    LPD3DXEFFECT m_shader;            ///< Global diagnostic mesh shader
 };

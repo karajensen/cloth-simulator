@@ -39,6 +39,11 @@ public:
     explicit Manipulator(EnginePtr engine);
 
     /**
+    * Destructor
+    */
+    ~Manipulator();
+
+    /**
     * Renders the currently selected tool
     * @param projection The projection matrix for the camera
     * @param view The view matrix for the camera
@@ -160,10 +165,10 @@ private:
     void AnimateMesh(MeshPtr mesh, float value);
 
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
-    std::vector<std::shared_ptr<Tool>> m_tools;  ///< all usable tools
+    std::vector<std::unique_ptr<Tool>> m_tools;  ///< all usable tools
     ToolType m_selectedTool;                     ///< Currently selected tool
     ToolAxis m_selectedAxis;                     ///< currently selected axis
     LPD3DXMESH m_sphere;                         ///< Animation geometry sphere
-    std::shared_ptr<Shader> m_shader;            ///< Animation point shader
+    LPD3DXEFFECT m_shader;                       ///< Animation point shader
     bool m_saveAnimation;                        ///< Whether to allow the position to be saved
 };

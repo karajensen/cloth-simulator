@@ -53,8 +53,6 @@ class ShaderManager
 {
 public:
 
-    typedef std::shared_ptr<Shader> ShaderPtr;
-
     /**
     * Avaliable shaders in the scene
     */
@@ -74,6 +72,11 @@ public:
     ShaderManager();
 
     /**
+    * Destructor
+    */
+    ~ShaderManager();
+
+    /**
     * Initialise all shaders
     * @return whether initialisation succeeded
     */
@@ -81,9 +84,9 @@ public:
 
     /**
     * @param the shader to get
-    * @return a shared pointer to the required shader
+    * @return the effect for the required shader
     */
-    std::shared_ptr<Shader> GetShader(SceneShader shader);
+    LPD3DXEFFECT GetShader(int shader);
 
 private:
 
@@ -93,7 +96,7 @@ private:
     ShaderManager(const ShaderManager&);
     ShaderManager& operator=(const ShaderManager&);
 
-    std::vector<ShaderPtr> m_shaders; ///< All shaders in scene
+    std::vector<std::unique_ptr<Shader>> m_shaders; ///< All shaders in scene
 };
 
 /**

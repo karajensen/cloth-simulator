@@ -11,6 +11,10 @@ ShaderManager::ShaderManager()
 {
 }
 
+ShaderManager::~ShaderManager()
+{
+}
+
 Shader::Shader():
     m_effect(nullptr)
 {
@@ -47,7 +51,7 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
 
     m_shaders.resize(MAX_SHADERS);
     std::generate(m_shaders.begin(), m_shaders.end(), 
-        [&](){ return ShaderManager::ShaderPtr(new Shader()); });
+        [&](){ return std::unique_ptr<Shader>(new Shader()); });
     
     bool success = true;
     success = (success ? m_shaders[MAIN_SHADER]->Load(d3ddev,ShaderFolder+"main.fx") : false);
@@ -58,7 +62,7 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
     return success;
 }
 
-std::shared_ptr<Shader> ShaderManager::GetShader(SceneShader shader)
+LPD3DXEFFECT ShaderManager::GetShader(int shader)
 {
-    return m_shaders[shader];
+    return m_shaders[shader]->GetEffect();
 }

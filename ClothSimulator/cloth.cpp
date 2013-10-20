@@ -77,6 +77,10 @@ Cloth::Cloth(EnginePtr engine) :
     CreateCloth(ROWS, SPACING);
 }
 
+Cloth::~Cloth()
+{
+}
+
 void Cloth::CreateCloth(int rows, float spacing)
 {
     m_spacing = spacing;
@@ -284,12 +288,10 @@ void Cloth::Draw(const D3DXVECTOR3& cameraPos, const Matrix& projection, const M
 {
     if(m_data->mesh)
     {
-        LPD3DXEFFECT effect = m_data->shader->GetEffect();
-
-        effect->SetTechnique(DxConstant::DefaultTechnique);
-        effect->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
-        effect->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-        m_engine->sendLightingToEffect(effect);
+        m_data->shader->SetTechnique(DxConstant::DefaultTechnique);
+        m_data->shader->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+        m_data->shader->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
+        m_engine->sendLightsToShader(m_data->shader);
 
         D3DXMATRIX wit;
         D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
@@ -297,19 +299,19 @@ void Cloth::Draw(const D3DXVECTOR3& cameraPos, const Matrix& projection, const M
         D3DXMatrixInverse(&wit, &det, &GetMatrix());
         D3DXMatrixTranspose(&wit, &wit);
 
-        effect->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
-        effect->SetMatrix(DxConstant::WordViewProjection, &wvp);
-        effect->SetMatrix(DxConstant::World, &GetMatrix());
+        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
+        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_data->shader->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
-        effect->Begin(&nPasses, 0);
+        m_data->shader->Begin(&nPasses, 0);
         for(UINT iPass = 0; iPass<nPasses; ++iPass)
         {
-            effect->BeginPass(iPass);
+            m_data->shader->BeginPass(iPass);
             m_data->mesh->DrawSubset(0);
-            effect->EndPass();
+            m_data->shader->EndPass();
         }
-        effect->End();
+        m_data->shader->End();
     }
 }
 
@@ -641,44 +643,43 @@ void Cloth::SmoothCloth()
     D3DXVECTOR3 normal(0.0f, 0.0f, 0.0f);
     D3DXVECTOR3 halfp1, halfp2;
     D3DXVECTOR2 halfuv1, halfuv2;
+    int p1, p2, p3, p4;
+    const float smoothing = 0.5f;
+    const float threshold = 0.01f;
 
-    for(int i = 0; i < m_particleLength; ++i)
+    // Update the position of all vertices in the vertex buffer
+    for(int x = 0; x < m_particleLength; ++x)
     {
-        quad = i;
-        for(int j = 0; j < m_particleLength; ++j)
+        for(int y = 0; y < m_particleLength; ++y)
         {
-            index = (i*m_particleLength)+j;
-            m_vertexData[index].position = m_particles[index]->GetPosition();
-            m_vertexData[index].uvs = m_particles[index]->GetUVs();
+            index = (x*m_particleLength)+y;
             m_vertexData[index].normal = normal;
+            m_vertexData[index].uvs = m_particles[index]->GetUVs();
+            m_vertexData[index].position = m_particles[index]->GetPosition();
 
-            if(j < m_particleLength-1 && i < m_particleLength-1)
+            if(x > 0 && x < m_particleLength-1 && y > 0 && y < m_particleLength-1)
             {
-                // Determine position of quad vertex
-                // based on surrounding four vertices
-                int quadindex = m_particleCount + quad;
-                quad += m_particleLength-1;
+                p1 = (x*m_particleLength)+y+1;
+                p2 = ((x+1)*m_particleLength)+y;
+                p3 = ((x-1)*m_particleLength)+y;
+                p4 = (x*m_particleLength)+y-1;
 
-                halfp1 = (GetParticle(i, j)->GetPosition() 
-                    + GetParticle(i+1, j+1)->GetPosition()) * 0.5f;
+                float averageHeight = (
+                    m_particles[p1]->GetPosition().y + 
+                    m_particles[p2]->GetPosition().y + 
+                    m_particles[p3]->GetPosition().y + 
+                    m_particles[p4]->GetPosition().y) * 0.25f;
 
-                halfp2 = (GetParticle(i+1, j)->GetPosition()
-                    + GetParticle(i, j+1)->GetPosition()) * 0.5f;
-
-                halfuv1 = (GetParticle(i, j)->GetUVs() 
-                    + GetParticle(i+1, j+1)->GetUVs()) * 0.5f;
-
-                halfuv2 = (GetParticle(i+1, j)->GetUVs()
-                    + GetParticle(i, j+1)->GetUVs()) * 0.5f;
-
-                m_vertexData[quadindex].position = (halfp1 + halfp2) * 0.5f;
-                m_vertexData[quadindex].uvs = (halfuv1 + halfuv2) * 0.5f;
-                m_vertexData[quadindex].normal = normal;
+                float difference = averageHeight - m_vertexData[index].position.y;
+                if(fabs(difference) > threshold)
+                {
+                    m_vertexData[index].position.y += difference * smoothing;
+                }
             }
         }
     }
 
-    int p1, p2, p3, p4;
+    // Smooth and update all normals of the main vertices
     for(int x = 0; x < m_particleLength-1; ++x)
     {
         for(int y = 0; y < m_particleLength-1; ++y)
@@ -704,6 +705,7 @@ void Cloth::SmoothCloth()
         }
     }
 
+    // Update the quad normals/position
     quad = 0;
     for(int x = 0; x < m_particleLength-1; ++x)
     {
@@ -713,9 +715,23 @@ void Cloth::SmoothCloth()
             p2 = ((x+1)*m_particleLength)+y;
             p3 = (x*m_particleLength)+y+1;
             p4 = ((x+1)*m_particleLength)+y+1;
+            int quadindex = m_particleCount + quad;
 
-            // Each quad vertex has averaged of surrounding normals
-            m_vertexData[m_particleCount + quad].normal = (m_vertexData[p2].normal 
+            halfp1 = (m_vertexData[p1].position
+                + m_vertexData[p4].position) * 0.5f;
+
+            halfp2 = (m_vertexData[p2].position
+                + m_vertexData[p3].position) * 0.5f;
+
+            halfuv1 = (m_vertexData[p1].uvs
+                + m_vertexData[p4].uvs) * 0.5f;
+
+            halfuv2 = (m_vertexData[p2].uvs
+                + m_vertexData[p3].uvs) * 0.5f;
+
+            m_vertexData[quadindex].position = (halfp1 + halfp2) * 0.5f;
+            m_vertexData[quadindex].uvs = (halfuv1 + halfuv2) * 0.5f;
+            m_vertexData[quadindex].normal = (m_vertexData[p2].normal 
                 + m_vertexData[p1].normal + m_vertexData[p3].normal 
                 + m_vertexData[p4].normal) * 0.25f;
 

@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "text.h"
 #include "scene.h"
+#include "octree.h"
 #include "collisionsolver.h"
 #include <algorithm>
 #include <sstream>
@@ -54,6 +55,7 @@ void Simulation::Render()
     m_cloth->DrawCollisions(m_camera->Projection(), m_camera->View());
     m_scene->DrawCollisions(m_camera->Projection(), m_camera->View());
     m_scene->DrawTools(cameraPosition, m_camera->Projection(), m_camera->View());
+    m_octree->RenderDiagnostics();
 
     m_diagnostics->DrawAllObjects(m_camera->Projection(), m_camera->View());
     m_diagnostics->DrawAllText();
@@ -140,12 +142,12 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     EnginePtr engine(new Engine());
     engine->device = [&](){ return m_d3ddev; };
     engine->diagnostic = [&](){ return m_diagnostics.get(); };
+    engine->octree = [&](){ return m_octree.get(); };
     
-    engine->getShader = [&](ShaderManager::SceneShader shader)
-        { return m_shader->GetShader(shader); };
-    
-    engine->sendLightingToEffect = std::bind(
-        &LightManager::SendLightingToShader,
+    engine->getShader = std::bind(&ShaderManager::GetShader, 
+        m_shader.get(), std::placeholders::_1);
+
+    engine->sendLightsToShader = std::bind(&LightManager::SendLightsToShader,
         m_light.get(), std::placeholders::_1);
 
     // Initialise the camera
@@ -163,6 +165,11 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     // Initialise diagnostics
     m_diagnostics->Initialise(d3ddev,
         m_shader->GetShader(ShaderManager::BOUNDS_SHADER));
+
+    // Initialise the octree partitioning
+    Octree* octree = new Octree(engine);
+    octree->BuildInitialTree();
+    m_octree.reset(octree);
 
     // Initialise the simulation
     m_cloth.reset(new Cloth(engine));
