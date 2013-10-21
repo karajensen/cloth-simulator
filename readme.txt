@@ -1,11 +1,14 @@
 
-• Neighbour smoothing
-• Wall collision logic
-• GJK CollisionMesh detection
+• Fix break when delete all is clicked
+• Fix/Test cloth octree
+• Clean up octree class
 
-• Test partition updates when object moves/deletes
-• Adding cloth to octree
 • Using octree for collision detection
+• Neighbour smoothing fix
+• Wall collision logic
+• GJK Collision detection
+• Profile and optimize code
+
 
 =================================================================
 CLOTH SIMULATOR
@@ -26,8 +29,9 @@ BACKSPACE:      Delete currently selected object
 RALT-CLICK:     Allows selection of particle. Cloth diagnostics must be toggled
 WASDQE:         Control the cloth in handle mode
 1-4:            Toggle different cloth edge in handle mode
-0:              Toggle text diagnostics
-9:              Toggle collision models
+T:              Toggle text diagnostics
+0:              Toggle collision models
+9:              Toggle wall collision models
 8:              Toggle general diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics

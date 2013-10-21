@@ -21,7 +21,6 @@ Octree::Octree(std::shared_ptr<Engine> engine) :
     m_engine(engine),
     m_octree(new Partition())
 {
-    BuildInitialTree();
 }
 
 Octree::~Octree()
@@ -49,7 +48,7 @@ void Octree::RenderPartition(const std::unique_ptr<Partition>& partition)
         RenderPartition(child);
     }
 
-    if(level >= 0 && partition->HasNodes())
+    if(level > 0 && partition->HasNodes())
     {
         const D3DXVECTOR3 minBounds = partition->GetMinBounds();
         const float size = partition->GetSize();
@@ -70,6 +69,10 @@ void Octree::RenderPartition(const std::unique_ptr<Partition>& partition)
             
         const std::string& id = partition->GetID();
         auto colour = static_cast<Diagnostic::Colour>(min(MAX_LEVEL, level));
+
+        m_engine->diagnostic()->UpdateText(Diagnostic::OCTREE, id, colour,
+            StringCast(partition->GetNodes().size()));
+
         for(unsigned int i = 0; i < CORNERS/2; ++i)
         {
             m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE, id + StringCast(i)
@@ -101,7 +104,6 @@ void Octree::BuildInitialTree()
     m_octree->AddChild(size, D3DXVECTOR3(size, size, -size)  + offset, m_octree.get());
 
     m_octree->ModifyChildren(std::bind(&Octree::GenerateChildren, this, std::placeholders::_1));
-
 }
 
 void Octree::GenerateChildren(std::unique_ptr<Partition>& parent)
@@ -190,9 +192,14 @@ void Octree::RemoveObject(CollisionMesh* object)
 void Octree::UpdateObject(CollisionMesh* object)
 {
     Partition* partition = object->GetPartition();
-    if(!IsAllInsidePartition(object, partition))
+    partition->RemoveNode(object);
+
+    if(IsAllInsidePartition(object, partition))
     {
-        partition->RemoveNode(object);
+        AddToPartition(object, partition);
+    }
+    else
+    {
         AddObject(object);
     }
 }

@@ -123,6 +123,11 @@ public:
     void SetCollisionVisibility(bool visible);
 
     /**
+    * Toggles the visibility of the wall collision meshes
+    */
+    void ToggleWallVisibility();
+
+    /**
     * Loads the gui callbacks
     * @param callbacks callbacks for the gui to fill in
     */
@@ -159,5 +164,6 @@ private:
     std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
     int m_selectedMesh;                          ///< Currently selected object
     bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
+    bool m_drawWalls;                            ///< Whether to render the wall mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

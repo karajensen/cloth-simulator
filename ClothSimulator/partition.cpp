@@ -9,7 +9,8 @@ Partition::Partition() :
     m_parent(nullptr),
     m_minBounds(0, 0, 0),
     m_maxBounds(0, 0, 0),
-    m_level(-1)
+    m_level(0),
+    m_id("0")
 {
 }
 
@@ -24,7 +25,8 @@ Partition::Partition(float size, const D3DXVECTOR3& minBounds, const Partition* 
     const D3DXVECTOR3 minToMax(size, -size, size);
     m_maxBounds = minBounds + minToMax;
     m_level = parent->m_level + 1;
-    m_id = parent->m_id + "|" + StringCast(m_level);
+    m_id = parent->m_id + "|" + StringCast(m_level)
+        + "-" + StringCast(parent->GetChildren().size());
 }
 
 float Partition::GetSize() const

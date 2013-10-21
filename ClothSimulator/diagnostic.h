@@ -157,6 +157,7 @@ private:
         D3DXVECTOR3 color; ///< Colour of the text
         std::string text;  ///< Actual text to display
         int counter;       ///< Optional counter for text
+        bool draw;         ///< Whether to render the text
     };
 
     /**

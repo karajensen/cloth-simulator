@@ -270,16 +270,20 @@ void CollisionMesh::PositionalUpdate()
 {
     if(m_geometry)
     { 
+        const float threshold = 0.01f;
         D3DXVECTOR3 difference(m_parent.Position()-m_world.Position());
-        for(D3DXVECTOR3& point : m_oabb)
+        if(D3DXVec3LengthSq(&difference) > threshold)
         {
-            point += difference;
+            for(D3DXVECTOR3& point : m_oabb)
+            {
+                point += difference;
+            }
+
+            //DirectX: World = LocalWorld * ParentWorld
+            m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
+
+            UpdatePartition();
         }
-
-        //DirectX: World = LocalWorld * ParentWorld
-        m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
-
-        UpdatePartition();
     }
 }
 

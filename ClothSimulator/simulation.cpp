@@ -257,7 +257,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         std::bind(&Scene::RemoveObject, m_scene.get()));
     
     // Toggling Diagnostic drawing
-    m_input->SetKeyCallback(DIK_0, false, 
+    m_input->SetKeyCallback(DIK_T, false, 
         std::bind(&Diagnostic::ToggleDiagnostics, 
         m_diagnostics.get(), Diagnostic::TEXT));
     
@@ -279,10 +279,13 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
     
     // Toggle mesh collision model diagnostics
-    m_input->SetKeyCallback(DIK_9, false, [&]()
+    m_input->SetKeyCallback(DIK_0, false, [&]()
     {
         m_drawCollisions = !m_drawCollisions;
         m_cloth->SetCollisionVisibility(m_drawCollisions);
         m_scene->SetCollisionVisibility(m_drawCollisions);
     });
+
+    m_input->SetKeyCallback(DIK_9, false, 
+        std::bind(&Scene::ToggleWallVisibility, m_scene.get()));   
 }

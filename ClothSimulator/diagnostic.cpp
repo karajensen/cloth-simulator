@@ -95,7 +95,14 @@ void Diagnostic::DrawAllText()
     {
         if(group.render)
         {
-            std::for_each(group.textmap.begin(), group.textmap.end(), renderText);
+            for(auto& text : group.textmap)
+            {
+                if(text.second.draw)
+                {
+                    renderText(text);
+                    text.second.draw = false;
+                }
+            }
         }
     }
 }
@@ -212,6 +219,7 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     }
     textmap[id].color = m_colourmap[color];
     textmap[id].text = id + ": " + text;
+    textmap[id].draw = true;
 }
 
 void Diagnostic::UpdateText(Group group, const std::string& id,
@@ -230,4 +238,5 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     }
     textmap[id].color = m_colourmap[color];
     textmap[id].text = id + ": " + StringCast(textmap[id].counter);
+    textmap[id].draw = true;
 }

@@ -87,13 +87,24 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_particleLength = rows;
     m_particleCount = rows*rows;
 
+    //remove any particles from octree no longer needed
+    int current = static_cast<int>(m_particles.size());
+    int difference = current - m_particleCount;
+    if(difference > 0)
+    {
+        for(int i = difference; i < current; ++i)
+        {
+            m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionMesh());
+        }
+    }
+
     //create particles
     m_particles.resize(m_particleCount);
     m_template->GetData().localWorld.SetScale(m_spacing/2.0f);
 
     const int mininum = -m_particleLength/2;
     const int maximum = m_particleLength/2;
-    const D3DXVECTOR3 startingPos(1.0f, 8.0f, 0.0f);
+    const D3DXVECTOR3 startingPos(0.5f, 8.0f, 0.0f);
     float UVu = 0;
     float UVv = 0;
     int index = 0;
@@ -107,12 +118,19 @@ void Cloth::CreateCloth(int rows, float spacing)
             position.x += x*m_spacing;
             position.z += z*m_spacing;
 
-            if(!m_particles[index].get())
+            bool firstInitialisation = !m_particles[index].get();
+            if(firstInitialisation)
             {
                 m_particles[index].reset(new Particle(m_engine));
             }
+
             m_particles[index]->Initialise(position, uvs,
                 index, m_template->GetGeometry(), m_template->GetData());
+
+            if(firstInitialisation)
+            {
+                m_engine->octree()->AddObject(m_particles[index]->GetCollisionMesh());
+            }
 
             UVu += 0.5;
         }
