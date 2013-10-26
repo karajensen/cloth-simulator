@@ -3,9 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include <memory>
-
 class CollisionMesh;
 
 /**
@@ -22,7 +20,8 @@ public:
     virtual void AddObject(CollisionMesh* object) = 0;
 
     /**
-    * Updates the partition the collision object exists in
+    * Determines if the object is still inside the partition
+    * and moves it to the correct partition if necessary
     * @param object The collision object to update
     */
     virtual void UpdateObject(CollisionMesh* object) = 0;

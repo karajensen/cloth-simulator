@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - clothsolver.h
+// Kara Jensen - mail@karajensen.com - collisionsolver.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "common.h"
-#include "collisionmesh.h"
 
+class CollisionMesh;
 class Cloth;
 
 /**
@@ -45,10 +45,13 @@ public:
     void SolveCylinderCollisionMesh(const CollisionMesh& cylinder);
 
     /**
-    * Simplified box-cloth collision for the ground plane
-    * @param ground The ground collision geometry
+    * Wall-cloth collision detection and resolution
+    * @note iterates over all particles as quicker than adding to octree
+    * @param minimumBounds The minimum point inside the walls
+    * @param maximumBounds The maximum point inside the walls
     */
-    void SolveGroundCollisionMesh(const CollisionMesh& ground);
+    void SolveClothWallCollision(const D3DXVECTOR3& minBounds, 
+        const D3DXVECTOR3& maxBounds);
 
 private:
 

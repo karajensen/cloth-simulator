@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - clothsolver.cpp
+// Kara Jensen - mail@karajensen.com - collisionsolver.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "collisionsolver.h"
 #include "particle.h"
 #include "cloth.h"
+#include <assert.h>
 
 CollisionSolver::CollisionSolver(std::shared_ptr<Cloth> cloth) :
     m_cloth(cloth)
@@ -75,27 +76,53 @@ void CollisionSolver::SolveCylinderCollisionMesh(const CollisionMesh& cylinder)
 
 }
 
-void CollisionSolver::SolveGroundCollisionMesh(const CollisionMesh& ground)
+void CollisionSolver::SolveClothWallCollision(const D3DXVECTOR3& minBounds, 
+                                              const D3DXVECTOR3& maxBounds)
 {
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
-    std::for_each(particles.begin(), particles.end(), [&](const Cloth::ParticlePtr& particle)
+    for(const std::unique_ptr<Particle>& particle : particles)
     {
-        if(particle->GetPosition().y <= ground.GetMaxBounds().y)
+        const D3DXVECTOR3& particlePosition = particle->GetPosition();
+        D3DXVECTOR3 position(0.0, 0.0, 0.0);
+
+        // Check for ground and roof collisions
+        if(particlePosition.y <= maxBounds.y)
         {
-            float distance = fabs(ground.GetMaxBounds().y-particle->GetPosition().y);
-            particle->MovePosition(D3DXVECTOR3(0.0f, distance, 0.0f));
+            position.y = fabs(maxBounds.y-particlePosition.y);
         }
-    });
+        else if(particlePosition.y >= minBounds.y)
+        {
+            position.y = fabs(minBounds.y-particlePosition.y);
+        }
+
+        // Check for left and right wall collisions
+        if(particlePosition.x >= maxBounds.x)
+        {
+            position.x = fabs(maxBounds.x-particlePosition.x);
+        }
+        else if(particlePosition.x <= minBounds.x)
+        {
+            position.x = fabs(minBounds.x-particlePosition.x);
+        }
+
+        // Check for forward and backward wall collisions
+        if(particlePosition.z >= maxBounds.z)
+        {
+            position.z = fabs(maxBounds.z-particlePosition.z);
+        }
+        else if(particlePosition.z <= minBounds.z)
+        {
+            position.z = fabs(minBounds.z-particlePosition.z);
+        }
+
+        particle->MovePosition(position);
+    }
 }
 
 std::shared_ptr<Cloth> CollisionSolver::GetCloth()
 {
-    if(m_cloth.expired())
-    {
-        ShowMessageBox("cloth asked for is non-existant");
-        return nullptr;
-    }
+    assert(!m_cloth.expired());
     return m_cloth.lock();
 }

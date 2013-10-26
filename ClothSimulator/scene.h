@@ -162,6 +162,8 @@ private:
     std::unique_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     MeshPtr m_ground;                            ///< Ground grid mesh
     std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
+    D3DXVECTOR3 m_wallMinBounds;                 ///< Minimum position in the wall enclosed space
+    D3DXVECTOR3 m_wallMaxBounds;                 ///< Maximum position in the wall enclosed space
     int m_selectedMesh;                          ///< Currently selected object
     bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
     bool m_drawWalls;                            ///< Whether to render the wall mesh collision models or not

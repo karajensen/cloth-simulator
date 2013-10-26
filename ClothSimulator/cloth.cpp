@@ -92,7 +92,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     int difference = current - m_particleCount;
     if(difference > 0)
     {
-        for(int i = difference; i < current; ++i)
+        for(int i = current-difference; i < current; ++i)
         {
             m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionMesh());
         }
@@ -413,6 +413,9 @@ void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
         { 
             spring->UpdateDiagnostic(m_engine->diagnostic()); 
         });
+
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
+            "ParticleCount", Diagnostic::WHITE, StringCast(m_particleCount));
 
         m_engine->diagnostic()->UpdateSphere(Diagnostic::CLOTH, 
             "Particle", Diagnostic::YELLOW, position, radius);

@@ -18,7 +18,7 @@ Partition::~Partition()
 {
 }
 
-Partition::Partition(float size, const D3DXVECTOR3& minBounds, const Partition* parent) :
+Partition::Partition(float size, const D3DXVECTOR3& minBounds, Partition* parent) :
     m_parent(parent),
     m_minBounds(minBounds)
 {
@@ -74,7 +74,7 @@ void Partition::RemoveNode(CollisionMesh* node)
     m_nodes.erase(std::remove(m_nodes.begin(), m_nodes.end(), node), m_nodes.end());
 }
 
-void Partition::AddChild(float size, const D3DXVECTOR3& minBounds, const Partition* parent)
+void Partition::AddChild(float size, const D3DXVECTOR3& minBounds, Partition* parent)
 {
     m_children.push_back(std::unique_ptr<Partition>(
         new Partition(size, minBounds, parent)));
@@ -91,4 +91,9 @@ void Partition::ModifyChildren(std::function<void(std::unique_ptr<Partition>&)> 
 void Partition::AddNode(CollisionMesh* node)
 {
     m_nodes.push_back(node);
+}
+
+Partition* Partition::GetParent()
+{
+    return m_parent;
 }

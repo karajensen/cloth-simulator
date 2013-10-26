@@ -217,6 +217,12 @@ public:
     */
     Partition* GetPartition() const;
 
+    /**
+    * Moves the owner of the collision mesh to resolve a collision
+    * @param translate The amount to move the owner by
+    */
+    void ResolveCollision(const D3DXVECTOR3& translation);
+
 private:
 
     /**

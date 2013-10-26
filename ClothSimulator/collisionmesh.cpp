@@ -340,3 +340,11 @@ Partition* CollisionMesh::GetPartition() const
 {
     return m_partition;
 }
+
+void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation)
+{
+    if(m_resolveFn)
+    {
+        m_resolveFn(translation);
+    }
+}

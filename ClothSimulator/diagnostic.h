@@ -89,9 +89,10 @@ public:
     * @param id The id of the text
     * @param color The colour of the text
     * @param text The text to draw
+    * @param cleardraw Whether to remove the text once drawn or not
     */
     void UpdateText(Group group, const std::string& id,
-        Colour color, const std::string& text);
+        Colour color, const std::string& text, bool cleardraw = false);
 
     /**
     * Adds text for diagnostic rendering.
@@ -100,9 +101,10 @@ public:
     * @param id The id of the text
     * @param color The colour of the text
     * @param increaseCounter Whether to increase the counter or not
+    * @param cleardraw Whether to remove the text once drawn or not
     */
     void UpdateText(Group group, const std::string& id,
-        Colour color, bool increaseCounter);
+        Colour color, bool increaseCounter, bool cleardraw = false);
 
     /**
     * Adds a cylinder line for diagnostic rendering.
@@ -158,6 +160,7 @@ private:
         std::string text;  ///< Actual text to display
         int counter;       ///< Optional counter for text
         bool draw;         ///< Whether to render the text
+        bool cleardraw;    ///< Whether to set draw to false once rendered
     };
 
     /**

@@ -100,7 +100,10 @@ void Diagnostic::DrawAllText()
                 if(text.second.draw)
                 {
                     renderText(text);
-                    text.second.draw = false;
+                    if(text.second.cleardraw)
+                    {
+                        text.second.draw = false;
+                    }
                 }
             }
         }
@@ -209,7 +212,7 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
 }
 
 void Diagnostic::UpdateText(Group group, const std::string& id, 
-    Diagnostic::Colour color, const std::string& text)
+    Diagnostic::Colour color, const std::string& text, bool cleardraw)
 {
     TextMap& textmap = m_groupvector[group].textmap;
 
@@ -220,10 +223,11 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     textmap[id].color = m_colourmap[color];
     textmap[id].text = id + ": " + text;
     textmap[id].draw = true;
+    textmap[id].cleardraw = cleardraw;
 }
 
 void Diagnostic::UpdateText(Group group, const std::string& id,
-    Diagnostic::Colour color, bool increaseCounter)
+    Diagnostic::Colour color, bool increaseCounter, bool cleardraw)
 {
     TextMap& textmap = m_groupvector[group].textmap;
 
@@ -239,4 +243,5 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     textmap[id].color = m_colourmap[color];
     textmap[id].text = id + ": " + StringCast(textmap[id].counter);
     textmap[id].draw = true;
+    textmap[id].cleardraw = cleardraw;
 }

@@ -1,11 +1,9 @@
 
-• Fix break when delete all is clicked
-• Fix/Test cloth octree
-• Clean up octree class
+
+• Fix wall-cloth collisions
 
 • Using octree for collision detection
 • Neighbour smoothing fix
-• Wall collision logic
 • GJK Collision detection
 • Profile and optimize code
 

@@ -10,7 +10,7 @@
 class Partition;
 
 /**
-* Partitions the scene into sections for collision detection
+* Partitions the scene into sections for use in collision detection
 */
 class Octree : public IOctree
 {
@@ -28,12 +28,13 @@ public:
     ~Octree();
 
     /**
-    * Forms the root partitions for the tree
+    * Forms the nine root partitions for the tree
     */
     void BuildInitialTree();
 
     /**
-    * Renders the octree partition diagnostics
+    * Renders the octree diagnostics
+    * @note will only render the partitions that have nodes
     */
     void RenderDiagnostics();
 
@@ -44,7 +45,8 @@ public:
     virtual void AddObject(CollisionMesh* object) override;
 
     /**
-    * Updates the partition the collision object exists in
+    * Determines if the object is still inside the partition
+    * and moves it to the correct partition if necessary
     * @param object The collision object to update
     */
     virtual void UpdateObject(CollisionMesh* object) override;
@@ -88,13 +90,14 @@ private:
     bool IsAllInsidePartition(const CollisionMesh* object, const Partition* partition);
 
     /**
-    * Renders the diagnostics for a partition
+    * Renders the diagnostics for a partition and its children
     * @param partition The partition to render diagnostics for
+    * @return the number of nodes within the partition and its children
     */
-    void RenderPartition(const std::unique_ptr<Partition>& partition);
+    int RenderPartition(const std::unique_ptr<Partition>& partition);
 
     /**
-    * Generates child partitions for a partition
+    * Generates eight child partitions for a parent partition
     * @param parent The partition to generate children for
     */
     void GenerateChildren(std::unique_ptr<Partition>& parent);
@@ -105,9 +108,9 @@ private:
     * @param partition The current partition to search
     * @return the chosen partition the object is inserted into, or null if none found
     */
-    Partition* AddToPartition(CollisionMesh* object, Partition* partition);
+    Partition* FindPartition(CollisionMesh* object, Partition* partition);
 
-    std::shared_ptr<Engine> m_engine;    ///< Callbacks for the rendering engine
-    std::unique_ptr<Partition> m_octree; ///< Octree partitioning of collision objects
+    std::shared_ptr<Engine> m_engine;      ///< Callbacks for the rendering engine
+    std::unique_ptr<Partition> m_octree;   ///< Octree partitioning of collision objects
 };
 
