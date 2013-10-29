@@ -37,8 +37,9 @@ public:
     /**
     * Constructor
     * @param engine Callbacks from the rendering engine
+    * @param solver The solver for collision resolution
     */
-    explicit Scene(EnginePtr engine);
+    Scene(EnginePtr engine, std::shared_ptr<CollisionSolver> solver);
      
     /**
     * Destructor
@@ -111,10 +112,9 @@ public:
         const Matrix& world, const Matrix& invProjection, float deltatime);
 
     /**
-    * Solves the collision between scene objects and the cloth
-    * @param solver The cloth solver for object-cloth collisions
+    * Solves the collisions between objects
     */
-    void SolveClothCollisions(CollisionSolver& solver);
+    void SolveCollisions();
 
     /**
     * Set the visibility of the scene collision meshes
@@ -150,6 +150,13 @@ private:
     void SetSelectedMesh(const Mesh* mesh);
 
     /**
+    * Determines the correct method of resolution given the collision meshes
+    * @param meshA The first collision mesh
+    * @param meshB The second collision mesh
+    */
+    void SolveCollisions(CollisionMesh* meshA, CollisionMesh* meshB);
+
+    /**
     * Prevent copying
     */
     Scene(const Scene&);
@@ -160,6 +167,7 @@ private:
     std::vector<MeshPtr> m_meshes;               ///< Changable meshes in the scene
     std::vector<MeshPtr> m_templates;            ///< Mesh templates for creating mesh instances
     std::unique_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
+    std::shared_ptr<CollisionSolver> m_solver;   ///< The solver for collision resolution
     MeshPtr m_ground;                            ///< Ground grid mesh
     std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
     D3DXVECTOR3 m_wallMinBounds;                 ///< Minimum position in the wall enclosed space

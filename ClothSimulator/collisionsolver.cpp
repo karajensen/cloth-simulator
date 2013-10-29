@@ -7,117 +7,131 @@
 #include "cloth.h"
 #include <assert.h>
 
-CollisionSolver::CollisionSolver(std::shared_ptr<Cloth> cloth) :
-    m_cloth(cloth)
+CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
+                                 std::shared_ptr<Cloth> cloth) :
+    m_cloth(cloth),
+    m_engine(engine)
 {
 }
 
-void CollisionSolver::SolveSelfCollision()
+void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA, 
+                                             CollisionMesh& particleB)
 {
-    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveSelfCollision");
+    const float combinedRadius = particleA.GetRadius() + particleB.GetRadius();
+    D3DXVECTOR3 particleToParticle = particleB.GetPosition() - particleA.GetPosition();
+    const float length = D3DXVec3Length(&particleToParticle);
+
+    if (length < combinedRadius)
+    {
+        particleToParticle /= length;
+        particleA.ResolveCollision(-particleToParticle*fabs(combinedRadius-length));
+        particleB.ResolveCollision(particleToParticle*fabs(combinedRadius-length)); 
+    }
+}
+
+void CollisionSolver::SolveParticleBoxCollision(CollisionMesh& particle, 
+                                                const CollisionMesh& box)
+{
+
+}
+
+void CollisionSolver::SolveParticleCylinderCollision(CollisionMesh& particle, 
+                                                     const CollisionMesh& cylinder)
+{
+
+
+}
+
+void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
+                                                   const CollisionMesh& sphere)
+{
+    D3DXVECTOR3 sphereToParticle = particle.GetPosition() - sphere.GetPosition();
+    float length = D3DXVec3Length(&sphereToParticle);
+    float halfRadius = particle.GetRadius() * 0.5f;
+    float radius = sphere.GetRadius() + halfRadius;
+
+    if (length < radius)
+    {
+        sphereToParticle /= length;
+        particle.ResolveCollision(sphereToParticle *
+            fabs(radius-length), CollisionMesh::SPHERE); 
+    }
+}
+
+void CollisionSolver::SolveClothCollision(const D3DXVECTOR3& minBounds, 
+                                          const D3DXVECTOR3& maxBounds)
+{
+    D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveClothCollision");
 
     auto cloth = GetCloth();
     auto& particles = cloth->GetParticles();
 
     for(unsigned int i = 0; i < particles.size(); ++i)
     {
-        D3DXVECTOR3 centerToParticle;
-        D3DXVECTOR3 center(particles[i]->GetPosition());
-        const float radius = particles[i]->GetCollisionMesh()->GetRadius() * 2.0f;
-
+        // Solve the particles against themselves
         for(unsigned int j = i+1; j < particles.size(); ++j)
         {
-            centerToParticle = particles[j]->GetPosition() - center;
-            const float length = D3DXVec3Length(&centerToParticle);
-
-            if (length < radius)
-            {
-                centerToParticle /= length;
-                particles[i]->MovePosition(-centerToParticle*fabs(radius-length));
-                particles[j]->MovePosition(centerToParticle*fabs(radius-length)); 
-            }
+            SolveParticleCollision(particles[i]->GetCollisionMesh(), 
+                particles[j]->GetCollisionMesh());
         }
-    }
 
-    D3DPERF_EndEvent();
-}
-
-void CollisionSolver::SolveSphereCollisionMesh(const CollisionMesh& sphere)
-{
-    auto cloth = GetCloth();
-    auto& particles = cloth->GetParticles();
-
-    D3DXVECTOR3 centerToParticle;
-    D3DXVECTOR3 sphereCenter(sphere.GetPosition());
-
-    for(const Cloth::ParticlePtr& particle : particles)
-    {
-        centerToParticle = particle->GetPosition() - sphereCenter;
-        float length = D3DXVec3Length(&centerToParticle);
-        float halfClothRadius = particle->GetCollisionMesh()->GetRadius() * 0.5f;
-        float radius = sphere.GetRadius() + halfClothRadius;
-
-        if (length < radius)
-        {
-            centerToParticle /= length;
-            particle->MovePosition(centerToParticle*fabs(radius-length)); 
-        }
-    }
-}
-
-void CollisionSolver::SolveBoxCollisionMesh(const CollisionMesh& box)
-{
-
-}
-
-void CollisionSolver::SolveCylinderCollisionMesh(const CollisionMesh& cylinder)
-{
-
-
-}
-
-void CollisionSolver::SolveClothWallCollision(const D3DXVECTOR3& minBounds, 
-                                              const D3DXVECTOR3& maxBounds)
-{
-    auto cloth = GetCloth();
-    auto& particles = cloth->GetParticles();
-
-    for(const std::unique_ptr<Particle>& particle : particles)
-    {
-        const D3DXVECTOR3& particlePosition = particle->GetPosition();
+        // Solve the particle against the eight scene walls
+        const D3DXVECTOR3& particlePosition = particles[i]->GetPosition();
         D3DXVECTOR3 position(0.0, 0.0, 0.0);
 
         // Check for ground and roof collisions
         if(particlePosition.y <= maxBounds.y)
         {
-            position.y = fabs(maxBounds.y-particlePosition.y);
+            position.y = maxBounds.y-particlePosition.y;
         }
         else if(particlePosition.y >= minBounds.y)
         {
-            position.y = fabs(minBounds.y-particlePosition.y);
+            position.y = minBounds.y-particlePosition.y;
         }
 
         // Check for left and right wall collisions
         if(particlePosition.x >= maxBounds.x)
         {
-            position.x = fabs(maxBounds.x-particlePosition.x);
+            position.x = maxBounds.x-particlePosition.x;
         }
         else if(particlePosition.x <= minBounds.x)
         {
-            position.x = fabs(minBounds.x-particlePosition.x);
+            position.x = minBounds.x-particlePosition.x;
         }
 
         // Check for forward and backward wall collisions
         if(particlePosition.z >= maxBounds.z)
         {
-            position.z = fabs(maxBounds.z-particlePosition.z);
+            position.z = maxBounds.z-particlePosition.z;
         }
         else if(particlePosition.z <= minBounds.z)
         {
-            position.z = fabs(minBounds.z-particlePosition.z);
+            position.z = minBounds.z-particlePosition.z;
         }
 
-        particle->MovePosition(position);
+        particles[i]->MovePosition(position);
+    }
+
+    D3DPERF_EndEvent();
+}
+
+void CollisionSolver::SolveObjectCollision(CollisionMesh& particle,
+                                           const CollisionMesh& object)
+{
+    if(particle.IsDynamic())
+    {
+        switch(object.GetShape())
+        {
+        case CollisionMesh::SPHERE:
+            SolveParticleSphereCollision(particle, object);
+            break;
+        case CollisionMesh::BOX:
+            SolveParticleBoxCollision(particle, object);
+            break;
+        case CollisionMesh::CYLINDER:
+            SolveParticleCylinderCollision(particle, object);
+            break;
+        }
     }
 }
 

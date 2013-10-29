@@ -91,7 +91,7 @@ void Simulation::Update()
         m_camera->World(), m_camera->InverseProjection(), 
         static_cast<float>(deltaTime));
 
-    m_scene->SolveClothCollisions(*m_solver);
+    m_scene->SolveCollisions();
     m_cloth->UpdateVertexBuffer();
 
     D3DPERF_EndEvent();
@@ -173,8 +173,12 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
 
     // Initialise the simulation
     m_cloth.reset(new Cloth(engine));
-    m_scene.reset(new Scene(engine));
-    m_solver.reset(new CollisionSolver(m_cloth));
+    m_solver.reset(new CollisionSolver(engine, m_cloth));
+    m_scene.reset(new Scene(engine, m_solver));
+
+    // Hook up the solver to the octree
+    octree->SetIterator(std::bind(&CollisionSolver::SolveObjectCollision, 
+        m_solver.get(), std::placeholders::_1, std::placeholders::_2));
 
     // Initialise the input
     LoadInput(hInstance, hWnd, engine);
@@ -268,7 +272,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->SetKeyCallback(DIK_7, false, 
         std::bind(&Diagnostic::ToggleDiagnostics,
         m_diagnostics.get(), Diagnostic::CLOTH));
-    
+  
     m_input->SetKeyCallback(DIK_6, false, 
         std::bind(&Diagnostic::ToggleDiagnostics,
         m_diagnostics.get(), Diagnostic::OCTREE));    

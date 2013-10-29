@@ -1,11 +1,9 @@
 
 
-• Fix wall-cloth collisions
-
-• Using octree for collision detection
-• Neighbour smoothing fix
+• Prevent objects from moving outside walls
+• Octree iteration fix
 • GJK Collision detection
-• Profile and optimize code
+• Cloth smoothing
 
 
 =================================================================

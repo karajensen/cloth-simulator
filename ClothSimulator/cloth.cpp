@@ -94,7 +94,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int i = current-difference; i < current; ++i)
         {
-            m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionMesh());
+            m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionPtr());
         }
     }
 
@@ -129,7 +129,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
             if(firstInitialisation)
             {
-                m_engine->octree()->AddObject(m_particles[index]->GetCollisionMesh());
+                m_engine->octree()->AddObject(m_particles[index]->GetCollisionPtr());
             }
 
             UVu += 0.5;
@@ -279,7 +279,7 @@ void Cloth::CreateCloth(int rows, float spacing)
         m_data->mesh = nullptr;
         ShowMessageBox("Cloth Mesh creation failed");
     }
-    SmoothCloth();
+    UpdateVertices();
 
     //Vertex Buffer
     m_vertexBuffer = nullptr;
@@ -407,7 +407,7 @@ void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
         const float radius = 0.4f;
         const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
         const auto& vertex = m_vertexData[m_diagnosticParticle].position;
-        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh()->GetPosition();
+        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh().GetPosition();
 
         std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
         { 
@@ -459,7 +459,7 @@ bool Cloth::MousePickingTest(Picking& input)
         {
             D3DXMATRIX worldInverse;
             D3DXMatrixInverse(&worldInverse, NULL,
-                &m_particles[i]->GetCollisionMesh()->CollisionMatrix().GetMatrix());
+                &m_particles[i]->GetCollisionMesh().CollisionMatrix().GetMatrix());
 
             D3DXVECTOR3 rayObjOrigin;
             D3DXVECTOR3 rayObjDirection;
@@ -469,7 +469,7 @@ bool Cloth::MousePickingTest(Picking& input)
             D3DXVec3Normalize(&rayObjDirection, &rayObjDirection);
     
             BOOL hasHit; 
-            if(FAILED(D3DXIntersect(m_particles[i]->GetCollisionMesh()->GetMesh(), &rayObjOrigin, 
+            if(FAILED(D3DXIntersect(m_particles[i]->GetCollisionMesh().GetMesh(), &rayObjOrigin, 
                 &rayObjDirection, &hasHit, NULL, NULL, NULL, NULL, NULL, NULL)))
             {
                 hasHit = false; //Call failed for any reason continue to next mesh.
@@ -626,7 +626,7 @@ std::vector<Cloth::ParticlePtr>& Cloth::GetParticles()
 
 bool Cloth::UpdateVertexBuffer()
 {
-    SmoothCloth();
+    UpdateVertices();
 
     //Lock the vertex buffer
     if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
@@ -652,7 +652,7 @@ D3DXVECTOR3 Cloth::CalculateNormal(const D3DXVECTOR3& p1,
     return normal;
 }
 
-void Cloth::SmoothCloth()
+void Cloth::UpdateVertices()
 {
     // m_vertexData contains m_particleCount vertices that make up the main
     // grid of the cloth. It contains an extra set of vertices equal to
@@ -662,11 +662,7 @@ void Cloth::SmoothCloth()
     int quad = 0;
     int index = NO_INDEX;
     D3DXVECTOR3 normal(0.0f, 0.0f, 0.0f);
-    D3DXVECTOR3 halfp1, halfp2;
-    D3DXVECTOR2 halfuv1, halfuv2;
     int p1, p2, p3, p4;
-    const float smoothing = 0.5f;
-    const float threshold = 0.01f;
 
     // Update the position of all vertices in the vertex buffer
     for(int x = 0; x < m_particleLength; ++x)
@@ -677,26 +673,6 @@ void Cloth::SmoothCloth()
             m_vertexData[index].normal = normal;
             m_vertexData[index].uvs = m_particles[index]->GetUVs();
             m_vertexData[index].position = m_particles[index]->GetPosition();
-
-            if(x > 0 && x < m_particleLength-1 && y > 0 && y < m_particleLength-1)
-            {
-                p1 = (x*m_particleLength)+y+1;
-                p2 = ((x+1)*m_particleLength)+y;
-                p3 = ((x-1)*m_particleLength)+y;
-                p4 = (x*m_particleLength)+y-1;
-
-                float averageHeight = (
-                    m_particles[p1]->GetPosition().y + 
-                    m_particles[p2]->GetPosition().y + 
-                    m_particles[p3]->GetPosition().y + 
-                    m_particles[p4]->GetPosition().y) * 0.25f;
-
-                float difference = averageHeight - m_vertexData[index].position.y;
-                if(fabs(difference) > threshold)
-                {
-                    m_vertexData[index].position.y += difference * smoothing;
-                }
-            }
         }
     }
 
@@ -728,6 +704,8 @@ void Cloth::SmoothCloth()
 
     // Update the quad normals/position
     quad = 0;
+    D3DXVECTOR3 halfp1, halfp2;
+    D3DXVECTOR2 halfuv1, halfuv2;
     for(int x = 0; x < m_particleLength-1; ++x)
     {
         for(int y = 0; y < m_particleLength-1; ++y)

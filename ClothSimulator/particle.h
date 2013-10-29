@@ -51,7 +51,12 @@ public:
     /**
     * @return the particle collision mesh object
     */
-    CollisionMesh* GetCollisionMesh();
+    CollisionMesh* GetCollisionPtr();
+
+    /**
+    * @return the particle collision mesh object
+    */
+    CollisionMesh& GetCollisionMesh();
 
     /**
     * Resets the particle back to its initial position

@@ -232,7 +232,7 @@ private:
     /**
     * Applies smoothing to the final mesh
     */
-    void SmoothCloth();
+    void UpdateVertices();
 
     /**
     * Prevent copying

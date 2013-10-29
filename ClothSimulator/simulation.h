@@ -83,7 +83,7 @@ private:
 
     std::unique_ptr<LightManager> m_light;       ///< Manager for the simulation lights
     std::unique_ptr<ShaderManager> m_shader;     ///< Manager for the simulation shaders
-    std::unique_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth
+    std::shared_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth
     std::unique_ptr<Timer> m_timer;              ///< Simulation timer object
     std::shared_ptr<Cloth> m_cloth;              ///< Simulation cloth object
     std::unique_ptr<Input> m_input;              ///< Simulation input object

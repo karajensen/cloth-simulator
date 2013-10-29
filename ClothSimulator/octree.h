@@ -33,6 +33,12 @@ public:
     void BuildInitialTree();
 
     /**
+    * Sets the function to be called when recursing through the octree
+    * @param iteratorFn The function to call when recursing the octree
+    */
+    void SetIterator(IterateOctreeFn iteratorFn);
+
+    /**
     * Renders the octree diagnostics
     * @note will only render the partitions that have nodes
     */
@@ -57,6 +63,12 @@ public:
     */
     virtual void RemoveObject(CollisionMesh* object) override;
 
+    /**
+    * Iterates through the octree to the node partition's parent and children
+    * @param node The node to call against parent/children nodes
+    */
+    virtual void IterateOctree(CollisionMesh* node) override;
+
 private:
 
     /**
@@ -71,7 +83,7 @@ private:
     * @param partition The partition to test against
     * @return whether the point is inside the partition bounds
     */
-    bool IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition);
+    bool IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition) const;
 
     /**
     * Determines if a corner of an AABB exists within the partition bounds
@@ -79,7 +91,7 @@ private:
     * @param partition The partition to test against
     * @return whether a corner of the AABB is inside the partition bounds
     */
-    bool IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition);
+    bool IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition) const;
 
     /**
     * Determines if all four corners of an AABB exist within the partition bounds
@@ -87,7 +99,7 @@ private:
     * @param partition The partition to test against
     * @return whether all four corners of the AABB are inside the partition bounds
     */
-    bool IsAllInsidePartition(const CollisionMesh* object, const Partition* partition);
+    bool IsAllInsidePartition(const CollisionMesh* object, const Partition* partition) const;
 
     /**
     * Renders the diagnostics for a partition and its children
@@ -103,6 +115,20 @@ private:
     void GenerateChildren(std::unique_ptr<Partition>& parent);
 
     /**
+    * Iterates through the octree from the node's partition to the top-most parent
+    * @param node The node to test against the partition's nodes
+    * @param partition The partition to use for nodes
+    */
+    void IterateUpOctree(CollisionMesh* node, Partition* partition);
+
+    /**
+    * Iterates through the octree from the node's partition to the bottom-most children
+    * @param node The node to test against the partition's nodes
+    * @param partition The partition to use for nodes
+    */
+    void IterateDownOctree(CollisionMesh* node, Partition* partition);
+
+    /**
     * Recursive searching of the octree to determine the best position for an object
     * @param object The collision object to add
     * @param partition The current partition to search
@@ -110,6 +136,7 @@ private:
     */
     Partition* FindPartition(CollisionMesh* object, Partition* partition);
 
+    IterateOctreeFn m_iteratorFn;          ///< Function to call when iterating the octree
     std::shared_ptr<Engine> m_engine;      ///< Callbacks for the rendering engine
     std::unique_ptr<Partition> m_octree;   ///< Octree partitioning of collision objects
 };

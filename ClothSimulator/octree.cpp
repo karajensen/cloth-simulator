@@ -6,6 +6,7 @@
 #include "collisionmesh.h"
 #include "partition.h"
 #include <assert.h>
+#include <iterator>
 
 namespace
 {
@@ -17,6 +18,7 @@ namespace
 }
 
 Octree::Octree(std::shared_ptr<Engine> engine) :
+    m_iteratorFn(nullptr),
     m_engine(engine),
     m_octree(new Partition())
 {
@@ -25,7 +27,6 @@ Octree::Octree(std::shared_ptr<Engine> engine) :
 Octree::~Octree()
 {
 }
-
 
 void Octree::RenderDiagnostics()
 {
@@ -184,7 +185,7 @@ Partition* Octree::FindPartition(CollisionMesh* object, Partition* partition)
     return nullptr;
 }
 
-bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition)
+bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition) const
 {
     const auto& minBounds = partition->GetMinBounds();
     const auto& maxBounds = partition->GetMaxBounds();
@@ -193,7 +194,7 @@ bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* p
            point.z > minBounds.z && point.z < maxBounds.z;
 }
 
-bool Octree::IsAllInsidePartition(const CollisionMesh* object, const Partition* partition)
+bool Octree::IsAllInsidePartition(const CollisionMesh* object, const Partition* partition) const
 {
     const std::vector<D3DXVECTOR3>& oabb = object->GetOABB();
     for(const D3DXVECTOR3& point : oabb)
@@ -206,7 +207,7 @@ bool Octree::IsAllInsidePartition(const CollisionMesh* object, const Partition* 
     return true;
 }
 
-bool Octree::IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition)
+bool Octree::IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition) const
 {
     const std::vector<D3DXVECTOR3>& oabb = object->GetOABB();
     for(const D3DXVECTOR3& point : oabb)
@@ -264,4 +265,52 @@ void Octree::AddObject(CollisionMesh* object)
     // connect object and new partition together
     partition->AddNode(object);
     object->SetPartition(partition);
+}
+
+void Octree::SetIterator(IterateOctreeFn iteratorFn)
+{
+    m_iteratorFn = iteratorFn;
+}
+
+void Octree::IterateOctree(CollisionMesh* node)
+{
+    if(m_iteratorFn)
+    {
+        IterateUpOctree(node, node->GetPartition());
+        IterateDownOctree(node, node->GetPartition());
+    }
+}
+
+void Octree::IterateUpOctree(CollisionMesh* node, Partition* partition)
+{
+    auto& nodes = partition->GetNodes();
+    for(unsigned int i = 0; i < nodes.size(); ++i)
+    {
+        if(node != nodes[i])
+        {
+            nodes[i]->m_renderAsResolved = true;
+            m_iteratorFn(*nodes[i], *node);
+        }
+    }
+
+    if(partition->GetParent())
+    {
+        IterateUpOctree(node, partition->GetParent());
+    }
+}
+
+void Octree::IterateDownOctree(CollisionMesh* node, Partition* partition)
+{
+    const auto& children = partition->GetChildren();
+    for(const std::unique_ptr<Partition>& child : children)
+    {
+        auto& nodes = child->GetNodes();
+        for(unsigned int i = 0; i < nodes.size(); ++i)
+        {
+            nodes[i]->m_renderAsResolved = true;
+            m_iteratorFn(*nodes[i], *node);
+        }
+
+        IterateDownOctree(node, child.get());
+    }
 }

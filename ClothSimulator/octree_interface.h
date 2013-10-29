@@ -4,6 +4,8 @@
 
 #pragma once
 #include <memory>
+#include <functional>
+
 class CollisionMesh;
 
 /**
@@ -12,6 +14,8 @@ class CollisionMesh;
 class IOctree
 {
 public:
+
+    typedef std::function<void(CollisionMesh&, CollisionMesh&)> IterateOctreeFn;
 
     /**
     * Adds a collision object to the octree
@@ -31,6 +35,12 @@ public:
     * @param object The collision object to remove
     */
     virtual void RemoveObject(CollisionMesh* object) = 0;
+
+    /**
+    * Iterates through the octree to the node partition's parent and children
+    * @param node The node to call against parent/children nodes
+    */
+    virtual void IterateOctree(CollisionMesh* node) = 0;
 
 };
 
