@@ -7,8 +7,8 @@
 
 Partition::Partition() :
     m_parent(nullptr),
-    m_minBounds(0, 0, 0),
-    m_maxBounds(0, 0, 0),
+    m_minBounds(FLT_MAX, -FLT_MAX, FLT_MAX),
+    m_maxBounds(-FLT_MAX, FLT_MAX, -FLT_MAX),
     m_level(0),
     m_id("0")
 {

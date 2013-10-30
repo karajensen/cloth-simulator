@@ -1,6 +1,5 @@
 
 
-• Prevent objects from moving outside walls
 • Octree iteration fix
 • GJK Collision detection
 • Cloth smoothing
