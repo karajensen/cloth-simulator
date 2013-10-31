@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "collisionmesh.h"
+#include "partition.h"
 #include "shader.h"
 
 namespace
@@ -17,14 +18,15 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine,
         m_draw(false),
         m_parent(parent),
         m_colour(0.0f, 0.0f, 1.0f),
-        m_resolvedColour(1.0f, 0.0f, 0.0f),
+        m_resolvedColour(0.0f, 0.0f, 0.0f),
         m_geometry(nullptr),
         m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
         m_engine(engine),
         m_radius(0.0f),
         m_partition(nullptr),
         m_resolveFn(resolveFn),
-        m_renderAsResolved(false)
+        m_renderAsResolved(false),
+        m_hasUpdated(true)
 {
     m_oabb.resize(CORNERS);
 }
@@ -236,8 +238,20 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
         D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
         m_shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
 
-        m_shader->SetFloatArray(DxConstant::VertexColor,
-            m_renderAsResolved ? &(m_resolvedColour.x) : &(m_colour.x), 3);
+        if(m_renderAsResolved)
+        {
+            m_renderAsResolved = false;
+            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_resolvedColour.x), 3);
+        }
+        else if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::OCTREE))
+        {
+            m_shader->SetFloatArray(DxConstant::VertexColor, 
+                &(m_engine->diagnostic()->GetColor(m_partition->GetColor()).x), 3);
+        }
+        else
+        {
+            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_colour.x), 3);
+        }
 
         UINT nPasses = 0;
         m_shader->Begin(&nPasses, 0);
@@ -249,7 +263,12 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
         }
         m_shader->End();
 
-        m_renderAsResolved = false;
+        // Update the partition if required
+        if(m_hasUpdated)
+        {
+            UpdatePartition();
+            m_hasUpdated = false;
+        }
     }
 }
 
@@ -267,7 +286,7 @@ void CollisionMesh::UpdatePartition()
 {
     if(m_partition)
     {
-        m_engine->octree()->UpdateObject(this);
+        m_engine->octree()->UpdateObject(*this);
     }
 }
 
@@ -284,11 +303,7 @@ void CollisionMesh::PositionalUpdate()
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
 
-        const float threshold = 0.01f;
-        if(D3DXVec3LengthSq(&difference) > threshold)
-        {
-            UpdatePartition();
-        }
+        m_hasUpdated = true;
     }
 }
 
@@ -314,7 +329,7 @@ void CollisionMesh::FullUpdate()
             m_radius = D3DXVec3Length(&(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
         }
 
-        UpdatePartition();
+        m_hasUpdated = true;
     }
 }
 
@@ -352,7 +367,7 @@ void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape
     {
         if(shape != NONE)
         {
-            //m_renderAsResolved = true;
+            m_renderAsResolved = true;
         }
         m_resolveFn(translation);
     }

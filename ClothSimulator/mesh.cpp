@@ -212,9 +212,9 @@ void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view, bool 
     }
 }
 
-CollisionMesh* Mesh::GetCollisionMesh()
+CollisionMesh& Mesh::GetCollisionMesh()
 {
-    return m_collision.get();
+    return *m_collision;
 }
 
 bool Mesh::MousePickingTest(Picking& input)

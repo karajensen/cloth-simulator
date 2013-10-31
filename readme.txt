@@ -1,6 +1,5 @@
 
 
-• Octree iteration fix
 • GJK Collision detection
 • Cloth smoothing
 

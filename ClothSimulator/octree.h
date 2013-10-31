@@ -28,7 +28,7 @@ public:
     ~Octree();
 
     /**
-    * Forms the nine root partitions for the tree
+    * Creates all partitions for the tree
     */
     void BuildInitialTree();
 
@@ -36,10 +36,10 @@ public:
     * Sets the function to be called when recursing through the octree
     * @param iteratorFn The function to call when recursing the octree
     */
-    void SetIterator(IterateOctreeFn iteratorFn);
+    void SetIteratorFunction(IterateOctreeFn iteratorFn);
 
     /**
-    * Renders the octree diagnostics
+    * Renders the octree and partition diagnostics
     * @note will only render the partitions that have nodes
     */
     void RenderDiagnostics();
@@ -48,26 +48,27 @@ public:
     * Adds a collision object to the octree
     * @param object The collision object to add
     */
-    virtual void AddObject(CollisionMesh* object) override;
+    virtual void AddObject(CollisionMesh& object) override;
 
     /**
-    * Determines if the object is still inside the partition
-    * and moves it to the correct partition if necessary
+    * Determines if the collision object is still inside its cached
+    * partition and moves it to the correct partition if necessary
     * @param object The collision object to update
     */
-    virtual void UpdateObject(CollisionMesh* object) override;
+    virtual void UpdateObject(CollisionMesh& object) override;
 
     /**
     * Removes the collision object from the octree
     * @param object The collision object to remove
     */
-    virtual void RemoveObject(CollisionMesh* object) override;
+    virtual void RemoveObject(CollisionMesh& object) override;
 
     /**
-    * Iterates through the octree to the node partition's parent and children
-    * @param node The node to call against parent/children nodes
+    * Iterates through the octree and calls a set function on
+    * any nodes connected to the given node through recursion
+    * @param node The node to call against any iterated nodes
     */
-    virtual void IterateOctree(CollisionMesh* node) override;
+    virtual void IterateOctree(CollisionMesh& node) override;
 
 private:
 
@@ -79,30 +80,30 @@ private:
 
     /**
     * Determines if a point in global coordinates exists within the partition bounds
-    * @param point The point to test against
-    * @param partition The partition to test against
+    * @param point The point in global coordinates
+    * @param partition The partition to test within
     * @return whether the point is inside the partition bounds
     */
-    bool IsPointInsidePartition(const D3DXVECTOR3& point, const Partition* partition) const;
+    bool IsPointInsidePartition(const D3DXVECTOR3& point, const Partition& partition) const;
 
     /**
-    * Determines if a corner of an AABB exists within the partition bounds
-    * @param object The collision object holding the AABB
-    * @param partition The partition to test against
-    * @return whether a corner of the AABB is inside the partition bounds
+    * Determines if a corner of an OABB exists within the partition bounds
+    * @param object The collision object holding the OABB
+    * @param partition The partition to test within
+    * @return whether a corner of the OABB is inside the partition bounds
     */
-    bool IsCornerInsidePartition(const CollisionMesh* object, const Partition* partition) const;
+    bool IsCornerInsidePartition(const CollisionMesh& object, const Partition& partition) const;
 
     /**
-    * Determines if all four corners of an AABB exist within the partition bounds
-    * @param object The collision object holding the AABB
-    * @param partition The partition to test against
-    * @return whether all four corners of the AABB are inside the partition bounds
+    * Determines if all four corners of an OABB exist within the partition bounds
+    * @param object The collision object holding the OABB
+    * @param partition The partition to test within
+    * @return whether all four corners of the OABB are inside the partition bounds
     */
-    bool IsAllInsidePartition(const CollisionMesh* object, const Partition* partition) const;
+    bool IsAllInsidePartition(const CollisionMesh& object, const Partition& partition) const;
 
     /**
-    * Renders the diagnostics for a partition and its children
+    * Renders the diagnostics for a single partition
     * @param partition The partition to render diagnostics for
     * @return the number of nodes within the partition and its children
     */
@@ -115,26 +116,28 @@ private:
     void GenerateChildren(std::unique_ptr<Partition>& parent);
 
     /**
-    * Iterates through the octree from the node's partition to the top-most parent
-    * @param node The node to test against the partition's nodes
-    * @param partition The partition to use for nodes
+    * Iterates through the octree from the node's partition to the top-most
+    * parent calling the iterator function on sibiling and parent nodes
+    * @param node The key node to iterate through the tree with
+    * @param partition The partition to use for finding pairing nodes
     */
-    void IterateUpOctree(CollisionMesh* node, Partition* partition);
+    void IterateUpOctree(CollisionMesh& node, Partition& partition);
 
     /**
-    * Iterates through the octree from the node's partition to the bottom-most children
-    * @param node The node to test against the partition's nodes
-    * @param partition The partition to use for nodes
+    * Iterates through the octree from the node's partition to the bottom-most
+    * children  calling the iterator function on children nodes
+    * @param node The key node to iterate through the tree with
+    * @param partition The partition to use for finding pairing nodes
     */
-    void IterateDownOctree(CollisionMesh* node, Partition* partition);
+    void IterateDownOctree(CollisionMesh& node, Partition& partition);
 
     /**
-    * Recursive searching of the octree to determine the best position for an object
-    * @param object The collision object to add
-    * @param partition The current partition to search
+    * Recursive searching of the octree to determine the best partition for an object
+    * @param object The collision object to find a partition for
+    * @param partition The current partition to check if the object is inside
     * @return the chosen partition the object is inserted into, or null if none found
     */
-    Partition* FindPartition(CollisionMesh* object, Partition* partition);
+    Partition* FindPartition(CollisionMesh& object, Partition& partition);
 
     IterateOctreeFn m_iteratorFn;          ///< Function to call when iterating the octree
     std::shared_ptr<Engine> m_engine;      ///< Callbacks for the rendering engine

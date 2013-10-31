@@ -142,7 +142,7 @@ public:
     * @return the geometry mesh
     */
     LPD3DXMESH GetMesh();
-    
+
     /**
     * Draw the collision geometry. Assumes Update() has been called as needed
     * @param projection The projection matrix
@@ -229,9 +229,6 @@ public:
     */
     bool IsDynamic() const;
 
-    
-    bool m_renderAsResolved;              ///< Whether to render the mesh as resolved this tick
-
 private:
 
     /**
@@ -262,8 +259,9 @@ private:
     std::shared_ptr<Geometry> m_geometry; ///< collision geometry mesh shared accross instances
     LPD3DXEFFECT m_shader;                ///< Shader for the collision geometry
     Partition* m_partition;               ///< Partition collision currently in
+    bool m_hasUpdated;                    ///< Whether a full or partial update was called this tick
+    bool m_renderAsResolved;              ///< Whether to render the mesh as resolved this tick
 
-    
     D3DXVECTOR3 m_resolvedColour;         ///< The color to render when the collision is resolved
     std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
 };

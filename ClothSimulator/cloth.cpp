@@ -94,7 +94,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int i = current-difference; i < current; ++i)
         {
-            m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionPtr());
+            m_engine->octree()->RemoveObject(m_particles[i]->GetCollisionMesh());
         }
     }
 
@@ -129,7 +129,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
             if(firstInitialisation)
             {
-                m_engine->octree()->AddObject(m_particles[index]->GetCollisionPtr());
+                m_engine->octree()->AddObject(m_particles[index]->GetCollisionMesh());
             }
 
             UVu += 0.5;

@@ -26,7 +26,8 @@ public:
         RED,
         BLUE,
         YELLOW,
-        GREEN
+        GREEN,
+        MAX_COLORS
     };
 
     /**
@@ -129,6 +130,12 @@ public:
     * Draws all 2D diagnostics
     */
     void DrawAllText();
+
+    /**
+    * @param the color type to query
+    * @return the color value for the given color type
+    */
+    const D3DXVECTOR3& GetColor(Colour color);
 
 private: 
 

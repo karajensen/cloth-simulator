@@ -51,11 +51,6 @@ public:
     /**
     * @return the particle collision mesh object
     */
-    CollisionMesh* GetCollisionPtr();
-
-    /**
-    * @return the particle collision mesh object
-    */
     CollisionMesh& GetCollisionMesh();
 
     /**

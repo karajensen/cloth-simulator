@@ -4,6 +4,7 @@
 
 #pragma once
 #include "common.h"
+#include "diagnostic.h"
 #include <deque>
 
 class CollisionMesh;
@@ -82,9 +83,8 @@ public:
     * Adds a child to the partition
     * @param size The size of the partitions dimensions
     * @param minBounds the minimum point of the corners
-    * @param parent The parent of the partition or null if none
     */
-    void AddChild(float size, const D3DXVECTOR3& minBounds, Partition* parent);
+    void AddChild(float size, const D3DXVECTOR3& minBounds);
 
     /**
     * Calls the given function on each child of the partition
@@ -96,13 +96,18 @@ public:
     * Adds a node to the partition
     * @param node The collision node to add
     */
-    void AddNode(CollisionMesh* node);
+    void AddNode(CollisionMesh& node);
 
     /**
     * Removes a node from the partition
     * @param node The collision node to remove
     */
-    void RemoveNode(CollisionMesh* node);
+    void RemoveNode(CollisionMesh& node);
+
+    /**
+    * @return the color for the partition
+    */
+    Diagnostic::Colour GetColor() const;
 
 private:
 

@@ -115,7 +115,7 @@ public:
     /**
     * @return the collison mesh
     */
-    CollisionMesh* GetCollisionMesh();
+    CollisionMesh& GetCollisionMesh();
 
     /**
     * Creates a collision cube for the mesh

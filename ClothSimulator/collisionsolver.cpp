@@ -17,9 +17,9 @@ CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine,
 void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA, 
                                              CollisionMesh& particleB)
 {
-    const float combinedRadius = particleA.GetRadius() + particleB.GetRadius();
     D3DXVECTOR3 particleToParticle = particleB.GetPosition() - particleA.GetPosition();
     const float length = D3DXVec3Length(&particleToParticle);
+    const float combinedRadius = particleA.GetRadius() + particleB.GetRadius();
 
     if (length < combinedRadius)
     {
@@ -46,15 +46,14 @@ void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
                                                    const CollisionMesh& sphere)
 {
     D3DXVECTOR3 sphereToParticle = particle.GetPosition() - sphere.GetPosition();
-    float length = D3DXVec3Length(&sphereToParticle);
-    float halfRadius = particle.GetRadius() * 0.5f;
-    float radius = sphere.GetRadius() + halfRadius;
+    const float length = D3DXVec3Length(&sphereToParticle);
+    const float combinedRadius = sphere.GetRadius() + particle.GetRadius();
 
-    if (length < radius)
+    if (length < combinedRadius)
     {
         sphereToParticle /= length;
         particle.ResolveCollision(sphereToParticle *
-            fabs(radius-length), CollisionMesh::SPHERE); 
+            fabs(combinedRadius-length), CollisionMesh::SPHERE); 
     }
 }
 

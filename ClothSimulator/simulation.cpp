@@ -177,7 +177,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     m_scene.reset(new Scene(engine, m_solver));
 
     // Hook up the solver to the octree
-    octree->SetIterator(std::bind(&CollisionSolver::SolveObjectCollision, 
+    octree->SetIteratorFunction(std::bind(&CollisionSolver::SolveObjectCollision, 
         m_solver.get(), std::placeholders::_1, std::placeholders::_2));
 
     // Initialise the input

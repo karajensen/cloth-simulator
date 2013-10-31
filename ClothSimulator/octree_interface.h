@@ -9,7 +9,7 @@
 class CollisionMesh;
 
 /**
-* Interface for the octree partitioning class
+* Public interface for the octree partitioning class
 */
 class IOctree
 {
@@ -21,26 +21,27 @@ public:
     * Adds a collision object to the octree
     * @param object The collision object to add
     */
-    virtual void AddObject(CollisionMesh* object) = 0;
+    virtual void AddObject(CollisionMesh& object) = 0;
 
     /**
-    * Determines if the object is still inside the partition
-    * and moves it to the correct partition if necessary
+    * Determines if the collision object is still inside its cached
+    * partition and moves it to the correct partition if necessary
     * @param object The collision object to update
     */
-    virtual void UpdateObject(CollisionMesh* object) = 0;
+    virtual void UpdateObject(CollisionMesh& object) = 0;
 
     /**
     * Removes the collision object from the octree
     * @param object The collision object to remove
     */
-    virtual void RemoveObject(CollisionMesh* object) = 0;
+    virtual void RemoveObject(CollisionMesh& object) = 0;
 
     /**
-    * Iterates through the octree to the node partition's parent and children
-    * @param node The node to call against parent/children nodes
+    * Iterates through the octree and calls a set function on
+    * any nodes connected to the given node through recursion
+    * @param node The node to call against any iterated nodes
     */
-    virtual void IterateOctree(CollisionMesh* node) = 0;
+    virtual void IterateOctree(CollisionMesh& node) = 0;
 
 };
 

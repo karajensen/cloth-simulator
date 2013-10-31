@@ -245,3 +245,8 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     textmap[id].draw = true;
     textmap[id].cleardraw = cleardraw;
 }
+
+const D3DXVECTOR3& Diagnostic::GetColor(Colour color)
+{
+    return m_colourmap[color];
+}
