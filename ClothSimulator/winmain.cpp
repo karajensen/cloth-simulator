@@ -22,7 +22,7 @@ LPDIRECT3DSURFACE9 backBuffer = nullptr; ///< Back buffer
 bool runSimulation = true;               ///< Whether simulation can be run or not
 std::unique_ptr<Simulation> simulation;  ///< Main simulation object
 std::unique_ptr<GUI::GuiWrapper> gui;    ///< Interface for .NET GUI
-GuiCallbacks callbacks;             ///< Callback list for the GUI
+GuiCallbacks callbacks;                  ///< Callback list for the GUI
 
 bool InitialiseGUI();
 bool InitialiseDirectX();
@@ -77,6 +77,9 @@ bool InitialiseWindow(HINSTANCE* hInst)
 
 bool InitialiseDirectX()
 {
+    const D3DFORMAT backBufferFormat = D3DFMT_D16;
+    const D3DFORMAT textureFormat = D3DFMT_A8R8G8B8;
+
     if(FAILED(d3d = Direct3DCreate9(D3D_SDK_VERSION)))
     {
         ShowMessageBox("Direct3D interface creation has failed");
@@ -90,20 +93,21 @@ bool InitialiseDirectX()
     D3DMULTISAMPLE_TYPE antiAliasingLvl;
     bool antiAliasing = false;
     if(SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, 
-        D3DDEVTYPE_HAL, TEXTURE_FORMAT, true, D3DMULTISAMPLE_2_SAMPLES, nullptr)))
+        D3DDEVTYPE_HAL, textureFormat, true, D3DMULTISAMPLE_2_SAMPLES, nullptr)))
     {
         d3dpp.MultiSampleType = D3DMULTISAMPLE_2_SAMPLES;
         antiAliasingLvl = D3DMULTISAMPLE_2_SAMPLES;
         antiAliasing = true;
     }
+
     d3dpp.hDeviceWindow = hWnd;
     d3dpp.Windowed = true;
     d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.BackBufferFormat = TEXTURE_FORMAT;
+    d3dpp.BackBufferFormat = textureFormat;
     d3dpp.BackBufferWidth = WINDOW_WIDTH; 
     d3dpp.BackBufferHeight = WINDOW_HEIGHT;
     d3dpp.EnableAutoDepthStencil = TRUE;
-    d3dpp.AutoDepthStencilFormat = BACKBUFFER_FORMAT; 
+    d3dpp.AutoDepthStencilFormat = backBufferFormat; 
 
     if(FAILED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, 
         D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &d3ddev)))
@@ -113,7 +117,7 @@ bool InitialiseDirectX()
     }
 
     // Create Z-buffer
-    if(FAILED(d3ddev->CreateDepthStencilSurface(WINDOW_WIDTH, WINDOW_HEIGHT, BACKBUFFER_FORMAT,
+    if(FAILED(d3ddev->CreateDepthStencilSurface(WINDOW_WIDTH, WINDOW_HEIGHT, backBufferFormat,
         antiAliasing ? antiAliasingLvl : D3DMULTISAMPLE_NONE, NULL, TRUE, &backBuffer, NULL)))
     {
         ShowMessageBox("Z-buffer creation has failed");

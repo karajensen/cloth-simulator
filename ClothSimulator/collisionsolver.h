@@ -26,8 +26,8 @@ public:
 
     /**
     * Solves the cloth self and wall collisions
-    * @param minimumBounds The minimum point inside the walls
-    * @param maximumBounds The maximum point inside the walls
+    * @param minBounds The minimum point inside the walls
+    * @param maxBounds The maximum point inside the walls
     */
     void SolveClothCollision(const D3DXVECTOR3& minBounds, const D3DXVECTOR3& maxBounds);
 
@@ -54,11 +54,11 @@ private:
     void SolveParticleCollision(CollisionMesh& particleA, CollisionMesh& particleB);
 
     /**
-    * Solves a collision between a cylinder and particle
+    * Solves a collision between a convex hull and a particle using GJK detection
     * @param particle The collision mesh for the particle
-    * @param cylinder The collision mesh for the cylinder
+    * @param hull The collision mesh for the convex hull
     */
-    void SolveParticleCylinderCollision(CollisionMesh& particle, const CollisionMesh& cylinder);
+    void SolveParticleHullCollision(CollisionMesh& particle, const CollisionMesh& hull);
 
     /**
     * Solves a collision between a sphere and particle
@@ -66,18 +66,6 @@ private:
     * @param sphere The collision mesh for the sphere
     */
     void SolveParticleSphereCollision(CollisionMesh& particle, const CollisionMesh& sphere);
-
-    /**
-    * Solves a collision between a box and particle
-    * @param particle The collision mesh for the particle
-    * @param box The collision mesh for the sphere
-    */
-    void SolveParticleBoxCollision(CollisionMesh& particle, const CollisionMesh& box);
-
-    /**
-    * @return the cloth from the weak pointer
-    */
-    std::shared_ptr<Cloth> GetCloth();
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object to work on
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine

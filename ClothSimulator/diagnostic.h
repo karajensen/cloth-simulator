@@ -39,7 +39,8 @@ public:
         CLOTH,
         OCTREE,
         TEXT,
-        MAX_GROUPS,
+        COLLISION,
+        MAX_GROUPS
     };
 
     /**
@@ -61,15 +62,25 @@ public:
 
     /**
     * Toggles whether diagnostics are on
-    * @param the diagnostic group to toggle
+    * @param group the diagnostic group to toggle
     */
     void ToggleDiagnostics(Group group);
 
     /**
-    * @return whether diagnostics are on
-    * @param the diagnostic group to query
+    * @param wireframe Set whether wireframe is on or not
     */
-    bool AllowDiagnostics(Group group);
+    void SetWireframe(bool wireframe);
+
+    /**
+    * @return whether wireframe is enabled or not
+    */
+    bool AllowWireframe() const;
+
+    /**
+    * @return whether diagnostics are on
+    * @param group The diagnostic group to query
+    */
+    bool AllowDiagnostics(Group group) const;
 
     /**
     * Adds a sphere for diagnostic rendering. 
@@ -132,7 +143,7 @@ public:
     void DrawAllText();
 
     /**
-    * @param the color type to query
+    * @param color The color type to query
     * @return the color value for the given color type
     */
     const D3DXVECTOR3& GetColor(Colour color);
@@ -210,11 +221,12 @@ private:
     typedef std::vector<DiagGroup> GroupVector;
     typedef std::unordered_map<Colour, D3DXVECTOR3> ColorMap;
 
+    bool m_wireframe;                 ///< Whether or not wireframe is being rendered
     GroupVector m_groupvector;        ///< Vector of groups of geometry diagnostics
-    ColorMap m_colourmap;             ///< Easy access diagnostic colours
+    ColorMap m_colourmap;             ///< Available diagnostic colours
     LPDIRECT3DDEVICE9 m_d3ddev;       ///< DirectX Device
     LPD3DXMESH m_sphere;              ///< Diagnostic geometry sphere
-    LPD3DXMESH m_cylinder;            ///< Diagnostic geometry sphere
+    LPD3DXMESH m_cylinder;            ///< Diagnostic geometry cylinder/line
     std::unique_ptr<Text> m_text;     ///< Diagnostic text
-    LPD3DXEFFECT m_shader;            ///< Global diagnostic mesh shader
+    LPD3DXEFFECT m_shader;            ///< Diagnostic mesh shader
 };

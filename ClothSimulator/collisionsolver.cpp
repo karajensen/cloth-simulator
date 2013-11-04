@@ -29,17 +29,29 @@ void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA,
     }
 }
 
-void CollisionSolver::SolveParticleBoxCollision(CollisionMesh& particle, 
-                                                const CollisionMesh& box)
+void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle, 
+                                                 const CollisionMesh& hull)
 {
+    // Determine if within a rough radius of the convex hull
+    D3DXVECTOR3 sphereToParticle = particle.GetPosition() - hull.GetPosition();
+    const float length = D3DXVec3Length(&sphereToParticle);
+    const float combinedRadius = hull.GetRadius() + particle.GetRadius();
 
-}
+    if (length < combinedRadius)
+    {
+        const int maxIterations = 10;
+        const std::vector<D3DXVECTOR3>& vertices = hull.GetVertices();
 
-void CollisionSolver::SolveParticleCylinderCollision(CollisionMesh& particle, 
-                                                     const CollisionMesh& cylinder)
-{
 
 
+
+
+
+
+
+
+
+    }
 }
 
 void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
@@ -62,7 +74,8 @@ void CollisionSolver::SolveClothCollision(const D3DXVECTOR3& minBounds,
 {
     D3DPERF_BeginEvent(D3DCOLOR(), L"CollisionSolver::SolveClothCollision");
 
-    auto cloth = GetCloth();
+    assert(!m_cloth.expired());
+    auto cloth = m_cloth.lock();
     auto& particles = cloth->GetParticles();
 
     for(unsigned int i = 0; i < particles.size(); ++i)
@@ -119,23 +132,13 @@ void CollisionSolver::SolveObjectCollision(CollisionMesh& particle,
 {
     if(particle.IsDynamic())
     {
-        switch(object.GetShape())
+        if(object.GetShape() == CollisionMesh::SPHERE)
         {
-        case CollisionMesh::SPHERE:
             SolveParticleSphereCollision(particle, object);
-            break;
-        case CollisionMesh::BOX:
-            SolveParticleBoxCollision(particle, object);
-            break;
-        case CollisionMesh::CYLINDER:
-            SolveParticleCylinderCollision(particle, object);
-            break;
+        }
+        else
+        {
+            SolveParticleHullCollision(particle, object);
         }
     }
-}
-
-std::shared_ptr<Cloth> CollisionSolver::GetCloth()
-{
-    assert(!m_cloth.expired());
-    return m_cloth.lock();
 }

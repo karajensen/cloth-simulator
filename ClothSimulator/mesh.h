@@ -84,10 +84,18 @@ public:
     * Draw the collision model of the mesh
     * @param projection the projection matrix
     * @param view the view matrix
-    * @param diagnostics whether to draw the diagnostics or not
     */
-    void DrawCollisionMesh(const Matrix& projection, 
-        const Matrix& view, bool diagnostics = true);
+    void DrawCollisionMesh(const Matrix& projection, const Matrix& view);
+
+    /**
+    * Renders diagnostics for the mesh
+    */
+    void DrawDiagnostics();
+
+    /**
+    * Updates the partition the mesh exists in
+    */
+    void UpdatePartition();
 
     /**
     * Tests whether mesh was clicked
@@ -119,27 +127,24 @@ public:
 
     /**
     * Creates a collision cube for the mesh
-    * @param d3ddev The directX device
     * @param width/height/depth The dimensions of the collision box
     */
-    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
+    void CreateCollisionBox(float width, float height, float depth);
 
     /**
     * Creates a collision sphere for the mesh
-    * @param d3ddev The directX device
     * @param radius The initial radius of the sphere
     * @param quality The detail of the collision sphere
     */
-    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality);
+    void CreateCollisionSphere(float radius, int quality);
 
     /**
     * Creates a collision cylinder for the mesh
-    * @param d3ddev The directX device
     * @param radius The initial radius of the cylinder
     * @param length The length of the cylinder.
     * @param quality The detail of the cylinder
     */
-    void CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality);
+    void CreateCollisionCylinder(float radius, float length, int quality);
 
     /**
     * @param draw whether the collision mesh is visible
@@ -204,13 +209,13 @@ public:
     */
     const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
 
-private:
-
     /**
     * Animates the mesh through the list of animation points
     * @param deltatime The time passed since last frame
     */
     void Animate(float deltatime);
+
+private:
 
     /**
     * Toggle whether this mesh is selected or not

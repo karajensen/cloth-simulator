@@ -111,7 +111,7 @@ void Camera::UpdateCamera()
     }
 }
 
-void Camera::CreateProjMatrix()
+void Camera::CreateProjectionMatrix()
 {
     D3DXMatrixPerspectiveFovLH(m_projection.MatrixPtr(),
         D3DX_PI/4, //horizontal field of view

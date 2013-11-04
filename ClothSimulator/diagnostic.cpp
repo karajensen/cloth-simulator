@@ -20,6 +20,7 @@ namespace
 }
 
 Diagnostic::Diagnostic() :
+    m_wireframe(false),
     m_d3ddev(nullptr),
     m_sphere(nullptr),
     m_cylinder(nullptr)
@@ -41,7 +42,6 @@ void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader)
     m_colourmap.insert(ColorMap::value_type(BLUE, D3DXVECTOR3(0.0f, 0.0f, 1.0f)));
     m_colourmap.insert(ColorMap::value_type(WHITE, D3DXVECTOR3(1.0f, 1.0f, 1.0f)));
     m_colourmap.insert(ColorMap::value_type(YELLOW, D3DXVECTOR3(1.0f, 1.0f, 0.0f)));
-
     m_groupvector.resize(MAX_GROUPS);
 
     const int border = 10;
@@ -49,7 +49,7 @@ void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader)
     if(!m_text->Load(d3ddev, false, TEXT_WEIGHT, TEXT_SIZE, DT_LEFT, 
         border, border, WINDOW_WIDTH-border, WINDOW_HEIGHT-border))
     {
-        m_text = nullptr;
+        ShowMessageBox("Text object failed creation");
     }
 }
 
@@ -70,12 +70,24 @@ Diagnostic::~Diagnostic()
     }
 }
 
+bool Diagnostic::AllowWireframe() const
+{
+    return m_wireframe;
+}
+
+void Diagnostic::SetWireframe(bool wireframe)
+{
+    m_wireframe = wireframe;
+    m_d3ddev->SetRenderState(D3DRS_FILLMODE, 
+        m_wireframe ? D3DFILL_WIREFRAME : D3DFILL_SOLID); 
+}
+
 void Diagnostic::ToggleDiagnostics(Group group)
 {
     m_groupvector[group].render = !m_groupvector[group].render;
 }
 
-bool Diagnostic::AllowDiagnostics(Group group)
+bool Diagnostic::AllowDiagnostics(Group group) const
 {
     return m_groupvector[group].render;
 }

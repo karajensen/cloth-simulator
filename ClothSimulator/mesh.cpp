@@ -169,13 +169,27 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisi
     return true;
 }
 
+void Mesh::UpdatePartition()
+{
+    if(m_collision)
+    {
+        m_collision->UpdatePartition();
+    }
+}
+
+void Mesh::DrawDiagnostics()
+{
+    if(m_collision)
+    {
+        m_collision->DrawDiagnostics();
+    }
+}
+
 void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     const Matrix& projection, const Matrix& view, float deltatime)
 {
     if(m_data->mesh && m_draw)
     {
-        Animate(deltatime);
-
         m_data->shader->SetTechnique(DxConstant::DefaultTechnique);
         m_data->shader->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
         m_data->shader->SetFloatArray(DxConstant::VertexColor, &(m_color.x), 3);
@@ -204,11 +218,11 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
     }
 }
 
-void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view, bool diagnostics)
+void Mesh::DrawCollisionMesh(const Matrix& projection, const Matrix& view)
 {
     if(m_collision && m_draw)
     {
-        m_collision->Draw(projection, view, diagnostics);
+        m_collision->DrawMesh(projection, view);
     }
 }
 
@@ -279,22 +293,22 @@ void Mesh::ToggleSelected()
 
 bool Mesh::HasCollisionMesh() const
 {
-    return m_collision->HasGeometry();
+    return m_collision && m_collision->HasGeometry();
 }
 
-void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int quality)
+void Mesh::CreateCollisionCylinder(float radius, float length, int quality)
 {
-    m_collision->LoadCylinder(d3ddev, radius, length, quality);
+    m_collision->LoadCylinder(true, radius, length, quality);
 }
 
-void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
+void Mesh::CreateCollisionBox(float width, float height, float depth)
 {
-    m_collision->LoadBox(d3ddev, width, height, depth);
+    m_collision->LoadBox(true, width, height, depth);
 }
 
-void Mesh::CreateCollisionMesh(LPDIRECT3DDEVICE9 d3ddev, float radius, int quality)
+void Mesh::CreateCollisionSphere(float radius, int quality)
 {
-    m_collision->LoadSphere(d3ddev, radius, quality);
+    m_collision->LoadSphere(true, radius, quality);
 }
 
 bool Mesh::IsVisible() const
@@ -370,7 +384,7 @@ void Mesh::SavePosition()
 
 void Mesh::Animate(float deltatime)
 {
-    if(m_animating && !m_animation.empty())
+    if(m_animating && m_animation.size() > 1)
     {
         const float threshold = 1.0f;
         const float length = D3DXVec3Length(&(m_animation[m_target]-Position()));

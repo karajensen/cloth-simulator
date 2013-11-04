@@ -42,8 +42,9 @@ public:
         */
         ~Geometry();
 
-        Shape shape;     ///< Type of shape of the collision geometry
-        LPD3DXMESH mesh; ///< Directx geometry mesh
+        Shape shape;                       ///< Type of shape of the collision geometry
+        LPD3DXMESH mesh;                   ///< Directx geometry mesh
+        std::vector<D3DXVECTOR3> vertices; ///< vertices of the mesh
     };
 
     /**
@@ -71,29 +72,29 @@ public:
 
     /**
     * Creates a sphere collision model
-    * @param d3ddev The directX device
+    * @param createmesh Whether to create a mesh model or not
     * @param radius The initial radius of the sphere
     * @param divisions The amount of divisions of the mesh
     */
-    void LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions);
+    void LoadSphere(bool createmesh, float radius, int divisions);
 
     /**
     * Creates a box collision model
-    * @param d3ddev The directX device
+    * @param createmesh Whether to create a mesh model or not
     * @param width The initial width of the box
     * @param height The initial height of the box
     * @param depth The initial depth of the box
     */
-    void LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth);
+    void LoadBox(bool createmesh, float width, float height, float depth);
 
     /**
     * Creates a cylinder collision model
-    * @param d3ddev The directX device
+    * @param createmesh Whether to create a mesh model or not
     * @param radius The initial radius of the cylinder
     * @param length The length of the cylinder
     * @param divisions The amount of divisions of the mesh
     */
-    void LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions);
+    void LoadCylinder(bool createmesh, float radius, float length, int divisions);
 
     /**
     * Loads the collision as an instance of another
@@ -101,6 +102,11 @@ public:
     * @param geometry Mesh instance
     */
     void LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry);
+
+    /**
+    * Caches the local vertices of the directx mesh 
+    */
+    void SaveVertices();
 
     /**
     * @return the shape the collision mesh has
@@ -144,12 +150,25 @@ public:
     LPD3DXMESH GetMesh();
 
     /**
-    * Draw the collision geometry. Assumes Update() has been called as needed
+    * Draw the collision geometry and diagnostics
+    */
+    void DrawDiagnostics();
+
+    /**
+    * Draw the collision geometry and diagnostics
     * @param projection The projection matrix
     * @param view The view matrix
-    * @param diagnostics whether to draw the collision diagnostics or not
     */
-    void Draw(const Matrix& projection, const Matrix& view, bool diagnostics = true);
+    void DrawMesh(const Matrix& projection, const Matrix& view);
+
+    /**
+    * Draw the collision geometry with a specific radius.
+    * @param projection The projection matrix
+    * @param view The view matrix
+    * @param radius The radius to override
+    */
+    void DrawWithRadius(const Matrix& projection, 
+        const Matrix& view, float radius);
 
     /**
     * @param draw Set whether the collision mesh is drawn
@@ -189,15 +208,6 @@ public:
     Data& GetData();
 
     /**
-    * Draw the collision geometry with a specific radius.
-    * @param projection The projection matrix
-    * @param view The view matrix
-    * @param radius The radius to override
-    */
-    void DrawWithRadius(const Matrix& projection, 
-        const Matrix& view, float radius);
-
-    /**
     * @return whether the collision has geometry attached to it or not
     */
     bool HasGeometry() const;
@@ -219,15 +229,27 @@ public:
 
     /**
     * Moves the owner of the collision mesh to resolve a collision
-    * @param translate The amount to move the owner by
+    * @param translation The amount to move the owner by
     * @param shape The interacting body causing the movement
     */
-    void ResolveCollision(const D3DXVECTOR3& translation, Shape shape = NONE);
+    void ResolveCollision(const D3DXVECTOR3& translation,
+        Shape shape = Shape::NONE);
 
     /**
     * @return whether the collision mesh is dynamic or kinematic
     */
     bool IsDynamic() const;
+
+    /**
+    * Updates the partition the collision mesh exists in
+    */
+    void UpdatePartition();
+
+    /**
+    * @return the vertices of the mesh in world coordinates
+    * @note will update the vertices only once per tick if called
+    */
+    const std::vector<D3DXVECTOR3>& GetVertices() const;
 
 private:
 
@@ -243,11 +265,6 @@ private:
     */
     void CreateLocalBounds(float width, float height, float depth);
 
-    /**
-    * Updates the partition the collision mesh exists in
-    */
-    void UpdatePartition();
-
     EnginePtr m_engine;                   ///< Callbacks for the rendering engine
     bool m_draw;                          ///< Whether to draw the geometry
     const Transform& m_parent;            ///< Parent transform of the collision geometry
@@ -259,9 +276,11 @@ private:
     std::shared_ptr<Geometry> m_geometry; ///< collision geometry mesh shared accross instances
     LPD3DXEFFECT m_shader;                ///< Shader for the collision geometry
     Partition* m_partition;               ///< Partition collision currently in
-    bool m_hasUpdated;                    ///< Whether a full or partial update was called this tick
-    bool m_renderAsResolved;              ///< Whether to render the mesh as resolved this tick
+    bool m_requiresPartitionUpdate;       ///< Whether a partition update is required
 
-    D3DXVECTOR3 m_resolvedColour;         ///< The color to render when the collision is resolved
+    bool m_UseOverrideColor;                             ///< Whether to render the mesh as resolved this tick
+    D3DXVECTOR3 m_overrideColor;                        ///< The color to render when the collision is resolved
     std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
+    mutable std::vector<D3DXVECTOR3> m_worldVertices;    ///< Transformed vertices of the mesh
+    mutable bool m_requiresVertexUpdate;                 ///< Whether vertex updates are required
 };

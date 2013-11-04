@@ -11,6 +11,15 @@ namespace
     const int MINBOUND = 0; ///< Index for the minbound entry in the AABB
     const int MAXBOUND = 6; ///< Index for the maxbound entry in the AABB
     const int CORNERS = 8; ///< Number of corners in a cube
+
+    /**
+    * D3DX Primitive Vertex structure
+    */
+    struct D3DXVertex
+    {
+        D3DXVECTOR3 position;   ///< Vertex position
+        D3DXVECTOR3 normal;     ///< Vertex normal
+    };
 }
 
 CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine, 
@@ -18,15 +27,16 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine,
         m_draw(false),
         m_parent(parent),
         m_colour(0.0f, 0.0f, 1.0f),
-        m_resolvedColour(0.0f, 0.0f, 0.0f),
+        m_overrideColor(0.0f, 0.0f, 0.0f),
         m_geometry(nullptr),
         m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
         m_engine(engine),
         m_radius(0.0f),
         m_partition(nullptr),
         m_resolveFn(resolveFn),
-        m_renderAsResolved(false),
-        m_hasUpdated(true)
+        m_UseOverrideColor(false),
+        m_requiresPartitionUpdate(true),
+        m_requiresVertexUpdate(true)
 {
     m_oabb.resize(CORNERS);
 }
@@ -64,67 +74,100 @@ void CollisionMesh::CreateLocalBounds(float width, float height, float depth)
     m_data.localBounds[7] = minBounds + D3DXVECTOR3(0, height, depth);
 }
 
-void CollisionMesh::LoadBox(LPDIRECT3DDEVICE9 d3ddev, float width, float height, float depth)
+void CollisionMesh::LoadBox(bool createmesh, float width, float height, float depth)
 {
-    if(d3ddev)
+    if(createmesh)
     {
         m_geometry.reset(new Geometry());
         m_geometry->shape = BOX;
-        D3DXCreateBox(d3ddev, 1.0f, 1.0f, 1.0f, &m_geometry->mesh, NULL);
+        D3DXCreateBox(m_engine->device(), 1.0f,
+            1.0f, 1.0f, &m_geometry->mesh, nullptr);
     }
 
     CreateLocalBounds(width, height, depth);
     m_data.localWorld.SetScale(width, height, depth);
+    SaveVertices();
     FullUpdate();
 }
 
 
-void CollisionMesh::LoadSphere(LPDIRECT3DDEVICE9 d3ddev, float radius, int divisions)
+void CollisionMesh::LoadSphere(bool createmesh, float radius, int divisions)
 {
-    if(d3ddev)
+    if(createmesh)
     {
         m_geometry.reset(new Geometry());
         m_geometry->shape = SPHERE;
-        D3DXCreateSphere(d3ddev, 1.0f, divisions, divisions, &m_geometry->mesh, NULL);
+        D3DXCreateSphere(m_engine->device(), 1.0f, divisions, 
+            divisions, &m_geometry->mesh, nullptr);
     }
     
     //radius of sphere is uniform across x/y/z axis
     const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
     m_data.localWorld.SetScale(radius);
+    SaveVertices();
     FullUpdate();
 }
 
-void CollisionMesh::LoadCylinder(LPDIRECT3DDEVICE9 d3ddev, float radius, float length, int divisions)
+void CollisionMesh::LoadCylinder(bool createmesh, float radius, float length, int divisions)
 {
-    if(d3ddev)
+    if(createmesh)
     {
         m_geometry.reset(new Geometry());
         m_geometry->shape = CYLINDER;
-        D3DXCreateCylinder(d3ddev, 1.0f, 1.0f, 1.0f, divisions, 1, &m_geometry->mesh, NULL);
+        D3DXCreateCylinder(m_engine->device(), 1.0f, 1.0f, 1.0f, 
+            divisions, 1, &m_geometry->mesh, nullptr);
     }
 
     //length of cylinder is along the z axis, radius is scaled uniformly across the x/y axis
     const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, length);
     m_data.localWorld.SetScale(radius, radius, length);
+    SaveVertices();
     FullUpdate();
+}
+
+void CollisionMesh::SaveVertices()
+{
+    void* buffer = nullptr;
+    if(FAILED(m_geometry->mesh->LockVertexBuffer(0, &buffer)))
+    {
+        ShowMessageBox("Vertex buffer lock failed");
+    }
+    D3DXVertex* vertexBuffer = static_cast<D3DXVertex*>(buffer);
+
+    DWORD vertexNumber = m_geometry->mesh->GetNumVertices();
+    for(DWORD i = 0; i < vertexNumber; ++i)
+    {
+        // Remove any duplicates as directx creates 3 vertices for every triangle
+        if(std::find(m_geometry->vertices.begin(), m_geometry->vertices.end(), 
+            vertexBuffer[i].position) == m_geometry->vertices.end())
+        {
+            m_geometry->vertices.push_back(vertexBuffer[i].position);
+        }
+    }
+
+    m_geometry->mesh->UnlockVertexBuffer();
+    m_worldVertices.resize(vertexNumber);
 }
 
 void CollisionMesh::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry)
 {
     m_geometry = geometry;
+    m_worldVertices.clear();
+    m_worldVertices.resize(m_geometry->vertices.size());
+
     const D3DXVECTOR3 scale = data.localWorld.GetScale();
     switch(geometry->shape)
     {
     case SPHERE:
-        LoadSphere(nullptr, scale.x, 0);
+        LoadSphere(false, scale.x, 0);
         break;
     case BOX:
-        LoadBox(nullptr, scale.x, scale.y, scale.z);
+        LoadBox(false, scale.x, scale.y, scale.z);
         break;
     case CYLINDER:
-        LoadCylinder(nullptr, scale.x, scale.z, 0);
+        LoadCylinder(false, scale.x, scale.z, 0);
         break;
     }
 }
@@ -189,59 +232,90 @@ void CollisionMesh::SetColor(const D3DXVECTOR3& color)
     m_colour = color;
 }
 
-void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diagnostics)
+const std::vector<D3DXVECTOR3>& CollisionMesh::GetVertices() const
+{
+    if(m_requiresVertexUpdate)
+    {
+        m_requiresVertexUpdate = false;
+        for(unsigned int i = 0; i < m_geometry->vertices.size(); ++i)
+        {
+            D3DXVec3TransformCoord(&m_worldVertices[i], 
+                &m_geometry->vertices[i], &m_world.GetMatrix());
+        }
+    }
+    return m_worldVertices;
+}
+
+void CollisionMesh::DrawDiagnostics()
+{
+    if(m_draw && m_geometry && m_geometry->mesh &&
+        m_engine->diagnostic()->AllowDiagnostics(Diagnostic::COLLISION))
+    {
+        // Render vertices of diagnostic mesh
+        const std::string id = StringCast(this);
+        const float vertexRadius = 0.1f;
+        const auto& vertices = GetVertices();
+        for(unsigned int i = 0; i < vertices.size(); ++i)
+        {
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+                id + "Vertex" + StringCast(i), Diagnostic::RED, 
+                vertices[i], vertexRadius);
+        }
+
+        // Render point on radius of diagnostic mesh
+        const float radius = 0.2f;
+        D3DXVECTOR3 centerToRadius = GetPosition();
+        centerToRadius.y += m_radius;
+
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+            id + "Radius", Diagnostic::BLUE, centerToRadius, radius);
+
+        // Render OABB for diagnostic mesh
+        auto getPointColor = [=](int index) -> Diagnostic::Colour
+        {
+            return index == MINBOUND || index == MAXBOUND ?
+                Diagnostic::GREEN : Diagnostic::YELLOW;
+        };
+
+        std::string corner;
+        for(unsigned int i = 0; i < CORNERS/2; ++i)
+        {
+            corner = StringCast(i);
+            
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+                id + corner + "pA", getPointColor(i), m_oabb[i], radius);
+
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+                id + corner + "pB", getPointColor(i+4), m_oabb[i+4], radius);
+
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                id + corner + "LineA", Diagnostic::YELLOW, 
+                m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
+            
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                id + corner + "LineB", Diagnostic::YELLOW, 
+                m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
+                
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                id + corner + "LineC", Diagnostic::YELLOW, 
+                m_oabb[i], m_oabb[i+4]);
+        }
+    }
+}
+
+void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
-        if(diagnostics && m_engine->diagnostic()->AllowDiagnostics(Diagnostic::GENERAL))
-        {
-            D3DXVECTOR3 centerToRadius = GetPosition();
-            centerToRadius.y += m_radius;
-            const float drawradius = 0.2f;
-
-            m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                StringCast(this) + "Radius", Diagnostic::RED, 
-                centerToRadius, drawradius);
-
-            auto getPointColor = [=](int index) -> Diagnostic::Colour
-            {
-                return index == MINBOUND || index == MAXBOUND ?
-                    Diagnostic::GREEN : Diagnostic::YELLOW;
-            };
-
-            for(unsigned int i = 0; i < CORNERS/2; ++i)
-            {
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i), getPointColor(i),
-                    m_oabb[i], drawradius);
-
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i+4), getPointColor(i+4),
-                    m_oabb[i+4], drawradius);
-
-                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i) + "line1",
-                    Diagnostic::YELLOW, m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
-            
-                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i) + "line2", 
-                    Diagnostic::YELLOW, m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
-                
-                m_engine->diagnostic()->UpdateLine(Diagnostic::GENERAL,
-                    StringCast(this) + StringCast(i) + "line3",
-                    Diagnostic::YELLOW, m_oabb[i], m_oabb[i+4]);
-            }
-        }
-
-        m_shader->SetTechnique(DxConstant::DefaultTechnique);
-
         D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
         m_shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
-        if(m_renderAsResolved)
+        // Determine color of collision mesh
+        if(m_UseOverrideColor)
         {
-            m_renderAsResolved = false;
-            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_resolvedColour.x), 3);
+            m_UseOverrideColor = false;
+            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_overrideColor.x), 3);
         }
         else if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::OCTREE))
         {
@@ -255,20 +329,13 @@ void CollisionMesh::Draw(const Matrix& projection, const Matrix& view, bool diag
 
         UINT nPasses = 0;
         m_shader->Begin(&nPasses, 0);
-        for( UINT iPass = 0; iPass<nPasses; iPass++)
+        for(UINT pass = 0; pass < nPasses; ++pass)
         {
-            m_shader->BeginPass(iPass);
+            m_shader->BeginPass(pass);
             m_geometry->mesh->DrawSubset(0);
             m_shader->EndPass();
         }
         m_shader->End();
-
-        // Update the partition if required
-        if(m_hasUpdated)
-        {
-            UpdatePartition();
-            m_hasUpdated = false;
-        }
     }
 }
 
@@ -284,8 +351,9 @@ CollisionMesh::Data& CollisionMesh::GetData()
 
 void CollisionMesh::UpdatePartition()
 {
-    if(m_partition)
+    if(m_partition && m_requiresPartitionUpdate)
     {
+        m_requiresPartitionUpdate = false;
         m_engine->octree()->UpdateObject(*this);
     }
 }
@@ -303,7 +371,8 @@ void CollisionMesh::PositionalUpdate()
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
 
-        m_hasUpdated = true;
+        m_requiresVertexUpdate = true;
+        m_requiresPartitionUpdate = true;
     }
 }
 
@@ -329,7 +398,8 @@ void CollisionMesh::FullUpdate()
             m_radius = D3DXVec3Length(&(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
         }
 
-        m_hasUpdated = true;
+        m_requiresVertexUpdate = true;
+        m_requiresPartitionUpdate = true;
     }
 }
 
@@ -345,7 +415,7 @@ void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view,
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;
     m_world.MatrixPtr()->_33 = radius;
-    Draw(projection, view, false);
+    DrawMesh(projection, view);
     m_world.MatrixPtr()->_11 = scale;
     m_world.MatrixPtr()->_22 = scale;
     m_world.MatrixPtr()->_33 = scale;
@@ -367,7 +437,7 @@ void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape
     {
         if(shape != NONE)
         {
-            m_renderAsResolved = true;
+            m_UseOverrideColor = true;
         }
         m_resolveFn(translation);
     }

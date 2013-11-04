@@ -108,6 +108,7 @@ void Simulation::LoadGuiCallbacks(GuiCallbacks* callbacks)
     callbacks->resetCamera = std::bind(&Camera::Reset, m_camera.get());
     callbacks->setVertsVisible = std::bind(&Cloth::SetVertexVisibility, m_cloth.get(), _1);
     callbacks->setHandleMode = std::bind(&Cloth::SetHandleMode, m_cloth.get(), _1);
+    callbacks->setWireframeMode = std::bind(&Diagnostic::SetWireframe, m_diagnostics.get(), _1);
 
     callbacks->createBox = std::bind(&Scene::AddObject, m_scene.get(), Scene::BOX);
     callbacks->createSphere = std::bind(&Scene::AddObject, m_scene.get(), Scene::SPHERE);
@@ -123,12 +124,6 @@ void Simulation::LoadGuiCallbacks(GuiCallbacks* callbacks)
     callbacks->getIterations = std::bind(&Cloth::GetIterations, m_cloth.get());
     callbacks->getVertexRows = std::bind(&Cloth::GetVertexRows, m_cloth.get());
     callbacks->getTimestep = std::bind(&Cloth::GetTimeStep, m_cloth.get());
-
-    callbacks->setWireframeMode = [&](bool set)
-    { 
-         m_d3ddev->SetRenderState(D3DRS_FILLMODE, 
-            set ? D3DFILL_WIREFRAME : D3DFILL_SOLID); 
-    };
 }
 
 bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVICE9 d3ddev) 
@@ -154,7 +149,7 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
     const D3DXVECTOR3 position(0.0f, 0.0f, -30.0f);
     const D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
     m_camera.reset(new Camera(position, target));
-    m_camera->CreateProjMatrix();
+    m_camera->CreateProjectionMatrix();
 
     // Initialise the shaders/lights
     if(!m_shader->Inititalise(d3ddev) || !m_light->Inititalise())
@@ -276,6 +271,10 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->SetKeyCallback(DIK_6, false, 
         std::bind(&Diagnostic::ToggleDiagnostics,
         m_diagnostics.get(), Diagnostic::OCTREE));    
+
+    m_input->SetKeyCallback(DIK_5, false, 
+        std::bind(&Diagnostic::ToggleDiagnostics,
+        m_diagnostics.get(), Diagnostic::COLLISION));    
     
     // Allow diagnostic selection of particles
     m_input->SetKeyCallback(DIK_RALT, true, 

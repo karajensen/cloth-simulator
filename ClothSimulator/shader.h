@@ -83,7 +83,7 @@ public:
     bool Inititalise(LPDIRECT3DDEVICE9 d3ddev);
 
     /**
-    * @param the shader to get
+    * @param shader The shader to get
     * @return the effect for the required shader
     */
     LPD3DXEFFECT GetShader(int shader);

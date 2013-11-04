@@ -32,7 +32,7 @@ public:
     /**
     * Creates the projection matrix for the camera
     */
-    void CreateProjMatrix();
+    void CreateProjectionMatrix();
 
     /**
     * Generates forward movement for the camera

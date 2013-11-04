@@ -17,13 +17,8 @@
 static const int NO_INDEX = -1;
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
-static const int FULL_ALPHA = 255;
-static const int HALF_ALPHA = 128;
 static const float CAMERA_FAR = 1000.0f;
 static const float CAMERA_NEAR = 1.0f;
-static const LPCSTR WINDOW_NAME("Cloth Simulator");
-static const D3DFORMAT BACKBUFFER_FORMAT(D3DFMT_D16);
-static const D3DFORMAT TEXTURE_FORMAT(D3DFMT_A8R8G8B8);
 
 /**
 * Converts degrees to radians

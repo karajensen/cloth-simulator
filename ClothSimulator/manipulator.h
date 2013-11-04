@@ -165,9 +165,9 @@ private:
     void AnimateMesh(MeshPtr mesh, float value);
 
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
-    std::vector<std::unique_ptr<Tool>> m_tools;  ///< all usable tools
+    std::vector<std::unique_ptr<Tool>> m_tools;  ///< Container of usable tools
     ToolType m_selectedTool;                     ///< Currently selected tool
-    ToolAxis m_selectedAxis;                     ///< currently selected axis
+    ToolAxis m_selectedAxis;                     ///< Currently selected axis
     LPD3DXMESH m_sphere;                         ///< Animation geometry sphere
     LPD3DXEFFECT m_shader;                       ///< Animation point shader
     bool m_saveAnimation;                        ///< Whether to allow the position to be saved
