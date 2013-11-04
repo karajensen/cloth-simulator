@@ -59,7 +59,7 @@ Cloth::Cloth(EnginePtr engine) :
     m_data.reset(new MeshData());
     m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
     m_template.reset(new CollisionMesh(*this, m_engine));
-    m_template->LoadSphere(m_engine->device(), 1.0f, 8);
+    m_template->LoadSphere(true, 1.0f, 8);
 
     if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), 
         ".\\Resources\\Textures\\square.png", &m_data->texture)))

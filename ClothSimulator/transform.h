@@ -15,7 +15,14 @@ public:
 
     typedef std::function<void(void)> UpdateFn;
     
+    /**
+    * Constructor
+    */
     Transform();
+
+    /**
+    * Destructor
+    */
     virtual ~Transform(){}
 
     /**

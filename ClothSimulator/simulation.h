@@ -6,7 +6,6 @@
 #include "common.h"
 #include "callbacks.h"
 
-class Diagnostic;
 class LightManager;
 class ShaderManager;
 class CollisionSolver;

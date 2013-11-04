@@ -8,7 +8,6 @@
 #include "callbacks.h"
 
 class Shader;
-struct RenderCallbacks;
 
 /**
 * A sphere representing a vertex on the cloth

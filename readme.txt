@@ -1,6 +1,4 @@
 
-General cleanup/diagnostics
-
 • GJK Collision detection
 • Cloth smoothing
 • Video/upload folio
@@ -28,10 +26,10 @@ WASDQE:         Control the cloth in handle mode
 T:              Toggle text diagnostics
 0:              Toggle mesh collision models
 9:              Toggle wall collision models
-8:              Toggle general diagnostics
+8:              Toggle scene diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics
-5:              Toggle scene collision diagnostics
+5:              Toggle collision diagnostics
 
 DEVELOPMENT UPGRADE IDEAS
 • Switch between different cloth solvers

@@ -262,7 +262,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     
     m_input->SetKeyCallback(DIK_8, false, 
         std::bind(&Diagnostic::ToggleDiagnostics, 
-        m_diagnostics.get(), Diagnostic::GENERAL));
+        m_diagnostics.get(), Diagnostic::SCENE));
     
     m_input->SetKeyCallback(DIK_7, false, 
         std::bind(&Diagnostic::ToggleDiagnostics,

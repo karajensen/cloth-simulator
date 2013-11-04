@@ -37,11 +37,13 @@ void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader)
     D3DXCreateCylinder(d3ddev, CYLINDER_SIZE, CYLINDER_SIZE,
         1.0f, MESH_SEGMENTS, 1, &m_cylinder, NULL);
 
-    m_colourmap.insert(ColorMap::value_type(RED, D3DXVECTOR3(1.0f, 0.0f, 0.0f)));
-    m_colourmap.insert(ColorMap::value_type(GREEN, D3DXVECTOR3(0.0f, 1.0f, 0.0f)));
-    m_colourmap.insert(ColorMap::value_type(BLUE, D3DXVECTOR3(0.0f, 0.0f, 1.0f)));
-    m_colourmap.insert(ColorMap::value_type(WHITE, D3DXVECTOR3(1.0f, 1.0f, 1.0f)));
-    m_colourmap.insert(ColorMap::value_type(YELLOW, D3DXVECTOR3(1.0f, 1.0f, 0.0f)));
+    m_colours.resize(MAX_COLORS);
+    m_colours[RED] = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+    m_colours[GREEN] = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+    m_colours[BLUE] = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+    m_colours[WHITE] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+    m_colours[YELLOW] = D3DXVECTOR3(1.0f, 1.0f, 0.0f);
+    m_colours[PURPLE] = D3DXVECTOR3(1.0f, 0.0f, 1.0f);
     m_groupvector.resize(MAX_GROUPS);
 
     const int border = 10;
@@ -98,7 +100,7 @@ void Diagnostic::DrawAllText()
     auto renderText = [&](const TextMap::value_type& text)
     {
         m_text->SetText(text.second.text);
-        m_text->SetColour(text.second.color);
+        m_text->SetColour(m_colours[text.second.color]);
         m_text->SetPosition(TEXT_BORDERX, TEXT_BORDERY+(TEXT_SIZE*(counter++)));
         m_text->Draw();
     };
@@ -152,7 +154,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
             {
                 if(sphere.second.draw)
                 {
-                    RenderObject(m_shader, m_sphere, sphere.second.color, 
+                    RenderObject(m_shader, m_sphere, m_colours[sphere.second.color],
                         sphere.second.world, projection, view);
                     sphere.second.draw = false;
                 }
@@ -162,7 +164,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
             {
                 if(line.second.draw)
                 {
-                    RenderObject(m_shader, m_cylinder, line.second.color, 
+                    RenderObject(m_shader, m_cylinder, m_colours[line.second.color], 
                         line.second.world, projection, view);
                     line.second.draw = false;
                 }
@@ -180,7 +182,7 @@ void Diagnostic::UpdateSphere(Group group, const std::string& id,
     {
         spheremap.insert(SphereMap::value_type(id,DiagSphere())); 
     }
-    spheremap[id].color = m_colourmap[color];
+    spheremap[id].color = color;
     spheremap[id].draw = true;
     spheremap[id].world.MakeIdentity();
     spheremap[id].world.SetScale(radius);
@@ -196,7 +198,7 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
     {
         linemap.insert(LineMap::value_type(id, DiagLine())); 
     }
-    linemap[id].color = m_colourmap[color];
+    linemap[id].color = color;
 
     D3DXVECTOR3 forward = end-start;
     D3DXVECTOR3 middle = start + (forward * 0.5f);
@@ -232,7 +234,7 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     {
         textmap.insert(TextMap::value_type(id,DiagText())); 
     }
-    textmap[id].color = m_colourmap[color];
+    textmap[id].color = color;
     textmap[id].text = id + ": " + text;
     textmap[id].draw = true;
     textmap[id].cleardraw = cleardraw;
@@ -252,7 +254,7 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
     {
         ++textmap[id].counter;
     }
-    textmap[id].color = m_colourmap[color];
+    textmap[id].color = color;
     textmap[id].text = id + ": " + StringCast(textmap[id].counter);
     textmap[id].draw = true;
     textmap[id].cleardraw = cleardraw;
@@ -260,5 +262,5 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
 
 const D3DXVECTOR3& Diagnostic::GetColor(Colour color)
 {
-    return m_colourmap[color];
+    return m_colours[color];
 }

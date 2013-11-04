@@ -27,6 +27,7 @@ public:
         BLUE,
         YELLOW,
         GREEN,
+        PURPLE,
         MAX_COLORS
     };
 
@@ -35,7 +36,7 @@ public:
     */
     enum Group
     {
-        GENERAL,
+        SCENE,
         CLOTH,
         OCTREE,
         TEXT,
@@ -174,7 +175,7 @@ private:
     */
     struct DiagText
     {
-        D3DXVECTOR3 color; ///< Colour of the text
+        Colour color;      ///< Colour of the text
         std::string text;  ///< Actual text to display
         int counter;       ///< Optional counter for text
         bool draw;         ///< Whether to render the text
@@ -186,9 +187,9 @@ private:
     */
     struct DiagSphere
     {
-        D3DXVECTOR3 color;  ///< Colour of the object
-        Transform world;    ///< Matrix for sphere
-        bool draw;          ///< Whether to render the sphere
+        Colour color;     ///< Colour of the object
+        Transform world;  ///< Matrix for sphere
+        bool draw;        ///< Whether to render the sphere
     };
 
     /**
@@ -196,9 +197,9 @@ private:
     */
     struct DiagLine
     {
-        D3DXVECTOR3 color;  ///< Colour of the object
-        Matrix world;       ///< Matrix for line
-        bool draw;          ///< Whether to render the line
+        Colour color;  ///< Colour of the object
+        Matrix world;  ///< Matrix for line
+        bool draw;     ///< Whether to render the line
     };
 
     typedef std::string KeyType;
@@ -219,11 +220,11 @@ private:
     };
 
     typedef std::vector<DiagGroup> GroupVector;
-    typedef std::unordered_map<Colour, D3DXVECTOR3> ColorMap;
+    typedef std::vector<D3DXVECTOR3> ColorVector;
 
     bool m_wireframe;                 ///< Whether or not wireframe is being rendered
     GroupVector m_groupvector;        ///< Vector of groups of geometry diagnostics
-    ColorMap m_colourmap;             ///< Available diagnostic colours
+    ColorVector m_colours ;           ///< Available diagnostic colours
     LPDIRECT3DDEVICE9 m_d3ddev;       ///< DirectX Device
     LPD3DXMESH m_sphere;              ///< Diagnostic geometry sphere
     LPD3DXMESH m_cylinder;            ///< Diagnostic geometry cylinder/line

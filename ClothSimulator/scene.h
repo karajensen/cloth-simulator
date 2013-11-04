@@ -14,7 +14,6 @@ class Mesh;
 class Picking;
 class Manipulator;
 class Input;
-struct RenderCallbacks;
 
 /**
 * Factory/Manager that creates and renders all objects in the scene

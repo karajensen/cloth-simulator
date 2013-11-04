@@ -241,9 +241,9 @@ public:
     bool IsDynamic() const;
 
     /**
-    * Updates the partition the collision mesh exists in
+    * Updates the partition and any cached values the require it
     */
-    void UpdatePartition();
+    void UpdateCollisionMesh();
 
     /**
     * @return the vertices of the mesh in world coordinates
@@ -279,8 +279,8 @@ private:
     bool m_requiresPartitionUpdate;       ///< Whether a partition update is required
 
     bool m_UseOverrideColor;                             ///< Whether to render the mesh as resolved this tick
-    D3DXVECTOR3 m_overrideColor;                        ///< The color to render when the collision is resolved
+    D3DXVECTOR3 m_overrideColor;                         ///< The color to render when the collision is resolved
     std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
-    mutable std::vector<D3DXVECTOR3> m_worldVertices;    ///< Transformed vertices of the mesh
-    mutable bool m_requiresVertexUpdate;                 ///< Whether vertex updates are required
+    std::vector<D3DXVECTOR3> m_worldVertices;            ///< Transformed vertices of the mesh
+    bool m_requiresVertexUpdate;                         ///< Whether vertex updates are required
 };

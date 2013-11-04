@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "input.h"
 #include "light.h"
+#include "shader.h"
 
 Mesh::Mesh(EnginePtr engine):
     m_engine(engine),
@@ -169,17 +170,19 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisi
     return true;
 }
 
-void Mesh::UpdatePartition()
+void Mesh::Update(float deltatime)
 {
-    if(m_collision)
+    Animate(deltatime);
+
+    if(HasCollisionMesh())
     {
-        m_collision->UpdatePartition();
+        m_collision->UpdateCollisionMesh();
     }
 }
 
 void Mesh::DrawDiagnostics()
 {
-    if(m_collision)
+    if(HasCollisionMesh())
     {
         m_collision->DrawDiagnostics();
     }

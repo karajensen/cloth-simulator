@@ -7,11 +7,10 @@
 #include "callbacks.h"
 
 class Particle;
-class CollisionMesh;
 class Cloth;
 
 /**
-* Solves cloth-object and cloth-cloth collisions
+* Detects and solves cloth-object and cloth-cloth collisions
 */
 class CollisionSolver
 {

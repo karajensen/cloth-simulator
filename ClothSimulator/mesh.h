@@ -4,7 +4,6 @@
 
 #pragma once
 #include "common.h"
-#include "shader.h"
 #include "picking.h"
 #include "callbacks.h"
 
@@ -93,9 +92,10 @@ public:
     void DrawDiagnostics();
 
     /**
-    * Updates the partition the mesh exists in
+    * Updates and animates the mesh and collision mesh
+    * @param deltatime The time passed between ticks
     */
-    void UpdatePartition();
+    void Update(float deltatime);
 
     /**
     * Tests whether mesh was clicked
@@ -209,13 +209,13 @@ public:
     */
     const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
 
+private:
+
     /**
     * Animates the mesh through the list of animation points
     * @param deltatime The time passed since last frame
     */
     void Animate(float deltatime);
-
-private:
 
     /**
     * Toggle whether this mesh is selected or not

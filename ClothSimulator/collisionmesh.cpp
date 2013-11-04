@@ -234,15 +234,6 @@ void CollisionMesh::SetColor(const D3DXVECTOR3& color)
 
 const std::vector<D3DXVECTOR3>& CollisionMesh::GetVertices() const
 {
-    if(m_requiresVertexUpdate)
-    {
-        m_requiresVertexUpdate = false;
-        for(unsigned int i = 0; i < m_geometry->vertices.size(); ++i)
-        {
-            D3DXVec3TransformCoord(&m_worldVertices[i], 
-                &m_geometry->vertices[i], &m_world.GetMatrix());
-        }
-    }
     return m_worldVertices;
 }
 
@@ -268,13 +259,13 @@ void CollisionMesh::DrawDiagnostics()
         centerToRadius.y += m_radius;
 
         m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
-            id + "Radius", Diagnostic::BLUE, centerToRadius, radius);
+            id + "Radius", Diagnostic::WHITE, centerToRadius, radius);
 
         // Render OABB for diagnostic mesh
         auto getPointColor = [=](int index) -> Diagnostic::Colour
         {
             return index == MINBOUND || index == MAXBOUND ?
-                Diagnostic::GREEN : Diagnostic::YELLOW;
+                Diagnostic::BLUE : Diagnostic::PURPLE;
         };
 
         std::string corner;
@@ -289,15 +280,15 @@ void CollisionMesh::DrawDiagnostics()
                 id + corner + "pB", getPointColor(i+4), m_oabb[i+4], radius);
 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + corner + "LineA", Diagnostic::YELLOW, 
+                id + corner + "LineA", Diagnostic::PURPLE, 
                 m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
             
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + corner + "LineB", Diagnostic::YELLOW, 
+                id + corner + "LineB", Diagnostic::PURPLE, 
                 m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
                 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + corner + "LineC", Diagnostic::YELLOW, 
+                id + corner + "LineC", Diagnostic::PURPLE, 
                 m_oabb[i], m_oabb[i+4]);
         }
     }
@@ -349,8 +340,18 @@ CollisionMesh::Data& CollisionMesh::GetData()
     return m_data;
 }
 
-void CollisionMesh::UpdatePartition()
+void CollisionMesh::UpdateCollisionMesh()
 {
+    if(m_requiresVertexUpdate)
+    {
+        m_requiresVertexUpdate = false;
+        for(unsigned int i = 0; i < m_geometry->vertices.size(); ++i)
+        {
+            D3DXVec3TransformCoord(&m_worldVertices[i], 
+                &m_geometry->vertices[i], &m_world.GetMatrix());
+        }
+    }
+
     if(m_partition && m_requiresPartitionUpdate)
     {
         m_requiresPartitionUpdate = false;
