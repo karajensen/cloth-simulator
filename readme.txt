@@ -1,8 +1,8 @@
 
+
 • GJK Collision detection
 • Cloth smoothing
 • Video/upload folio
-
 
 =================================================================
 CLOTH SIMULATOR

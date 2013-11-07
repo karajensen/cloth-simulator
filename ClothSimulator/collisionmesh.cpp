@@ -350,6 +350,12 @@ void CollisionMesh::UpdateCollisionMesh()
             D3DXVec3TransformCoord(&m_worldVertices[i], 
                 &m_geometry->vertices[i], &m_world.GetMatrix());
         }
+
+        for(unsigned int i = 0; i < m_oabb.size(); ++i)
+        {
+            D3DXVec3TransformCoord(&m_oabb[i],
+                &m_data.localBounds[i], &m_parent.GetMatrix());  
+        }
     }
 
     if(m_partition && m_requiresPartitionUpdate)
@@ -363,12 +369,6 @@ void CollisionMesh::PositionalUpdate()
 {
     if(m_geometry)
     { 
-        D3DXVECTOR3 difference(m_parent.Position()-m_world.Position());
-        for(D3DXVECTOR3& point : m_oabb)
-        {
-            point += difference;
-        }
-
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
 
@@ -383,12 +383,6 @@ void CollisionMesh::FullUpdate()
     {
         //DirectX: World = LocalWorld * ParentWorld
         m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
-
-        for(unsigned int i = 0; i < m_oabb.size(); ++i)
-        {
-            D3DXVec3TransformCoord(&m_oabb[i],
-                &m_data.localBounds[i], &m_parent.GetMatrix());  
-        }
 
         if(m_geometry->shape == SPHERE)
         {

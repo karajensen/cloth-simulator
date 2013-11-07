@@ -24,16 +24,21 @@ public:
     CollisionSolver(std::shared_ptr<Engine> engine, std::shared_ptr<Cloth> cloth);
 
     /**
-    * Solves the cloth self and wall collisions
+    * Destructor
+    */
+    ~CollisionSolver();
+
+    /**
+    * Detects and solves cloth self collisions and cloth-wall collisions
     * @param minBounds The minimum point inside the walls
     * @param maxBounds The maximum point inside the walls
     */
     void SolveClothCollision(const D3DXVECTOR3& minBounds, const D3DXVECTOR3& maxBounds);
 
     /**
-    * Solves the collisions between the cloth particles and scene objects
-    * @param particle The particle to solve for
-    * @param object The scene object to solve against
+    * Detects and solves the collisions between cloth particles and scene objects
+    * @param particle The collision mesh for the particle
+    * @param object The collision mesh for the scene object
     */
     void SolveObjectCollision(CollisionMesh& particle, const CollisionMesh& object);
 
@@ -46,27 +51,37 @@ private:
     CollisionSolver& operator=(const CollisionSolver&);
 
     /**
-    * Solves a collision between two particles
+    * Detects and solves a collision between two particles
     * @param particleA The collision mesh for the first particle
     * @param particleB The collision mesh for the second particle
     */
     void SolveParticleCollision(CollisionMesh& particleA, CollisionMesh& particleB);
 
     /**
-    * Solves a collision between a convex hull and a particle using GJK detection
+    * Detects and solves a collision between a convex hull and a particle
     * @param particle The collision mesh for the particle
     * @param hull The collision mesh for the convex hull
     */
     void SolveParticleHullCollision(CollisionMesh& particle, const CollisionMesh& hull);
 
     /**
-    * Solves a collision between a sphere and particle
+    * Detects and solves a collision between a sphere and particle
     * @param particle The collision mesh for the particle
     * @param sphere The collision mesh for the sphere
     */
     void SolveParticleSphereCollision(CollisionMesh& particle, const CollisionMesh& sphere);
 
-    std::weak_ptr<Cloth> m_cloth;     ///< Cloth object to work on
-    std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine
+    /**
+    * Involves 'support mapping' for the GJK algorithm which helps to 
+    * eliminate the need to calculate the entire Minkowski difference.
+    * @param direction The direction to search along
+    * @param vertices The set of points to search
+    * @return The furthest point in the set along the given direction
+    */
+    const D3DXVECTOR3& GetFurthestPoint(const std::vector<D3DXVECTOR3>& points,
+        const D3DXVECTOR3& direction) const;
 
+
+    std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
+    std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine
 };

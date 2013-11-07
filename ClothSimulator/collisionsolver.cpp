@@ -14,6 +14,10 @@ CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine,
 {
 }
 
+CollisionSolver::~CollisionSolver()
+{
+}
+
 void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA, 
                                              CollisionMesh& particleB)
 {
@@ -39,21 +43,37 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 
     if (length < combinedRadius)
     {
+        // GJK involves creating a new shape from the Minkowski Difference of two hulls.
+        // If the new shape includes the origin then two objects intersect. 
+        // Reference: http://physics2d.com/content/gjk-algorithm
+
         const int maxIterations = 10;
-        const std::vector<D3DXVECTOR3>& vertices = hull.GetVertices();
-
-
-
-
-
-
-
+        const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
+        const std::vector<D3DXVECTOR3>& particleVertices = particle.GetVertices();
+        D3DXVECTOR3 initialDirection = particleVertices[0] - hullVertices[0];
 
 
 
 
 
     }
+}
+
+const D3DXVECTOR3& CollisionSolver::GetFurthestPoint(const std::vector<D3DXVECTOR3>& points,
+                                                     const D3DXVECTOR3& direction) const
+{
+    int maximumIndex = 0;
+    float maximumDot = D3DXVec3Dot(&points[maximumIndex], &direction);
+    for(unsigned int i = 1; i < points.size(); ++i)
+    {
+        float dot = D3DXVec3Dot(&points[i], &direction);
+        if(dot < maximumDot)
+        {
+            maximumDot = dot;
+            maximumIndex = i;
+        }
+    }
+    return points[maximumIndex];
 }
 
 void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
