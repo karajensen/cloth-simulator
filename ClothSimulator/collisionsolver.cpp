@@ -43,14 +43,26 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 
     if (length < combinedRadius)
     {
-        // GJK involves creating a new shape from the Minkowski Difference of two hulls.
-        // If the new shape includes the origin then two objects intersect. 
+        // If two convex hulls have collided, the Minkowski Difference 
+        // of their hulls will contain the origin. GJK generates a simplex
+        // that encases the Minkowski Difference points to test for this.
         // Reference: http://physics2d.com/content/gjk-algorithm
 
-        const int maxIterations = 10;
-        const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
+        const int reservedSimplexPoints = 10;
+        std::vector<D3DXVECTOR3> simplex;
+        simplex.reserve(reservedSimplexPoints);
+
         const std::vector<D3DXVECTOR3>& particleVertices = particle.GetVertices();
-        D3DXVECTOR3 initialDirection = particleVertices[0] - hullVertices[0];
+        const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
+
+        // Determine an initial point for the simplex
+        const int initialIndex = 0;
+        D3DXVECTOR3 direction = particleVertices[initialIndex] - hullVertices[initialIndex];
+        simplex.push_back(GetMinkowskiDifferencePoint(direction, particle, hull));
+        
+        
+
+
 
 
 
@@ -59,21 +71,29 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
     }
 }
 
-const D3DXVECTOR3& CollisionSolver::GetFurthestPoint(const std::vector<D3DXVECTOR3>& points,
-                                                     const D3DXVECTOR3& direction) const
+D3DXVECTOR3 CollisionSolver::GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
+                                                         const CollisionMesh& particle, 
+                                                         const CollisionMesh& hull)
 {
-    int maximumIndex = 0;
-    float maximumDot = D3DXVec3Dot(&points[maximumIndex], &direction);
+    return FindFurthestPoint(particle.GetVertices(), direction) - 
+        FindFurthestPoint(hull.GetVertices(), -direction);
+}
+
+const D3DXVECTOR3& CollisionSolver::FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
+                                                      const D3DXVECTOR3& direction) const
+{
+    int furthestIndex = 0;
+    float furthestDot = D3DXVec3Dot(&points[furthestIndex], &direction);
     for(unsigned int i = 1; i < points.size(); ++i)
     {
         float dot = D3DXVec3Dot(&points[i], &direction);
-        if(dot < maximumDot)
+        if(dot > furthestDot)
         {
-            maximumDot = dot;
-            maximumIndex = i;
+            furthestDot = dot;
+            furthestIndex = i;
         }
     }
-    return points[maximumIndex];
+    return points[furthestIndex];
 }
 
 void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,

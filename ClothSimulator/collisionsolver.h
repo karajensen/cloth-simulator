@@ -72,15 +72,25 @@ private:
     void SolveParticleSphereCollision(CollisionMesh& particle, const CollisionMesh& sphere);
 
     /**
-    * Involves 'support mapping' for the GJK algorithm which helps to 
-    * eliminate the need to calculate the entire Minkowski difference.
+    * Generates the furthest point along a direction from a set of points
     * @param direction The direction to search along
     * @param vertices The set of points to search
     * @return The furthest point in the set along the given direction
     */
-    const D3DXVECTOR3& GetFurthestPoint(const std::vector<D3DXVECTOR3>& points,
+    const D3DXVECTOR3& FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
         const D3DXVECTOR3& direction) const;
 
+    /**
+    * Generates a point on the edge of the Minkowski Difference hull
+    * using a chosen vertex from each collision mesh that is furthest
+    * along the given direction. Known as a 'support' function.
+    * @param direction The direction to search along
+    * @param particle The collision mesh for the particle
+    * @param hull The collision mesh for the convex hull
+    * @return an edge point in the Minkowski Difference
+    */
+    D3DXVECTOR3 GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
+        const CollisionMesh& particle, const CollisionMesh& hull);
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine
