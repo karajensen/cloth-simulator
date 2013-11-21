@@ -6,6 +6,7 @@
 #include "common.h"
 #include "callbacks.h"
 
+class Simplex;
 class Particle;
 class Cloth;
 
@@ -91,6 +92,28 @@ private:
     */
     D3DXVECTOR3 GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
         const CollisionMesh& particle, const CollisionMesh& hull);
+
+    /**
+    * Determines the next search direction given a line simplex
+    * @param simplex The line simplex of two points
+    * @param direction The current search direction to modify
+    */
+    void SolveLineSimplex(const Simplex& simplex, D3DXVECTOR3& direction);
+
+    /**
+    * Determines the next search direction given a tri plane simplex
+    * @param simplex The plane simplex of three points
+    * @param direction The current search direction to modify
+    */
+    void SolvePlaneSimplex(const Simplex& simplex, D3DXVECTOR3& direction);
+
+    /**
+    * Determines the next search direction given a tetrahedron simplex
+    * @param simplex The plane simplex of three points
+    * @param direction The current search direction to modify
+    * @return whether the origin is inside the simplex 
+    */
+    bool SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& direction);
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine

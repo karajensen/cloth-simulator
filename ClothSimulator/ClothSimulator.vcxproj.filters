@@ -83,6 +83,9 @@
     <ClCompile Include="partition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simplex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assimpmesh.h">
@@ -158,6 +161,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="octree_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simplex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

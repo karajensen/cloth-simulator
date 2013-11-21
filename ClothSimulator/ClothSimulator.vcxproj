@@ -104,6 +104,7 @@
     <ClCompile Include="octree.cpp" />
     <ClCompile Include="partition.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="simplex.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="simplex.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="spring.h" />
     <ClInclude Include="text.h" />

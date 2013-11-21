@@ -627,10 +627,10 @@ std::vector<Cloth::ParticlePtr>& Cloth::GetParticles()
 void Cloth::PostCollisionUpdate()
 {
     // Update the collision mesh last after all movement has been decided
-    //for(const ParticlePtr& particle : m_particles)
-    //{
-    //    particle->PostCollisionUpdate();
-    //}
+    for(const ParticlePtr& particle : m_particles)
+    {
+        particle->PostCollisionUpdate();
+    }
 
     UpdateVertexBuffer();
 }

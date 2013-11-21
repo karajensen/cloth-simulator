@@ -127,6 +127,11 @@ public:
     */
     void ResetMotion();
 
+    /**
+    * Updates the required values post collision resolution
+    */
+    void PostCollisionUpdate();
+
 private:
 
     /**
@@ -143,6 +148,7 @@ private:
     Transform m_transform;                       ///< Current transform of particle
     bool m_selected;                             ///< Whether particle is selected or not
     bool m_pinned;                               ///< Whether particle is pinned or not
+    bool m_resetMotion;                          ///< Whether to reset all motion this tick or not
     unsigned int m_index;                        ///< Internal index of the particle
     std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
 };
