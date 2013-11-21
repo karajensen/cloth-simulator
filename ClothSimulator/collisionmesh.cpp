@@ -89,11 +89,13 @@ void CollisionMesh::LoadBox(bool createmesh, float width, float height, float de
         m_geometry->shape = BOX;
         D3DXCreateBox(m_engine->device(), 1.0f,
             1.0f, 1.0f, &m_geometry->mesh, nullptr);
+        SaveVertices();
     }
 
     CreateLocalBounds(width, height, depth);
     m_data.localWorld.SetScale(width, height, depth);
-    SaveVertices();
+    m_worldVertices.clear();
+    m_worldVertices.resize(m_geometry->vertices.size());;
     FullUpdate();
     UpdateCollision();
 }
@@ -107,13 +109,15 @@ void CollisionMesh::LoadSphere(bool createmesh, float radius, int divisions)
         m_geometry->shape = SPHERE;
         D3DXCreateSphere(m_engine->device(), 1.0f, divisions, 
             divisions, &m_geometry->mesh, nullptr);
+        SaveVertices();
     }
     
     //radius of sphere is uniform across x/y/z axis
     const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
     m_data.localWorld.SetScale(radius);
-    SaveVertices();
+    m_worldVertices.clear();
+    m_worldVertices.resize(m_geometry->vertices.size());
     FullUpdate();
     UpdateCollision();
 }
@@ -126,13 +130,15 @@ void CollisionMesh::LoadCylinder(bool createmesh, float radius, float length, in
         m_geometry->shape = CYLINDER;
         D3DXCreateCylinder(m_engine->device(), 1.0f, 1.0f, 1.0f, 
             divisions, 1, &m_geometry->mesh, nullptr);
+        SaveVertices();
     }
 
     //length of cylinder is along the z axis, radius is scaled uniformly across the x/y axis
     const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, length);
     m_data.localWorld.SetScale(radius, radius, length);
-    SaveVertices();
+    m_worldVertices.clear();
+    m_worldVertices.resize(m_geometry->vertices.size());
     FullUpdate();
     UpdateCollision();
 }
@@ -156,9 +162,7 @@ void CollisionMesh::SaveVertices()
             m_geometry->vertices.push_back(vertexBuffer[i].position);
         }
     }
-
     m_geometry->mesh->UnlockVertexBuffer();
-    m_worldVertices.resize(vertexNumber);
 }
 
 void CollisionMesh::LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry)
@@ -345,7 +349,7 @@ CollisionMesh::Data& CollisionMesh::GetData()
 void CollisionMesh::FullUpdate()
 {
     //DirectX: World = LocalWorld * ParentWorld
-    m_positionDelta = m_parent.Position() - m_world.Position();
+    m_positionDelta += m_parent.Position() - m_world.Position();
     m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
     m_requiresFullUpdate = true;
 }
@@ -353,7 +357,7 @@ void CollisionMesh::FullUpdate()
 void CollisionMesh::PositionalUpdate()
 {
     //DirectX: World = LocalWorld * ParentWorld
-    m_positionDelta = m_parent.Position() - m_world.Position();
+    m_positionDelta += m_parent.Position() - m_world.Position();
     m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
     m_requiresPositionalUpdate = true;
 }
@@ -411,6 +415,9 @@ void CollisionMesh::UpdateCollision()
 
         m_requiresFullUpdate = false;
         m_requiresPositionalUpdate = false;
+        m_positionDelta.x = 0.0f;
+        m_positionDelta.y = 0.0f;
+        m_positionDelta.z = 0.0f;
     }
 }
 

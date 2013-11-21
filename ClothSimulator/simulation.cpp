@@ -92,7 +92,7 @@ void Simulation::Update()
         static_cast<float>(deltaTime));
 
     m_scene->SolveCollisions();
-    m_cloth->UpdateVertexBuffer();
+    m_cloth->PostCollisionUpdate();
 
     D3DPERF_EndEvent();
 }

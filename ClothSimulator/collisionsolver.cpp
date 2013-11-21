@@ -61,11 +61,14 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
         direction = -direction;
 
         // Iteratively create the simplex
-        const int maxIterations = 20;
+        int iteration = 0;
+        const int maxIterations = 30;
         bool collisionFound = false;
-        for(int i = 0; i < maxIterations; ++i)
+        while(iteration < maxIterations && !collisionFound)
         {
+            ++iteration;
             assert(simplex.size() <= 4);
+
             lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
             simplex.push_back(lastEdgePoint);
 
@@ -73,101 +76,93 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
             {
                 // New edge point of simplex is not past the origin.
                 // No collision is possible
-                break;
+                iteration = maxIterations;
             }
-
-            const D3DXVECTOR3& pointA = lastEdgePoint;
-            const D3DXVECTOR3 AO = -pointA;
-            if(simplex.size() == 2)
+            else
             {
-                // Simplex is a line
-                const D3DXVECTOR3& pointB = simplex[0];
-                const D3DXVECTOR3 AB = pointB - pointA;
+                const D3DXVECTOR3& pointA = lastEdgePoint;
+                const D3DXVECTOR3 AO = -pointA;
+                if(simplex.size() == 2)
+                {
+                    // Simplex is a line
+                    const D3DXVECTOR3& pointB = simplex[0];
+                    const D3DXVECTOR3 AB = pointB - pointA;
 
-                // Generate a new direction for the next point 
-                // perpendicular to the line using triple product
-                D3DXVECTOR3 ABcrossAO;
-                D3DXVec3Cross(&ABcrossAO, &AB, &AO);
-                D3DXVec3Cross(&direction, &ABcrossAO, &AB);
-            }
-            else if(simplex.size() == 3)
-            {
-                // Simplex is a triangle plane
-                const D3DXVECTOR3& pointB = simplex[0];
-                const D3DXVECTOR3& pointC = simplex[1];
-                const D3DXVECTOR3 AB = pointB - pointA;
-                const D3DXVECTOR3 AC = pointC - pointA;
+                    // Generate a new direction for the next point 
+                    // perpendicular to the line using triple product
+                    D3DXVECTOR3 ABcrossAO;
+                    D3DXVec3Cross(&ABcrossAO, &AB, &AO);
+                    D3DXVec3Cross(&direction, &ABcrossAO, &AB);
+                }
+                else if(simplex.size() == 3)
+                {
+                    // Simplex is a triangle plane
+                    const D3DXVECTOR3& pointB = simplex[0];
+                    const D3DXVECTOR3& pointC = simplex[1];
+                    const D3DXVECTOR3 AB = pointB - pointA;
+                    const D3DXVECTOR3 AC = pointC - pointA;
                 
-                // Determine which side of the plane the origin is on
-                D3DXVECTOR3 planeNormal;
-                D3DXVec3Cross(&planeNormal, &AB, &AC);
-                const float distanceToPlane = D3DXVec3Dot(&planeNormal, &AO);
+                    // Determine which side of the plane the origin is on
+                    D3DXVECTOR3 planeNormal;
+                    D3DXVec3Cross(&planeNormal, &AB, &AC);
+                    const float distanceToPlane = D3DXVec3Dot(&planeNormal, &AO);
 
-                // Determine the new search direction towards the origin
-                if(distanceToPlane == 0.0f)
-                {
-                    collisionFound = true;
-                    break;
+                    // Determine the new search direction towards the origin
+                    direction = (distanceToPlane < 0.0f) ? -planeNormal : planeNormal;
                 }
-                else if(distanceToPlane < 0.0f)
+                else if(simplex.size() == 4)
                 {
-                    planeNormal = -planeNormal;
-                }
-                direction = planeNormal;
-            }
-            else if(simplex.size() == 4)
-            {
-                // Simplex is a tetrahedron
-                const D3DXVECTOR3& pointB = simplex[0];
-                const D3DXVECTOR3& pointC = simplex[1];
-                const D3DXVECTOR3& pointD = simplex[2];
+                    // Simplex is a tetrahedron
+                    const D3DXVECTOR3& pointB = simplex[0];
+                    const D3DXVECTOR3& pointC = simplex[1];
+                    const D3DXVECTOR3& pointD = simplex[2];
 
-                const D3DXVECTOR3 AB = pointB - pointA;
-                const D3DXVECTOR3 AC = pointC - pointA;
-                const D3DXVECTOR3 AD = pointD - pointA;
+                    const D3DXVECTOR3 AB = pointB - pointA;
+                    const D3DXVECTOR3 AC = pointC - pointA;
+                    const D3DXVECTOR3 AD = pointD - pointA;
 
-                // Check if within the three surrounding planes
-                // The forth plane has been previously tested with the plane simplex
-                // All normals will point to the center of the tetrahedron
-                D3DXVECTOR3 CBnormal, BDnormal, DCnormal;
-                D3DXVec3Cross(&CBnormal, &AC, &AB);
-                D3DXVec3Cross(&BDnormal, &AB, &AD);
-                D3DXVec3Cross(&DCnormal, &AD, &AC);
+                    // Check if within the three surrounding planes
+                    // The forth plane has been previously tested with the plane simplex
+                    // All normals will point to the center of the tetrahedron
+                    D3DXVECTOR3 CBnormal, BDnormal, DCnormal;
+                    D3DXVec3Cross(&CBnormal, &AC, &AB);
+                    D3DXVec3Cross(&BDnormal, &AB, &AD);
+                    D3DXVec3Cross(&DCnormal, &AD, &AC);
 
-                D3DXVec3Normalize(&CBnormal, &CBnormal);
-                D3DXVec3Normalize(&BDnormal, &BDnormal);
-                D3DXVec3Normalize(&DCnormal, &DCnormal);
+                    D3DXVec3Normalize(&CBnormal, &CBnormal);
+                    D3DXVec3Normalize(&BDnormal, &BDnormal);
+                    D3DXVec3Normalize(&DCnormal, &DCnormal);
 
-                const float CBdistance = D3DXVec3Dot(&CBnormal, &AO);
-                const float BDdistance = D3DXVec3Dot(&BDnormal, &AO);
-                const float DCdistance = D3DXVec3Dot(&DCnormal, &AO);
+                    const float CBdistance = D3DXVec3Dot(&CBnormal, &AO);
+                    const float BDdistance = D3DXVec3Dot(&BDnormal, &AO);
+                    const float DCdistance = D3DXVec3Dot(&DCnormal, &AO);
 
-                if(CBdistance < 0.0f)
-                {
-                    // Origin is outside of the CB plane
-                    // D is furthest point, remove it and search towards the origin
-                    simplex.erase(std::remove(simplex.begin(), simplex.end(), pointD), simplex.end()); 
-                    direction = -CBnormal;
-                }
-                else if(BDdistance < 0.0f)
-                {
-                    // Origin is outside of the BD plane
-                    // C is furthest point, remove it and search towards the origin
-                    simplex.erase(std::remove(simplex.begin(), simplex.end(), pointC), simplex.end()); 
-                    direction = -BDnormal;
-                }
-                else if(DCdistance < 0.0f)
-                {
-                    // Origin is outside of the DC plane
-                    // C is furthest point, remove it and search towards the origin
-                    simplex.erase(std::remove(simplex.begin(), simplex.end(), pointB), simplex.end()); 
-                    direction = -DCnormal;
-                }
-                else
-                {
-                    // Origin is within the tetrahedron
-                    collisionFound = true;
-                    break;
+                    if(CBdistance < 0.0f)
+                    {
+                        // Origin is outside of the CB plane
+                        // D is furthest point, remove it and search towards the origin
+                        simplex.erase(std::remove(simplex.begin(), simplex.end(), pointD), simplex.end()); 
+                        direction = -CBnormal;
+                    }
+                    else if(BDdistance < 0.0f)
+                    {
+                        // Origin is outside of the BD plane
+                        // C is furthest point, remove it and search towards the origin
+                        simplex.erase(std::remove(simplex.begin(), simplex.end(), pointC), simplex.end()); 
+                        direction = -BDnormal;
+                    }
+                    else if(DCdistance < 0.0f)
+                    {
+                        // Origin is outside of the DC plane
+                        // C is furthest point, remove it and search towards the origin
+                        simplex.erase(std::remove(simplex.begin(), simplex.end(), pointB), simplex.end()); 
+                        direction = -DCnormal;
+                    }
+                    else
+                    {
+                        // Origin is within the tetrahedron
+                        collisionFound = true;
+                    }
                 }
             }
         }

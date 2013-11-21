@@ -176,6 +176,11 @@ public:
     */
     bool UpdateVertexBuffer();
 
+    /**
+    * Updates anything that requires collision update before
+    */
+    void PostCollisionUpdate();
+
 private:
 
     /**

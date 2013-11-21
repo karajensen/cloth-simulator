@@ -1,6 +1,5 @@
 
-• Partition broken for cloth
-• GJK Collision detection fix
+• GJK Collision resolution
 • Cloth smoothing
 • Video/upload folio
 
@@ -24,12 +23,15 @@ RALT-CLICK:     Allows selection of particle. Cloth diagnostics must be toggled
 WASDQE:         Control the cloth in handle mode
 1-4:            Toggle different cloth edge in handle mode
 T:              Toggle text diagnostics
-0:              Toggle mesh collision models
 9:              Toggle wall collision models
 8:              Toggle scene diagnostics
 7:              Toggle cloth diagnostics
 6:              Toggle octree diagnostics
 5:              Toggle collision diagnostics
+
+0:              Toggle mesh collision models
+                 - In collision: black
+                 - Not in collision: color of partition
 
 DEVELOPMENT UPGRADE IDEAS
 • Switch between different cloth solvers
