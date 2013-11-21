@@ -1,5 +1,6 @@
 
-• GJK Collision detection
+• Partition broken for cloth
+• GJK Collision detection fix
 • Cloth smoothing
 • Video/upload folio
 

@@ -65,10 +65,16 @@ public:
     * Constructor
     * @param parent The transform of the mesh parent
     * @param engine Callbacks from the rendering engine
+    */
+    CollisionMesh(const Transform& parent, EnginePtr engine);
+
+    /**
+    * Makes the collision mesh dynamic
+    * @param resetFn A function to call to reset all movement this tick
     * @param resolveFn A function to call to resolve any collision
     */
-    CollisionMesh(const Transform& parent, EnginePtr engine, 
-        std::function<void(const D3DXVECTOR3&)> resolveFn = nullptr);
+    void MakeDynamic(std::function<void(void)> resetFn,
+        std::function<void(const D3DXVECTOR3&)> resolveFn);
 
     /**
     * Creates a sphere collision model
@@ -176,13 +182,6 @@ public:
     void SetDraw(bool draw);
 
     /**
-    * Set a function to call upon when the world transform updates
-    * These functions should not change the transform they are observing
-    * @param update The function to be called on full and partial updates
-    */
-    void SetObserver(Transform::UpdateFn update);
-
-    /**
     * Updates the collision geometry upon scale/rotate/translate
     */
     void FullUpdate();
@@ -236,6 +235,12 @@ public:
         Shape shape = Shape::NONE);
 
     /**
+    * Resets the owner of the collision mesh for any motion this tick
+    * @param shape The interacting body causing the reset
+    */
+    void ResetMotion(Shape shape = Shape::NONE);
+
+    /**
     * @return whether the collision mesh is dynamic or kinematic
     */
     bool IsDynamic() const;
@@ -243,7 +248,7 @@ public:
     /**
     * Updates the partition and any cached values the require it
     */
-    void UpdateCollisionMesh();
+    void UpdateCollision();
 
     /**
     * @return the vertices of the mesh in world coordinates
@@ -269,6 +274,7 @@ private:
     bool m_draw;                          ///< Whether to draw the geometry
     const Transform& m_parent;            ///< Parent transform of the collision geometry
     Transform m_world;                    ///< World transform of the collision geometry
+    D3DXVECTOR3 m_positionDelta;          ///< Change in position this tick
     D3DXVECTOR3 m_colour;                 ///< Colour to render
     Data m_data;                          ///< Local data for the collision geometry
     float m_radius;                       ///< Transformed radius that encases geometry
@@ -276,11 +282,12 @@ private:
     std::shared_ptr<Geometry> m_geometry; ///< collision geometry mesh shared accross instances
     LPD3DXEFFECT m_shader;                ///< Shader for the collision geometry
     Partition* m_partition;               ///< Partition collision currently in
-    bool m_requiresPartitionUpdate;       ///< Whether a partition update is required
 
     bool m_UseOverrideColor;                             ///< Whether to render the mesh as resolved this tick
     D3DXVECTOR3 m_overrideColor;                         ///< The color to render when the collision is resolved
     std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
+    std::function<void(void)> m_resetFn;                 ///< Reset any motion of the collision this tick
     std::vector<D3DXVECTOR3> m_worldVertices;            ///< Transformed vertices of the mesh
-    bool m_requiresVertexUpdate;                         ///< Whether vertex updates are required
+    bool m_requiresFullUpdate;                           ///< Whether the collision mesh requires a full update
+    bool m_requiresPositionalUpdate;                     ///< Whether the collision mesh requires a positional update
 };

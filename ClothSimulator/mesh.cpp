@@ -176,7 +176,7 @@ void Mesh::Update(float deltatime)
 
     if(HasCollisionMesh())
     {
-        m_collision->UpdateCollisionMesh();
+        m_collision->UpdateCollision();
     }
 }
 

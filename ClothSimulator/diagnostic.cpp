@@ -150,16 +150,6 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
         {
             m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
-            for(auto& sphere : group.spheremap)
-            {
-                if(sphere.second.draw)
-                {
-                    RenderObject(m_shader, m_sphere, m_colours[sphere.second.color],
-                        sphere.second.world, projection, view);
-                    sphere.second.draw = false;
-                }
-            }
-
             for(auto& line : group.linemap)
             {
                 if(line.second.draw)
@@ -167,6 +157,16 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
                     RenderObject(m_shader, m_cylinder, m_colours[line.second.color], 
                         line.second.world, projection, view);
                     line.second.draw = false;
+                }
+            }
+
+            for(auto& sphere : group.spheremap)
+            {
+                if(sphere.second.draw)
+                {
+                    RenderObject(m_shader, m_sphere, m_colours[sphere.second.color],
+                        sphere.second.world, projection, view);
+                    sphere.second.draw = false;
                 }
             }
         }

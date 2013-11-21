@@ -127,6 +127,11 @@ public:
     */
     void ResetAcceleration();
 
+    /**
+    * Reset the motion of the particle for this tick
+    */
+    void ResetMotion();
+
 private:
 
     /**
@@ -136,7 +141,7 @@ private:
     Particle& operator=(const Particle&);
                                                
     D3DXVECTOR3 m_acceleration;                  ///< Current acceleration of particle
-    D3DXVECTOR3 m_oldPosition;                   ///< Save position from last update
+    D3DXVECTOR3 m_previousPosition;              ///< Save position from last update
     D3DXVECTOR3 m_initialPosition;               ///< Initial position of particle 
     D3DXVECTOR3 m_position;                      ///< Current position in world coordinates of particle
     D3DXVECTOR2 m_uvs;                           ///< Texture uvs for the particle
