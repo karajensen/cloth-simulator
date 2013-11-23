@@ -26,7 +26,7 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_draw(false),
     m_parent(parent),
     m_colour(1.0f, 1.0f, 1.0f),
-    m_overrideColor(0.0f, 0.0f, 0.0f),
+    m_inCollisionColor(0.0f, 0.0f, 0.0f),
     m_geometry(nullptr),
     m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
     m_engine(engine),
@@ -34,7 +34,7 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_partition(nullptr),
     m_resolveFn(nullptr),
     m_resetFn(nullptr),
-    m_UseOverrideColor(false),
+    m_isUnderCollision(false),
     m_requiresPositionalUpdate(false),
     m_requiresFullUpdate(false)
 {
@@ -60,8 +60,8 @@ CollisionMesh::Geometry::~Geometry()
     } 
 }
 
-void CollisionMesh::MakeDynamic(std::function<void(void)> resetFn,
-    std::function<void(const D3DXVECTOR3&)> resolveFn)
+void CollisionMesh::MakeDynamic(CollisionMesh::MotionFn resetFn,
+                                CollisionMesh::MotionFn resolveFn)
 {
     m_resetFn = resetFn;
     m_resolveFn = resolveFn;
@@ -309,10 +309,10 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
         m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
         // Determine color of collision mesh
-        if(m_UseOverrideColor)
+        if(m_isUnderCollision)
         {
-            m_UseOverrideColor = false;
-            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_overrideColor.x), 3);
+            m_isUnderCollision = false;
+            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_inCollisionColor.x), 3);
         }
         else if(m_partition)
         {
@@ -344,6 +344,11 @@ const CollisionMesh::Data& CollisionMesh::GetData() const
 CollisionMesh::Data& CollisionMesh::GetData()
 {
     return m_data;
+}
+
+const D3DXVECTOR3& CollisionMesh::GetVelocity() const
+{
+    return m_positionDelta;
 }
 
 void CollisionMesh::FullUpdate()
@@ -449,27 +454,15 @@ Partition* CollisionMesh::GetPartition() const
     return m_partition;
 }
 
-void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape)
+void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape, bool resetMotion)
 {
-    if(m_resolveFn)
+    if(IsDynamic())
     {
         if(shape != NONE)
         {
-            m_UseOverrideColor = true;
+            m_isUnderCollision = true;
         }
-        m_resolveFn(translation);
-    }
-}
-
-void CollisionMesh::ResetMotion(Shape shape)
-{
-    if(m_resetFn)
-    {
-        if(shape != NONE)
-        {
-            m_UseOverrideColor = true;
-        }
-        m_resetFn();
+        resetMotion ? m_resetFn(translation) : m_resolveFn(translation);
     }
 }
 

@@ -281,6 +281,8 @@ private:
     bool m_subdivideCloth;      ///< Whether to subdivide the cloth or not
     D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
     float m_generalSmoothing;   ///< General overall smoothing of the cloth
+    void* m_vertexBuffer;       ///< Raw Pointer to DirectX Vertex Buffer
+    void* m_indexBuffer;        ///< Raw Pointer to DirectX Index Buffer
 
     EnginePtr m_engine;                           ///< Callbacks for the rendering engine
     std::vector<D3DXVECTOR3> m_colors;            ///< Viable colors for the particles
@@ -288,8 +290,6 @@ private:
     std::vector<ParticlePtr> m_particles;         ///< Particles across the cloth grid
     std::vector<Vertex> m_vertexData;             ///< DirectX Vertex data
     std::vector<DWORD> m_indexData;               ///< DirectX Index data
-    void* m_vertexBuffer;                         ///< Raw Pointer to DirectX Vertex Buffer
-    void* m_indexBuffer;                          ///< Raw Pointer to DirectX Index Buffer
     std::shared_ptr<CollisionSolver> m_collision; ///< collision solver for the cloth
     std::shared_ptr<CollisionMesh> m_template;    ///< Template collision for all particles
     std::shared_ptr<MeshData> m_data;             ///< Data for rendering/instancing the mesh

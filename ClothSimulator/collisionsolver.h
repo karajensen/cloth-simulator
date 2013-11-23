@@ -30,14 +30,14 @@ public:
     ~CollisionSolver();
 
     /**
-    * Detects and solves cloth self collisions and cloth-wall collisions
+    * Detects and solves cloth particle-particle and particle-wall collisions
     * @param minBounds The minimum point inside the walls
     * @param maxBounds The maximum point inside the walls
     */
     void SolveClothCollision(const D3DXVECTOR3& minBounds, const D3DXVECTOR3& maxBounds);
 
     /**
-    * Detects and solves the collisions between cloth particles and scene objects
+    * Detects and solves cloth and scene object-particle collisions
     * @param particle The collision mesh for the particle
     * @param object The collision mesh for the scene object
     */

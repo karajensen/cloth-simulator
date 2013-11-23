@@ -53,7 +53,7 @@ Cloth::Cloth(EnginePtr engine) :
     m_vertexBuffer(nullptr),
     m_indexBuffer(nullptr),
     m_subdivideCloth(false),
-    m_generalSmoothing(0.75f)
+    m_generalSmoothing(0.85f)
 {
     m_data.reset(new MeshData());
     m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
@@ -394,13 +394,17 @@ void Cloth::UpdateState(double deltatime)
         //Solve Springs
         for(int j = 0; j < m_springIterations; ++j)
         {
-            std::for_each(m_springs.begin(), m_springs.end(), 
-                [&](const SpringPtr& spring){ spring->SolveSpring(); });
+            for(const SpringPtr& spring : m_springs)
+            {
+                spring->SolveSpring();
+            }
         }
 
         //Updating particle positions
-        std::for_each(m_particles.begin(), m_particles.end(), 
-            [&](const ParticlePtr& part){ part->Update(m_damping, m_timestepSquared); });
+        for(const ParticlePtr& particle : m_particles)
+        {
+            particle->PreCollisionUpdate(m_damping, m_timestepSquared);
+        }
     }
 }
 
@@ -732,20 +736,23 @@ void Cloth::SmoothCloth()
             for(int y = 1; y < m_particleLength-1; ++y)
             {
                 index = (x*m_particleLength)+y;
-                p1 = ((x+1)*m_particleLength)+y+1;
-                p2 = ((x+1)*m_particleLength)+y-1;
-                p3 = ((x-1)*m_particleLength)+y+1;
-                p4 = ((x-1)*m_particleLength)+y-1;
+                if(!m_particles[index]->IsColliding())
+                {
+                    p1 = ((x+1)*m_particleLength)+y+1;
+                    p2 = ((x+1)*m_particleLength)+y-1;
+                    p3 = ((x-1)*m_particleLength)+y+1;
+                    p4 = ((x-1)*m_particleLength)+y-1;
 
-                halfp1 = (m_vertexData[p1].position
-                    + m_vertexData[p4].position) * 0.5f;
+                    halfp1 = (m_vertexData[p1].position
+                        + m_vertexData[p4].position) * 0.5f;
 
-                halfp2 = (m_vertexData[p2].position
-                    + m_vertexData[p3].position) * 0.5f;
+                    halfp2 = (m_vertexData[p2].position
+                        + m_vertexData[p3].position) * 0.5f;
 
-                smoothedPosition = (halfp1 + halfp2) * 0.5f;
-                positionDifference = smoothedPosition - m_vertexData[index].position;
-                m_vertexData[index].position += positionDifference * m_generalSmoothing;
+                    smoothedPosition = (halfp1 + halfp2) * 0.5f;
+                    positionDifference = smoothedPosition - m_vertexData[index].position;
+                    m_vertexData[index].position += positionDifference * m_generalSmoothing;
+                }
             }
         }
     }

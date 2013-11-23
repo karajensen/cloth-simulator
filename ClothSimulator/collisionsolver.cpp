@@ -97,7 +97,8 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 
         if(collisionFound)
         {
-            particle.ResetMotion(hull.GetShape());
+            particle.ResolveCollision(
+                -hull.GetVelocity(), hull.GetShape(), true);
         }
     }
 }
@@ -159,13 +160,14 @@ bool CollisionSolver::SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& dir
     const float BDdistance = D3DXVec3Dot(&BDnormal, &AO);
     const float DCdistance = D3DXVec3Dot(&DCnormal, &AO);
 
+    bool originInsideSimplex = true;
     if(CBdistance < 0.0f)
     {
         // Origin is outside of the CB plane
         // D is furthest point, remove it and search towards the origin
         simplex.RemovePoint(pointD);
         direction = -CBnormal;
-        return false;
+        originInsideSimplex = false;
     }
     else if(BDdistance < 0.0f)
     {
@@ -173,7 +175,7 @@ bool CollisionSolver::SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& dir
         // C is furthest point, remove it and search towards the origin
         simplex.RemovePoint(pointC);
         direction = -BDnormal;
-        return false;
+        originInsideSimplex = false;
     }
     else if(DCdistance < 0.0f)
     {
@@ -181,11 +183,9 @@ bool CollisionSolver::SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& dir
         // C is furthest point, remove it and search towards the origin
         simplex.RemovePoint(pointB);
         direction = -DCnormal;
-        return false;
+        originInsideSimplex = false;
     }
-
-    // Origin is within the tetrahedron
-    return true;
+    return originInsideSimplex;
 }
 
 D3DXVECTOR3 CollisionSolver::GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,

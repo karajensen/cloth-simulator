@@ -1,6 +1,10 @@
 
-• GJK Collision resolution
-• Video/upload folio
+
+• Move cloth in direction of object movement
+• General cleanup of code
+• Update folio
+• Make video
+
 
 =================================================================
 CLOTH SIMULATOR

@@ -73,8 +73,8 @@ public:
     * @param resetFn A function to call to reset all movement this tick
     * @param resolveFn A function to call to resolve any collision
     */
-    void MakeDynamic(std::function<void(void)> resetFn,
-        std::function<void(const D3DXVECTOR3&)> resolveFn);
+    typedef std::function<void(const D3DXVECTOR3&)> MotionFn;
+    void MakeDynamic(MotionFn resetFn, MotionFn resolveFn);
 
     /**
     * Creates a sphere collision model
@@ -230,15 +230,10 @@ public:
     * Moves the owner of the collision mesh to resolve a collision
     * @param translation The amount to move the owner by
     * @param shape The interacting body causing the movement
+    * @param resetMotion Whether to reset all non-collision movement this tick
     */
     void ResolveCollision(const D3DXVECTOR3& translation,
-        Shape shape = Shape::NONE);
-
-    /**
-    * Resets the owner of the collision mesh for any motion this tick
-    * @param shape The interacting body causing the reset
-    */
-    void ResetMotion(Shape shape = Shape::NONE);
+        Shape shape = Shape::NONE, bool resetMotion = false);
 
     /**
     * @return whether the collision mesh is dynamic or kinematic
@@ -255,6 +250,16 @@ public:
     * @note will update the vertices only once per tick if called
     */
     const std::vector<D3DXVECTOR3>& GetVertices() const;
+
+    /**
+    * @return whether the collision mesh is currently undergoing collision
+    */
+    bool IsColliding() const { return m_isUnderCollision; }
+
+    /**
+    * @return the velocity of the collision mesh
+    */
+    const D3DXVECTOR3& GetVelocity() const;
 
 private:
 
@@ -283,11 +288,11 @@ private:
     LPD3DXEFFECT m_shader;                ///< Shader for the collision geometry
     Partition* m_partition;               ///< Partition collision currently in
 
-    bool m_UseOverrideColor;                             ///< Whether to render the mesh as resolved this tick
-    D3DXVECTOR3 m_overrideColor;                         ///< The color to render when the collision is resolved
-    std::function<void(const D3DXVECTOR3&)> m_resolveFn; ///< Collision resolution function
-    std::function<void(void)> m_resetFn;                 ///< Reset any motion of the collision this tick
-    std::vector<D3DXVECTOR3> m_worldVertices;            ///< Transformed vertices of the mesh
-    bool m_requiresFullUpdate;                           ///< Whether the collision mesh requires a full update
-    bool m_requiresPositionalUpdate;                     ///< Whether the collision mesh requires a positional update
-};
+    bool m_isUnderCollision;                   ///< Whether to render the mesh as resolved this tick
+    D3DXVECTOR3 m_inCollisionColor;            ///< The color to render when the collision is resolved
+    std::vector<D3DXVECTOR3> m_worldVertices;  ///< Transformed vertices of the mesh
+    bool m_requiresFullUpdate;                 ///< Whether the collision mesh requires a full update
+    bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
+    MotionFn m_resolveFn;                      ///< Collision resolution function
+    MotionFn m_resetFn;                        ///< Reset any motion of the collision this tick
+};                                             
