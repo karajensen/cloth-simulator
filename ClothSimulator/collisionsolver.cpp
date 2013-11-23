@@ -121,6 +121,7 @@ void CollisionSolver::SolvePlaneSimplex(const Simplex& simplex, D3DXVECTOR3& dir
     const D3DXVECTOR3& pointA = simplex.GetPoint(Simplex::LAST);
     const D3DXVECTOR3& pointB = simplex.GetPoint(Simplex::FIRST);
     const D3DXVECTOR3& pointC = simplex.GetPoint(Simplex::SECOND);
+
     const D3DXVECTOR3 AB = pointB - pointA;
     const D3DXVECTOR3 AC = pointC - pointA;
     const D3DXVECTOR3 AO = -pointA;

@@ -254,6 +254,13 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     // Scene shortcut keys
     m_input->SetKeyCallback(DIK_BACKSPACE, false,
         std::bind(&Scene::RemoveObject, m_scene.get()));
+
+    // Cloth smoothing
+    m_input->SetKeyCallback(DIK_EQUALS, true, 
+        std::bind(&Cloth::ChangeSmoothing, m_cloth.get(), true));
+
+    m_input->SetKeyCallback(DIK_MINUS, true, 
+        std::bind(&Cloth::ChangeSmoothing, m_cloth.get(), false));
     
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_T, false, 
@@ -276,11 +283,6 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         std::bind(&Diagnostic::ToggleDiagnostics,
         m_diagnostics.get(), Diagnostic::COLLISION));    
     
-    // Allow diagnostic selection of particles
-    m_input->SetKeyCallback(DIK_RALT, true, 
-        std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), true),
-        std::bind(&Cloth::SetDiagnosticSelect, m_cloth.get(), false));
-    
     // Toggle mesh collision model diagnostics
     m_input->SetKeyCallback(DIK_0, false, [&]()
     {
@@ -289,6 +291,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         m_scene->SetCollisionVisibility(m_drawCollisions);
     });
 
+    // Toggle wall collision model diagnostics
     m_input->SetKeyCallback(DIK_9, false, 
         std::bind(&Scene::ToggleWallVisibility, m_scene.get()));   
 }

@@ -164,14 +164,13 @@ public:
     void SelectParticle(int index);
 
     /**
-    * Allows Diagnostic select which involes selecting a 
-    * particle and displaying it's information 
-    * @param set Whether diagnostic select is allowed
+    * Whether to increase or decrease the amount of
+    * general overall smoothing for the cloth
     */
-    void SetDiagnosticSelect(bool set) { m_diagnosticSelect = set; }
+    void ChangeSmoothing(bool increase);
 
     /**
-    * Copies vertex data over to directX vertex buffer
+    * Copies smoothed vertex data over to directX vertex buffer 
     * @return whether the call succeeded or not
     */
     bool UpdateVertexBuffer();
@@ -189,6 +188,31 @@ private:
     * @param spacing The spacing between vertices
     */
     void CreateCloth(int rows, float spacing);
+
+    /**
+    * Draws and updates the diagnostics for the cloth
+    */
+    void UpdateDiagnostics();
+
+    /**
+    * Smooths the cloth vertices
+    */
+    void SmoothCloth();
+
+    /**
+    * Updates the cloth normals
+    */
+    void UpdateNormals();
+
+    /**
+    * Updates all generic vertices of the cloth
+    */
+    void UpdateVertices();
+
+    /**
+    * Updates the extra vertices if subdivision is required
+    */
+    void UpdateSubdividedVertices();
 
     /**
     * @param force Adds a force to each vertex in the cloth
@@ -235,11 +259,6 @@ private:
     void SetParticleColor(const ParticlePtr& particle);
 
     /**
-    * Applies smoothing to the final mesh
-    */
-    void UpdateVertices();
-
-    /**
     * Prevent copying
     */
     Cloth(const Cloth&);
@@ -259,9 +278,9 @@ private:
     bool m_drawColParticles;    ///< Whether particle collision models are drawn
     float m_spacing;            ///< Current spacing between vertices
     bool m_handleMode;          ///< Whether the simulation is in handle mode
+    bool m_subdivideCloth;      ///< Whether to subdivide the cloth or not
     D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
-    bool m_diagnosticSelect;    ///< Whether to allow diagnostic selection for the cloth
-    int m_diagnosticParticle;   ///< Index for the particle selected for diagnostics
+    float m_generalSmoothing;   ///< General overall smoothing of the cloth
 
     EnginePtr m_engine;                           ///< Callbacks for the rendering engine
     std::vector<D3DXVECTOR3> m_colors;            ///< Viable colors for the particles

@@ -24,14 +24,13 @@ namespace
         MAX_COLORS
     };
 
-    /**
-    * Initial values for the cloth
-    */
-    const int ROWS = 20;         
-    const int ITERATIONS = 2;    
-    const float TIMESTEP = 0.45f; 
-    const float DAMPING = 0.9f;  
-    const float SPACING = 0.75f; 
+    const int ROWS = 20;                 ///< Initial rows for the cloth 
+    const int ITERATIONS = 2;            ///< Initial iterations for the cloth
+    const float TIMESTEP = 0.45f;        ///< Initial timestep for the cloth
+    const float DAMPING = 0.9f;          ///< Initial damping for the cloth
+    const float SPACING = 0.75f;         ///< Initial particle spacing for the cloth
+    const int PARTICLE_SUBDIVISIONS = 8; ///< Subdivisions for cloth particles
+    const float SMOOTH_INCREASE = 0.01f; ///< The amount to increase when changing smoothing
 }
 
 Cloth::Cloth(EnginePtr engine) :
@@ -50,16 +49,16 @@ Cloth::Cloth(EnginePtr engine) :
     m_spacing(0.0f),
     m_handleMode(false),
     m_gravity(0,-9.8f,0),
-    m_diagnosticSelect(false),
-    m_diagnosticParticle(0),
     m_engine(engine),
     m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr)
+    m_indexBuffer(nullptr),
+    m_subdivideCloth(false),
+    m_generalSmoothing(0.75f)
 {
     m_data.reset(new MeshData());
     m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
     m_template.reset(new CollisionMesh(*this, m_engine));
-    m_template->LoadSphere(true, 1.0f, 8);
+    m_template->LoadSphere(true, 1.0f, PARTICLE_SUBDIVISIONS);
 
     if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), 
         ".\\Resources\\Textures\\square.png", &m_data->texture)))
@@ -69,10 +68,9 @@ Cloth::Cloth(EnginePtr engine) :
     }
 
     m_colors.resize(MAX_COLORS);
-    std::generate(m_colors.begin(), m_colors.end(), [&](){ return D3DXVECTOR3(0.0, 0.0, 0.0); });
-    m_colors[NORMAL].z = 1.0f; ///< Blue for no selection/pinning
-    m_colors[PINNED].x = 1.0f; ///< Red for pinned
-    m_colors[SELECTED].y = 1.0f; ///< Green for selection
+    m_colors[NORMAL] = D3DXVECTOR3(0.0, 0.0, 1.0);
+    m_colors[PINNED] = D3DXVECTOR3(1.0, 0.0, 0.0);
+    m_colors[SELECTED] = D3DXVECTOR3(0.0, 1.0, 0.0);
 
     CreateCloth(ROWS, SPACING);
 }
@@ -139,13 +137,15 @@ void Cloth::CreateCloth(int rows, float spacing)
     }
 
     //create vertices
-    const int vertexCount = m_particleCount + ((m_particleLength-1)*(m_particleLength-1));
+    m_quadVertices = m_subdivideCloth ? ((m_particleLength-1)*(m_particleLength-1)) : 0;
+    const int vertexCount = m_particleCount + m_quadVertices;
     m_vertexData.resize(vertexCount);
-    m_quadVertices = vertexCount-m_particleCount;
 
     //create indices
-    int triangleNumber = ((m_particleLength-1)*(m_particleLength-1))*4;
-    m_indexData.resize(triangleNumber*3);
+    const int indiciesPerTriangle = 3;
+    const int trianglesPerQuad = m_subdivideCloth ? 4 : 2;
+    int triangleNumber = ((m_particleLength-1)*(m_particleLength-1)) * trianglesPerQuad;
+    m_indexData.resize(triangleNumber * indiciesPerTriangle);
 
     index = 0;
     int quad = 0;
@@ -154,24 +154,37 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int y = 0; y < m_particleLength-1; ++y)
         {
-            m_indexData[index]   = (x*m_particleLength)+y;
-            m_indexData[index+1] = (x*m_particleLength)+y+1;
-            m_indexData[index+2] = m_particleCount + quad;
+            if(m_subdivideCloth)
+            {
+                m_indexData[index]   = (x*m_particleLength)+y;
+                m_indexData[index+1] = (x*m_particleLength)+y+1;
+                m_indexData[index+2] = m_particleCount + quad;
 
-            m_indexData[index+3] = m_particleCount + quad;
-            m_indexData[index+4] = (x*m_particleLength)+y+1;
-            m_indexData[index+5] = ((x+1)*m_particleLength)+y+1;
+                m_indexData[index+3] = m_particleCount + quad;
+                m_indexData[index+4] = (x*m_particleLength)+y+1;
+                m_indexData[index+5] = ((x+1)*m_particleLength)+y+1;
             
-            m_indexData[index+6] = ((x+1)*m_particleLength)+y;
-            m_indexData[index+7] = ((x+1)*m_particleLength)+y+1;
-            m_indexData[index+8] = m_particleCount + quad;
+                m_indexData[index+6] = ((x+1)*m_particleLength)+y;
+                m_indexData[index+7] = ((x+1)*m_particleLength)+y+1;
+                m_indexData[index+8] = m_particleCount + quad;
             
-            m_indexData[index+9] = (x*m_particleLength)+y;
-            m_indexData[index+10] = m_particleCount + quad;
-            m_indexData[index+11] = ((x+1)*m_particleLength)+y;
+                m_indexData[index+9] = (x*m_particleLength)+y;
+                m_indexData[index+10] = m_particleCount + quad;
+                m_indexData[index+11] = ((x+1)*m_particleLength)+y;
+            }
+            else
+            {
+                m_indexData[index] = (x*m_particleLength)+y;
+                m_indexData[index+1] = (x*m_particleLength)+y+1;
+                m_indexData[index+2] = ((x+1)*m_particleLength)+y;
+
+                m_indexData[index+3] = ((x+1)*m_particleLength)+y;
+                m_indexData[index+4] = (x*m_particleLength)+y+1;
+                m_indexData[index+5] = ((x+1)*m_particleLength)+y+1;
+            }
 
             ++quad;
-            index += 12;
+            index += m_subdivideCloth ? 12 : 6;
         }
     }
 
@@ -279,6 +292,7 @@ void Cloth::CreateCloth(int rows, float spacing)
         m_data->mesh = nullptr;
         ShowMessageBox("Cloth Mesh creation failed");
     }
+
     UpdateVertices();
 
     //Vertex Buffer
@@ -367,6 +381,8 @@ void Cloth::AddForce(const D3DXVECTOR3& force)
 
 void Cloth::UpdateState(double deltatime)
 {
+    UpdateDiagnostics();
+
     if(m_simulation || m_handleMode)
     {
         //Move cloth down slowly
@@ -388,6 +404,23 @@ void Cloth::UpdateState(double deltatime)
     }
 }
 
+void Cloth::UpdateDiagnostics()
+{
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
+    {
+        std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
+        { 
+            spring->UpdateDiagnostic(m_engine->diagnostic()); 
+        });
+
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
+            "ParticleCount", Diagnostic::YELLOW, StringCast(m_particleCount));
+
+        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
+            "Smoothing", Diagnostic::YELLOW, StringCast(m_generalSmoothing));
+    }
+}
+
 void Cloth::Reset()
 {
     std::for_each(m_particles.begin(), m_particles.end(), 
@@ -402,37 +435,6 @@ Cloth::ParticlePtr& Cloth::GetParticle(int row, int column)
 
 void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
 {
-    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
-    {
-        const float radius = 0.4f;
-        const auto& position = m_particles[m_diagnosticParticle]->GetPosition();
-        const auto& vertex = m_vertexData[m_diagnosticParticle].position;
-        const auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh().GetPosition();
-
-        std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
-        { 
-            spring->UpdateDiagnostic(m_engine->diagnostic()); 
-        });
-
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
-            "ParticleCount", Diagnostic::WHITE, StringCast(m_particleCount));
-
-        m_engine->diagnostic()->UpdateSphere(Diagnostic::CLOTH, 
-            "Particle", Diagnostic::YELLOW, position, radius);
-
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Particle",
-            Diagnostic::YELLOW, StringCast(position.x) + ", " +
-            StringCast(position.y) + ", " + StringCast(position.z));
-
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Collision", 
-            Diagnostic::YELLOW, StringCast(collision.x) + ", " + 
-            StringCast(collision.y) + ", " + StringCast(collision.z));
-
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, "Vertex",
-            Diagnostic::YELLOW, StringCast(vertex.x) + ", " + 
-            StringCast(vertex.y) + ", " + StringCast(vertex.z));
-    }
-
     if(m_drawColParticles)
     {
         for(const ParticlePtr& particle : m_particles)
@@ -490,8 +492,7 @@ bool Cloth::MousePickingTest(Picking& input)
         //Update the mesh pick function with selected index
         if(indexChosen != NO_INDEX)
         {
-            auto selectFn = m_diagnosticSelect ? &Cloth::SelectParticleForDiagnostics : &Cloth::SelectParticle;
-            SetMeshPickFunction(std::bind(selectFn, this, indexChosen));
+            SetMeshPickFunction(std::bind(&Cloth::SelectParticle, this, indexChosen));
             return true;
         }
     }
@@ -503,11 +504,6 @@ void Cloth::SetParticleColor(const Cloth::ParticlePtr& particle)
     ParticleColors color = (particle->IsPinned() ? PINNED : 
         (particle->IsSelected() && m_handleMode ? SELECTED : NORMAL));
     particle->SetColor(m_colors[color]);
-}
-
-void Cloth::SelectParticleForDiagnostics(int index)
-{
-    m_diagnosticParticle = index;
 }
 
 void Cloth::SelectParticle(int index)
@@ -638,6 +634,9 @@ void Cloth::PostCollisionUpdate()
 bool Cloth::UpdateVertexBuffer()
 {
     UpdateVertices();
+    SmoothCloth();
+    UpdateNormals();
+    UpdateSubdividedVertices();
 
     //Lock the vertex buffer
     if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
@@ -663,19 +662,18 @@ D3DXVECTOR3 Cloth::CalculateNormal(const D3DXVECTOR3& p1,
     return normal;
 }
 
+void Cloth::ChangeSmoothing(bool increase)
+{
+    m_generalSmoothing += increase ? SMOOTH_INCREASE : -SMOOTH_INCREASE;
+    m_generalSmoothing = min(m_generalSmoothing, 1.0f);
+    m_generalSmoothing = max(m_generalSmoothing, 0.0f);
+}
+
 void Cloth::UpdateVertices()
 {
-    // m_vertexData contains m_particleCount vertices that make up the main
-    // grid of the cloth. It contains an extra set of vertices equal to
-    // the number of quads in the cloth which sit in the quads center
-    // smoothing involves determining the position of this center vertex
-
-    int quad = 0;
     int index = NO_INDEX;
     D3DXVECTOR3 normal(0.0f, 0.0f, 0.0f);
-    int p1, p2, p3, p4;
 
-    // Update the position of all vertices in the vertex buffer
     for(int x = 0; x < m_particleLength; ++x)
     {
         for(int y = 0; y < m_particleLength; ++y)
@@ -686,8 +684,13 @@ void Cloth::UpdateVertices()
             m_vertexData[index].position = m_particles[index]->GetPosition();
         }
     }
+}
 
-    // Smooth and update all normals of the main vertices
+void Cloth::UpdateNormals()
+{
+    D3DXVECTOR3 normal;
+    int p1, p2, p3, p4;
+
     for(int x = 0; x < m_particleLength-1; ++x)
     {
         for(int y = 0; y < m_particleLength-1; ++y)
@@ -712,40 +715,82 @@ void Cloth::UpdateVertices()
             m_vertexData[p3].normal += normal;
         }
     }
+}
 
-    // Update the quad normals/position
-    quad = 0;
-    D3DXVECTOR3 halfp1, halfp2;
-    D3DXVECTOR2 halfuv1, halfuv2;
-    for(int x = 0; x < m_particleLength-1; ++x)
+void Cloth::SmoothCloth()
+{
+    if(m_generalSmoothing > 0.0f)
     {
-        for(int y = 0; y < m_particleLength-1; ++y)
+        int index = NO_INDEX;
+        D3DXVECTOR3 halfp1, halfp2;
+        D3DXVECTOR3 positionDifference;
+        D3DXVECTOR3 smoothedPosition;
+        int p1, p2, p3, p4;
+
+        for(int x = 1; x < m_particleLength-1; ++x)
         {
-            p1 = (x*m_particleLength)+y;
-            p2 = ((x+1)*m_particleLength)+y;
-            p3 = (x*m_particleLength)+y+1;
-            p4 = ((x+1)*m_particleLength)+y+1;
-            int quadindex = m_particleCount + quad;
+            for(int y = 1; y < m_particleLength-1; ++y)
+            {
+                index = (x*m_particleLength)+y;
+                p1 = ((x+1)*m_particleLength)+y+1;
+                p2 = ((x+1)*m_particleLength)+y-1;
+                p3 = ((x-1)*m_particleLength)+y+1;
+                p4 = ((x-1)*m_particleLength)+y-1;
 
-            halfp1 = (m_vertexData[p1].position
-                + m_vertexData[p4].position) * 0.5f;
+                halfp1 = (m_vertexData[p1].position
+                    + m_vertexData[p4].position) * 0.5f;
 
-            halfp2 = (m_vertexData[p2].position
-                + m_vertexData[p3].position) * 0.5f;
+                halfp2 = (m_vertexData[p2].position
+                    + m_vertexData[p3].position) * 0.5f;
 
-            halfuv1 = (m_vertexData[p1].uvs
-                + m_vertexData[p4].uvs) * 0.5f;
+                smoothedPosition = (halfp1 + halfp2) * 0.5f;
+                positionDifference = smoothedPosition - m_vertexData[index].position;
+                m_vertexData[index].position += positionDifference * m_generalSmoothing;
+            }
+        }
+    }
+}
 
-            halfuv2 = (m_vertexData[p2].uvs
-                + m_vertexData[p3].uvs) * 0.5f;
+void Cloth::UpdateSubdividedVertices()
+{
+    if(m_subdivideCloth)
+    {
+        int quad = 0;
+        int quadindex = 0;
+        D3DXVECTOR2 halfuv1, halfuv2;
+        D3DXVECTOR3 halfp1, halfp2;
+        int p1, p2, p3, p4;
 
-            m_vertexData[quadindex].position = (halfp1 + halfp2) * 0.5f;
-            m_vertexData[quadindex].uvs = (halfuv1 + halfuv2) * 0.5f;
-            m_vertexData[quadindex].normal = (m_vertexData[p2].normal 
-                + m_vertexData[p1].normal + m_vertexData[p3].normal 
-                + m_vertexData[p4].normal) * 0.25f;
+        for(int x = 0; x < m_particleLength-1; ++x)
+        {
+            for(int y = 0; y < m_particleLength-1; ++y)
+            {
+                p1 = (x*m_particleLength)+y;
+                p2 = ((x+1)*m_particleLength)+y;
+                p3 = (x*m_particleLength)+y+1;
+                p4 = ((x+1)*m_particleLength)+y+1;
+                quadindex = m_particleCount + quad;
 
-            quad += 1;
+                halfp1 = (m_vertexData[p1].position
+                    + m_vertexData[p4].position) * 0.5f;
+
+                halfp2 = (m_vertexData[p2].position
+                    + m_vertexData[p3].position) * 0.5f;
+
+                halfuv1 = (m_vertexData[p1].uvs
+                    + m_vertexData[p4].uvs) * 0.5f;
+
+                halfuv2 = (m_vertexData[p2].uvs
+                    + m_vertexData[p3].uvs) * 0.5f;
+
+                m_vertexData[quadindex].position = (halfp1 + halfp2) * 0.5f;
+                m_vertexData[quadindex].uvs = (halfuv1 + halfuv2) * 0.5f;
+                m_vertexData[quadindex].normal = (m_vertexData[p2].normal 
+                    + m_vertexData[p1].normal + m_vertexData[p3].normal 
+                    + m_vertexData[p4].normal) * 0.25f;
+
+                quad += 1;
+            }
         }
     }
 }
