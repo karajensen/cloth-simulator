@@ -31,22 +31,20 @@ struct VS_OUTPUT
 	float2 UV           :TEXCOORD2;
 };                 
                         
-// Vertex Shader
-VS_OUTPUT VShader(float4 inPos    :POSITION, 
-                  float3 inNormal :NORMAL,
-				  float2 inUV     :TEXCOORD0)
+VS_OUTPUT VShader(float4 position  :POSITION, 
+                  float3 normal    :NORMAL,
+				  float2 uv        :TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
-    output.Position = mul(inPos, WorldViewProjection); 
-    output.Normal = mul(inNormal,WorldInvTrans);
-    output.LightVector = LightPosition - mul(inPos, World);
-	output.UV = inUV;
+    output.Position = mul(position, WorldViewProjection); 
+    output.Normal = mul(normal, WorldInvTrans);
+    output.LightVector = LightPosition - mul(position, World);
+	output.UV = uv;
 
     return output;
 }
 
-//Pixel Shader
 float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     input.LightVector = normalize(input.LightVector);
@@ -64,7 +62,6 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     return float4(color * (diffuse + ambient), 1.0);
 }
 
-//Techniques
 technique Main
 {
     pass Pass0

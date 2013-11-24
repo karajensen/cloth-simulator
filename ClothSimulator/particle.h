@@ -90,9 +90,9 @@ public:
     void MovePosition(const D3DXVECTOR3& position);
 
     /**
-    * @return whether the collision mesh is currently undergoing collision
+    * @return whether the particle should undergo smoothing or not
     */
-    bool IsColliding() const;
+    bool RequiresSmoothing() const;
 
     /**
     * @return the internal index of the particle
@@ -128,12 +128,6 @@ public:
     void ResetAcceleration();
 
     /**
-    * Reset the motion of the particle for this tick
-    * and move it according to a new motion
-    */
-    void ChangeMotion(const D3DXVECTOR3& motion);
-
-    /**
     * Updates the required values post collision resolution
     */
     void PostCollisionUpdate();
@@ -148,16 +142,12 @@ private:
                
     D3DXVECTOR3 m_previousPosition;              ///< Current previous position this tick
     D3DXVECTOR3 m_position;                      ///< Current position in world coordinates of particle
-    D3DXVECTOR3 m_savedPreviousPosition;         ///< The previous position last tick
-    D3DXVECTOR3 m_savedPosition;                 ///< The position last tick
-    D3DXVECTOR3 m_resetTranslation;              ///< The amount to translation upon motion reset
     D3DXVECTOR3 m_acceleration;                  ///< Current acceleration of particle
     D3DXVECTOR3 m_initialPosition;               ///< Initial position of particle 
     D3DXVECTOR2 m_uvs;                           ///< Texture uvs for the particle
     Transform m_transform;                       ///< Current transform of particle
     bool m_selected;                             ///< Whether particle is selected or not
     bool m_pinned;                               ///< Whether particle is pinned or not
-    bool m_resetMotion;                          ///< Whether to reset all motion this tick or not
     unsigned int m_index;                        ///< Internal index of the particle
     std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
 };

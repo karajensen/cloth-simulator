@@ -30,7 +30,7 @@ Octree::~Octree()
 void Octree::BuildInitialTree()
 {
     const float size = PARITION_SIZE;
-    const D3DXVECTOR3 offset(-size/2.0f, GROUND_HEIGHT, -size/2.0f);
+    const D3DXVECTOR3 offset(-size / 2.0f, GROUND_HEIGHT, -size / 2.0f);
 
     m_octree->AddChild(size, D3DXVECTOR3(-size, size, -size) + offset);
     m_octree->AddChild(size, D3DXVECTOR3(0.0, size, -size)   + offset);

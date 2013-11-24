@@ -54,7 +54,7 @@ void Text::SetPosition(int xtl, int ytl)
 
 void Text::Draw()
 {    
-    m_font->DrawTextA(NULL, m_text.c_str(), m_text.length(), &m_textbox,
+    m_font->DrawTextA(nullptr, m_text.c_str(), m_text.length(), &m_textbox,
         DT_WORDBREAK|DT_NOCLIP|m_align, m_color);
 }
 

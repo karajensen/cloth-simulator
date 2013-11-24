@@ -34,8 +34,9 @@ void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA,
     if (length < combinedRadius)
     {
         particleToParticle /= length;
-        particleA.ResolveCollision(-particleToParticle*fabs(combinedRadius-length));
-        particleB.ResolveCollision(particleToParticle*fabs(combinedRadius-length)); 
+        D3DXVECTOR3 translation = particleToParticle*fabs(combinedRadius-length);
+        particleA.ResolveCollision(-translation);
+        particleB.ResolveCollision(translation);
     }
 }
 
@@ -97,8 +98,8 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 
         if(collisionFound)
         {
-            particle.ResolveCollision(
-                -hull.GetVelocity(), hull.GetShape(), true);
+            D3DXVECTOR3 translation(0.0f, 0.0f, 0.0f);
+            particle.ResolveCollision(translation, hull.GetShape());
         }
     }
 }

@@ -31,8 +31,8 @@ Shader::~Shader()
 bool Shader::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename)
 {
     ID3DXBuffer* errorlog = nullptr;
-    if(FAILED(D3DXCreateEffectFromFile(d3ddev,filename.c_str(),0,0,
-        D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY,0, &m_effect, &errorlog)))
+    if(FAILED(D3DXCreateEffectFromFile(d3ddev,filename.c_str(), 0, 0,
+        D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY, 0, &m_effect, &errorlog)))
     {
         std::string errorMessage("Shader " + filename + " has failed!");
         if(errorlog)

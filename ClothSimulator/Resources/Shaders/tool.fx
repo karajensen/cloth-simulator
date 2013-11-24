@@ -16,18 +16,16 @@ struct VS_OUTPUT
     float3 LightVector  :TEXCOORD1;
 };
 
-//Vertex Shader
-VS_OUTPUT VShader(float4 inPos    :POSITION,
-                  float3 inNormal :NORMAL)
+VS_OUTPUT VShader(float4 position  :POSITION,
+                  float3 normal    :NORMAL)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Position = mul(inPos, WorldViewProjection); 
-    output.Normal = mul(inNormal,WorldInvTrans);
-    output.LightVector = LightPosition - mul(inPos, World);
+    output.Position = mul(position, WorldViewProjection); 
+    output.Normal = mul(normal, WorldInvTrans);
+    output.LightVector = LightPosition - mul(position, World);
     return output;
 }
 
-//Pixel Shader
 float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     input.LightVector = normalize(input.LightVector);
@@ -42,7 +40,6 @@ float4 PShader(VS_OUTPUT input) :COLOR0
     return float4(diffuse.r, diffuse.g, diffuse.b, 0.7);
 }
 
-//Techniques
 technique Main
 {
     pass Pass0

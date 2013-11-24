@@ -24,13 +24,15 @@ namespace
         MAX_COLORS
     };
 
-    const int ROWS = 20;                 ///< Initial rows for the cloth 
-    const int ITERATIONS = 2;            ///< Initial iterations for the cloth
-    const float TIMESTEP = 0.45f;        ///< Initial timestep for the cloth
-    const float DAMPING = 0.9f;          ///< Initial damping for the cloth
-    const float SPACING = 0.75f;         ///< Initial particle spacing for the cloth
-    const int PARTICLE_SUBDIVISIONS = 8; ///< Subdivisions for cloth particles
-    const float SMOOTH_INCREASE = 0.01f; ///< The amount to increase when changing smoothing
+    const int ROWS = 20;                   ///< Initial rows for the cloth 
+    const int ITERATIONS = 2;              ///< Initial iterations for the cloth
+    const float TIMESTEP = 0.45f;          ///< Initial timestep for the cloth
+    const float DAMPING = 0.9f;            ///< Initial damping for the cloth
+    const float SPACING = 0.75f;           ///< Initial particle spacing for the cloth
+    const int PARTICLE_SUBDIVISIONS = 8;   ///< Subdivisions for cloth particles
+    const float SMOOTH_INCREASE = 0.01f;   ///< Increase amount when changing smoothing
+
+    const D3DXVECTOR3 STARTING_POSITION(0.5f, 8.0f, 0.0f); ///< Initial position for the cloth
 }
 
 Cloth::Cloth(EnginePtr engine) :
@@ -48,29 +50,31 @@ Cloth::Cloth(EnginePtr engine) :
     m_drawColParticles(false),
     m_spacing(0.0f),
     m_handleMode(false),
+    m_subdivideCloth(false),
     m_gravity(0,-9.8f,0),
-    m_engine(engine),
+    m_generalSmoothing(0.85f),
     m_vertexBuffer(nullptr),
     m_indexBuffer(nullptr),
-    m_subdivideCloth(false),
-    m_generalSmoothing(0.85f)
+    m_engine(engine),
+    m_template(nullptr),
+    m_data(nullptr)
 {
     m_data.reset(new MeshData());
     m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
     m_template.reset(new CollisionMesh(*this, m_engine));
     m_template->LoadSphere(true, 1.0f, PARTICLE_SUBDIVISIONS);
 
-    if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), 
-        ".\\Resources\\Textures\\square.png", &m_data->texture)))
+    const std::string path(".\\Resources\\Textures\\square.png");
+    if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), path.c_str(), &m_data->texture)))
     {
         m_data->texture = nullptr;
         ShowMessageBox("Cannot create cloth texture");
     }
 
     m_colors.resize(MAX_COLORS);
-    m_colors[NORMAL] = D3DXVECTOR3(0.0, 0.0, 1.0);
-    m_colors[PINNED] = D3DXVECTOR3(1.0, 0.0, 0.0);
-    m_colors[SELECTED] = D3DXVECTOR3(0.0, 1.0, 0.0);
+    m_colors[NORMAL] = engine->diagnostic()->GetColor(Diagnostic::BLUE);
+    m_colors[PINNED] = engine->diagnostic()->GetColor(Diagnostic::RED);
+    m_colors[SELECTED] = engine->diagnostic()->GetColor(Diagnostic::CYAN);
 
     CreateCloth(ROWS, SPACING);
 }
@@ -85,7 +89,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_particleLength = rows;
     m_particleCount = rows*rows;
 
-    //remove any particles from octree no longer needed
+    // Remove any particles from octree no longer needed
     int current = static_cast<int>(m_particles.size());
     int difference = current - m_particleCount;
     if(difference > 0)
@@ -96,13 +100,12 @@ void Cloth::CreateCloth(int rows, float spacing)
         }
     }
 
-    //create particles
+    // Create the particles
     m_particles.resize(m_particleCount);
     m_template->GetData().localWorld.SetScale(m_spacing/2.0f);
-
     const int mininum = -m_particleLength/2;
     const int maximum = m_particleLength/2;
-    const D3DXVECTOR3 startingPos(0.5f, 8.0f, 0.0f);
+
     float UVu = 0;
     float UVv = 0;
     int index = 0;
@@ -111,12 +114,12 @@ void Cloth::CreateCloth(int rows, float spacing)
     {
         for(int z = mininum; z < maximum; ++z, ++index)
         {
+            bool firstInitialisation = !m_particles[index].get();
             D3DXVECTOR2 uvs(UVu, UVv);
-            D3DXVECTOR3 position = startingPos;
+            D3DXVECTOR3 position = STARTING_POSITION;
             position.x += x*m_spacing;
             position.z += z*m_spacing;
 
-            bool firstInitialisation = !m_particles[index].get();
             if(firstInitialisation)
             {
                 m_particles[index].reset(new Particle(m_engine));
@@ -136,12 +139,12 @@ void Cloth::CreateCloth(int rows, float spacing)
         UVv += 0.5;
     }
 
-    //create vertices
+    // Create the vertices
     m_quadVertices = m_subdivideCloth ? ((m_particleLength-1)*(m_particleLength-1)) : 0;
     const int vertexCount = m_particleCount + m_quadVertices;
     m_vertexData.resize(vertexCount);
 
-    //create indices
+    // Create the indices
     const int indiciesPerTriangle = 3;
     const int trianglesPerQuad = m_subdivideCloth ? 4 : 2;
     int triangleNumber = ((m_particleLength-1)*(m_particleLength-1)) * trianglesPerQuad;
@@ -325,19 +328,18 @@ void Cloth::Draw(const D3DXVECTOR3& cameraPos, const Matrix& projection, const M
         m_data->shader->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
         m_engine->sendLightsToShader(m_data->shader);
 
-        D3DXMATRIX wit;
-        D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-        float det = D3DXMatrixDeterminant(&GetMatrix());
-        D3DXMatrixInverse(&wit, &det, &GetMatrix());
-        D3DXMatrixTranspose(&wit, &wit);
+        D3DXMATRIX worldInvTrans;
+        D3DXMATRIX worldViewProj = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+        D3DXMatrixInverse(&worldInvTrans, 0, &GetMatrix());
+        D3DXMatrixTranspose(&worldInvTrans, &worldInvTrans);
 
-        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
-        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &worldInvTrans);
+        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &worldViewProj);
         m_data->shader->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
         m_data->shader->Begin(&nPasses, 0);
-        for(UINT iPass = 0; iPass<nPasses; ++iPass)
+        for(UINT iPass = 0; iPass < nPasses; ++iPass)
         {
             m_data->shader->BeginPass(iPass);
             m_data->mesh->DrawSubset(0);
@@ -375,8 +377,10 @@ void Cloth::UnpinCloth()
 
 void Cloth::AddForce(const D3DXVECTOR3& force)
 {
-    std::for_each(m_particles.begin(), m_particles.end(), 
-        [&](const ParticlePtr& part){ part->AddForce(force); });
+    for(const ParticlePtr& particle : m_particles)
+    {
+        particle->AddForce(force);
+    }
 }
 
 void Cloth::UpdateState(double deltatime)
@@ -385,13 +389,13 @@ void Cloth::UpdateState(double deltatime)
 
     if(m_simulation || m_handleMode)
     {
-        //Move cloth down slowly
+        // Move cloth down slowly
         if(m_simulation)
         {
             AddForce(m_gravity*m_timestepSquared*static_cast<float>(deltatime));
         }
     
-        //Solve Springs
+        // Solve Springs
         for(int j = 0; j < m_springIterations; ++j)
         {
             for(const SpringPtr& spring : m_springs)
@@ -400,7 +404,7 @@ void Cloth::UpdateState(double deltatime)
             }
         }
 
-        //Updating particle positions
+        // Updating particle positions
         for(const ParticlePtr& particle : m_particles)
         {
             particle->PreCollisionUpdate(m_damping, m_timestepSquared);
@@ -418,23 +422,25 @@ void Cloth::UpdateDiagnostics()
         });
 
         m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
-            "ParticleCount", Diagnostic::YELLOW, StringCast(m_particleCount));
+            "ParticleCount", Diagnostic::WHITE, StringCast(m_particleCount));
 
         m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
-            "Smoothing", Diagnostic::YELLOW, StringCast(m_generalSmoothing));
+            "Smoothing", Diagnostic::WHITE, StringCast(m_generalSmoothing));
     }
 }
 
 void Cloth::Reset()
 {
-    std::for_each(m_particles.begin(), m_particles.end(), 
-        [&](const ParticlePtr& part){ part->ResetPosition(); });
+    for(const ParticlePtr& particle : m_particles)
+    {
+        particle->ResetPosition();
+    }
     UpdateVertexBuffer();
 }
 
 Cloth::ParticlePtr& Cloth::GetParticle(int row, int column)
 {
-    return m_particles[column*m_particleLength + row];
+    return m_particles[(column * m_particleLength) + row];
 }
 
 void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
@@ -461,34 +467,32 @@ bool Cloth::MousePickingTest(Picking& input)
     if(m_drawVisualParticles && !input.IsLocked())
     {
         int indexChosen = NO_INDEX;
-        for(int i = 0; i < m_particleCount; ++i)
+        for(int index = 0; index < m_particleCount; ++index)
         {
             D3DXMATRIX worldInverse;
-            D3DXMatrixInverse(&worldInverse, NULL,
-                &m_particles[i]->GetCollisionMesh().CollisionMatrix().GetMatrix());
+            auto collision = m_particles[index]->GetCollisionMesh().CollisionMatrix();
+            D3DXMatrixInverse(&worldInverse, 0, &collision.GetMatrix());
 
-            D3DXVECTOR3 rayObjOrigin;
-            D3DXVECTOR3 rayObjDirection;
-                
+            D3DXVECTOR3 rayObjOrigin, rayObjDirection;
             D3DXVec3TransformCoord(&rayObjOrigin, &input.GetRayOrigin(), &worldInverse);
             D3DXVec3TransformNormal(&rayObjDirection, &input.GetRayDirection(), &worldInverse);
             D3DXVec3Normalize(&rayObjDirection, &rayObjDirection);
     
-            BOOL hasHit; 
-            if(FAILED(D3DXIntersect(m_particles[i]->GetCollisionMesh().GetMesh(), &rayObjOrigin, 
-                &rayObjDirection, &hasHit, NULL, NULL, NULL, NULL, NULL, NULL)))
+            BOOL hasHit = 0;
+            if(FAILED(D3DXIntersect(m_particles[index]->GetCollisionMesh().GetMesh(), &rayObjOrigin, 
+                &rayObjDirection, &hasHit, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr)))
             {
-                hasHit = false; //Call failed for any reason continue to next mesh.
+                hasHit = 0; // Call failed for any reason continue to next mesh.
             }
     
             if(hasHit)
             {
-                D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-m_particles[i]->GetPosition();
+                D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-m_particles[index]->GetPosition();
                 float distanceToCollisionMesh = D3DXVec3Length(&cameraToMesh);
                 if(distanceToCollisionMesh < input.GetDistanceToMesh())
                 {
                     input.SetPickedMesh(this, distanceToCollisionMesh);
-                    indexChosen = i;
+                    indexChosen = index;
                 }
             }
         }
@@ -520,15 +524,14 @@ void Cloth::MovePinnedRow(float right, float up, float forward)
 {
     if(m_handleMode)
     {
-        D3DXVECTOR3 direction(right,up,forward);
-        auto addForce = [&](const ParticlePtr& part)
-        { 
-            if(part->IsSelected())
+        D3DXVECTOR3 direction(right, up, forward);
+        for(const ParticlePtr& particle : m_particles)
+        {
+            if(particle->IsSelected())
             { 
-                part->AddForce(direction); 
+                particle->AddForce(direction); 
             } 
-        };
-        std::for_each(m_particles.begin(), m_particles.end(), addForce);
+        }
     }
 }
 
@@ -736,7 +739,7 @@ void Cloth::SmoothCloth()
             for(int y = 1; y < m_particleLength-1; ++y)
             {
                 index = (x*m_particleLength)+y;
-                if(!m_particles[index]->IsColliding())
+                if(m_particles[index]->RequiresSmoothing())
                 {
                     p1 = ((x+1)*m_particleLength)+y+1;
                     p2 = ((x+1)*m_particleLength)+y-1;

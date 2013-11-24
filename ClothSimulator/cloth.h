@@ -7,7 +7,6 @@
 #include "mesh.h"
 
 class CollisionMesh;
-class CollisionSolver;
 class Particle;
 class Spring;
 
@@ -290,7 +289,6 @@ private:
     std::vector<ParticlePtr> m_particles;         ///< Particles across the cloth grid
     std::vector<Vertex> m_vertexData;             ///< DirectX Vertex data
     std::vector<DWORD> m_indexData;               ///< DirectX Index data
-    std::shared_ptr<CollisionSolver> m_collision; ///< collision solver for the cloth
     std::shared_ptr<CollisionMesh> m_template;    ///< Template collision for all particles
     std::shared_ptr<MeshData> m_data;             ///< Data for rendering/instancing the mesh
 };

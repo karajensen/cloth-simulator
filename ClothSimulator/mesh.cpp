@@ -62,8 +62,8 @@ Mesh::~Mesh()
 bool Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, int dimensions, int miplevels)
 {
     if(FAILED(D3DXCreateTextureFromFileEx(d3ddev, filename.c_str(), dimensions, 
-        dimensions, miplevels, NULL, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
-        D3DX_DEFAULT, NULL, NULL, NULL, &m_data->texture)))
+        dimensions, miplevels, 0, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
+        D3DX_DEFAULT, 0, 0, 0, &m_data->texture)))
     {
         ShowMessageBox("Cannot create texture " + filename);
         return false;
@@ -76,7 +76,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFF
     m_index = index;
     m_data->shader = shader;
 
-    //Create a assimp mesh
+    // Create a assimp mesh
     std::string errorBuffer;
     Assimpmesh mesh;
     if(!mesh.Initialise(filename, errorBuffer))
@@ -91,7 +91,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFF
 
     for(unsigned int i = 0; i < subMeshes.size(); ++i)
     {
-        //Fill in vertex data
+        // Fill in vertex data
         for(unsigned int j = 0; j < subMeshes[i].vertices.size(); ++j)
         {
             Vertex v;
@@ -112,8 +112,8 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFF
         }
     }
 
-    //Mesh Vertex Declaration
-    D3DVERTEXELEMENT9 VertexDec[] =
+    // Mesh Vertex Declaration
+    D3DVERTEXELEMENT9 VertexDecl[] =
     {
         { 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
         { 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL,   0 },     
@@ -121,19 +121,15 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFF
         D3DDECL_END()
     };
 
-    //Create the DirectX Mesh
-    if(FAILED(D3DXCreateMesh(indexData.size()/3,
-                             vertexData.size(),
-                             D3DXMESH_MANAGED | D3DXMESH_32BIT,
-                             VertexDec,
-                             d3ddev,
-                             &m_data->mesh)))
+    // Create the DirectX Mesh
+    if(FAILED(D3DXCreateMesh(indexData.size()/3, vertexData.size(), 
+        D3DXMESH_MANAGED | D3DXMESH_32BIT, VertexDecl, d3ddev, &m_data->mesh)))
     {
         ShowMessageBox("Mesh " + filename + " creation failed");
         return false;
     }
 
-    //Fill in the vertex buffer
+    // Fill in the vertex buffer
     Vertex* pVertexBuffer;
     if(FAILED( m_data->mesh->LockVertexBuffer(0, (void**)&pVertexBuffer)))
     {
@@ -144,7 +140,7 @@ bool Mesh::Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, LPD3DXEFF
     std::copy(vertexData.begin(), vertexData.end(), pVertexBuffer);
     m_data->mesh->UnlockVertexBuffer();
 
-    //Fill in the index buffer
+    // Fill in the index buffer
     DWORD* pm_indexBuffer;
     if(FAILED(m_data->mesh->LockIndexBuffer(0, (void**)&pm_indexBuffer)))
     {
@@ -199,19 +195,18 @@ void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
         m_data->shader->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
         m_engine->sendLightsToShader(m_data->shader);
 
-        D3DXMATRIX wit;
-        D3DXMATRIX wvp = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-        float det = D3DXMatrixDeterminant(&GetMatrix());
-        D3DXMatrixInverse(&wit, &det, &GetMatrix());
-        D3DXMatrixTranspose(&wit, &wit);
+        D3DXMATRIX worldInvTrans;
+        D3DXMATRIX worldViewProj = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+        D3DXMatrixInverse(&worldInvTrans, 0, &GetMatrix());
+        D3DXMatrixTranspose(&worldInvTrans, &worldInvTrans);
 
-        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &wit);
-        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
+        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &worldInvTrans);
+        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &worldViewProj);
         m_data->shader->SetMatrix(DxConstant::World, &GetMatrix());
 
         UINT nPasses = 0;
         m_data->shader->Begin(&nPasses, 0);
-        for(UINT iPass = 0; iPass<nPasses; ++iPass)
+        for(UINT iPass = 0; iPass < nPasses; ++iPass)
         {
             m_data->shader->BeginPass(iPass);
             m_data->mesh->DrawSubset(0);
@@ -253,12 +248,12 @@ bool Mesh::MousePickingTest(Picking& input)
         D3DXVec3TransformNormal(&rayDirection, &input.GetRayDirection(), &worldInverse);
         D3DXVec3Normalize(&rayDirection, &rayDirection);
 
-        BOOL hasHit; 
+        BOOL hasHit = 0;
         float distanceToCollisionMesh;
-        if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, 
-            &hasHit, NULL, NULL, NULL, &distanceToCollisionMesh, NULL, NULL)))
+        if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, &hasHit,
+            nullptr, nullptr, nullptr, &distanceToCollisionMesh, nullptr, nullptr)))
         {
-            hasHit = false; //Call failed for any reason continue to next mesh.
+            hasHit = 0; // Call failed for any reason continue to next mesh.
         }
 
         if(hasHit)

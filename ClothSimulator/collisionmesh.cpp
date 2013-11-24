@@ -5,38 +5,50 @@
 #include "collisionmesh.h"
 #include "partition.h"
 #include "shader.h"
+#include <assert.h>
 
 namespace
 {
     const int MINBOUND = 0; ///< Index for the minbound entry in the AABB
     const int MAXBOUND = 6; ///< Index for the maxbound entry in the AABB
-    const int CORNERS = 8; ///< Number of corners in a cube
+    const int CORNERS = 8;  ///< Number of corners in a cube
 
     /**
-    * D3DX Primitive Vertex structure
+    * D3DX Mesh Primitive Vertex structure
     */
     struct D3DXVertex
     {
         D3DXVECTOR3 position;   ///< Vertex position
         D3DXVECTOR3 normal;     ///< Vertex normal
     };
+
+    /**
+    * Collision Type bit flags
+    */
+    enum
+    {
+        NO_COLLISION = 0,
+        BOX_COLLISION = 1,
+        SPHERE_COLLISION = 2,
+        CYLINDER_COLLISION = 4
+    };
 }
 
 CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
-    m_draw(false),
+    m_engine(engine),
     m_parent(parent),
+    m_partition(nullptr),
+    m_positionDelta(0.0f, 0.0f, 0.0f),
     m_colour(1.0f, 1.0f, 1.0f),
     m_inCollisionColor(0.0f, 0.0f, 0.0f),
-    m_geometry(nullptr),
     m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
-    m_engine(engine),
-    m_radius(0.0f),
-    m_partition(nullptr),
+    m_geometry(nullptr),
     m_resolveFn(nullptr),
-    m_resetFn(nullptr),
-    m_isUnderCollision(false),
+    m_interactingGeometry(NONE),
+    m_draw(false),
+    m_requiresFullUpdate(false),
     m_requiresPositionalUpdate(false),
-    m_requiresFullUpdate(false)
+    m_radius(0.0f)
 {
     m_oabb.resize(CORNERS);
 }
@@ -60,10 +72,8 @@ CollisionMesh::Geometry::~Geometry()
     } 
 }
 
-void CollisionMesh::MakeDynamic(CollisionMesh::MotionFn resetFn,
-                                CollisionMesh::MotionFn resolveFn)
+void CollisionMesh::MakeDynamic(CollisionMesh::MotionFn resolveFn)
 {
-    m_resetFn = resetFn;
     m_resolveFn = resolveFn;
 }
 
@@ -266,7 +276,7 @@ void CollisionMesh::DrawDiagnostics()
         auto getPointColor = [=](int index) -> Diagnostic::Colour
         {
             return index == MINBOUND || index == MAXBOUND ?
-                Diagnostic::BLUE : Diagnostic::PURPLE;
+                Diagnostic::BLUE : Diagnostic::CYAN;
         };
 
         const float radius = 0.2f;
@@ -282,15 +292,15 @@ void CollisionMesh::DrawDiagnostics()
                 id + "cB" + corner, getPointColor(i+4), m_oabb[i+4], radius);
 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lA" + corner, Diagnostic::PURPLE, 
+                id + "lA" + corner, Diagnostic::CYAN, 
                 m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
             
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lB" + corner, Diagnostic::PURPLE, 
+                id + "lB" + corner, Diagnostic::CYAN, 
                 m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
                 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lC" + corner, Diagnostic::PURPLE, 
+                id + "lC" + corner, Diagnostic::CYAN, 
                 m_oabb[i], m_oabb[i+4]);
         }
 
@@ -304,26 +314,25 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
+        // Set the transforms
         D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
         m_shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
         m_shader->SetTechnique(DxConstant::DefaultTechnique);
 
         // Determine color of collision mesh
-        if(m_isUnderCollision)
+        D3DXVECTOR3 color = m_colour;
+        if(!IsCollidingWith(NONE))
         {
-            m_isUnderCollision = false;
-            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_inCollisionColor.x), 3);
+            color = m_inCollisionColor;
         }
         else if(m_partition)
         {
-            m_shader->SetFloatArray(DxConstant::VertexColor, 
-                &(m_engine->diagnostic()->GetColor(m_partition->GetColor()).x), 3);
+            color = m_engine->diagnostic()->GetColor(m_partition->GetColor());
         }
-        else
-        {
-            m_shader->SetFloatArray(DxConstant::VertexColor, &(m_colour.x), 3);
-        }
+        m_interactingGeometry = NO_COLLISION;
+        m_shader->SetFloatArray(DxConstant::VertexColor, &(color.x), 3);
 
+        // Render the Mesh
         UINT nPasses = 0;
         m_shader->Begin(&nPasses, 0);
         for(UINT pass = 0; pass < nPasses; ++pass)
@@ -344,11 +353,6 @@ const CollisionMesh::Data& CollisionMesh::GetData() const
 CollisionMesh::Data& CollisionMesh::GetData()
 {
     return m_data;
-}
-
-const D3DXVECTOR3& CollisionMesh::GetVelocity() const
-{
-    return m_positionDelta;
 }
 
 void CollisionMesh::FullUpdate()
@@ -418,6 +422,7 @@ void CollisionMesh::UpdateCollision()
             m_engine->octree()->UpdateObject(*this);
         }
 
+        // Reset variables
         m_requiresFullUpdate = false;
         m_requiresPositionalUpdate = false;
         m_positionDelta.x = 0.0f;
@@ -434,6 +439,8 @@ const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const
 void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
 {
     //assumes the mesh is a sphere with no scaling from parent
+    assert(m_geometry->shape == SPHERE);
+
     float scale = m_data.localWorld.GetScale().x;
     m_world.MatrixPtr()->_11 = radius;
     m_world.MatrixPtr()->_22 = radius;
@@ -454,19 +461,42 @@ Partition* CollisionMesh::GetPartition() const
     return m_partition;
 }
 
-void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape, bool resetMotion)
+unsigned int CollisionMesh::GetCollisionType(CollisionMesh::Shape shape)
+{
+    switch(shape)
+    {
+    case BOX:
+        return BOX_COLLISION;
+    case SPHERE:
+        return SPHERE_COLLISION;
+    case CYLINDER:
+        return CYLINDER_COLLISION;
+    case NONE:
+    default:
+        return NO_COLLISION;
+    }
+}
+
+void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, Shape shape)
 {
     if(IsDynamic())
     {
         if(shape != NONE)
         {
-            m_isUnderCollision = true;
+            m_interactingGeometry &= ~NO_COLLISION;
+            m_interactingGeometry |= GetCollisionType(shape);
         }
-        resetMotion ? m_resetFn(translation) : m_resolveFn(translation);
+        m_resolveFn(translation);
     }
 }
 
 bool CollisionMesh::IsDynamic() const
 {
-    return m_resolveFn != nullptr && m_resetFn != nullptr;
+    return m_resolveFn != nullptr;
+}
+
+bool CollisionMesh::IsCollidingWith(CollisionMesh::Shape shape)
+{
+    unsigned int collisionType = GetCollisionType(shape);
+    return (m_interactingGeometry & collisionType) == collisionType;
 }

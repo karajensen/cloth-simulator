@@ -60,6 +60,7 @@ private:
 
     /**
     * Detects and solves a collision between a convex hull and a particle
+    * @note uses a combination of GJK and EPA for detection and resolution
     * @param particle The collision mesh for the particle
     * @param hull The collision mesh for the convex hull
     */

@@ -10,21 +10,18 @@ struct VS_OUTPUT
     float4 Position :POSITION;
 };
 
-//Vertex Shader
-VS_OUTPUT VShader(float4 inPos :POSITION)
+VS_OUTPUT VShader(float4 position :POSITION)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Position = mul(inPos, WorldViewProjection);
+    output.Position = mul(position, WorldViewProjection);
     return output;
 }
 
-//Pixel Shader
 float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     return float4(VertexColor.r, VertexColor.g, VertexColor.b, 0.2);
 }
 
-//Techniques
 technique Main
 {
     pass Pass0

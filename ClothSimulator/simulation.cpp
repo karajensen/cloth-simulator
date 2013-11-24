@@ -61,7 +61,7 @@ void Simulation::Render()
     m_diagnostics->DrawAllText();
 
     m_d3ddev->EndScene();
-    m_d3ddev->Present(NULL, NULL, NULL, NULL);
+    m_d3ddev->Present(nullptr, nullptr, nullptr, nullptr);
 
     D3DPERF_EndEvent();
 }
@@ -220,23 +220,23 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->AddClickPreventionKey(DIK_LALT);
     
     // Controlling the cloth
-    m_input->SetKeyCallback(DIK_W, true, 
-        [&](){ m_cloth->MovePinnedRow(-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
+    m_input->SetKeyCallback(DIK_W, true, [&](){ m_cloth->MovePinnedRow(
+        -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_S, true, 
-        [&](){ m_cloth->MovePinnedRow(m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f,0.0f); });
+    m_input->SetKeyCallback(DIK_S, true, [&](){ m_cloth->MovePinnedRow(
+        m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_A, true, 
-        [&](){ m_cloth->MovePinnedRow(0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
+    m_input->SetKeyCallback(DIK_A, true, [&](){ m_cloth->MovePinnedRow(
+        0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_D, true, 
-        [&](){ m_cloth->MovePinnedRow(0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED,0.0f); });
+    m_input->SetKeyCallback(DIK_D, true, [&](){ m_cloth->MovePinnedRow(
+        0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_Q, true, 
-        [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,-m_timer->GetDeltaTime()*HANDLE_SPEED); });
+    m_input->SetKeyCallback(DIK_Q, true, [&](){ m_cloth->MovePinnedRow(
+        0.0f, 0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED); });
     
-    m_input->SetKeyCallback(DIK_E, true, 
-        [&](){ m_cloth->MovePinnedRow(0.0f,0.0f,m_timer->GetDeltaTime()*HANDLE_SPEED); });
+    m_input->SetKeyCallback(DIK_E, true, [&](){ m_cloth->MovePinnedRow(
+        0.0f, 0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED); });
     
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 

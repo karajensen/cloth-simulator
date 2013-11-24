@@ -8,10 +8,10 @@ float4x4 WorldInvTrans        :WorldInverseTranspose;
 
 float3 CameraPosition;
 float3 LightPosition;
-float AmbientIntensity;     
 float3 AmbientColor;
-float DiffuseIntensity;     
 float3 DiffuseColor;
+float AmbientIntensity;
+float DiffuseIntensity;     
 float SpecularIntensity;    
 float SpecularSize;
 
@@ -35,25 +35,23 @@ struct VS_OUTPUT
     float2 UV            :TEXCOORD3;
 };
 
-//Vertex Shader
-VS_OUTPUT VShader(float4 inPos     :POSITION, 
-                  float3 inNormal  :NORMAL,
-                  float2 inUV      :TEXCOORD0)
+VS_OUTPUT VShader(float4 position :POSITION, 
+                  float3 normal   :NORMAL,
+                  float2 uv       :TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
-    output.Position = mul(inPos, WorldViewProjection); 
-    float3 PosWorld = mul(inPos, World); 
+    output.Position = mul(position, WorldViewProjection); 
+    float3 PosWorld = mul(position, World); 
    
-    output.Normal = mul(inNormal,WorldInvTrans);
+    output.Normal = mul(normal,WorldInvTrans);
     output.LightVector = LightPosition - PosWorld;
     output.CameraVector = CameraPosition - PosWorld;
-    output.UV = inUV;
+    output.UV = uv;
     
     return output;
 }
 
-//Pixel Shader
 float4 PShader(VS_OUTPUT input) :COLOR0
 {   
     input.Normal = normalize(input.Normal);
@@ -73,7 +71,6 @@ float4 PShader(VS_OUTPUT input) :COLOR0
         + (AmbientIntensity * AmbientColor) + specular, 1.0);
 }
 
-//Techniques
 technique Main
 {
     pass Pass0

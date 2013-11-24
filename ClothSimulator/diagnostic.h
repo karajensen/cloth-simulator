@@ -7,7 +7,6 @@
 #include <array>
 #include "common.h"
 
-class Shader;
 class Text;
 
 /**
@@ -27,7 +26,7 @@ public:
         BLUE,
         YELLOW,
         GREEN,
-        PURPLE,
+        CYAN,
         MAX_COLORS
     };
 

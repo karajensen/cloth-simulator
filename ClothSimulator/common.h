@@ -39,10 +39,10 @@ template<typename T> T RadToDeg(T radians)
 /**
 * Output the given value as a string
 */
-typedef std::stringstream sstream;
 template<typename T> std::string StringCast(const T& value)
 {
-    return static_cast<sstream&>(sstream() << value).str();
+    return static_cast<std::stringstream&>(
+        std::stringstream() << value).str();
 }
 
 /**
