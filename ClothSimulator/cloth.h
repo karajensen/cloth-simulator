@@ -55,10 +55,10 @@ public:
     bool MousePickingTest(Picking& input);
 
     /**
-    * Updates the cloth state
+    * Updates the cloth state before collision solving
     * @param deltatime the time between frames
     */
-    void UpdateState(double deltatime);
+    void PreCollisionUpdate(double deltatime);
 
     /**
     * Resets the cloth to its initial state

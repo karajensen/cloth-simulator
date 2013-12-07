@@ -1,8 +1,8 @@
 
 
-• EPA (Expanding Polytope Algorithm)
-• Update folio/make video
-
+• EPA algorithm
+• Changing/capping range of delta time
+• Testing largest/smallest dt with animation
 
 =================================================================
 CLOTH SIMULATOR

@@ -255,6 +255,11 @@ public:
     */
     bool IsCollidingWith(Shape shape);
 
+    /**
+    * @return the velocity for the collision mesh
+    */
+    const D3DXVECTOR3& GetVelocity() const;
+
 private:
 
     /**

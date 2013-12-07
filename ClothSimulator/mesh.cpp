@@ -166,10 +166,8 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisi
     return true;
 }
 
-void Mesh::Update(float deltatime)
+void Mesh::UpdateCollision()
 {
-    Animate(deltatime);
-
     if(HasCollisionMesh())
     {
         m_collision->UpdateCollision();

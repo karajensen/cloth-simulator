@@ -383,7 +383,7 @@ void Cloth::AddForce(const D3DXVECTOR3& force)
     }
 }
 
-void Cloth::UpdateState(double deltatime)
+void Cloth::PreCollisionUpdate(double deltatime)
 {
     UpdateDiagnostics();
 

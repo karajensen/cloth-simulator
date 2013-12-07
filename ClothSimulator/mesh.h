@@ -92,10 +92,9 @@ public:
     void DrawDiagnostics();
 
     /**
-    * Updates and animates the mesh and collision mesh
-    * @param deltatime The time passed between ticks
+    * Updates the mesh collision
     */
-    void Update(float deltatime);
+    void UpdateCollision();
 
     /**
     * Tests whether mesh was clicked
@@ -209,13 +208,13 @@ public:
     */
     const std::vector<D3DXVECTOR3>& GetAnimationPoints() const;
 
-private:
-
     /**
     * Animates the mesh through the list of animation points
     * @param deltatime The time passed since last frame
     */
     void Animate(float deltatime);
+
+private:
 
     /**
     * Toggle whether this mesh is selected or not

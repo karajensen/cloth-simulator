@@ -100,15 +100,20 @@ public:
     void ManipulatorPickingTest(Picking& picking);
 
     /**
-    * Updates the state of the scene
+    * Updates the state of the scene pre collision solving
     * @param pressed Whether the mouse is currently being pressed
     * @param direction The mouse movement direction
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
     * @param deltatime The deltatime for the simulation
     */
-    void UpdateState(bool pressed, const D3DXVECTOR2& direction,
+    void PreCollisionUpdate(bool pressed, const D3DXVECTOR2& direction,
         const Matrix& world, const Matrix& invProjection, float deltatime);
+
+    /**
+    * Updates the state of the scene post collision solving
+    */
+    void PostCollisionUpdate();
 
     /**
     * Solves the collisions between objects

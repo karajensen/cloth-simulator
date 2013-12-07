@@ -70,8 +70,8 @@ void Simulation::Update()
 {
     D3DPERF_BeginEvent(UPDATE_COLOR, L"Simulation::Update");
 
-    double deltaTime = m_timer->UpdateTimer();
-    bool pressed = m_input->IsClickPreventionActive() 
+    const double deltaTime = m_timer->UpdateTimer();
+    const bool pressed = m_input->IsClickPreventionActive() 
         ? false : m_input->IsMousePressed();
 
     m_input->UpdateInput();
@@ -86,13 +86,15 @@ void Simulation::Update()
         m_input->SolvePicking();
     }
 
-    m_cloth->UpdateState(deltaTime);
-    m_scene->UpdateState(pressed, m_input->GetMouseDirection(),
+    m_cloth->PreCollisionUpdate(deltaTime);
+    m_scene->PreCollisionUpdate(pressed, m_input->GetMouseDirection(),
         m_camera->World(), m_camera->InverseProjection(), 
         static_cast<float>(deltaTime));
 
     m_scene->SolveCollisions();
+
     m_cloth->PostCollisionUpdate();
+    m_scene->PostCollisionUpdate();
 
     D3DPERF_EndEvent();
 }

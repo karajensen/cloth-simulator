@@ -6,6 +6,7 @@
 #include "common.h"
 #include "callbacks.h"
 
+struct Face;
 class Simplex;
 class Particle;
 class Cloth;
@@ -60,7 +61,6 @@ private:
 
     /**
     * Detects and solves a collision between a convex hull and a particle
-    * @note uses a combination of GJK and EPA for detection and resolution
     * @param particle The collision mesh for the particle
     * @param hull The collision mesh for the convex hull
     */
@@ -76,7 +76,7 @@ private:
     /**
     * Generates the furthest point along a direction from a set of points
     * @param direction The direction to search along
-    * @param vertices The set of points to search
+    * @param points The set of points to search
     * @return The furthest point in the set along the given direction
     */
     const D3DXVECTOR3& FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
@@ -106,15 +106,42 @@ private:
     * @param simplex The plane simplex of three points
     * @param direction The current search direction to modify
     */
-    void SolvePlaneSimplex(const Simplex& simplex, D3DXVECTOR3& direction);
+    void SolvePlaneSimplex(Simplex& simplex, D3DXVECTOR3& direction);
 
     /**
     * Determines the next search direction given a tetrahedron simplex
-    * @param simplex The plane simplex of three points
+    * @param simplex The tetrahedron simplex of four points
     * @param direction The current search direction to modify
     * @return whether the origin is inside the simplex 
     */
     bool SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& direction);
+
+    /**
+    * Uses the GJK Algorithm to determine collision between two convex hulls
+    * @param particle The collision mesh for the particle
+    * @param hull The collision mesh for the convex hull
+    * @param simplex An empty simplex to fill with at most four points
+    * @return whether the two convex hulls are colliding
+    */
+    bool AreConvexHullsColliding(const CollisionMesh& particle, 
+        const CollisionMesh& hull, Simplex& simplex);
+
+    /**
+    * Uses the theory of EPA to determine penetration between two convex hulls
+    * @param particle The collision mesh for the particle
+    * @param hull The collision mesh for the convex hull
+    * @param simplex The tetrahedron simplex encasing the origin
+    * @return The direction and magnitude of penetration between the hulls
+    */
+    D3DXVECTOR3 GetConvexHullPenetration(const CollisionMesh& particle, 
+        const CollisionMesh& hull, Simplex& simplex);
+
+    /**
+    * Finds the closest triangle face to the origin point
+    * @param simplex A simplex of n-dimensions with connecting faces
+    * @return The closest face within the simplex to the origin
+    */
+    const Face& GetClosestFace(Simplex& simplex);
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine

@@ -422,13 +422,13 @@ void CollisionMesh::UpdateCollision()
             m_engine->octree()->UpdateObject(*this);
         }
 
-        // Reset variables
         m_requiresFullUpdate = false;
         m_requiresPositionalUpdate = false;
-        m_positionDelta.x = 0.0f;
-        m_positionDelta.y = 0.0f;
-        m_positionDelta.z = 0.0f;
     }
+
+    m_positionDelta.x = 0.0f;
+    m_positionDelta.y = 0.0f;
+    m_positionDelta.z = 0.0f;
 }
 
 const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const
@@ -499,4 +499,9 @@ bool CollisionMesh::IsCollidingWith(CollisionMesh::Shape shape)
 {
     unsigned int collisionType = GetCollisionType(shape);
     return (m_interactingGeometry & collisionType) == collisionType;
+}
+
+const D3DXVECTOR3& CollisionMesh::GetVelocity() const
+{
+    return m_positionDelta;
 }

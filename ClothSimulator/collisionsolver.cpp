@@ -11,6 +11,7 @@
 namespace
 {
     const int MAX_ITERATIONS = 30;  ///< Max iterations for collision detection
+    const float EPSILON = 0.001f; ///< Small threshold value for comparisons
 }
 
 CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
@@ -50,64 +51,139 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 
     if (length < combinedRadius)
     {
-        // If two convex hulls have collided, the Minkowski Difference 
-        // of their hulls will contain the origin. GJK generates a simplex
-        // that encases the Minkowski Difference points to test for this.
-        // Reference: http://physics2d.com/content/gjk-algorithm
-
         Simplex simplex;
-        const std::vector<D3DXVECTOR3>& particleVertices = particle.GetVertices();
-        const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
-
-        // Determine an initial point for the simplex
-        const int initialIndex = 0;
-        D3DXVECTOR3 direction = particleVertices[initialIndex] - hullVertices[initialIndex];
-        D3DXVECTOR3 lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
-        simplex.AddPoint(lastEdgePoint);
-
-        direction = -direction;
-        int iteration = 0;
-        bool collisionFound = false;
-        bool collisionPossible = true;
-
-        // Iteratively create the simplex
-        while(iteration < MAX_ITERATIONS && !collisionFound && collisionPossible)
+        if(AreConvexHullsColliding(particle, hull, simplex))
         {
-            ++iteration;
-            lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
-            simplex.AddPoint(lastEdgePoint);
-
-            if(D3DXVec3Dot(&lastEdgePoint, &direction) <= 0)
-            {
-                // New edge point of simplex is not past the origin.
-                collisionPossible = false;
-            }
-            else if(simplex.IsLine())
-            {
-                SolveLineSimplex(simplex, direction);
-            }
-            else if(simplex.IsTriPlane())
-            {
-                SolvePlaneSimplex(simplex, direction);
-            }
-            else if(simplex.IsTetrahedron())
-            {
-                collisionFound = SolveTetrahedronSimplex(simplex, direction);
-            }
-        }
-
-        if(collisionFound)
-        {
-            D3DXVECTOR3 translation(0.0f, 0.0f, 0.0f);
-            particle.ResolveCollision(translation, hull.GetShape());
+            D3DXVECTOR3 penetration = GetConvexHullPenetration(particle, hull, simplex);
+            particle.ResolveCollision(penetration, hull.GetShape());
         }
     }
 }
 
+bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle, 
+                                              const CollisionMesh& hull, 
+                                              Simplex& simplex)
+{
+    // If two convex hulls have collided, the Minkowski Difference of both 
+    // hulls will contain the origin. Reference from 'Proximity Queries and 
+    // Penetration Depth Computation on 3D Game Objects' by Gino van den Bergen.
+
+    const std::vector<D3DXVECTOR3>& particleVertices = particle.GetVertices();
+    const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
+
+    // Determine an initial point for the simplex
+    const int initialIndex = 0;
+    D3DXVECTOR3 direction = particleVertices[initialIndex] - hullVertices[initialIndex];
+    D3DXVECTOR3 lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
+    simplex.AddPoint(lastEdgePoint);
+
+    direction = -direction;
+    int iteration = 0;
+    bool collisionFound = false;
+    bool collisionPossible = true;
+
+    // Iteratively create a simplex within the Minkowski Difference hull
+    while(iteration < MAX_ITERATIONS && !collisionFound && collisionPossible)
+    {
+        ++iteration;
+        lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
+        simplex.AddPoint(lastEdgePoint);
+
+        if(D3DXVec3Dot(&lastEdgePoint, &direction) <= 0)
+        {
+            // New edge point of simplex is not past the origin.
+            collisionPossible = false;
+        }
+        else if(simplex.IsLine())
+        {
+            SolveLineSimplex(simplex, direction);
+        }
+        else if(simplex.IsTriPlane())
+        {
+            SolvePlaneSimplex(simplex, direction);
+        }
+        else if(simplex.IsTetrahedron())
+        {
+            collisionFound = SolveTetrahedronSimplex(simplex, direction);
+        }
+    }
+    return collisionFound;
+}
+
+D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& particle, 
+                                                      const CollisionMesh& hull, 
+                                                      Simplex& simplex)
+{
+    simplex.GenerateFaces();
+    D3DXVECTOR3 furthestPoint;
+    D3DXVECTOR3 penetration = D3DXVECTOR3(0,0,0);
+    bool penetrationFound = false;
+
+    while(!penetrationFound)
+    {
+        const Face& closestFace = GetClosestFace(simplex);
+        furthestPoint = GetMinkowskiDifferencePoint(-closestFace.normal, particle, hull);
+        if(D3DXVec3Length(&furthestPoint) - closestFace.distanceToOrigin < EPSILON)
+        {
+            // The penetration vector is the normal of the closest
+            // Minkowski Difference hull face to the origin
+            penetration = closestFace.normal * closestFace.distanceToOrigin;
+            penetrationFound = true;
+        }
+        else
+        {
+            // The hull extends past this face. Connect the points
+            // of the closest face up to the found point instead.
+            simplex.ExtendFace(closestFace.index, furthestPoint);
+        }
+    }
+
+    return penetration;
+}
+
+const Face& CollisionSolver::GetClosestFace(Simplex& simplex)
+{
+    int closest = 0;
+    const auto& faces = simplex.GetFaces();
+    for(unsigned int i = 0; i < faces.size(); ++i)
+    {
+        if(faces[i].distanceToOrigin < faces[closest].distanceToOrigin)
+        {
+            closest = i;
+        }
+    }
+    return faces[closest];
+}
+
+const D3DXVECTOR3& CollisionSolver::FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
+                                                      const D3DXVECTOR3& direction) const
+{
+    int furthestIndex = 0;
+    float furthestDot = D3DXVec3Dot(&points[furthestIndex], &direction);
+    for(unsigned int i = 1; i < points.size(); ++i)
+    {
+        float dot = D3DXVec3Dot(&points[i], &direction);
+        if(dot > furthestDot)
+        {
+            furthestDot = dot;
+            furthestIndex = i;
+        }
+    }
+    return points[furthestIndex];
+}
+
+D3DXVECTOR3 CollisionSolver::GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
+                                                         const CollisionMesh& particle, 
+                                                         const CollisionMesh& hull)
+{
+    return FindFurthestPoint(particle.GetVertices(), direction) - 
+        FindFurthestPoint(hull.GetVertices(), -direction);
+}
+
 void CollisionSolver::SolveLineSimplex(const Simplex& simplex, D3DXVECTOR3& direction)
 {
-    const D3DXVECTOR3& pointA = simplex.GetPoint(Simplex::LAST);
-    const D3DXVECTOR3& pointB = simplex.GetPoint(Simplex::FIRST);
+    const D3DXVECTOR3& pointA = simplex.GetPoint(1);
+    const D3DXVECTOR3& pointB = simplex.GetPoint(0);
     const D3DXVECTOR3 AB = pointB - pointA;
     const D3DXVECTOR3 AO = -pointA;
 
@@ -118,11 +194,11 @@ void CollisionSolver::SolveLineSimplex(const Simplex& simplex, D3DXVECTOR3& dire
     D3DXVec3Cross(&direction, &ABcrossAO, &AB);
 }
 
-void CollisionSolver::SolvePlaneSimplex(const Simplex& simplex, D3DXVECTOR3& direction)
+void CollisionSolver::SolvePlaneSimplex(Simplex& simplex, D3DXVECTOR3& direction)
 {
-    const D3DXVECTOR3& pointA = simplex.GetPoint(Simplex::LAST);
-    const D3DXVECTOR3& pointB = simplex.GetPoint(Simplex::FIRST);
-    const D3DXVECTOR3& pointC = simplex.GetPoint(Simplex::SECOND);
+    const D3DXVECTOR3& pointA = simplex.GetPoint(2);
+    const D3DXVECTOR3& pointB = simplex.GetPoint(0);
+    const D3DXVECTOR3& pointC = simplex.GetPoint(1);
 
     const D3DXVECTOR3 AB = pointB - pointA;
     const D3DXVECTOR3 AC = pointC - pointA;
@@ -131,18 +207,18 @@ void CollisionSolver::SolvePlaneSimplex(const Simplex& simplex, D3DXVECTOR3& dir
     // Determine which side of the plane the origin is on
     D3DXVECTOR3 planeNormal;
     D3DXVec3Cross(&planeNormal, &AB, &AC);
-    const float distanceToPlane = D3DXVec3Dot(&planeNormal, &AO);
 
     // Determine the new search direction towards the origin
+    const float distanceToPlane = D3DXVec3Dot(&planeNormal, &AO);
     direction = (distanceToPlane < 0.0f) ? -planeNormal : planeNormal;
 }
 
 bool CollisionSolver::SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& direction)
 {
-    const D3DXVECTOR3& pointA = simplex.GetPoint(Simplex::LAST);
-    const D3DXVECTOR3& pointB = simplex.GetPoint(Simplex::FIRST);
-    const D3DXVECTOR3& pointC = simplex.GetPoint(Simplex::SECOND);
-    const D3DXVECTOR3& pointD = simplex.GetPoint(Simplex::THIRD);
+    const D3DXVECTOR3& pointA = simplex.GetPoint(3);
+    const D3DXVECTOR3& pointB = simplex.GetPoint(0);
+    const D3DXVECTOR3& pointC = simplex.GetPoint(1);
+    const D3DXVECTOR3& pointD = simplex.GetPoint(2);
 
     const D3DXVECTOR3 AB = pointB - pointA;
     const D3DXVECTOR3 AC = pointC - pointA;
@@ -187,31 +263,6 @@ bool CollisionSolver::SolveTetrahedronSimplex(Simplex& simplex, D3DXVECTOR3& dir
         originInsideSimplex = false;
     }
     return originInsideSimplex;
-}
-
-D3DXVECTOR3 CollisionSolver::GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
-                                                         const CollisionMesh& particle, 
-                                                         const CollisionMesh& hull)
-{
-    return FindFurthestPoint(particle.GetVertices(), direction) - 
-        FindFurthestPoint(hull.GetVertices(), -direction);
-}
-
-const D3DXVECTOR3& CollisionSolver::FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
-                                                      const D3DXVECTOR3& direction) const
-{
-    int furthestIndex = 0;
-    float furthestDot = D3DXVec3Dot(&points[furthestIndex], &direction);
-    for(unsigned int i = 1; i < points.size(); ++i)
-    {
-        float dot = D3DXVec3Dot(&points[i], &direction);
-        if(dot > furthestDot)
-        {
-            furthestDot = dot;
-            furthestIndex = i;
-        }
-    }
-    return points[furthestIndex];
 }
 
 void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,

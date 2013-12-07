@@ -5,26 +5,31 @@
 #pragma once
 #include "common.h"
 #include <deque>
+#include <array>
 
 /**
-* Holds at most four points for a line, triplane or tetrahedron simplex
+* Triangle face of a n-dimensional simplex
+*/
+struct Face
+{
+    /**
+    * Constructor
+    */
+    Face();
+
+    int index; ///< User index of face
+    D3DXVECTOR3 normal; ///< Normal of the face
+    float distanceToOrigin; ///< Distance of face to origin
+    std::array<int, 3> indices; ///< Index for the face
+};
+
+/**
+* Holds points an n-dimensional simplex
+* For tetrahedron+ can generate and hold face information
 */
 class Simplex
 {
 public:
-
-    /**
-    * The indices for the various points in the simplex
-    * @note depending on the simplex size, these points may not exist
-    * @note point A will always be the last point in the simplex
-    */
-    enum SimplexPoint
-    {
-        FIRST,
-        SECOND,
-        THIRD,
-        LAST
-    };
 
     /**
     * Constructor
@@ -57,14 +62,42 @@ public:
     void RemovePoint(const D3DXVECTOR3& point);
 
     /**
-    * @param point The index for the simplex container
+    * @param index The index for the simplex container
     * @return The point at the given index
     */
-    const D3DXVECTOR3& GetPoint(SimplexPoint point) const;
+    const D3DXVECTOR3& GetPoint(int index) const;
    
+    /**
+    * @return the list of all points
+    */
+    const std::deque<D3DXVECTOR3>& GetPoints() const;
+
+    /**
+    * Generates the initial faces of a terminating simplex
+    * @note the simplex must be tetrahedron
+    */
+    void GenerateFaces();
+
+    /**
+    * Connects the vertices of the current face with the given point
+    * @param faceindex The index of the face to extend
+    * @param point The point to extend to
+    */
+    void ExtendFace(int faceindex, const D3DXVECTOR3& point);
+
+    /**
+    * @return the faces for the simplex
+    */
+    const std::deque<Face>& GetFaces() const { return m_faces; }
 
 private:
 
-    std::deque<D3DXVECTOR3> m_simplex; ///< Internal simplex container
+    /**
+    * @param face The face to find the distance for
+    * @return the distance from the face to the origin
+    */
+    float GetDistanceToOrigin(const Face& face) const;
 
+    std::deque<Face> m_faces; ///< faces for tetrahedron+ simplex points
+    std::deque<D3DXVECTOR3> m_simplex; ///< Internal simplex container
 };
