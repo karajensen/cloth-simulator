@@ -226,9 +226,9 @@ const D3DXVECTOR3& CollisionMesh::GetMaxBounds() const
     return m_oabb[MAXBOUND];
 }
 
-D3DXVECTOR3 CollisionMesh::GetPosition() const
+const D3DXVECTOR3& CollisionMesh::GetPosition() const
 {
-    return m_world.Position();
+    return m_position;
 }
 
 const Matrix& CollisionMesh::CollisionMatrix() const
@@ -310,29 +310,15 @@ void CollisionMesh::DrawDiagnostics()
     }
 }
 
-void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
+void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view, const D3DXVECTOR3& color)
 {
     if(m_draw && m_geometry && m_geometry->mesh)
     {
-        // Set the transforms
         D3DXMATRIX wvp = m_world.GetMatrix() * view.GetMatrix() * projection.GetMatrix();
         m_shader->SetMatrix(DxConstant::WordViewProjection, &wvp);
         m_shader->SetTechnique(DxConstant::DefaultTechnique);
-
-        // Determine color of collision mesh
-        D3DXVECTOR3 color = m_colour;
-        if(!IsCollidingWith(NONE))
-        {
-            color = m_inCollisionColor;
-        }
-        else if(m_partition)
-        {
-            color = m_engine->diagnostic()->GetColor(m_partition->GetColor());
-        }
-        m_interactingGeometry = NO_COLLISION;
         m_shader->SetFloatArray(DxConstant::VertexColor, &(color.x), 3);
 
-        // Render the Mesh
         UINT nPasses = 0;
         m_shader->Begin(&nPasses, 0);
         for(UINT pass = 0; pass < nPasses; ++pass)
@@ -342,7 +328,23 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
             m_shader->EndPass();
         }
         m_shader->End();
+
+        m_interactingGeometry = NO_COLLISION;
     }
+}
+
+void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
+{
+    D3DXVECTOR3 color = m_colour;
+    if(!IsCollidingWith(NONE))
+    {
+        color = m_inCollisionColor;
+    }
+    else if(m_partition)
+    {
+        color = m_engine->diagnostic()->GetColor(m_partition->GetColor());
+    }
+    DrawMesh(projection, view, color);
 }
 
 const CollisionMesh::Data& CollisionMesh::GetData() const
@@ -360,6 +362,7 @@ void CollisionMesh::FullUpdate()
     //DirectX: World = LocalWorld * ParentWorld
     m_positionDelta += m_parent.Position() - m_world.Position();
     m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
+    m_position = m_world.Position();
     m_requiresFullUpdate = true;
 }
 
@@ -368,6 +371,7 @@ void CollisionMesh::PositionalUpdate()
     //DirectX: World = LocalWorld * ParentWorld
     m_positionDelta += m_parent.Position() - m_world.Position();
     m_world.Set(m_data.localWorld.GetMatrix()*m_parent.GetMatrix());
+    m_position = m_world.Position();
     m_requiresPositionalUpdate = true;
 }
 
@@ -436,19 +440,27 @@ const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const
     return m_oabb;
 }
 
-void CollisionMesh::DrawWithRadius(const Matrix& projection, const Matrix& view, float radius)
+void CollisionMesh::DrawRepresentation(const Matrix& projection, 
+                                       const Matrix& view, 
+                                       float scale,
+                                       const D3DXVECTOR3& color,
+                                       const D3DXVECTOR3& position)
 {
-    //assumes the mesh is a sphere with no scaling from parent
-    assert(m_geometry->shape == SPHERE);
-
-    float scale = m_data.localWorld.GetScale().x;
-    m_world.MatrixPtr()->_11 = radius;
-    m_world.MatrixPtr()->_22 = radius;
-    m_world.MatrixPtr()->_33 = radius;
-    DrawMesh(projection, view);
+    // Set the matrix explicitly to stop any observer updates
+    const float savedscale = m_data.localWorld.GetScale().x;
     m_world.MatrixPtr()->_11 = scale;
     m_world.MatrixPtr()->_22 = scale;
     m_world.MatrixPtr()->_33 = scale;
+    m_world.MatrixPtr()->_41 = position.x;
+    m_world.MatrixPtr()->_42 = position.y;
+    m_world.MatrixPtr()->_43 = position.z;
+    DrawMesh(projection, view, color);
+    m_world.MatrixPtr()->_11 = savedscale;
+    m_world.MatrixPtr()->_22 = savedscale;
+    m_world.MatrixPtr()->_33 = savedscale;
+    m_world.MatrixPtr()->_41 = m_position.x;
+    m_world.MatrixPtr()->_42 = m_position.y;
+    m_world.MatrixPtr()->_43 = m_position.z;
 }
 
 void CollisionMesh::SetPartition(Partition* partition)

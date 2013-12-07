@@ -127,7 +127,7 @@ public:
     /**
     * @return the center in world coordinates of the collision geometry
     */
-    D3DXVECTOR3 GetPosition() const;
+    const D3DXVECTOR3& GetPosition() const;
 
     /**
     * @return the radius of the sphere/cylinder
@@ -167,13 +167,15 @@ public:
     void DrawMesh(const Matrix& projection, const Matrix& view);
 
     /**
-    * Draw the collision geometry with a specific radius.
+    * Draw the collision geometry with a specific visual representation
     * @param projection The projection matrix
     * @param view The view matrix
     * @param radius The radius to override
+    * @param color The color to render with
+    * @param position The position to render at
     */
-    void DrawWithRadius(const Matrix& projection, 
-        const Matrix& view, float radius);
+    void DrawRepresentation(const Matrix& projection, const Matrix& view, 
+        float radius, const D3DXVECTOR3& color, const D3DXVECTOR3& position);
 
     /**
     * @param draw Set whether the collision mesh is drawn
@@ -269,6 +271,14 @@ private:
     CollisionMesh& operator=(const CollisionMesh&);
 
     /**
+    * Draw the collision geometry and diagnostics
+    * @param projection The projection matrix
+    * @param view The view matrix
+    * @param color The color to render the mesh in
+    */
+    void DrawMesh(const Matrix& projection, const Matrix& view, const D3DXVECTOR3& color);
+
+    /**
     * @param shape The shape to find the collision type for
     * @return the type of collision from the given shape
     */
@@ -287,6 +297,7 @@ private:
     D3DXVECTOR3 m_positionDelta;               ///< Change in position this tick
     D3DXVECTOR3 m_colour;                      ///< Colour to render
     D3DXVECTOR3 m_inCollisionColor;            ///< The color to render when the collision is resolved
+    D3DXVECTOR3 m_position;                    ///< Cached position of collision geometry
     LPD3DXEFFECT m_shader;                     ///< Shader for the collision geometry
     Data m_data;                               ///< Local data for the collision geometry
     std::vector<D3DXVECTOR3> m_oabb;           ///< Bounds of the world coord OABB
@@ -298,4 +309,5 @@ private:
     bool m_requiresFullUpdate;                 ///< Whether the collision mesh requires a full update
     bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
     float m_radius;                            ///< Transformed radius that encases geometry
+
 };                                             

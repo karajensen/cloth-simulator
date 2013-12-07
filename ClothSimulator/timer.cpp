@@ -5,6 +5,13 @@
 #include <Windows.h>
 #include "timer.h"
 
+namespace
+{
+    const double DT_INCREASE = 0.0001; ///< Amount to change the forced deltatime
+    const double DT_MAXIMUM = 0.0475; ///< Maximum allowed deltatime
+    const double DT_MINIMUM = 0.0005; ///< Minimum allowed deltatime
+}
+
 Timer::Timer(EnginePtr engine) :
     m_frequency(0.0),
     m_previousTime(0.0),
@@ -12,7 +19,9 @@ Timer::Timer(EnginePtr engine) :
     m_deltaTimeCounter(0.0),
     m_fps(0),
     m_fpsCounter(0),
-    m_engine(engine)
+    m_engine(engine),
+    m_forceDeltatime(false),
+    m_forcedDeltatime(0.04)
 {
 }
 
@@ -26,13 +35,13 @@ void Timer::StartTimer()
     m_previousTime = static_cast<double>(m_timer.QuadPart);
 }
 
-double Timer::UpdateTimer()
+void Timer::UpdateTimer()
 {
     QueryPerformanceCounter(&m_timer);
     double currentTime = static_cast<double>(m_timer.QuadPart);
 
-    m_deltaTime = (currentTime - m_previousTime) / m_frequency;
-    m_deltaTimeCounter += m_deltaTime;
+    double deltatime = (currentTime - m_previousTime) / m_frequency;
+    m_deltaTimeCounter += deltatime;
     if (m_deltaTimeCounter >= 1.0) //one second has passed
     {
         m_deltaTimeCounter = 0.0;
@@ -40,28 +49,43 @@ double Timer::UpdateTimer()
         m_fpsCounter = 0;
     }
 
+    m_deltaTime = max(deltatime, DT_MINIMUM);
+    m_deltaTime = min(m_deltaTime, DT_MAXIMUM);
+
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::TEXT))
     {
         m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
             "FramePerSec", Diagnostic::WHITE, StringCast(m_fps));
 
         m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
-            "FramesCounter", Diagnostic::WHITE, StringCast(m_fpsCounter));
+            "DeltaTime", Diagnostic::WHITE, StringCast(deltatime));
 
         m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
-            "DeltaTime", Diagnostic::WHITE, StringCast(m_deltaTime));
+            "CappedDeltaTime", Diagnostic::WHITE, StringCast(m_deltaTime));
 
-        m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
-            "DeltaTimeCounter", Diagnostic::WHITE, StringCast(m_deltaTimeCounter));
+        if(m_forceDeltatime)
+        {
+            m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
+                "ForcedDeltaTime", Diagnostic::YELLOW, 
+                StringCast(m_forcedDeltatime), true);
+        }
     }
     
     ++m_fpsCounter; //increment frame counter
     m_previousTime = currentTime;
-
-    return m_deltaTime; 
 }
 
 float Timer::GetDeltaTime() const 
 { 
-    return static_cast<float>(m_deltaTime); 
+    return static_cast<float>(m_forceDeltatime ? m_forcedDeltatime : m_deltaTime); 
+}
+
+void Timer::ToggleForceDeltatime()
+{
+    m_forceDeltatime = !m_forceDeltatime;
+}
+
+void Timer::ChangeDeltatime(bool increase)
+{
+    m_forcedDeltatime += increase ? DT_INCREASE : -DT_INCREASE;
 }

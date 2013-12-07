@@ -1,8 +1,6 @@
 
-
-• EPA algorithm
-• Changing/capping range of delta time
-• Testing largest/smallest dt with animation
+• EPA algorithm finish
+• Joey approved testing
 
 =================================================================
 CLOTH SIMULATOR

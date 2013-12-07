@@ -37,8 +37,10 @@ public:
     * Draws the particle visual mesh
     * @param projection The projection matrix
     * @param view The view matrix
+    * @param position The position to set the visual mesh
     */
-    void DrawVisualMesh(const Matrix& projection, const Matrix& view);
+    void DrawVisualMesh(const Matrix& projection, 
+        const Matrix& view, const D3DXVECTOR3& position);
 
     /**
     * Draws the particle collision mesh
@@ -149,5 +151,6 @@ private:
     bool m_selected;                             ///< Whether particle is selected or not
     bool m_pinned;                               ///< Whether particle is pinned or not
     unsigned int m_index;                        ///< Internal index of the particle
+    D3DXVECTOR3 m_color;                         ///< Color of the particle
     std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
 };

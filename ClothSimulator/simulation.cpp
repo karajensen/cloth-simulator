@@ -70,10 +70,7 @@ void Simulation::Update()
 {
     D3DPERF_BeginEvent(UPDATE_COLOR, L"Simulation::Update");
 
-    const double deltaTime = m_timer->UpdateTimer();
-    const bool pressed = m_input->IsClickPreventionActive() 
-        ? false : m_input->IsMousePressed();
-
+    m_timer->UpdateTimer();
     m_input->UpdateInput();
     m_camera->UpdateCamera();
     
@@ -86,10 +83,13 @@ void Simulation::Update()
         m_input->SolvePicking();
     }
 
-    m_cloth->PreCollisionUpdate(deltaTime);
+    const float deltatime = m_timer->GetDeltaTime();
+    const bool pressed = m_input->IsClickPreventionActive() 
+        ? false : m_input->IsMousePressed();
+
+    m_cloth->PreCollisionUpdate(deltatime);
     m_scene->PreCollisionUpdate(pressed, m_input->GetMouseDirection(),
-        m_camera->World(), m_camera->InverseProjection(), 
-        static_cast<float>(deltaTime));
+        m_camera->World(), m_camera->InverseProjection(), deltatime);
 
     m_scene->SolveCollisions();
 
@@ -178,10 +178,8 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
         m_solver.get(), std::placeholders::_1, std::placeholders::_2));
 
     // Initialise the input
-    LoadInput(hInstance, hWnd, engine);
-
-    // Start the internal timer
     m_timer.reset(new Timer(engine));
+    LoadInput(hInstance, hWnd, engine);
     m_timer->StartTimer();
 
     return true;
@@ -263,6 +261,16 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
 
     m_input->SetKeyCallback(DIK_MINUS, true, 
         std::bind(&Cloth::ChangeSmoothing, m_cloth.get(), false));
+
+    // Setting deltatime explicitly
+    m_input->SetKeyCallback(DIK_P, false, 
+        std::bind(&Timer::ToggleForceDeltatime, m_timer.get()));
+
+    m_input->SetKeyCallback(DIK_RBRACKET, true, 
+        std::bind(&Timer::ChangeDeltatime, m_timer.get(), true));
+
+    m_input->SetKeyCallback(DIK_LBRACKET, true, 
+        std::bind(&Timer::ChangeDeltatime, m_timer.get(), false));
     
     // Toggling Diagnostic drawing
     m_input->SetKeyCallback(DIK_T, false, 

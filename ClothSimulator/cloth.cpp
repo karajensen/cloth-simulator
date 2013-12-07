@@ -383,7 +383,7 @@ void Cloth::AddForce(const D3DXVECTOR3& force)
     }
 }
 
-void Cloth::PreCollisionUpdate(double deltatime)
+void Cloth::PreCollisionUpdate(float deltatime)
 {
     UpdateDiagnostics();
 
@@ -392,7 +392,7 @@ void Cloth::PreCollisionUpdate(double deltatime)
         // Move cloth down slowly
         if(m_simulation)
         {
-            AddForce(m_gravity*m_timestepSquared*static_cast<float>(deltatime));
+            AddForce(m_gravity*m_timestepSquared*deltatime);
         }
     
         // Solve Springs
@@ -455,9 +455,11 @@ void Cloth::DrawCollisions(const Matrix& projection, const Matrix& view)
 
     if(m_drawVisualParticles)
     {
-        for(const ParticlePtr& particle : m_particles)
+        for(unsigned int i = 0; i < m_particles.size(); ++i)
         {
-            particle->DrawVisualMesh(projection, view);
+            // Draw visual particles at smoothed position
+            m_particles[i]->DrawVisualMesh(projection, 
+                view, m_vertexData[i].position);
         }
     }
 }
