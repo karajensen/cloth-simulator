@@ -183,7 +183,7 @@ void Mesh::DrawDiagnostics()
 }
 
 void Mesh::DrawMesh(const D3DXVECTOR3& cameraPos,
-    const Matrix& projection, const Matrix& view, float deltatime)
+    const Matrix& projection, const Matrix& view)
 {
     if(m_data->mesh && m_draw)
     {

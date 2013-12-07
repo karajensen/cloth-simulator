@@ -143,6 +143,12 @@ private:
     */
     const Face& GetClosestFace(Simplex& simplex);
 
+    /**
+    * Updates the diagnostics for a simplex
+    * @param simplex The simplex to update diagnostics for
+    */
+    void UpdateDiagnostics(const Simplex& simplex);
+
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine
 };

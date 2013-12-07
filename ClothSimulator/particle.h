@@ -137,6 +137,11 @@ public:
 private:
 
     /**
+    * Updates the particle's transform with the cached position
+    */
+    void UpdateTransform();
+
+    /**
     * Prevent copying
     */
     Particle(const Particle&);

@@ -56,7 +56,7 @@ public:
 
     /**
     * Updates the cloth state before collision solving
-    * @param deltatime the time between frames
+    * @param deltatime The time passed since last frame in seconds
     */
     void PreCollisionUpdate(float deltatime);
 

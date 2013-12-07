@@ -29,7 +29,7 @@ public:
     void UpdateTimer();
 
     /**
-    * @return the time passed between frames (seconds)
+    * @return The time passed since last frame in seconds
     */
     float GetDeltaTime() const;
 
@@ -50,7 +50,7 @@ private:
     double m_frequency;         ///< The frequency of the high-resolution performance counter
     LARGE_INTEGER m_timer;      ///< The current time queried
     double m_previousTime;      ///< The previous time queried
-    double m_deltaTime;         ///< Timestep in secs between frames
+    double m_deltaTime;         ///< The time passed since last frame in seconds
     double m_deltaTimeCounter;  ///< Combined timestep between frames up to 1 second
     unsigned int m_fps;         ///< Amount of frames rendered in 1 second
     unsigned int m_fpsCounter;  ///< Amount of frames rendered since delta time counter began

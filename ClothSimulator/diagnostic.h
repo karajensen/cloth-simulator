@@ -27,6 +27,7 @@ public:
         YELLOW,
         GREEN,
         CYAN,
+        MAGENTA,
         MAX_COLORS
     };
 
@@ -35,7 +36,7 @@ public:
     */
     enum Group
     {
-        SCENE,
+        MESH,
         CLOTH,
         OCTREE,
         TEXT,

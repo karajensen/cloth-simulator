@@ -90,6 +90,12 @@ public:
     */
     const std::deque<Face>& GetFaces() const { return m_faces; }
 
+    /**
+    * @param faceindex The index for the face
+    * @return the center point of the face
+    */
+    D3DXVECTOR3 GetFaceCenter(int faceindex) const;
+
 private:
 
     /**

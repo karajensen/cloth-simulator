@@ -195,3 +195,17 @@ float Simplex::GetDistanceToOrigin(const Face& face) const
     assert(distance >= 0.0f);
     return distance;
 }
+
+D3DXVECTOR3 Simplex::GetFaceCenter(int faceindex) const
+{
+    const Face& face = m_faces[faceindex];
+    const D3DXVECTOR3& p0 = m_simplex[face.indices[0]];
+    const D3DXVECTOR3& p1 = m_simplex[face.indices[1]];
+    const D3DXVECTOR3& p2 = m_simplex[face.indices[2]];
+
+    D3DXVECTOR3 center;
+    center.x = (p0.x + p1.x + p2.x) / 3.0f;
+    center.y = (p0.y + p1.y + p2.y) / 3.0f;
+    center.z = (p0.z + p1.z + p2.z) / 3.0f;
+    return center;
+}

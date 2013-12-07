@@ -47,12 +47,11 @@ public:
 
     /**
     * Draws all scene meshes
-    * @param deltatime The deltatime for the application
     * @param position The camera position
     * @param projection The camera projection matrix
     * @param view The camera view matrix
     */
-    void Draw(float deltatime, const D3DXVECTOR3& position,
+    void Draw(const D3DXVECTOR3& position,
         const Matrix& projection, const Matrix& view);
 
     /**
@@ -105,7 +104,7 @@ public:
     * @param direction The mouse movement direction
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
-    * @param deltatime The deltatime for the simulation
+    * @param deltatime The time passed since last frame in seconds
     */
     void PreCollisionUpdate(bool pressed, const D3DXVECTOR2& direction,
         const Matrix& world, const Matrix& invProjection, float deltatime);

@@ -35,7 +35,7 @@ void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA,
     if (length < combinedRadius)
     {
         particleToParticle /= length;
-        D3DXVECTOR3 translation = particleToParticle*fabs(combinedRadius-length);
+        const D3DXVECTOR3 translation = particleToParticle*fabs(combinedRadius-length);
         particleA.ResolveCollision(-translation);
         particleB.ResolveCollision(translation);
     }
@@ -45,7 +45,7 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
                                                  const CollisionMesh& hull)
 {
     // Determine if within a rough radius of the convex hull
-    D3DXVECTOR3 sphereToParticle = particle.GetPosition() - hull.GetPosition();
+    const D3DXVECTOR3 sphereToParticle = particle.GetPosition() - hull.GetPosition();
     const float length = D3DXVec3Length(&sphereToParticle);
     const float combinedRadius = hull.GetRadius() + particle.GetRadius();
 
@@ -54,7 +54,7 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
         Simplex simplex;
         if(AreConvexHullsColliding(particle, hull, simplex))
         {
-            D3DXVECTOR3 penetration = GetConvexHullPenetration(particle, hull, simplex);
+            const D3DXVECTOR3 penetration = GetConvexHullPenetration(particle, hull, simplex);
             particle.ResolveCollision(penetration, hull.GetShape());
         }
     }
@@ -118,6 +118,8 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     D3DXVECTOR3 furthestPoint;
     D3DXVECTOR3 penetration = D3DXVECTOR3(0,0,0);
     bool penetrationFound = false;
+
+    UpdateDiagnostics(simplex);
 
     //while(!penetrationFound)
     //{
@@ -350,6 +352,43 @@ void CollisionSolver::SolveObjectCollision(CollisionMesh& particle,
         else
         {
             SolveParticleHullCollision(particle, object);
+        }
+    }
+}
+
+void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
+{
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::COLLISION))
+    {
+        const float radius = 0.2f;
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+            "Origin", Diagnostic::YELLOW, D3DXVECTOR3(), radius);
+
+        const auto& points = simplex.GetPoints();
+        const auto& faces = simplex.GetFaces();
+
+        for(unsigned int i = 0; i < faces.size(); ++i)
+        {
+            std::string id = StringCast(i);
+            const Face& face = faces[i];
+
+            const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
+            const D3DXVECTOR3& normal = face.normal;
+            const D3DXVECTOR3& pointA = points[face.indices[0]];
+            const D3DXVECTOR3& pointB = points[face.indices[1]];
+            const D3DXVECTOR3& pointC = points[face.indices[2]];
+
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                "sNormal" + id, Diagnostic::BLUE, center, center + normal);
+
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                "sLine1" + id, Diagnostic::MAGENTA, pointA, pointB);
+
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                "sLine2" + id, Diagnostic::MAGENTA, pointA, pointC);
+
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                "sLine3" + id, Diagnostic::MAGENTA, pointC, pointB);
         }
     }
 }

@@ -259,7 +259,7 @@ const std::vector<D3DXVECTOR3>& CollisionMesh::GetVertices() const
 void CollisionMesh::DrawDiagnostics()
 {
     if(m_draw && m_geometry && m_geometry->mesh &&
-        m_engine->diagnostic()->AllowDiagnostics(Diagnostic::COLLISION))
+        m_engine->diagnostic()->AllowDiagnostics(Diagnostic::MESH))
     {
         // Render vertices of diagnostic mesh
         const std::string id = StringCast(this);
@@ -267,7 +267,7 @@ void CollisionMesh::DrawDiagnostics()
         const auto& vertices = GetVertices();
         for(unsigned int i = 0; i < vertices.size(); ++i)
         {
-            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::MESH,
                 id + StringCast(i), Diagnostic::RED, 
                 vertices[i], vertexRadius);
         }
@@ -276,7 +276,7 @@ void CollisionMesh::DrawDiagnostics()
         auto getPointColor = [=](int index) -> Diagnostic::Colour
         {
             return index == MINBOUND || index == MAXBOUND ?
-                Diagnostic::BLUE : Diagnostic::CYAN;
+                Diagnostic::BLUE : Diagnostic::MAGENTA;
         };
 
         const float radius = 0.2f;
@@ -285,27 +285,27 @@ void CollisionMesh::DrawDiagnostics()
         {
             corner = StringCast(i);
             
-            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::MESH,
                 id + "cA" + corner, getPointColor(i), m_oabb[i], radius);
 
-            m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+            m_engine->diagnostic()->UpdateSphere(Diagnostic::MESH,
                 id + "cB" + corner, getPointColor(i+4), m_oabb[i+4], radius);
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lA" + corner, Diagnostic::CYAN, 
+            m_engine->diagnostic()->UpdateLine(Diagnostic::MESH,
+                id + "lA" + corner, Diagnostic::MAGENTA, 
                 m_oabb[i], m_oabb[i+1 >= 4 ? 0 : i+1]);
             
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lB" + corner, Diagnostic::CYAN, 
+            m_engine->diagnostic()->UpdateLine(Diagnostic::MESH,
+                id + "lB" + corner, Diagnostic::MAGENTA, 
                 m_oabb[i+4], m_oabb[i+5 >= CORNERS ? 4 : i+5]);
                 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                id + "lC" + corner, Diagnostic::CYAN, 
+            m_engine->diagnostic()->UpdateLine(Diagnostic::MESH,
+                id + "lC" + corner, Diagnostic::MAGENTA, 
                 m_oabb[i], m_oabb[i+4]);
         }
 
         // Render radius of diagnostic mesh in wireframe
-        m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::MESH,
             id + "radius", Diagnostic::WHITE, GetPosition(), GetRadius());
     }
 }

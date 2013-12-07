@@ -74,10 +74,9 @@ public:
     * @param cameraPos the position of the camera in world coordinates
     * @param projection the projection matrix
     * @param view the view matrix
-    * @param deltatime the deltatime for the application
     */
-    void DrawMesh(const D3DXVECTOR3& cameraPos, const Matrix& projection,
-        const Matrix& view, float deltatime = 0.0f);
+    void DrawMesh(const D3DXVECTOR3& cameraPos,
+        const Matrix& projection, const Matrix& view);
 
     /**
     * Draw the collision model of the mesh
@@ -210,7 +209,7 @@ public:
 
     /**
     * Animates the mesh through the list of animation points
-    * @param deltatime The time passed since last frame
+    * @param deltatime The time passed since last frame in seconds
     */
     void Animate(float deltatime);
 

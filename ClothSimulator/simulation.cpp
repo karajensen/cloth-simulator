@@ -50,7 +50,7 @@ void Simulation::Render()
     m_d3ddev->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
     D3DXVECTOR3 cameraPosition(m_camera->World().Position());
-    m_scene->Draw(m_timer->GetDeltaTime(), cameraPosition, m_camera->Projection(), m_camera->View());
+    m_scene->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
     m_cloth->Draw(cameraPosition, m_camera->Projection(), m_camera->View());
     m_cloth->DrawCollisions(m_camera->Projection(), m_camera->View());
     m_scene->DrawCollisions(m_camera->Projection(), m_camera->View());
@@ -279,7 +279,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     
     m_input->SetKeyCallback(DIK_8, false, 
         std::bind(&Diagnostic::ToggleDiagnostics, 
-        m_diagnostics.get(), Diagnostic::SCENE));
+        m_diagnostics.get(), Diagnostic::MESH));
     
     m_input->SetKeyCallback(DIK_7, false, 
         std::bind(&Diagnostic::ToggleDiagnostics,

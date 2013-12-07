@@ -72,7 +72,7 @@ public:
     * @param world The camera world matrix
     * @param invProjection The camera inverse projection matrix
     * @param pressed Whether the mouse is pressed or not
-    * @param deltatime Delta time for the simulation
+    * @param deltatime The time passed since last frame in seconds
     */
     void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
         const Matrix& world, const Matrix& invProjection,
