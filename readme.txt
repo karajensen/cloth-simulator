@@ -1,4 +1,5 @@
 
+• larger caps on scaling
 • EPA algorithm finish
 • Joey approved testing
 

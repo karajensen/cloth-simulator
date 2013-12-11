@@ -151,4 +151,5 @@ private:
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine
+    bool m_updatedDiagnostics;        ///< Whether diagnostics have updated this tick
 };

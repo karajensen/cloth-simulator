@@ -5,6 +5,7 @@
 #include "simplex.h"
 #include <algorithm>
 #include <assert.h>
+#include "cloth.h" //TEMP
 
 namespace
 {
@@ -124,6 +125,11 @@ void Simplex::GenerateFaces()
     m_faces[ADB].distanceToOrigin = GetDistanceToOrigin(m_faces[ADB]);
     m_faces[ABC].distanceToOrigin = GetDistanceToOrigin(m_faces[ABC]);
     m_faces[BDC].distanceToOrigin = GetDistanceToOrigin(m_faces[BDC]);
+
+    assert(m_faces[ACD].distanceToOrigin >= 0.0f);
+    assert(m_faces[ADB].distanceToOrigin >= 0.0f);
+    assert(m_faces[ABC].distanceToOrigin >= 0.0f);
+    assert(m_faces[BDC].distanceToOrigin >= 0.0f);
 }
 
 void Simplex::ExtendFace(int faceindex, const D3DXVECTOR3& point)
@@ -159,7 +165,6 @@ void Simplex::ExtendFace(int faceindex, const D3DXVECTOR3& point)
     m_faces[ABC].index = ABC;
     m_faces[ADB].index = ADB;
 
-    // All normals pointing outwards
     D3DXVec3Cross(&m_faces[ACD].normal, &AC, &AD);
     D3DXVec3Cross(&m_faces[ADB].normal, &AD, &AB);
     D3DXVec3Cross(&m_faces[ABC].normal, &AB, &AC);
@@ -168,7 +173,6 @@ void Simplex::ExtendFace(int faceindex, const D3DXVECTOR3& point)
     D3DXVec3Normalize(&m_faces[ADB].normal, &m_faces[ADB].normal);
     D3DXVec3Normalize(&m_faces[ABC].normal, &m_faces[ABC].normal);
 
-    // All indices clockwise
     m_faces[ACD].indices[0] = A;
     m_faces[ACD].indices[1] = D;
     m_faces[ACD].indices[2] = C;
@@ -181,19 +185,34 @@ void Simplex::ExtendFace(int faceindex, const D3DXVECTOR3& point)
     m_faces[ABC].indices[1] = B;
     m_faces[ABC].indices[2] = C;
 
-    // Find distance to origin
     m_faces[ACD].distanceToOrigin = GetDistanceToOrigin(m_faces[ACD]);
     m_faces[ADB].distanceToOrigin = GetDistanceToOrigin(m_faces[ADB]);
     m_faces[ABC].distanceToOrigin = GetDistanceToOrigin(m_faces[ABC]);
+
+    if(m_faces[ACD].distanceToOrigin < 0.0f)
+    {
+        m_faces[ACD].distanceToOrigin = fabs(m_faces[ACD].distanceToOrigin);
+        m_faces[ACD].normal = -m_faces[ACD].normal;
+    }
+
+    if(m_faces[ADB].distanceToOrigin < 0.0f)
+    {
+        m_faces[ADB].distanceToOrigin = fabs(m_faces[ADB].distanceToOrigin);
+        m_faces[ADB].normal = -m_faces[ADB].normal;
+    }
+
+    if(m_faces[ABC].distanceToOrigin < 0.0f)
+    {
+        m_faces[ABC].distanceToOrigin = fabs(m_faces[ABC].distanceToOrigin);
+        m_faces[ABC].normal = -m_faces[ABC].normal;
+    }
 }
 
 float Simplex::GetDistanceToOrigin(const Face& face) const
 {
     const D3DXVECTOR3 normalToOrigin = -face.normal;
     const D3DXVECTOR3 faceToOrigin = -GetPoint(face.indices[0]);
-    const float distance = D3DXVec3Dot(&normalToOrigin, &faceToOrigin);
-    assert(distance >= 0.0f);
-    return distance;
+    return D3DXVec3Dot(&normalToOrigin, &faceToOrigin);
 }
 
 D3DXVECTOR3 Simplex::GetFaceCenter(int faceindex) const

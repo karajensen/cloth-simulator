@@ -35,6 +35,8 @@ namespace
     const D3DXVECTOR3 STARTING_POSITION(0.5f, 8.0f, 0.0f); ///< Initial position for the cloth
 }
 
+bool Cloth::PAUSE = false;
+
 Cloth::Cloth(EnginePtr engine) :
     m_selectedRow(1),
     m_timestep(TIMESTEP),
@@ -387,7 +389,7 @@ void Cloth::PreCollisionUpdate(float deltatime)
 {
     UpdateDiagnostics();
 
-    if(m_simulation || m_handleMode)
+    if(!PAUSE && (m_simulation || m_handleMode)) //TEMP
     {
         // Move cloth down slowly
         if(m_simulation)

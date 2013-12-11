@@ -11,13 +11,14 @@
 namespace
 {
     const int MAX_ITERATIONS = 30;  ///< Max iterations for collision detection
-    const float EPSILON = 0.001f; ///< Small threshold value for comparisons
+    const float EPSILON = 1.0f; ///< Small threshold value for comparisons
 }
 
 CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
                                  std::shared_ptr<Cloth> cloth) :
     m_cloth(cloth),
-    m_engine(engine)
+    m_engine(engine),
+    m_updatedDiagnostics(false)
 {
 }
 
@@ -119,28 +120,38 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     D3DXVECTOR3 penetration = D3DXVECTOR3(0,0,0);
     bool penetrationFound = false;
 
-    UpdateDiagnostics(simplex);
+    for(int i = 0; i < 20; ++i)
+    {
+        const Face& closestFace = GetClosestFace(simplex);
+        furthestPoint = GetMinkowskiDifferencePoint(closestFace.normal, particle, hull);
+   
+        D3DXVECTOR3 faceToPoint = furthestPoint - simplex.GetPoint(closestFace.indices[0]);
+        if(closestFace.distanceToOrigin == 0.0f || fabs(D3DXVec3Dot(&faceToPoint, &closestFace.normal)) < EPSILON)
+        {
+            // The penetration vector is the normal of the closest
+            // Minkowski Difference hull face to the origin
+            penetration = closestFace.normal * closestFace.distanceToOrigin;
+            penetrationFound = true;
+            break;
+        }
+        else
+        {
+            // The hull extends past this face. Connect the points
+            // of the closest face up to the found point instead.
+            simplex.ExtendFace(closestFace.index, furthestPoint);
+        }
+    }
 
-    //while(!penetrationFound)
-    //{
-    //    const Face& closestFace = GetClosestFace(simplex);
-    //    furthestPoint = GetMinkowskiDifferencePoint(-closestFace.normal, particle, hull);
-    //    if(D3DXVec3Length(&furthestPoint) - closestFace.distanceToOrigin < EPSILON)
-    //    {
-    //        // The penetration vector is the normal of the closest
-    //        // Minkowski Difference hull face to the origin
-    //        penetration = closestFace.normal * closestFace.distanceToOrigin;
-    //        penetrationFound = true;
-    //    }
-    //    else
-    //    {
-    //        // The hull extends past this face. Connect the points
-    //        // of the closest face up to the found point instead.
-    //        simplex.ExtendFace(closestFace.index, furthestPoint);
-    //    }
-    //}
+    if(!penetrationFound)
+    {
+        if(!m_updatedDiagnostics)
+        {
+            UpdateDiagnostics(simplex);
+            m_updatedDiagnostics = true;
+        }
+    }
 
-    return penetration;
+    return -penetration;
 }
 
 const Face& CollisionSolver::GetClosestFace(Simplex& simplex)
@@ -337,6 +348,7 @@ void CollisionSolver::SolveClothCollision(const D3DXVECTOR3& minBounds,
         particles[i]->MovePosition(position);
     }
 
+    m_updatedDiagnostics = false;
     D3DPERF_EndEvent();
 }
 
@@ -360,9 +372,9 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
 {
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::COLLISION))
     {
-        const float radius = 0.2f;
+        const float radius = 0.1f;
         m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
-            "Origin", Diagnostic::YELLOW, D3DXVECTOR3(), radius);
+            "origin", Diagnostic::WHITE, D3DXVECTOR3(0.0, 0.0, 0.0), radius);
 
         const auto& points = simplex.GetPoints();
         const auto& faces = simplex.GetFaces();
@@ -382,13 +394,13 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
                 "sNormal" + id, Diagnostic::BLUE, center, center + normal);
 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sLine1" + id, Diagnostic::MAGENTA, pointA, pointB);
+                "sLine1" + id, Diagnostic::YELLOW, pointA, pointB);
 
             m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sLine2" + id, Diagnostic::MAGENTA, pointA, pointC);
+                "sLine2" + id, Diagnostic::YELLOW, pointA, pointC);
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sLine3" + id, Diagnostic::MAGENTA, pointC, pointB);
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                "sLine3" + id, Diagnostic::YELLOW, pointC, pointB);
         }
     }
 }
