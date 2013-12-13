@@ -8,12 +8,6 @@
 #include "simplex.h"
 #include <assert.h>
 
-namespace
-{
-    const int MAX_ITERATIONS = 30;  ///< Max iterations for collision detection
-    const float EPSILON = 1.0f; ///< Small threshold value for comparisons
-}
-
 CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
                                  std::shared_ptr<Cloth> cloth) :
     m_cloth(cloth),
@@ -82,9 +76,10 @@ bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle,
     int iteration = 0;
     bool collisionFound = false;
     bool collisionPossible = true;
+    const int maxIterations = 30;
 
     // Iteratively create a simplex within the Minkowski Difference hull
-    while(iteration < MAX_ITERATIONS && !collisionFound && collisionPossible)
+    while(iteration < maxIterations && !collisionFound && collisionPossible)
     {
         ++iteration;
         lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
@@ -116,30 +111,38 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
                                                       Simplex& simplex)
 {
     simplex.GenerateFaces();
-    D3DXVECTOR3 furthestPoint;
-    D3DXVECTOR3 penetration = D3DXVECTOR3(0,0,0);
+    D3DXVECTOR3 projectedOrigin;
     bool penetrationFound = false;
+    const float epsilon = 0.1f;
+    const int maxIterations = 1;
+    int currentIteration = 0;
 
-    for(int i = 0; i < 20; ++i)
+    while(!penetrationFound && currentIteration < maxIterations)
     {
-        const Face& closestFace = GetClosestFace(simplex);
-        furthestPoint = GetMinkowskiDifferencePoint(closestFace.normal, particle, hull);
-   
-        D3DXVECTOR3 faceToPoint = furthestPoint - simplex.GetPoint(closestFace.indices[0]);
-        if(closestFace.distanceToOrigin == 0.0f || fabs(D3DXVec3Dot(&faceToPoint, &closestFace.normal)) < EPSILON)
+        const Face& face = GetClosestFace(simplex);
+        penetrationFound = face.distanceToOrigin == 0.0f;
+
+        if(!penetrationFound)
         {
-            // The penetration vector is the normal of the closest
-            // Minkowski Difference hull face to the origin
-            penetration = closestFace.normal * closestFace.distanceToOrigin;
-            penetrationFound = true;
-            break;
+            projectedOrigin = face.distanceToOrigin * face.normal;
+
+            // Ensure projected point of origin lies within the face triangle
+            // TO DO
+ 
+
+            // Check if there are any edge points beyond the closest face
+            const D3DXVECTOR3 point = GetMinkowskiDifferencePoint(face.normal, particle, hull);
+            const D3DXVECTOR3 faceToPoint = point - simplex.GetPoint(face.indices[0]);
+            const float distance = fabs(D3DXVec3Dot(&faceToPoint, &face.normal));
+            penetrationFound = distance < epsilon;
+
+            if(!penetrationFound)
+            {
+                // Add the new point and extend the convex hull
+                simplex.ExtendFace(point);
+            }
         }
-        else
-        {
-            // The hull extends past this face. Connect the points
-            // of the closest face up to the found point instead.
-            simplex.ExtendFace(closestFace.index, furthestPoint);
-        }
+        ++currentIteration;
     }
 
     if(!penetrationFound)
@@ -149,9 +152,15 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
             UpdateDiagnostics(simplex);
             m_updatedDiagnostics = true;
         }
+
+        // Fallback on the initial closest face
+        const Face& face = GetClosestFace(simplex);
+        projectedOrigin = face.distanceToOrigin * face.normal;
     }
 
-    return -penetration;
+    // Penetration vector is from origin to closest face
+    //return -projectedOrigin;
+    return D3DXVECTOR3(0,0,0);
 }
 
 const Face& CollisionSolver::GetClosestFace(Simplex& simplex)

@@ -83,7 +83,7 @@ Partition* Octree::FindPartition(CollisionMesh& object, Partition& partition)
         // If it fits in more than one, parent is desired partition
         Partition* chosenChild = nullptr;
         const auto& children = partition.GetChildren();
-        bool inMultiple = false;
+        bool inMultiplePartitions = false;
 
         for(const std::unique_ptr<Partition>& child : children)
         {
@@ -95,15 +95,21 @@ Partition* Octree::FindPartition(CollisionMesh& object, Partition& partition)
                 }
                 else
                 {
-                    inMultiple = true;
+                    inMultiplePartitions = true;
                     break;
                 }
             }
         }
 
-        assert(chosenChild);
-        return inMultiple ? &partition : FindPartition(object, *chosenChild);
-
+        if(!chosenChild)
+        {
+            return m_octree.get();
+        }
+        else if(inMultiplePartitions)
+        {
+            return &partition;
+        }
+        return FindPartition(object, *chosenChild);
     }
     return nullptr;
 }

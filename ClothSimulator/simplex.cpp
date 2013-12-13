@@ -5,7 +5,6 @@
 #include "simplex.h"
 #include <algorithm>
 #include <assert.h>
-#include "cloth.h" //TEMP
 
 namespace
 {
@@ -22,6 +21,11 @@ Face::Face() :
     normal(0.0f, 0.0f, 0.0f),
     distanceToOrigin(0.0f),
     index(0)
+{
+    indices.assign(0);
+}
+
+Edge::Edge()
 {
     indices.assign(0);
 }
@@ -63,6 +67,28 @@ const std::deque<D3DXVECTOR3>& Simplex::GetPoints() const
 
 void Simplex::GenerateFaces()
 {
+    auto createFace = [&](int face, int i0, int i1, int i2, 
+        const D3DXVECTOR3& u, const D3DXVECTOR3& v)
+    {
+        m_faces[face].index = face;
+        m_faces[face].indices[0] = i0;
+        m_faces[face].indices[1] = i1;
+        m_faces[face].indices[2] = i2;
+
+        m_faces[face].edges[0].indices[0] = i0;
+        m_faces[face].edges[0].indices[1] = i1;
+        m_faces[face].edges[1].indices[0] = i0;
+        m_faces[face].edges[1].indices[1] = i2;
+        m_faces[face].edges[2].indices[0] = i1;
+        m_faces[face].edges[2].indices[1] = i2;
+
+        D3DXVec3Cross(&m_faces[face].normal, &u, &v);
+        D3DXVec3Normalize(&m_faces[face].normal, &m_faces[face].normal);
+
+        m_faces[face].distanceToOrigin = GetDistanceToOrigin(m_faces[face]);
+        assert(m_faces[face].distanceToOrigin >= 0.0f);
+    };
+
     assert(m_simplex.size() <= TETRAHEDRON_SIMPLEX);
     m_faces.resize(TETRAHEDRON_SIMPLEX);
 
@@ -70,10 +96,6 @@ void Simplex::GenerateFaces()
     const int B = 0;
     const int C = 1;
     const int D = 2;
-    const int ACD = 0;
-    const int ADB = 1;
-    const int ABC = 2;
-    const int BDC = 3;
 
     const D3DXVECTOR3& pointA = GetPoint(A);
     const D3DXVECTOR3& pointB = GetPoint(B);
@@ -86,126 +108,172 @@ void Simplex::GenerateFaces()
     const D3DXVECTOR3 BC = pointC - pointB;
     const D3DXVECTOR3 BD = pointD - pointB;
 
-    // Save face indices
-    m_faces[ACD].index = ACD;
-    m_faces[ADB].index = ADB;
-    m_faces[ABC].index = ABC;
-    m_faces[BDC].index = BDC;
-
-    // All normals pointing outwards
-    D3DXVec3Cross(&m_faces[ACD].normal, &AC, &AD);
-    D3DXVec3Cross(&m_faces[ADB].normal, &AD, &AB);
-    D3DXVec3Cross(&m_faces[ABC].normal, &AB, &AC);
-    D3DXVec3Cross(&m_faces[BDC].normal, &BD, &BC);
-
-    D3DXVec3Normalize(&m_faces[ACD].normal, &m_faces[ACD].normal);
-    D3DXVec3Normalize(&m_faces[ADB].normal, &m_faces[ADB].normal);
-    D3DXVec3Normalize(&m_faces[ABC].normal, &m_faces[ABC].normal);
-    D3DXVec3Normalize(&m_faces[BDC].normal, &m_faces[BDC].normal);
-
-    // All indices clockwise
-    m_faces[ACD].indices[0] = A;
-    m_faces[ACD].indices[1] = D;
-    m_faces[ACD].indices[2] = C;
-
-    m_faces[ADB].indices[0] = A;
-    m_faces[ADB].indices[1] = D;
-    m_faces[ADB].indices[2] = B;
-
-    m_faces[ABC].indices[0] = A;
-    m_faces[ABC].indices[1] = B;
-    m_faces[ABC].indices[2] = C;
-
-    m_faces[BDC].indices[0] = B;
-    m_faces[BDC].indices[1] = C;
-    m_faces[BDC].indices[2] = D;
-
-    // Find distance to origin
-    m_faces[ACD].distanceToOrigin = GetDistanceToOrigin(m_faces[ACD]);
-    m_faces[ADB].distanceToOrigin = GetDistanceToOrigin(m_faces[ADB]);
-    m_faces[ABC].distanceToOrigin = GetDistanceToOrigin(m_faces[ABC]);
-    m_faces[BDC].distanceToOrigin = GetDistanceToOrigin(m_faces[BDC]);
-
-    assert(m_faces[ACD].distanceToOrigin >= 0.0f);
-    assert(m_faces[ADB].distanceToOrigin >= 0.0f);
-    assert(m_faces[ABC].distanceToOrigin >= 0.0f);
-    assert(m_faces[BDC].distanceToOrigin >= 0.0f);
+    createFace(0, A, C, D, AC, AD);
+    createFace(1, A, D, B, AD, AB);
+    createFace(2, A, B, C, AB, AC);
+    createFace(3, B, D, C, BD, BC);
 }
 
-void Simplex::ExtendFace(int faceindex, const D3DXVECTOR3& point)
+void Simplex::ExtendFace(const D3DXVECTOR3& point)
 {
-    // Add new vertex to the points list
+    // Incremental Convex hull algorithm removes all faces 
+    // that are facing the new point and generates new faces 
+    // on the border of the highlighted ones. Reference:
+    // http://www.eecs.tufts.edu/~mhorn01/comp163/algorithm.html
+
     m_simplex.push_back(point);
+    const int pointIndex = static_cast<int>(m_simplex.size()-1);;
 
-    // Add three new faces connected to the three vertices of the face
-    const int newFaceAmount = 2;
-    const Face face = m_faces[faceindex];
-    m_faces.resize(m_faces.size() + newFaceAmount);
-
-    const int A = static_cast<int>(m_simplex.size())-1;
-    const int B = face.indices[0];
-    const int D = face.indices[1];
-    const int C = face.indices[2];
-
-    const int ACD = static_cast<int>(m_faces.size())-1;
-    const int ABC = static_cast<int>(m_faces.size())-2;
-    const int ADB = faceindex; // overwrite old entry
-
-    const D3DXVECTOR3& pointA = point;
-    const D3DXVECTOR3& pointB = GetPoint(B);
-    const D3DXVECTOR3& pointC = GetPoint(C);
-    const D3DXVECTOR3& pointD = GetPoint(D);
-
-    const D3DXVECTOR3 AB = pointB - pointA;
-    const D3DXVECTOR3 AC = pointC - pointA;
-    const D3DXVECTOR3 AD = pointD - pointA;
-
-    // Save face indices
-    m_faces[ACD].index = ACD;
-    m_faces[ABC].index = ABC;
-    m_faces[ADB].index = ADB;
-
-    D3DXVec3Cross(&m_faces[ACD].normal, &AC, &AD);
-    D3DXVec3Cross(&m_faces[ADB].normal, &AD, &AB);
-    D3DXVec3Cross(&m_faces[ABC].normal, &AB, &AC);
-
-    D3DXVec3Normalize(&m_faces[ACD].normal, &m_faces[ACD].normal);
-    D3DXVec3Normalize(&m_faces[ADB].normal, &m_faces[ADB].normal);
-    D3DXVec3Normalize(&m_faces[ABC].normal, &m_faces[ABC].normal);
-
-    m_faces[ACD].indices[0] = A;
-    m_faces[ACD].indices[1] = D;
-    m_faces[ACD].indices[2] = C;
-
-    m_faces[ADB].indices[0] = A;
-    m_faces[ADB].indices[1] = D;
-    m_faces[ADB].indices[2] = B;
-
-    m_faces[ABC].indices[0] = A;
-    m_faces[ABC].indices[1] = B;
-    m_faces[ABC].indices[2] = C;
-
-    m_faces[ACD].distanceToOrigin = GetDistanceToOrigin(m_faces[ACD]);
-    m_faces[ADB].distanceToOrigin = GetDistanceToOrigin(m_faces[ADB]);
-    m_faces[ABC].distanceToOrigin = GetDistanceToOrigin(m_faces[ABC]);
-
-    if(m_faces[ACD].distanceToOrigin < 0.0f)
+    // Determine faces that the point is in front of
+    std::vector<int> visibleFaces;
+    for(const Face& face : m_faces)
     {
-        m_faces[ACD].distanceToOrigin = fabs(m_faces[ACD].distanceToOrigin);
-        m_faces[ACD].normal = -m_faces[ACD].normal;
+        D3DXVECTOR3 faceToPoint = point - GetPoint(face.indices[0]);
+        if(D3DXVec3Dot(&face.normal, &faceToPoint) > 0.0f)
+        {
+            visibleFaces.push_back(face.index);
+        }
+    }
+    assert(!visibleFaces.empty());
+
+    // Find all border edges from the visible faces
+    const int minimumFaces = 1;
+    const int maximumEdges = 3;
+    std::vector<const Edge*> edges;
+
+    if(visibleFaces.size() == minimumFaces)
+    {
+        // For a single face, all edges are on the border
+        for(const Edge& edge : m_faces[visibleFaces[0]].edges)
+        {
+            edges.push_back(&edge);
+        }
+    }
+    else
+    {
+        // For multiple faces, determine the border edges
+        for(int index : visibleFaces)
+        {
+            GetBorderEdges(m_faces[index], visibleFaces, edges);
+        }
     }
 
-    if(m_faces[ADB].distanceToOrigin < 0.0f)
+    // Connect up new faces from the edges to the point
+    assert(!edges.empty());
+    unsigned int visibleIndex = 0;
+    for(const Edge* edge : edges)
     {
-        m_faces[ADB].distanceToOrigin = fabs(m_faces[ADB].distanceToOrigin);
-        m_faces[ADB].normal = -m_faces[ADB].normal;
+        // Determine a new face to overwrite/create
+        int newIndex = NO_INDEX;
+        if(visibleIndex < visibleFaces.size())
+        {
+            newIndex = visibleFaces[visibleIndex];
+            ++visibleIndex;
+        }
+        else
+        {
+            newIndex = m_faces.size();
+            m_faces.push_back(Face());
+        }
+
+        Face& face = m_faces[newIndex];
+        face.index = newIndex;
+        face.indices[0] = edge->indices[0];
+        face.indices[1] = edge->indices[1];
+        face.indices[2] = pointIndex;
+
+        face.edges[0].indices[0] = pointIndex;
+        face.edges[0].indices[1] = edge->indices[0];
+        face.edges[1].indices[0] = pointIndex;
+        face.edges[1].indices[1] = edge->indices[1];
+        face.edges[2].indices[0] = edge->indices[0];
+        face.edges[2].indices[1] = edge->indices[1];
+
+        const D3DXVECTOR3 u = GetPoint(edge->indices[0]) - point;
+        const D3DXVECTOR3 v = GetPoint(edge->indices[1]) - point;
+
+        D3DXVec3Cross(&face.normal, &u, &v);
+        D3DXVec3Normalize(&face.normal, &face.normal);
+
+        face.distanceToOrigin = GetDistanceToOrigin(face);
+        if(face.distanceToOrigin < 0.0f)
+        {
+            face.distanceToOrigin = fabs(face.distanceToOrigin);
+            face.normal = -face.normal;
+        }
     }
 
-    if(m_faces[ABC].distanceToOrigin < 0.0f)
+    // Erase any extra visible faces left over
+    for(unsigned int i = visibleIndex; i < visibleFaces.size(); ++i)
     {
-        m_faces[ABC].distanceToOrigin = fabs(m_faces[ABC].distanceToOrigin);
-        m_faces[ABC].normal = -m_faces[ABC].normal;
+        auto itr = m_faces.begin();
+        std::advance(itr, visibleFaces[i]);
+        m_faces.erase(itr, m_faces.end());
     }
+}
+
+void Simplex::GetBorderEdges(const Face& face, 
+                             const std::vector<int>& faces,
+                             std::vector<const Edge*>& edges)
+{
+    // Can have a maximum of 2 border edges per face
+    int edgeCounter = 0;
+    const Edge* border1 = nullptr;
+    const Edge* border2 = nullptr;
+    const int maxAllowedEdges = 2;
+
+    for(const Edge& edge : face.edges)
+    {
+        if(!IsSharedEdge(edge, faces))
+        {
+            if(!border1)
+            {
+                border1 = &edge;
+            }
+            else if(!border2)
+            {
+                border2 = &edge;
+            }
+
+            ++edgeCounter;
+            if(edgeCounter > maxAllowedEdges)
+            {
+                break;
+            }
+        }
+    }
+    
+    if(border1)
+    {
+        edges.push_back(border1);
+    }
+    if(border2)
+    {
+        edges.push_back(border2);
+    }
+}
+
+bool Simplex::IsSharedEdge(const Edge& edge, const std::vector<int>& faces) const
+{
+    for(int index : faces)
+    {
+        for(const Edge& connectedEdge : m_faces[index].edges)
+        {
+            if(AreEdgesEqual(edge, connectedEdge))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Simplex::AreEdgesEqual(const Edge& edge1, const Edge& edge2) const
+{
+    return ((edge1.indices[0] == edge2.indices[0] ||
+             edge1.indices[0] == edge2.indices[1]) && 
+            (edge1.indices[1] == edge2.indices[0] || 
+             edge1.indices[1] == edge2.indices[1]));
 }
 
 float Simplex::GetDistanceToOrigin(const Face& face) const

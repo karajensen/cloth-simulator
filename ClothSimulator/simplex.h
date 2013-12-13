@@ -8,6 +8,19 @@
 #include <array>
 
 /**
+* Edge between faces of a n-dimensional simplex
+*/
+struct Edge
+{
+    /**
+    * Constructor
+    */
+    Edge();
+
+    std::array<int, 2> indices; ///< Index for simplex points
+};
+
+/**
 * Triangle face of a n-dimensional simplex
 */
 struct Face
@@ -20,7 +33,8 @@ struct Face
     int index; ///< User index of face
     D3DXVECTOR3 normal; ///< Normal of the face
     float distanceToOrigin; ///< Distance of face to origin
-    std::array<int, 3> indices; ///< Index for the face
+    std::array<int, 3> indices; ///< Index for simplex points
+    std::array<Edge, 3> edges; ///< Edges surrounding the face
 };
 
 /**
@@ -80,10 +94,9 @@ public:
 
     /**
     * Connects the vertices of the current face with the given point
-    * @param faceindex The index of the face to extend
     * @param point The point to extend to
     */
-    void ExtendFace(int faceindex, const D3DXVECTOR3& point);
+    void ExtendFace(const D3DXVECTOR3& point);
 
     /**
     * @return the faces for the simplex
@@ -103,6 +116,30 @@ private:
     * @return the distance from the face to the origin
     */
     float GetDistanceToOrigin(const Face& face) const;
+
+    /**
+    * @param edge1 The first edge to compare
+    * @param edge2 The second edge to compare
+    * @return whether the two edges are equal
+    */
+    bool AreEdgesEqual(const Edge& edge1, const Edge& edge2) const;
+
+    /**
+    * Determines if the given edge exists among the comparison faces
+    * @param edge The edge to check for
+    * @param comparison A list of faces indices to search for the edge
+    * @return whether the given edge is shared amongst the given faces
+    */
+    bool IsSharedEdge(const Edge& edge, const std::vector<int>& faces) const;
+
+    /**
+    * Fills the given container with any edges from the face that are border edges
+    * @param face The face to find the border edges for
+    * @param faces All possible connected faces to the face
+    * @param edges A container to fill with border edges
+    */
+    void GetBorderEdges(const Face& face, const std::vector<int>& faces, 
+        std::vector<const Edge*>& edges);
 
     std::deque<Face> m_faces; ///< faces for tetrahedron+ simplex points
     std::deque<D3DXVECTOR3> m_simplex; ///< Internal simplex container

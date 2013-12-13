@@ -1,7 +1,18 @@
 
-• larger caps on scaling
 • EPA algorithm finish
 • Joey approved testing
+
+/**
+1. Start with a tetrahedron (I'll call this the Shape) containing the Origin of the Minkowski Sum A + (-B) 
+2. Find the plane defined by a triangle on the Shape which is closest to the origin.
+3. If the projected point of the origin does not lie within the triangle on the plane, reject and go to 2.
+4. Using the line from the Origin through the projected point on the plane as the search direction, call w = Support(A + (-B)).
+5. If the newly found point is less than some tolerance, Epsilon, further along the line, then go to 9.
+6. Split the triangle by adding w.
+7. Find the convex hull of the Shape using the Flood Fill algorithm for forward facing adjacent triangles (as looking from w toward the origin).
+8. Go to 2.
+9. We have reached the boundary of the Minkowski Sum, so this is the final feature - ie, the shortest penetration depth.
+*/
 
 =================================================================
 CLOTH SIMULATOR

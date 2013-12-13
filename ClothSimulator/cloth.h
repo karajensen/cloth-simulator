@@ -17,8 +17,6 @@ class Cloth : public PickableMesh, public Transform
 {
 public:
 
-    static bool PAUSE; //TEMP
-
     typedef std::unique_ptr<Particle> ParticlePtr;
     typedef std::unique_ptr<Spring> SpringPtr;
 
@@ -70,7 +68,7 @@ public:
     /**
     * @param simulating Set whether the cloth is simulating
     */
-    void SetSimulation(bool simulating) { m_simulation = simulating; PAUSE = false; } //TEMP
+    void SetSimulation(bool simulating) { m_simulation = simulating; }
 
     /**
     * @return whether the cloth is simulating
