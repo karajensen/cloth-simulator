@@ -20,7 +20,8 @@ Simplex::Simplex()
 Face::Face() :
     normal(0.0f, 0.0f, 0.0f),
     distanceToOrigin(0.0f),
-    index(0)
+    index(0),
+    alive(true)
 {
     indices.assign(0);
 }
@@ -121,17 +122,20 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
     // on the border of the highlighted ones. Reference:
     // http://www.eecs.tufts.edu/~mhorn01/comp163/algorithm.html
 
+    const int pointIndex = static_cast<int>(m_simplex.size());
     m_simplex.push_back(point);
-    const int pointIndex = static_cast<int>(m_simplex.size()-1);;
 
     // Determine faces that the point is in front of
     std::vector<int> visibleFaces;
     for(const Face& face : m_faces)
     {
-        D3DXVECTOR3 faceToPoint = point - GetPoint(face.indices[0]);
-        if(D3DXVec3Dot(&face.normal, &faceToPoint) > 0.0f)
+        if(face.alive)
         {
-            visibleFaces.push_back(face.index);
+            D3DXVECTOR3 faceToPoint = point - GetPoint(face.indices[0]);
+            if(D3DXVec3Dot(&face.normal, &faceToPoint) > 0.0f)
+            {
+                visibleFaces.push_back(face.index);
+            }
         }
     }
     assert(!visibleFaces.empty());
@@ -140,7 +144,7 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
     const int minimumFaces = 1;
     const int maximumEdges = 3;
     std::vector<const Edge*> edges;
-
+    
     if(visibleFaces.size() == minimumFaces)
     {
         // For a single face, all edges are on the border
@@ -157,44 +161,62 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
             GetBorderEdges(m_faces[index], visibleFaces, edges);
         }
     }
-
-    // Connect up new faces from the edges to the point
     assert(!edges.empty());
+
+    // Mark all visible faces as dead
+    for(int index : visibleFaces)
+    {
+        m_faces[index].alive = false;
+    }
+    
+    // Connect up new faces from the edges to the point
     unsigned int visibleIndex = 0;
+    bool hasDeadFaces = true;
+    
     for(const Edge* edge : edges)
     {
-        // Determine a new face to overwrite/create
-        int newIndex = NO_INDEX;
+        //// Determine a new face to overwrite/create
+        int faceIndex = NO_INDEX;
         if(visibleIndex < visibleFaces.size())
         {
-            newIndex = visibleFaces[visibleIndex];
+            faceIndex = visibleFaces[visibleIndex];
             ++visibleIndex;
         }
         else
         {
-            newIndex = m_faces.size();
-            m_faces.push_back(Face());
+            if(hasDeadFaces)
+            {
+                faceIndex = GetDeadFaceIndex();
+                hasDeadFaces = faceIndex != NO_INDEX;
+            }
+        
+            if(!hasDeadFaces)
+            {
+                faceIndex = m_faces.size();
+                m_faces.push_back(Face());
+            }
         }
-
-        Face& face = m_faces[newIndex];
-        face.index = newIndex;
+    
+        Face& face = m_faces[faceIndex];
+        face.alive = true;
+        face.index = faceIndex;
         face.indices[0] = edge->indices[0];
         face.indices[1] = edge->indices[1];
         face.indices[2] = pointIndex;
-
+    
         face.edges[0].indices[0] = pointIndex;
         face.edges[0].indices[1] = edge->indices[0];
         face.edges[1].indices[0] = pointIndex;
         face.edges[1].indices[1] = edge->indices[1];
         face.edges[2].indices[0] = edge->indices[0];
         face.edges[2].indices[1] = edge->indices[1];
-
+    
         const D3DXVECTOR3 u = GetPoint(edge->indices[0]) - point;
         const D3DXVECTOR3 v = GetPoint(edge->indices[1]) - point;
-
+    
         D3DXVec3Cross(&face.normal, &u, &v);
         D3DXVec3Normalize(&face.normal, &face.normal);
-
+    
         face.distanceToOrigin = GetDistanceToOrigin(face);
         if(face.distanceToOrigin < 0.0f)
         {
@@ -202,14 +224,15 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
             face.normal = -face.normal;
         }
     }
+}
 
-    // Erase any extra visible faces left over
-    for(unsigned int i = visibleIndex; i < visibleFaces.size(); ++i)
+int Simplex::GetDeadFaceIndex() const
+{
+    auto itr = std::find_if(m_faces.begin(), m_faces.end(), [](const Face& face)
     {
-        auto itr = m_faces.begin();
-        std::advance(itr, visibleFaces[i]);
-        m_faces.erase(itr, m_faces.end());
-    }
+        return !face.alive;
+    });
+    return itr == m_faces.end() ? NO_INDEX : itr->index;
 }
 
 void Simplex::GetBorderEdges(const Face& face, 
@@ -218,46 +241,53 @@ void Simplex::GetBorderEdges(const Face& face,
 {
     // Can have a maximum of 2 border edges per face
     int edgeCounter = 0;
-    const Edge* border1 = nullptr;
-    const Edge* border2 = nullptr;
-    const int maxAllowedEdges = 2;
+    const int maxBorders = 2;
 
-    for(const Edge& edge : face.edges)
+    std::array<int, maxBorders> borders;
+    borders.assign(NO_INDEX);
+
+    for(int i = 0; i < static_cast<int>(face.edges.size()); ++i)
     {
-        if(!IsSharedEdge(edge, faces))
+        const Edge& edge = face.edges[i];
+        if(!IsSharedEdge(face.index, edge, faces))
         {
-            if(!border1)
+            for(int& border : borders)
             {
-                border1 = &edge;
-            }
-            else if(!border2)
-            {
-                border2 = &edge;
+                if(border == NO_INDEX)
+                {
+                    border = i;
+                    break;
+                }
             }
 
             ++edgeCounter;
-            if(edgeCounter > maxAllowedEdges)
+            if(edgeCounter >= maxBorders)
             {
                 break;
             }
         }
     }
     
-    if(border1)
+    // Store all found border edges
+    for(int border : borders)
     {
-        edges.push_back(border1);
-    }
-    if(border2)
-    {
-        edges.push_back(border2);
+        if(border != NO_INDEX)
+        {
+            edges.push_back(&face.edges[border]);
+        }
     }
 }
 
-bool Simplex::IsSharedEdge(const Edge& edge, const std::vector<int>& faces) const
+bool Simplex::IsSharedEdge(int index, const Edge& edge, const std::vector<int>& faces) const
 {
-    for(int index : faces)
+    for(int faceindex : faces)
     {
-        for(const Edge& connectedEdge : m_faces[index].edges)
+        if(faceindex == index)
+        {
+            continue;
+        }
+
+        for(const Edge& connectedEdge : m_faces[faceindex].edges)
         {
             if(AreEdgesEqual(edge, connectedEdge))
             {

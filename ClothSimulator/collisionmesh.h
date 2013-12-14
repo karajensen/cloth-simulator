@@ -262,6 +262,16 @@ public:
     */
     const D3DXVECTOR3& GetVelocity() const;
 
+    /**
+    * @return whether the hull should render any collision solver diagnostics
+    */
+    bool RenderCollisionDiagnostics() const;
+
+    /**
+    * @param render Whether the hull should render any collision solver diagnostics
+    */
+    void SetRenderCollisionDiagnostics(bool render);
+
 private:
 
     /**
@@ -308,6 +318,7 @@ private:
     bool m_draw;                               ///< Whether to draw the geometry
     bool m_requiresFullUpdate;                 ///< Whether the collision mesh requires a full update
     bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
+    bool m_renderCollisionDiagnostics;         ///< Whether to render any collision solver diagnostics
     float m_radius;                            ///< Transformed radius that encases geometry
 
 };                                             

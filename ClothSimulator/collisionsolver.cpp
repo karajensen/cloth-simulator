@@ -11,8 +11,7 @@
 CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
                                  std::shared_ptr<Cloth> cloth) :
     m_cloth(cloth),
-    m_engine(engine),
-    m_updatedDiagnostics(false)
+    m_engine(engine)
 {
 }
 
@@ -117,6 +116,38 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     const int maxIterations = 1;
     int currentIteration = 0;
 
+    //////////////////////////////////////////////////////
+    //if(particle.RenderCollisionDiagnostics())
+    //{
+    //    const auto& points = simplex.GetPoints();
+    //    const auto& faces = simplex.GetFaces();
+    //
+    //    for(unsigned int i = 0; i < faces.size(); ++i)
+    //    {
+    //        std::string id = StringCast(i);
+    //        const Face& face = faces[i];
+    //
+    //        const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
+    //        const D3DXVECTOR3& normal = face.normal;
+    //        const D3DXVECTOR3& pointA = points[face.indices[0]];
+    //        const D3DXVECTOR3& pointB = points[face.indices[1]];
+    //        const D3DXVECTOR3& pointC = points[face.indices[2]];
+    //
+    //       //m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+    //       //    "sNormal1" + id, Diagnostic::BLUE, center, center + normal);
+    //
+    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+    //            "sLine11" + id, Diagnostic::RED, pointA, pointB);
+    //
+    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+    //            "sLine21" + id, Diagnostic::RED, pointA, pointC);
+    //
+    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+    //            "sLine31" + id, Diagnostic::RED, pointC, pointB);
+    //    }
+    //}
+    //////////////////////////////////////////////////////
+
     while(!penetrationFound && currentIteration < maxIterations)
     {
         const Face& face = GetClosestFace(simplex);
@@ -136,6 +167,12 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
             const float distance = fabs(D3DXVec3Dot(&faceToPoint, &face.normal));
             penetrationFound = distance < epsilon;
 
+            if(particle.RenderCollisionDiagnostics())
+            {
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION, 
+                    "point", Diagnostic::MAGENTA, point, 0.2f);
+            }
+
             if(!penetrationFound)
             {
                 // Add the new point and extend the convex hull
@@ -147,15 +184,14 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
 
     if(!penetrationFound)
     {
-        if(!m_updatedDiagnostics)
-        {
-            UpdateDiagnostics(simplex);
-            m_updatedDiagnostics = true;
-        }
-
         // Fallback on the initial closest face
         const Face& face = GetClosestFace(simplex);
         projectedOrigin = face.distanceToOrigin * face.normal;
+    }
+
+    if(particle.RenderCollisionDiagnostics())
+    {
+        UpdateDiagnostics(simplex);
     }
 
     // Penetration vector is from origin to closest face
@@ -169,7 +205,8 @@ const Face& CollisionSolver::GetClosestFace(Simplex& simplex)
     const auto& faces = simplex.GetFaces();
     for(unsigned int i = 0; i < faces.size(); ++i)
     {
-        if(faces[i].distanceToOrigin < faces[closest].distanceToOrigin)
+        if(faces[i].alive && faces[i].distanceToOrigin
+            < faces[closest].distanceToOrigin)
         {
             closest = i;
         }
@@ -357,7 +394,6 @@ void CollisionSolver::SolveClothCollision(const D3DXVECTOR3& minBounds,
         particles[i]->MovePosition(position);
     }
 
-    m_updatedDiagnostics = false;
     D3DPERF_EndEvent();
 }
 
@@ -390,26 +426,30 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
 
         for(unsigned int i = 0; i < faces.size(); ++i)
         {
-            std::string id = StringCast(i);
-            const Face& face = faces[i];
+            if(faces[i].alive)
+            {
+                std::string id = StringCast(i);
+                const Face& face = faces[i];
 
-            const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
-            const D3DXVECTOR3& normal = face.normal;
-            const D3DXVECTOR3& pointA = points[face.indices[0]];
-            const D3DXVECTOR3& pointB = points[face.indices[1]];
-            const D3DXVECTOR3& pointC = points[face.indices[2]];
+                const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
+                const D3DXVECTOR3& normal = face.normal;
+                const D3DXVECTOR3& pointA = points[face.indices[0]];
+                const D3DXVECTOR3& pointB = points[face.indices[1]];
+                const D3DXVECTOR3& pointC = points[face.indices[2]];
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sNormal" + id, Diagnostic::BLUE, center, center + normal);
+                m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                    "sNormal" + id, Diagnostic::BLUE, center, center + normal);
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sLine1" + id, Diagnostic::YELLOW, pointA, pointB);
+                m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                    "sLine1" + id, Diagnostic::YELLOW, pointA, pointB);
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-                "sLine2" + id, Diagnostic::YELLOW, pointA, pointC);
+                m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
+                    "sLine2" + id, Diagnostic::YELLOW, pointA, pointC);
 
-            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-                "sLine3" + id, Diagnostic::YELLOW, pointC, pointB);
+                m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                    "sLine3" + id, Diagnostic::YELLOW, pointC, pointB);
+
+            }
         }
     }
 }

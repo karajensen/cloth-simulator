@@ -30,6 +30,7 @@ struct Face
     */
     Face();
 
+    bool alive; ///< Whether the triangle is dead or not
     int index; ///< User index of face
     D3DXVECTOR3 normal; ///< Normal of the face
     float distanceToOrigin; ///< Distance of face to origin
@@ -126,11 +127,12 @@ private:
 
     /**
     * Determines if the given edge exists among the comparison faces
+    * @param index The face index the edge lives on
     * @param edge The edge to check for
     * @param comparison A list of faces indices to search for the edge
     * @return whether the given edge is shared amongst the given faces
     */
-    bool IsSharedEdge(const Edge& edge, const std::vector<int>& faces) const;
+    bool IsSharedEdge(int index, const Edge& edge, const std::vector<int>& faces) const;
 
     /**
     * Fills the given container with any edges from the face that are border edges
@@ -140,6 +142,11 @@ private:
     */
     void GetBorderEdges(const Face& face, const std::vector<int>& faces, 
         std::vector<const Edge*>& edges);
+
+    /**
+    * @return an index of a dead face
+    */
+    int GetDeadFaceIndex() const;
 
     std::deque<Face> m_faces; ///< faces for tetrahedron+ simplex points
     std::deque<D3DXVECTOR3> m_simplex; ///< Internal simplex container

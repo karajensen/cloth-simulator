@@ -48,7 +48,8 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_draw(false),
     m_requiresFullUpdate(false),
     m_requiresPositionalUpdate(false),
-    m_radius(0.0f)
+    m_radius(0.0f),
+    m_renderCollisionDiagnostics(false)
 {
     m_oabb.resize(CORNERS);
 }
@@ -516,4 +517,14 @@ bool CollisionMesh::IsCollidingWith(CollisionMesh::Shape shape)
 const D3DXVECTOR3& CollisionMesh::GetVelocity() const
 {
     return m_positionDelta;
+}
+
+bool CollisionMesh::RenderCollisionDiagnostics() const
+{
+    return m_renderCollisionDiagnostics;
+}
+
+void CollisionMesh::SetRenderCollisionDiagnostics(bool render)
+{
+    m_renderCollisionDiagnostics = render;
 }

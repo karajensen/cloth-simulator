@@ -139,6 +139,11 @@ void Cloth::CreateCloth(int rows, float spacing)
         UVv += 0.5;
     }
 
+    // Set a centered particle as the one to draw any collision solve diagnostics
+    const int middle = ((m_particleLength/2) * m_particleLength) + (m_particleLength/2);
+    auto& collision = m_particles[middle]->GetCollisionMesh();
+    collision.SetRenderCollisionDiagnostics(true);
+
     // Create the vertices
     m_quadVertices = m_subdivideCloth ? ((m_particleLength-1)*(m_particleLength-1)) : 0;
     const int vertexCount = m_particleCount + m_quadVertices;
