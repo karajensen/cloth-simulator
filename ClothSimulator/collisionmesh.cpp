@@ -27,10 +27,10 @@ namespace
     */
     enum
     {
-        NO_COLLISION = 0,
-        BOX_COLLISION = 1,
-        SPHERE_COLLISION = 2,
-        CYLINDER_COLLISION = 4
+        NO_COLLISION = 1,
+        BOX_COLLISION = 2,
+        SPHERE_COLLISION = 4,
+        CYLINDER_COLLISION = 8
     };
 }
 
@@ -40,7 +40,6 @@ CollisionMesh::CollisionMesh(const Transform& parent, EnginePtr engine) :
     m_partition(nullptr),
     m_positionDelta(0.0f, 0.0f, 0.0f),
     m_colour(1.0f, 1.0f, 1.0f),
-    m_inCollisionColor(0.0f, 0.0f, 0.0f),
     m_shader(engine->getShader(ShaderManager::BOUNDS_SHADER)),
     m_geometry(nullptr),
     m_resolveFn(nullptr),
@@ -339,12 +338,13 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
     D3DXVECTOR3 color = m_colour;
     if(!IsCollidingWith(NONE))
     {
-        color = m_inCollisionColor;
+        color = m_engine->diagnostic()->GetColor(Diagnostic::BLACK);
     }
     else if(m_partition)
     {
         color = m_engine->diagnostic()->GetColor(m_partition->GetColor());
     }
+
     DrawMesh(projection, view, color);
 }
 

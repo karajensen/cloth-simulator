@@ -146,8 +146,9 @@ private:
     /**
     * Updates the diagnostics for a simplex
     * @param simplex The simplex to update diagnostics for
+    * @param furthestPoint The last furthest point to find for the simplex
     */
-    void UpdateDiagnostics(const Simplex& simplex);
+    void UpdateDiagnostics(const Simplex& simplex, const D3DXVECTOR3& furthestPoint);
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine

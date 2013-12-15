@@ -306,7 +306,6 @@ private:
     Partition* m_partition;                    ///< Partition collision currently in
     D3DXVECTOR3 m_positionDelta;               ///< Change in position this tick
     D3DXVECTOR3 m_colour;                      ///< Colour to render
-    D3DXVECTOR3 m_inCollisionColor;            ///< The color to render when the collision is resolved
     D3DXVECTOR3 m_position;                    ///< Cached position of collision geometry
     LPD3DXEFFECT m_shader;                     ///< Shader for the collision geometry
     Data m_data;                               ///< Local data for the collision geometry

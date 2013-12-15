@@ -100,6 +100,11 @@ public:
     void ExtendFace(const D3DXVECTOR3& point);
 
     /**
+    * @return the last generated border edges for the simplex
+    */
+    const std::vector<Edge>& GetBorderEdges() const { return m_edges; }
+
+    /**
     * @return the faces for the simplex
     */
     const std::deque<Face>& GetFaces() const { return m_faces; }
@@ -138,16 +143,15 @@ private:
     * Fills the given container with any edges from the face that are border edges
     * @param face The face to find the border edges for
     * @param faces All possible connected faces to the face
-    * @param edges A container to fill with border edges
     */
-    void GetBorderEdges(const Face& face, const std::vector<int>& faces, 
-        std::vector<const Edge*>& edges);
+    void FindBorderEdges(const Face& face, const std::vector<int>& faces);
 
     /**
     * @return an index of a dead face
     */
     int GetDeadFaceIndex() const;
 
+    std::vector<Edge> m_edges; ///< Found border edges for hull generation
     std::deque<Face> m_faces; ///< faces for tetrahedron+ simplex points
     std::deque<D3DXVECTOR3> m_simplex; ///< Internal simplex container
 };

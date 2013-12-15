@@ -48,6 +48,7 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
         Simplex simplex;
         if(AreConvexHullsColliding(particle, hull, simplex))
         {
+            simplex.GenerateFaces();
             const D3DXVECTOR3 penetration = GetConvexHullPenetration(particle, hull, simplex);
             particle.ResolveCollision(penetration, hull.GetShape());
         }
@@ -109,74 +110,39 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
                                                       const CollisionMesh& hull, 
                                                       Simplex& simplex)
 {
-    simplex.GenerateFaces();
-    D3DXVECTOR3 projectedOrigin;
+    D3DXVECTOR3 furthestPoint;
+    D3DXVECTOR3 penetrationDirection;
+    float penetrationDistance = 0.0f;
     bool penetrationFound = false;
-    const float epsilon = 0.1f;
-    const int maxIterations = 1;
+    const float minDistance = 0.1f;
+    const int maxIterations = 6;
     int currentIteration = 0;
-
-    //////////////////////////////////////////////////////
-    //if(particle.RenderCollisionDiagnostics())
-    //{
-    //    const auto& points = simplex.GetPoints();
-    //    const auto& faces = simplex.GetFaces();
-    //
-    //    for(unsigned int i = 0; i < faces.size(); ++i)
-    //    {
-    //        std::string id = StringCast(i);
-    //        const Face& face = faces[i];
-    //
-    //        const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
-    //        const D3DXVECTOR3& normal = face.normal;
-    //        const D3DXVECTOR3& pointA = points[face.indices[0]];
-    //        const D3DXVECTOR3& pointB = points[face.indices[1]];
-    //        const D3DXVECTOR3& pointC = points[face.indices[2]];
-    //
-    //       //m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-    //       //    "sNormal1" + id, Diagnostic::BLUE, center, center + normal);
-    //
-    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-    //            "sLine11" + id, Diagnostic::RED, pointA, pointB);
-    //
-    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
-    //            "sLine21" + id, Diagnostic::RED, pointA, pointC);
-    //
-    //        m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
-    //            "sLine31" + id, Diagnostic::RED, pointC, pointB);
-    //    }
-    //}
-    //////////////////////////////////////////////////////
 
     while(!penetrationFound && currentIteration < maxIterations)
     {
         const Face& face = GetClosestFace(simplex);
-        penetrationFound = face.distanceToOrigin == 0.0f;
+        penetrationDirection = face.normal;
+        penetrationDistance = face.distanceToOrigin;
+        penetrationFound = penetrationDistance == 0.0f;
 
         if(!penetrationFound)
         {
-            projectedOrigin = face.distanceToOrigin * face.normal;
+            
 
             // Ensure projected point of origin lies within the face triangle
-            // TO DO
- 
+
+
 
             // Check if there are any edge points beyond the closest face
-            const D3DXVECTOR3 point = GetMinkowskiDifferencePoint(face.normal, particle, hull);
-            const D3DXVECTOR3 faceToPoint = point - simplex.GetPoint(face.indices[0]);
+            furthestPoint = GetMinkowskiDifferencePoint(face.normal, particle, hull);
+            const D3DXVECTOR3 faceToPoint = furthestPoint - simplex.GetPoint(face.indices[0]);
             const float distance = fabs(D3DXVec3Dot(&faceToPoint, &face.normal));
-            penetrationFound = distance < epsilon;
-
-            if(particle.RenderCollisionDiagnostics())
-            {
-                m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION, 
-                    "point", Diagnostic::MAGENTA, point, 0.2f);
-            }
+            penetrationFound = distance < minDistance;
 
             if(!penetrationFound)
             {
                 // Add the new point and extend the convex hull
-                simplex.ExtendFace(point);
+                simplex.ExtendFace(furthestPoint);
             }
         }
         ++currentIteration;
@@ -186,17 +152,17 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     {
         // Fallback on the initial closest face
         const Face& face = GetClosestFace(simplex);
-        projectedOrigin = face.distanceToOrigin * face.normal;
+        penetrationDirection = face.normal;
+        penetrationDistance = face.distanceToOrigin;
     }
 
     if(particle.RenderCollisionDiagnostics())
     {
-        UpdateDiagnostics(simplex);
+        UpdateDiagnostics(simplex, furthestPoint);
     }
 
     // Penetration vector is from origin to closest face
-    //return -projectedOrigin;
-    return D3DXVECTOR3(0,0,0);
+    return -(penetrationDirection * penetrationDistance);
 }
 
 const Face& CollisionSolver::GetClosestFace(Simplex& simplex)
@@ -413,17 +379,30 @@ void CollisionSolver::SolveObjectCollision(CollisionMesh& particle,
     }
 }
 
-void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
+void CollisionSolver::UpdateDiagnostics(const Simplex& simplex, 
+                                        const D3DXVECTOR3& furthestPoint)
 {
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::COLLISION))
     {
         const float radius = 0.1f;
+        const float normalLength = 1.5f;
+
         m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
-            "origin", Diagnostic::WHITE, D3DXVECTOR3(0.0, 0.0, 0.0), radius);
+            "Origin", Diagnostic::WHITE, D3DXVECTOR3(0.0, 0.0, 0.0), radius);
 
-        const auto& points = simplex.GetPoints();
+        m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION, 
+            "FurthestPoint", Diagnostic::MAGENTA, furthestPoint, radius);
+
+        const auto& borders = simplex.GetBorderEdges();
+        for(unsigned int i = 0; i < borders.size(); ++i)
+        {
+            m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
+                "BorderEdge" + StringCast(i), Diagnostic::RED, 
+                simplex.GetPoint(borders[i].indices[0]), 
+                simplex.GetPoint(borders[i].indices[1]));                    
+        }
+
         const auto& faces = simplex.GetFaces();
-
         for(unsigned int i = 0; i < faces.size(); ++i)
         {
             if(faces[i].alive)
@@ -432,10 +411,13 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
                 const Face& face = faces[i];
 
                 const D3DXVECTOR3 center = simplex.GetFaceCenter(i);
-                const D3DXVECTOR3& normal = face.normal;
-                const D3DXVECTOR3& pointA = points[face.indices[0]];
-                const D3DXVECTOR3& pointB = points[face.indices[1]];
-                const D3DXVECTOR3& pointC = points[face.indices[2]];
+                const D3DXVECTOR3& normal = face.normal * normalLength;
+                const D3DXVECTOR3& pointA = simplex.GetPoint(face.indices[0]);
+                const D3DXVECTOR3& pointB = simplex.GetPoint(face.indices[1]);
+                const D3DXVECTOR3& pointC = simplex.GetPoint(face.indices[2]);
+
+                m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION, 
+                    "sCenter" + id, Diagnostic::BLUE, center, radius);
 
                 m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION, 
                     "sNormal" + id, Diagnostic::BLUE, center, center + normal);
@@ -448,7 +430,6 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex)
 
                 m_engine->diagnostic()->UpdateLine(Diagnostic::COLLISION,
                     "sLine3" + id, Diagnostic::YELLOW, pointC, pointB);
-
             }
         }
     }

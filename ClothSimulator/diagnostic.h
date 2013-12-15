@@ -28,6 +28,7 @@ public:
         GREEN,
         CYAN,
         MAGENTA,
+        BLACK,
         MAX_COLORS
     };
 
