@@ -61,7 +61,8 @@ bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle,
 {
     // If two convex hulls have collided, the Minkowski Difference of both 
     // hulls will contain the origin. Reference from 'Proximity Queries and 
-    // Penetration Depth Computation on 3D Game Objects' by Gino van den Bergen.
+    // Penetration Depth Computation on 3D Game Objects' by Gino van den Bergen
+    // http://graphics.stanford.edu/courses/cs468-01-fall/Papers/van-den-bergen.pdf
 
     const std::vector<D3DXVECTOR3>& particleVertices = particle.GetVertices();
     const std::vector<D3DXVECTOR3>& hullVertices = hull.GetVertices();
@@ -71,7 +72,7 @@ bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle,
     D3DXVECTOR3 direction = particleVertices[initialIndex] - hullVertices[initialIndex];
     D3DXVECTOR3 lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
     simplex.AddPoint(lastEdgePoint);
-
+        
     direction = -direction;
     int iteration = 0;
     bool collisionFound = false;
@@ -115,7 +116,7 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     float penetrationDistance = 0.0f;
     bool penetrationFound = false;
     const float minDistance = 0.1f;
-    const int maxIterations = 6;
+    const int maxIterations = 8;
     int currentIteration = 0;
 
     while(!penetrationFound && currentIteration < maxIterations)
@@ -127,9 +128,7 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
 
         if(!penetrationFound)
         {
-            
-
-            // Ensure projected point of origin lies within the face triangle
+            // Ensure the projected normal is within the triangle?
 
 
 
@@ -161,7 +160,6 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
         UpdateDiagnostics(simplex, furthestPoint);
     }
 
-    // Penetration vector is from origin to closest face
     return -(penetrationDirection * penetrationDistance);
 }
 

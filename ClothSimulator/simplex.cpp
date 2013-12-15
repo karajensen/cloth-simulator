@@ -15,6 +15,8 @@ namespace
 
 Simplex::Simplex()
 {
+    const int maximumExpectedEdges = 20;
+    m_edges.reserve(maximumExpectedEdges);
 }
 
 Face::Face() :

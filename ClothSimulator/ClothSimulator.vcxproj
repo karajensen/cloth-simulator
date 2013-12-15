@@ -164,9 +164,10 @@
     <Text Include="..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Resources\Shaders\ground.fx">
+    <None Include="Resources\Shaders\ground.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

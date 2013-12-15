@@ -7,9 +7,9 @@
 
 namespace
 {
-    const double DT_INCREASE = 0.0001; ///< Amount to change the forced deltatime
-    const double DT_MAXIMUM = 0.0475; ///< Maximum allowed deltatime
-    const double DT_MINIMUM = 0.0005; ///< Minimum allowed deltatime
+    const double DT_INCREASE = 0.001; ///< Amount to change the forced deltatime
+    const double DT_MAXIMUM = 0.03;   ///< Maximum allowed deltatime
+    const double DT_MINIMUM = 0.01;   ///< Minimum allowed deltatime
 }
 
 Timer::Timer(EnginePtr engine) :
