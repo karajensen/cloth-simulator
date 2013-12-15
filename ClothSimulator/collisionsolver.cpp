@@ -59,7 +59,7 @@ bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle,
                                               const CollisionMesh& hull, 
                                               Simplex& simplex)
 {
-    // If two convex hulls have collided, the Minkowski Difference of both 
+    // If two convex hulls have collided, the Minkowski Sum A + (-B) of both 
     // hulls will contain the origin. Reference from 'Proximity Queries and 
     // Penetration Depth Computation on 3D Game Objects' by Gino van den Bergen
     // http://graphics.stanford.edu/courses/cs468-01-fall/Papers/van-den-bergen.pdf
@@ -70,20 +70,20 @@ bool CollisionSolver::AreConvexHullsColliding(const CollisionMesh& particle,
     // Determine an initial point for the simplex
     const int initialIndex = 0;
     D3DXVECTOR3 direction = particleVertices[initialIndex] - hullVertices[initialIndex];
-    D3DXVECTOR3 lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
+    D3DXVECTOR3 lastEdgePoint = GetMinkowskiSumEdgePoint(direction, particle, hull);
     simplex.AddPoint(lastEdgePoint);
         
     direction = -direction;
     int iteration = 0;
     bool collisionFound = false;
     bool collisionPossible = true;
-    const int maxIterations = 30;
+    const int maxIterations = 20;
 
-    // Iteratively create a simplex within the Minkowski Difference hull
+    // Iteratively create a simplex within the Minkowski Sum Hull
     while(iteration < maxIterations && !collisionFound && collisionPossible)
     {
         ++iteration;
-        lastEdgePoint = GetMinkowskiDifferencePoint(direction, particle, hull);
+        lastEdgePoint = GetMinkowskiSumEdgePoint(direction, particle, hull);
         simplex.AddPoint(lastEdgePoint);
 
         if(D3DXVec3Dot(&lastEdgePoint, &direction) <= 0)
@@ -116,12 +116,13 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     float penetrationDistance = 0.0f;
     bool penetrationFound = false;
     const float minDistance = 0.1f;
-    const int maxIterations = 8;
-    int currentIteration = 0;
+    const int maxIterations = 10;
+    int iteration = 0;
 
-    while(!penetrationFound && currentIteration < maxIterations)
+    while(!penetrationFound && iteration < maxIterations)
     {
-        const Face& face = GetClosestFace(simplex);
+        ++iteration;
+        const Face& face = simplex.GetClosestFaceToOrigin();
         penetrationDirection = face.normal;
         penetrationDistance = face.distanceToOrigin;
         penetrationFound = penetrationDistance == 0.0f;
@@ -133,7 +134,7 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
 
 
             // Check if there are any edge points beyond the closest face
-            furthestPoint = GetMinkowskiDifferencePoint(face.normal, particle, hull);
+            furthestPoint = GetMinkowskiSumEdgePoint(face.normal, particle, hull);
             const D3DXVECTOR3 faceToPoint = furthestPoint - simplex.GetPoint(face.indices[0]);
             const float distance = fabs(D3DXVec3Dot(&faceToPoint, &face.normal));
             penetrationFound = distance < minDistance;
@@ -144,13 +145,12 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
                 simplex.ExtendFace(furthestPoint);
             }
         }
-        ++currentIteration;
     }
 
     if(!penetrationFound)
     {
         // Fallback on the initial closest face
-        const Face& face = GetClosestFace(simplex);
+        const Face& face = simplex.GetClosestFaceToOrigin();
         penetrationDirection = face.normal;
         penetrationDistance = face.distanceToOrigin;
     }
@@ -161,21 +161,6 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
     }
 
     return -(penetrationDirection * penetrationDistance);
-}
-
-const Face& CollisionSolver::GetClosestFace(Simplex& simplex)
-{
-    int closest = 0;
-    const auto& faces = simplex.GetFaces();
-    for(unsigned int i = 0; i < faces.size(); ++i)
-    {
-        if(faces[i].alive && faces[i].distanceToOrigin
-            < faces[closest].distanceToOrigin)
-        {
-            closest = i;
-        }
-    }
-    return faces[closest];
 }
 
 const D3DXVECTOR3& CollisionSolver::FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
@@ -195,7 +180,7 @@ const D3DXVECTOR3& CollisionSolver::FindFurthestPoint(const std::vector<D3DXVECT
     return points[furthestIndex];
 }
 
-D3DXVECTOR3 CollisionSolver::GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
+D3DXVECTOR3 CollisionSolver::GetMinkowskiSumEdgePoint(const D3DXVECTOR3& direction,
                                                          const CollisionMesh& particle, 
                                                          const CollisionMesh& hull)
 {
@@ -384,9 +369,10 @@ void CollisionSolver::UpdateDiagnostics(const Simplex& simplex,
     {
         const float radius = 0.1f;
         const float normalLength = 1.5f;
+        D3DXVECTOR3 origin(0.0, 0.0, 0.0);
 
         m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION,
-            "Origin", Diagnostic::WHITE, D3DXVECTOR3(0.0, 0.0, 0.0), radius);
+            "OriginPoint", Diagnostic::WHITE, origin, radius);
 
         m_engine->diagnostic()->UpdateSphere(Diagnostic::COLLISION, 
             "FurthestPoint", Diagnostic::MAGENTA, furthestPoint, radius);

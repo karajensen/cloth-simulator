@@ -83,15 +83,15 @@ private:
         const D3DXVECTOR3& direction) const;
 
     /**
-    * Generates a point on the edge of the Minkowski Difference hull
+    * Generates a point on the edge of the Minkowski Sum hull
     * using a chosen vertex from each collision mesh that is furthest
     * along the given direction. Known as a 'support' function.
     * @param direction The direction to search along
     * @param particle The collision mesh for the particle
     * @param hull The collision mesh for the convex hull
-    * @return an edge point in the Minkowski Difference
+    * @return an edge point in the Minkowski Sum
     */
-    D3DXVECTOR3 GetMinkowskiDifferencePoint(const D3DXVECTOR3& direction,
+    D3DXVECTOR3 GetMinkowskiSumEdgePoint(const D3DXVECTOR3& direction,
         const CollisionMesh& particle, const CollisionMesh& hull);
 
     /**
@@ -135,13 +135,6 @@ private:
     */
     D3DXVECTOR3 GetConvexHullPenetration(const CollisionMesh& particle, 
         const CollisionMesh& hull, Simplex& simplex);
-
-    /**
-    * Finds the closest triangle face to the origin point
-    * @param simplex A simplex of n-dimensions with connecting faces
-    * @return The closest face within the simplex to the origin
-    */
-    const Face& GetClosestFace(Simplex& simplex);
 
     /**
     * Updates the diagnostics for a simplex

@@ -306,3 +306,17 @@ D3DXVECTOR3 Simplex::GetFaceCenter(int faceindex) const
     center.z = (p0.z + p1.z + p2.z) / 3.0f;
     return center;
 }
+
+const Face& Simplex::GetClosestFaceToOrigin()
+{
+    int closest = 0;
+    for(unsigned int i = 0; i < m_faces.size(); ++i)
+    {
+        if(m_faces[i].alive && m_faces[i].distanceToOrigin
+            < m_faces[closest].distanceToOrigin)
+        {
+            closest = i;
+        }
+    }
+    return m_faces[closest];
+}

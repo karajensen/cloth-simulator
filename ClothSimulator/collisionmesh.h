@@ -69,10 +69,14 @@ public:
     CollisionMesh(const Transform& parent, EnginePtr engine);
 
     /**
+    * Function signature for resolving a collision
+    */
+    typedef std::function<void(const D3DXVECTOR3&)> MotionFn;
+
+    /**
     * Makes the collision mesh dynamic
     * @param resolveFn A function to call to resolve any collision
     */
-    typedef std::function<void(const D3DXVECTOR3&)> MotionFn;
     void MakeDynamic(MotionFn resolveFn);
 
     /**

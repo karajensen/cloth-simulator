@@ -115,6 +115,12 @@ public:
     */
     D3DXVECTOR3 GetFaceCenter(int faceindex) const;
 
+    /**
+    * Finds the closest triangle face to the origin point
+    * @return The closest face within the simplex to the origin
+    */
+    const Face& GetClosestFaceToOrigin();
+
 private:
 
     /**

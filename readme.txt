@@ -12,7 +12,7 @@ www.KaraJensen.com
 https://github.com/karajensen/cloth-simulator.git
 =================================================================
 
-PLATFORM: Windows
+REQUIREMENTS: Windows, DirectX
 VISUAL STUDIO VERSION: 2012
 VS ENVIRONMENT VARIABLES: $(DXSDK_DIR) DirectX SDK
 
