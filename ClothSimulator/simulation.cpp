@@ -30,7 +30,8 @@ namespace
 
 Simulation::Simulation() :
     m_drawCollisions(false),
-    m_d3ddev(nullptr)
+    m_d3ddev(nullptr),
+    f(0,0,0)
 {
 }
 
@@ -91,8 +92,48 @@ void Simulation::Update()
     m_scene->PreCollisionUpdate(pressed, m_input->GetMouseDirection(),
         m_camera->World(), m_camera->InverseProjection(), deltatime);
 
-    m_scene->SolveCollisions();
 
+    //////////////////////////
+
+    const D3DXVECTOR3 a(-3.0f, 10.0f, 3.0f);
+    const D3DXVECTOR3 b(5.0f, 10.0f, 5.0f);
+    const D3DXVECTOR3 c(2.0f, 10.0f, 8.0f);
+
+    D3DXVECTOR3 u = b - a;
+    D3DXVECTOR3 v = c - a;
+    D3DXVECTOR3 normal;
+    D3DXVec3Cross(&normal, &u, &v);
+    D3DXVec3Normalize(&normal, &normal);
+    D3DXVECTOR3 planeToMouse = f - a;
+    float distance = D3DXVec3Dot(&normal, &planeToMouse);
+
+    if(distance < 0.0f)
+    {
+        normal = -normal;
+    }
+    D3DXVECTOR3 n2 = normal * fabs(distance);
+    D3DXVECTOR3 p = f - n2;
+
+
+
+    float t = 0.0f;
+    float s = 0.0f;
+    bool inside = false;
+
+    m_diagnostics->UpdateLine(Diagnostic::TEXT, "normal", Diagnostic::BLUE, a, a + normal);
+    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp1", Diagnostic::BLUE, a, b);
+    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp2", Diagnostic::BLUE, a, c);
+    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp3", Diagnostic::WHITE, b, c);
+    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp4", Diagnostic::YELLOW, f, f - n2);
+    m_diagnostics->UpdateSphere(Diagnostic::TEXT, "pos2", Diagnostic::YELLOW, f, 0.3f);
+    m_diagnostics->UpdateSphere(Diagnostic::TEXT, "pos1", Diagnostic::RED, p, 0.3f);
+    m_diagnostics->UpdateText(Diagnostic::TEXT, "text", Diagnostic::YELLOW, StringCast(inside));
+    m_diagnostics->UpdateText(Diagnostic::TEXT, "t", Diagnostic::YELLOW, StringCast(t));
+    m_diagnostics->UpdateText(Diagnostic::TEXT, "s", Diagnostic::YELLOW, StringCast(s));
+
+    //////////////////////////
+
+    m_scene->SolveCollisions();
     m_cloth->PostCollisionUpdate();
     m_scene->PostCollisionUpdate();
 
@@ -220,23 +261,30 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->AddClickPreventionKey(DIK_LALT);
     
     // Controlling the cloth
-    m_input->SetKeyCallback(DIK_W, true, [&](){ m_cloth->MovePinnedRow(
-        -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
-    
-    m_input->SetKeyCallback(DIK_S, true, [&](){ m_cloth->MovePinnedRow(
-        m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
-    
-    m_input->SetKeyCallback(DIK_A, true, [&](){ m_cloth->MovePinnedRow(
-        0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
-    
-    m_input->SetKeyCallback(DIK_D, true, [&](){ m_cloth->MovePinnedRow(
-        0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
-    
-    m_input->SetKeyCallback(DIK_Q, true, [&](){ m_cloth->MovePinnedRow(
-        0.0f, 0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED); });
-    
-    m_input->SetKeyCallback(DIK_E, true, [&](){ m_cloth->MovePinnedRow(
-        0.0f, 0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED); });
+    //m_input->SetKeyCallback(DIK_W, true, [&](){ m_cloth->MovePinnedRow(
+    //    -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
+    //
+    //m_input->SetKeyCallback(DIK_S, true, [&](){ m_cloth->MovePinnedRow(
+    //    m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
+    //
+    //m_input->SetKeyCallback(DIK_A, true, [&](){ m_cloth->MovePinnedRow(
+    //    0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
+    //
+    //m_input->SetKeyCallback(DIK_D, true, [&](){ m_cloth->MovePinnedRow(
+    //    0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
+    //
+    //m_input->SetKeyCallback(DIK_Q, true, [&](){ m_cloth->MovePinnedRow(
+    //    0.0f, 0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED); });
+    //
+    //m_input->SetKeyCallback(DIK_E, true, [&](){ m_cloth->MovePinnedRow(
+    //    0.0f, 0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED); });
+
+    m_input->SetKeyCallback(DIK_W, true, [&](){ f.x += 0.1f; });
+    m_input->SetKeyCallback(DIK_S, true, [&](){ f.y += 0.1f; });
+    m_input->SetKeyCallback(DIK_A, true, [&](){ f.z += 0.1f; });
+    m_input->SetKeyCallback(DIK_D, true, [&](){ f.x -= 0.1f; });
+    m_input->SetKeyCallback(DIK_Q, true, [&](){ f.y -= 0.1f; });
+    m_input->SetKeyCallback(DIK_E, true, [&](){ f.z -= 0.1f; });
     
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 

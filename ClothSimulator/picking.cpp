@@ -30,25 +30,16 @@ void Picking::UpdatePicking(const Matrix& projection, const Matrix& world, int x
     m_rayDirection = D3DXVECTOR3();
     m_mesh = nullptr;
     m_distanceToMesh = FLT_MAX;
+    m_rayOrigin = world.Position();
 
+    // Screen space mouse ray
     D3DXVECTOR3 mouseRay;
     mouseRay.x =  (((2.0f*x)/WINDOW_WIDTH )-1) / projection.GetMatrix()._11;
     mouseRay.y = -(((2.0f*y)/WINDOW_HEIGHT)-1) / projection.GetMatrix()._22;
     mouseRay.z =  CAMERA_NEAR;
 
-    //Transform the screen space pick ray into 3D world space
-    m_rayDirection.x  = mouseRay.x * world.GetMatrix()._11 + 
-        mouseRay.y * world.GetMatrix()._21 + mouseRay.z * world.GetMatrix()._31;
-
-    m_rayDirection.y  = mouseRay.x * world.GetMatrix()._12 +
-        mouseRay.y * world.GetMatrix()._22 + mouseRay.z * world.GetMatrix()._32;
-
-    m_rayDirection.z  = mouseRay.x * world.GetMatrix()._13 + 
-        mouseRay.y * world.GetMatrix()._23 + mouseRay.z * world.GetMatrix()._33;
-
-    m_rayOrigin.x = world.GetMatrix()._41;
-    m_rayOrigin.y = world.GetMatrix()._42;
-    m_rayOrigin.z = world.GetMatrix()._43;
+    // View space mouse ray
+    D3DXVec3TransformNormal(&m_rayDirection, &mouseRay, &world.GetMatrix());
 }
 
 void Picking::LockMesh(bool lock)
@@ -73,6 +64,40 @@ void Picking::SetPickedMesh(PickableMesh* mesh, float distance)
 {
     m_mesh = mesh;
     m_distanceToMesh = distance;
+}
+
+bool Picking::RayCastMesh(const D3DXMATRIX& worldInverse, LPD3DXMESH mesh, float& distanceToMesh)
+{
+    D3DXVECTOR3 origin, direction;
+    D3DXVec3TransformCoord(&origin, &GetRayOrigin(), &worldInverse);
+    D3DXVec3TransformNormal(&direction, &GetRayDirection(), &worldInverse);
+    D3DXVec3Normalize(&direction, &direction);
+
+    void* vBuffer = nullptr;
+    mesh->LockVertexBuffer(0, &vBuffer);
+    Vertex* vertexBuffer = static_cast<Vertex*>(vBuffer);
+    mesh->UnlockVertexBuffer();
+
+    void* iBuffer = nullptr;
+    mesh->LockIndexBuffer(0, &iBuffer);
+    DWORD* indexBuffer = static_cast<DWORD*>(iBuffer);
+    mesh->UnlockIndexBuffer();
+
+    const DWORD indices = mesh->GetNumFaces() * 3;
+    for(DWORD i = 0; i < indices; i += 3)
+    {
+        const Vertex& v1 = vertexBuffer[indexBuffer[i]];
+        const Vertex& v2 = vertexBuffer[indexBuffer[i+1]];
+        const Vertex& v3 = vertexBuffer[indexBuffer[i+2]];
+        
+        D3DXVECTOR3 normal = (v1.normal + v2.normal + v3.normal) / 3.0f;
+        
+
+
+
+    }
+
+    return false;
 }
 
 void PickableMesh::SetMeshPickFunction(MeshPickFn fn)

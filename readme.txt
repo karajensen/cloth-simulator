@@ -1,5 +1,5 @@
 
-• Barycentric method
+• Mouse picking
 • Profile and improve framerate
 • Joey approved testing
 

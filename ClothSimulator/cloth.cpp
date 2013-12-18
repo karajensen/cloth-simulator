@@ -480,25 +480,12 @@ bool Cloth::MousePickingTest(Picking& input)
             auto collision = m_particles[index]->GetCollisionMesh().CollisionMatrix();
             D3DXMatrixInverse(&worldInverse, 0, &collision.GetMatrix());
 
-            D3DXVECTOR3 rayObjOrigin, rayObjDirection;
-            D3DXVec3TransformCoord(&rayObjOrigin, &input.GetRayOrigin(), &worldInverse);
-            D3DXVec3TransformNormal(&rayObjDirection, &input.GetRayDirection(), &worldInverse);
-            D3DXVec3Normalize(&rayObjDirection, &rayObjDirection);
-    
-            BOOL hasHit = 0;
-            if(FAILED(D3DXIntersect(m_particles[index]->GetCollisionMesh().GetMesh(), &rayObjOrigin, 
-                &rayObjDirection, &hasHit, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr)))
+            float distanceToMesh = 0.0f;
+            if(input.RayCastMesh(worldInverse, m_particles[index]->GetCollisionMesh().GetMesh(), distanceToMesh))
             {
-                hasHit = 0; // Call failed for any reason continue to next mesh.
-            }
-    
-            if(hasHit)
-            {
-                D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-m_particles[index]->GetPosition();
-                float distanceToCollisionMesh = D3DXVec3Length(&cameraToMesh);
-                if(distanceToCollisionMesh < input.GetDistanceToMesh())
+                if(distanceToMesh < input.GetDistanceToMesh())
                 {
-                    input.SetPickedMesh(this, distanceToCollisionMesh);
+                    input.SetPickedMesh(this, distanceToMesh);
                     indexChosen = index;
                 }
             }

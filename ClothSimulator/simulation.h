@@ -80,6 +80,9 @@ private:
     Simulation(const Simulation&);
     Simulation& operator=(const Simulation&);
 
+            D3DXVECTOR3 f;
+
+
     std::unique_ptr<LightManager> m_light;       ///< Manager for the simulation lights
     std::unique_ptr<ShaderManager> m_shader;     ///< Manager for the simulation shaders
     std::shared_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth

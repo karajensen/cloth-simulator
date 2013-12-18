@@ -105,6 +105,15 @@ public:
     */
     bool IsLocked() const;
 
+    /**
+    * Casts a ray to the mesh to determine if the mouse is colliding with it
+    * @param worldInverse The mesh world inverse matrix
+    * @param mesh The mesh to test
+    * @param distanceToMesh The distance to the collision
+    * @return whether the ray hit the mesh or not
+    */
+    bool RayCastMesh(const D3DXMATRIX& worldInverse, LPD3DXMESH mesh, float& distanceToMesh);
+
 private:
 
     bool m_locked;               ///< Stops picking from overwriting current mesh

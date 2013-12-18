@@ -238,29 +238,14 @@ bool Mesh::MousePickingTest(Picking& input)
             ? m_collision->CollisionMatrix() : *this;
 
         D3DXMATRIX worldInverse;
-        D3DXMatrixInverse(&worldInverse, NULL, &world.GetMatrix());
+        D3DXMatrixInverse(&worldInverse, nullptr, &world.GetMatrix());
 
-        D3DXVECTOR3 rayOrigin;
-        D3DXVECTOR3 rayDirection;
-        D3DXVec3TransformCoord(&rayOrigin, &input.GetRayOrigin(), &worldInverse);
-        D3DXVec3TransformNormal(&rayDirection, &input.GetRayDirection(), &worldInverse);
-        D3DXVec3Normalize(&rayDirection, &rayDirection);
-
-        BOOL hasHit = 0;
-        float distanceToCollisionMesh;
-        if(FAILED(D3DXIntersect(meshToTest, &rayOrigin, &rayDirection, &hasHit,
-            nullptr, nullptr, nullptr, &distanceToCollisionMesh, nullptr, nullptr)))
+        float distanceToMesh = 0.0f;
+        if(input.RayCastMesh(worldInverse, meshToTest, distanceToMesh))
         {
-            hasHit = 0; // Call failed for any reason continue to next mesh.
-        }
-
-        if(hasHit)
-        {
-            D3DXVECTOR3 cameraToMesh = input.GetRayOrigin()-world.Position();
-            float distanceToCollisionMesh = D3DXVec3Length(&cameraToMesh);
-            if(distanceToCollisionMesh < input.GetDistanceToMesh())
+            if(distanceToMesh < input.GetDistanceToMesh())
             {
-                input.SetPickedMesh(this, distanceToCollisionMesh);
+                input.SetPickedMesh(this, distanceToMesh);
                 return true;
             }
         }
