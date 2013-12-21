@@ -13,11 +13,13 @@ D3DXVertex::D3DXVertex() :
 
 MeshFace::MeshFace(const D3DXVECTOR3& p0, 
                    const D3DXVECTOR3& p1, 
-                   const D3DXVECTOR3& p2)
+                   const D3DXVECTOR3& p2) :
+    origin(p0),
+    P1(p1),
+    P2(p2)
 {
     u = p1 - p0;
     v = p2 - p0;
-    origin = p0;
 
     center.x = (p0.x + p1.x + p2.x) / 3.0f;
     center.y = (p0.y + p1.y + p2.y) / 3.0f;

@@ -149,20 +149,23 @@ bool Mesh::MousePickingTest(Picking& input)
     {
         if(m_collision && m_collision->HasShape())
         {
-            // Pre collision test against shape
+            // Pre collision sphere-ray test against shape
+            const float radius = m_collision->GetRadius();
+            const D3DXVECTOR3& position = m_collision->GetPosition();
+
+
+
+
 
 
 
         }
 
-        D3DXMATRIX worldInverse;
         const Matrix& world =  m_collision ? m_collision->CollisionMatrix() : *this;
-        D3DXMatrixInverse(&worldInverse, nullptr, &world.GetMatrix());
-
-        const Geometry& geometry = *m_collision->GetGeometry();
+        const Geometry& mesh = m_collision ? *m_collision->GetGeometry() : *m_geometry;
 
         float distanceToMesh = 0.0f;
-        if(input.RayCastMesh(worldInverse, geometry, distanceToMesh))
+        if(input.RayCastMesh(world.GetMatrix(), mesh, distanceToMesh))
         {
             if(distanceToMesh < input.GetDistanceToMesh())
             {

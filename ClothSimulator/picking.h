@@ -75,12 +75,12 @@ public:
 
     /**
     * Casts a ray to the mesh to determine if the mouse is colliding with it
-    * @param worldInverse The mesh world inverse matrix
+    * @param world The mesh world matrix
     * @param geometry The mesh to test
     * @param distanceToMesh The distance to the collision
     * @return whether the ray hit the mesh or not
     */
-    bool RayCastMesh(const D3DXMATRIX& worldInverse, 
+    bool RayCastMesh(const D3DXMATRIX& world, 
         const Geometry& geometry, float& distanceToMesh);
 
 private:

@@ -17,10 +17,11 @@ struct MeshFace
     */
     MeshFace(const D3DXVECTOR3& p0, const D3DXVECTOR3& p1, const D3DXVECTOR3& p2);
 
-    D3DXVECTOR3 u;        ///< Vector from origin to a point on the triangle
-    D3DXVECTOR3 v;        ///< Vector from origin to a point on the triangle
+    D3DXVECTOR3 u;        ///< Vector from origin to p1 on the triangle
+    D3DXVECTOR3 v;        ///< Vector from origin to p2 on the triangle
     D3DXVECTOR3 normal;   ///< Normal of the polygon face
     D3DXVECTOR3 origin;   ///< Origin of the polygon face
+    D3DXVECTOR3 P1, P2;   ///< Points on the mesh face
     D3DXVECTOR3 center;   ///< Center of the mesh face
     float uu;             ///< U dot U cached for performance 
     float vv;             ///< V dot V cached for performance

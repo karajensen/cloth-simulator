@@ -58,26 +58,39 @@ void Picking::SetPickedMesh(PickableMesh* mesh, float distance)
     m_distanceToMesh = distance;
 }
 
-bool Picking::RayCastMesh(const D3DXMATRIX& worldInverse,
+bool Picking::RayCastMesh(const D3DXMATRIX& world,
                           const Geometry& geometry, 
                           float& distanceToMesh)
 {
     bool foundCollision = false;
 
+    D3DXMATRIX worldInverse;
+    D3DXMatrixInverse(&worldInverse, 0, &world);
+
     // Convert origin/direction into local mesh coordinates
     D3DXVECTOR3 origin, direction;
-    D3DXVec3TransformCoord(&origin, &GetRayOrigin(), &worldInverse);
-    D3DXVec3TransformNormal(&direction, &GetRayDirection(), &worldInverse);
+    D3DXVec3TransformCoord(&origin, &m_rayOrigin, &worldInverse);
+    D3DXVec3TransformCoord(&direction, &m_rayDirection, &worldInverse);
     D3DXVec3Normalize(&direction, &direction);
 
    for(const MeshFace& face : geometry.GetFaces())
    {
-       const float distance = D3DXVec3Dot(&face.normal, &m_rayDirection);
-       if(distance >= 0.0f)
+       // Determine if normal is facing the pick direction
+       if(D3DXVec3Dot(&face.normal, &direction) <= 0.0f)
        {
-           const D3DXVECTOR3 projectedpoint = m_rayOrigin - (face.normal * distance);
-           const D3DXVECTOR3 d = projectedpoint - face.origin;
-   
+           // Find the line-plane intersection point
+           D3DXVECTOR3 d;
+           D3DXVECTOR3 intersection;
+
+
+
+
+
+
+
+
+
+
            // Convert world coordinates of p into barycentric coordinates
            // Plane equation: d = su + tv where d = p - p0
            // Dot by u/v to: d.v = (su + tv).v and d.u = (su + tv).u
@@ -86,15 +99,20 @@ bool Picking::RayCastMesh(const D3DXMATRIX& worldInverse,
            const float uu = face.uu;
            const float vv = face.vv;
            const float uv = face.uv;
-           const float dv = D3DXVec3Dot(&d, &face.v);
+           const float dv = D3DXVec3Dot(&d, &face.v); 
            const float du = D3DXVec3Dot(&d, &face.u);
-           const float t = ((uv * du) - (dv * uu)) / ((uv * uv) - (vv * uu));
-           const float s = ((dv * uv) - (du * vv)) / ((uv * uv) - (uu * vv));
+           const float tdenom = ((uv * uv) - (vv * uu));
+           const float sdenom = ((uv * uv) - (uu * vv));
+           const float epsilon = 0.0001f;
+           const float t = ((uv * du) - (dv * uu)) / (tdenom == 0.0f ? epsilon : tdenom);
+           const float s = ((dv * uv) - (du * vv)) / (sdenom == 0.0f ? epsilon : sdenom);
    
            // Determine if inside half of the plane (triangle)
            if(t >= 0.0f && s >= 0.0f && t+s <= 1.0f)
            {
-               distanceToMesh = distance;
+               // Convert back to world coordinates to find the distance
+               D3DXVec3TransformCoord(&intersection, &intersection, &world);
+               distanceToMesh = D3DXVec3Length(&(intersection - m_rayOrigin));
                foundCollision = true;
                break;
            }
