@@ -351,7 +351,7 @@ void CollisionSolver::SolveObjectCollision(CollisionMesh& particle,
 {
     if(particle.IsDynamic())
     {
-        if(object.GetShape() == CollisionMesh::SPHERE)
+        if(object.GetShape() == Geometry::SPHERE)
         {
             SolveParticleSphereCollision(particle, object);
         }

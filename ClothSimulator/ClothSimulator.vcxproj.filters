@@ -86,6 +86,12 @@
     <ClCompile Include="simplex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pickablemesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assimpmesh.h">
@@ -166,6 +172,12 @@
     <ClInclude Include="simplex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pickablemesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\bounds.fx">
@@ -181,13 +193,11 @@
     <None Include="Resources\Shaders\tool.fx">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Resources\Shaders\ground.fx">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Resources\Shaders\ground.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

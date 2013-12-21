@@ -17,6 +17,9 @@
 static const int NO_INDEX = -1;
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
+static const int POINTS_IN_EDGE = 2;
+static const int POINTS_IN_FACE = 3;
+static const int POINTS_IN_TETRAHEDRON = 4;
 static const float CAMERA_FAR = 1000.0f;
 static const float CAMERA_NEAR = 1.0f;
 
@@ -52,23 +55,3 @@ inline void ShowMessageBox(const std::string& message)
 {
     MessageBox(NULL, message.c_str(), TEXT("ERROR"), MB_OK);
 }
-
-/**
-* Mesh vertex structure
-*/
-struct Vertex
-{
-    D3DXVECTOR3 position;   ///< Vertex position
-    D3DXVECTOR3 normal;     ///< Vertex normal
-    D3DXVECTOR2 uvs;        ///< Vertex UV information
-
-    /**
-    * Constructor
-    */
-    Vertex() :
-        position(0.0f, 0.0f, 0.0f),
-        normal(0.0f, 0.0f, 0.0f),
-        uvs(0.0f, 0.0f)
-    {
-    }
-};

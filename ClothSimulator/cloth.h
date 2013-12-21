@@ -4,8 +4,11 @@
 
 #pragma once
 #include "common.h"
-#include "mesh.h"
+#include "callbacks.h"
+#include "pickablemesh.h"
+#include "geometry.h"
 
+class Picking;
 class CollisionMesh;
 class Particle;
 class Spring;
@@ -280,15 +283,15 @@ private:
     bool m_subdivideCloth;      ///< Whether to subdivide the cloth or not
     D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
     float m_generalSmoothing;   ///< General overall smoothing of the cloth
-    void* m_vertexBuffer;       ///< Raw Pointer to DirectX Vertex Buffer
-    void* m_indexBuffer;        ///< Raw Pointer to DirectX Index Buffer
 
     EnginePtr m_engine;                           ///< Callbacks for the rendering engine
     std::vector<D3DXVECTOR3> m_colors;            ///< Viable colors for the particles
     std::vector<SpringPtr> m_springs;             ///< Springs connecting particles together
     std::vector<ParticlePtr> m_particles;         ///< Particles across the cloth grid
-    std::vector<Vertex> m_vertexData;             ///< DirectX Vertex data
+    std::vector<MeshVertex> m_vertexData;         ///< DirectX Vertex data
     std::vector<DWORD> m_indexData;               ///< DirectX Index data
     std::shared_ptr<CollisionMesh> m_template;    ///< Template collision for all particles
-    std::shared_ptr<MeshData> m_data;             ///< Data for rendering/instancing the mesh
+    LPD3DXMESH m_mesh;                            ///< Directx geometry mesh
+    LPDIRECT3DTEXTURE9 m_texture;                 ///< The texture attached to the mesh
+    LPD3DXEFFECT m_shader;                        ///< The shader attached to the mesh
 };

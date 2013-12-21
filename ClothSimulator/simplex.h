@@ -17,7 +17,7 @@ struct Edge
     */
     Edge();
 
-    std::array<int, 2> indices; ///< Index for simplex points
+    std::array<int, POINTS_IN_EDGE> indices; ///< Index for simplex points
 };
 
 /**
@@ -30,12 +30,12 @@ struct Face
     */
     Face();
 
-    bool alive; ///< Whether the triangle is dead or not
-    int index; ///< User index of face
-    D3DXVECTOR3 normal; ///< Normal of the face
-    float distanceToOrigin; ///< Distance of face to origin
-    std::array<int, 3> indices; ///< Index for simplex points
-    std::array<Edge, 3> edges; ///< Edges surrounding the face
+    bool alive;                              ///< Whether the triangle is dead
+    int index;                               ///< User index of face
+    D3DXVECTOR3 normal;                      ///< Normal of the face
+    float distanceToOrigin;                  ///< Distance of face to origin
+    std::array<int, POINTS_IN_FACE> indices; ///< Index for simplex points
+    std::array<Edge, POINTS_IN_FACE> edges;  ///< Edges surrounding the face
 };
 
 /**

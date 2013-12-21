@@ -4,32 +4,13 @@
 
 #pragma once
 #include "common.h"
-#include "picking.h"
+#include "pickablemesh.h"
 #include "callbacks.h"
 
+class Picking;
 class IOctree;
 class CollisionMesh;
 class Partition;
-
-/**
-* Data for rendering and instancing a mesh
-*/
-struct MeshData
-{
-    /**
-    * Constructor
-    */
-    MeshData();
-
-    /**
-    * Destructor
-    */
-    ~MeshData();
-
-    LPD3DXMESH mesh;             ///< The directX mesh
-    LPDIRECT3DTEXTURE9 texture;  ///< The texture attached to the mesh
-    LPD3DXEFFECT shader;         ///< The shader attached to the mesh
-};
 
 /**
 * DirectX renderable, pickable and collidable mesh class
@@ -56,18 +37,18 @@ public:
     * @param shader The shader attached to the mesh
     * @param index A user defined index
     */
-    bool Load(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
+    void LoadMesh(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
         LPD3DXEFFECT shader, int index = NO_INDEX);
 
     /**
     * Load the mesh as an instance of another mesh
     * @param d3ddev The directX device
     * @param collisionmesh The collsion of the other mesh or null if none
-    * @param data The meshdata from the other mesh
+    * @param geometry The meshdata from the other mesh
     * @param index A user defined index
     */
     bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisionmesh, 
-        std::shared_ptr<MeshData> data, int index = NO_INDEX);
+        std::shared_ptr<Geometry> geometry, int index = NO_INDEX);
 
     /**
     * Draw the visual model of the mesh
@@ -116,7 +97,7 @@ public:
     /**
     * @return the mesh data
     */
-    std::shared_ptr<MeshData> GetData();
+    std::shared_ptr<Geometry> Mesh::GetGeometry();
 
     /**
     * @return the collison mesh
@@ -182,9 +163,8 @@ public:
     * @param filename the filename for the texture
     * @param dimensions the size of the texture
     * @param miplevels the number of mipmap levels to generate
-    * @return whether loading was successful
     */
-    bool LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
+    void LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
         const std::string& filename, int dimensions, int miplevels);
 
     /**
@@ -221,6 +201,11 @@ private:
     void ToggleSelected();
 
     /**
+    * Initialises the collison geometry
+    */
+    void InitializeCollision();
+
+    /**
     * Prevent copying
     */
     Mesh(const Mesh&);
@@ -228,7 +213,7 @@ private:
 
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::shared_ptr<CollisionMesh> m_collision;  ///< The collision geometry attached to the mesh
-    std::shared_ptr<MeshData> m_data;            ///< Data for rendering/instancing the mesh
+    std::shared_ptr<Geometry> m_geometry;        ///< Data for rendering/instancing the mesh
     D3DXVECTOR3 m_color;                         ///< Color for the mesh
     D3DXVECTOR3 m_selectedcolor;                 ///< Color for the selected mesh
     D3DXVECTOR3 m_initialcolor;                  ///< initial color for the mesh

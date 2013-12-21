@@ -92,47 +92,6 @@ void Simulation::Update()
     m_scene->PreCollisionUpdate(pressed, m_input->GetMouseDirection(),
         m_camera->World(), m_camera->InverseProjection(), deltatime);
 
-
-    //////////////////////////
-
-    const D3DXVECTOR3 a(-3.0f, 10.0f, 3.0f);
-    const D3DXVECTOR3 b(5.0f, 10.0f, 5.0f);
-    const D3DXVECTOR3 c(2.0f, 10.0f, 8.0f);
-
-    D3DXVECTOR3 u = b - a;
-    D3DXVECTOR3 v = c - a;
-    D3DXVECTOR3 normal;
-    D3DXVec3Cross(&normal, &u, &v);
-    D3DXVec3Normalize(&normal, &normal);
-    D3DXVECTOR3 planeToMouse = f - a;
-    float distance = D3DXVec3Dot(&normal, &planeToMouse);
-
-    if(distance < 0.0f)
-    {
-        normal = -normal;
-    }
-    D3DXVECTOR3 n2 = normal * fabs(distance);
-    D3DXVECTOR3 p = f - n2;
-
-
-
-    float t = 0.0f;
-    float s = 0.0f;
-    bool inside = false;
-
-    m_diagnostics->UpdateLine(Diagnostic::TEXT, "normal", Diagnostic::BLUE, a, a + normal);
-    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp1", Diagnostic::BLUE, a, b);
-    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp2", Diagnostic::BLUE, a, c);
-    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp3", Diagnostic::WHITE, b, c);
-    m_diagnostics->UpdateLine(Diagnostic::TEXT, "temp4", Diagnostic::YELLOW, f, f - n2);
-    m_diagnostics->UpdateSphere(Diagnostic::TEXT, "pos2", Diagnostic::YELLOW, f, 0.3f);
-    m_diagnostics->UpdateSphere(Diagnostic::TEXT, "pos1", Diagnostic::RED, p, 0.3f);
-    m_diagnostics->UpdateText(Diagnostic::TEXT, "text", Diagnostic::YELLOW, StringCast(inside));
-    m_diagnostics->UpdateText(Diagnostic::TEXT, "t", Diagnostic::YELLOW, StringCast(t));
-    m_diagnostics->UpdateText(Diagnostic::TEXT, "s", Diagnostic::YELLOW, StringCast(s));
-
-    //////////////////////////
-
     m_scene->SolveCollisions();
     m_cloth->PostCollisionUpdate();
     m_scene->PostCollisionUpdate();

@@ -6,19 +6,6 @@
 #include <algorithm>
 #include <assert.h>
 
-namespace
-{
-    const int LINE_SIMPLEX = 2;         ///< Number of points in a line simplex
-    const int PLANE_SIMPLEX = 3;        ///< Number of points in a tri-plane simplex
-    const int TETRAHEDRON_SIMPLEX = 4;  ///< Number of points in tetrahedron simplex
-}
-
-Simplex::Simplex()
-{
-    const int maximumExpectedEdges = 20;
-    m_edges.reserve(maximumExpectedEdges);
-}
-
 Face::Face() :
     normal(0.0f, 0.0f, 0.0f),
     distanceToOrigin(0.0f),
@@ -33,19 +20,25 @@ Edge::Edge()
     indices.assign(0);
 }
 
+Simplex::Simplex()
+{
+    const int maximumExpectedEdges = 20;
+    m_edges.reserve(maximumExpectedEdges);
+}
+
 bool Simplex::IsLine() const
 {
-    return m_simplex.size() == LINE_SIMPLEX;
+    return m_simplex.size() == POINTS_IN_EDGE;
 }
 
 bool Simplex::IsTetrahedron() const
 {
-    return m_simplex.size() == TETRAHEDRON_SIMPLEX;
+    return m_simplex.size() == POINTS_IN_TETRAHEDRON;
 }
 
 bool Simplex::IsTriPlane() const
 {
-    return m_simplex.size() == PLANE_SIMPLEX;
+    return m_simplex.size() == POINTS_IN_FACE;
 }
 
 void Simplex::RemovePoint(const D3DXVECTOR3& point)
@@ -92,8 +85,8 @@ void Simplex::GenerateFaces()
         assert(m_faces[face].distanceToOrigin >= 0.0f);
     };
 
-    assert(m_simplex.size() <= TETRAHEDRON_SIMPLEX);
-    m_faces.resize(TETRAHEDRON_SIMPLEX);
+    assert(m_simplex.size() <= POINTS_IN_TETRAHEDRON);
+    m_faces.resize(POINTS_IN_TETRAHEDRON);
 
     const int A = 3;
     const int B = 0;

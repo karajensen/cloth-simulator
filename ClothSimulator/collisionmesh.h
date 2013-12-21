@@ -5,61 +5,17 @@
 #pragma once
 #include "common.h"
 #include "callbacks.h"
+#include "geometry.h"
 
 class Shader;
 class Partition;
 
 /**
-* Holds data for collision geometry
+* Attaches to a parent mesh and supports partitioning and collision resolution
 */
 class CollisionMesh
 {
 public:
-
-    /**
-    * Available shapes for collision geometry
-    */
-    enum Shape
-    {
-        NONE,
-        BOX,
-        SPHERE,
-        CYLINDER
-    };
-
-    /**
-    * Instantable Geometry for the collision
-    */
-    struct Geometry
-    {
-        /**
-        * Constructor
-        */
-        Geometry();
-
-        /**
-        * Destructor
-        */
-        ~Geometry();
-
-        Shape shape;                       ///< Type of shape of the collision geometry
-        LPD3DXMESH mesh;                   ///< Directx geometry mesh
-        std::vector<D3DXVECTOR3> vertices; ///< vertices of the mesh
-    };
-
-    /**
-    * Shape data for the collision mesh
-    */
-    struct Data
-    {
-        /**
-        * Constructor
-        */
-        Data();
-
-        std::vector<D3DXVECTOR3> localBounds; ///< Local AABB points
-        Transform localWorld;                 ///< Local transform
-    };
 
     /**
     * Constructor
@@ -107,20 +63,15 @@ public:
 
     /**
     * Loads the collision as an instance of another
-    * @param data The data to load
+    * @param scale The local scale of the new instance
     * @param geometry Mesh instance
     */
-    void LoadInstance(const Data& data, std::shared_ptr<Geometry> geometry);
-
-    /**
-    * Caches the local vertices of the directx mesh 
-    */
-    void SaveVertices();
+    void LoadInstance(const D3DXVECTOR3& scale, std::shared_ptr<Geometry> geometry);
 
     /**
     * @return the shape the collision mesh has
     */
-    Shape GetShape() const;
+    Geometry::Shape GetShape() const;
 
     /**
     * Sets the colour the collision mesh appears
@@ -202,16 +153,6 @@ public:
     std::shared_ptr<Geometry> GetGeometry() const;
 
     /**
-    * @return the const geometry data
-    */
-    const Data& GetData() const;
-
-    /**
-    * @return the geometry data
-    */
-    Data& GetData();
-
-    /**
     * @return whether the collision has geometry attached to it or not
     */
     bool HasGeometry() const;
@@ -237,7 +178,8 @@ public:
     * @param shape The interacting body causing the movement
     * @note will only work for dynamic collision meshes
     */
-    void ResolveCollision(const D3DXVECTOR3& translation, Shape shape = Shape::NONE);
+    void ResolveCollision(const D3DXVECTOR3& translation, 
+        Geometry::Shape shape = Geometry::NONE);
 
     /**
     * @return whether the collision mesh is dynamic or kinematic
@@ -259,7 +201,7 @@ public:
     * @param shape The shape to query for interaction
     * @return whether the mesh is colliding with the given shape
     */
-    bool IsCollidingWith(Shape shape);
+    bool IsCollidingWith(Geometry::Shape shape);
 
     /**
     * @return the velocity for the collision mesh
@@ -275,6 +217,21 @@ public:
     * @param render Whether the hull should render any collision solver diagnostics
     */
     void SetRenderCollisionDiagnostics(bool render);
+
+    /**
+    * @return the local scale of the mesh
+    */
+    D3DXVECTOR3 GetLocalScale() const;
+
+    /**
+    * Sets the local scale of the mesh
+    */
+    void SetLocalScale(float scale);
+
+    /**
+    * @return whether the collision mesh has a shape or not
+    */
+    bool HasShape() const;
 
 private:
 
@@ -296,7 +253,7 @@ private:
     * @param shape The shape to find the collision type for
     * @return the type of collision from the given shape
     */
-    unsigned int GetCollisionType(Shape shape);
+    unsigned int GetCollisionType(Geometry::Shape shape);
 
     /**
     * Creates the local points of the OABB
@@ -306,13 +263,13 @@ private:
 
     EnginePtr m_engine;                        ///< Callbacks for the rendering engine
     const Transform& m_parent;                 ///< Parent transform of the collision geometry
+    Transform m_localWorld;                    ///< Local World transform of the collision geometry
     Transform m_world;                         ///< World transform of the collision geometry
     Partition* m_partition;                    ///< Partition collision currently in
     D3DXVECTOR3 m_positionDelta;               ///< Change in position this tick
     D3DXVECTOR3 m_colour;                      ///< Colour to render
     D3DXVECTOR3 m_position;                    ///< Cached position of collision geometry
-    LPD3DXEFFECT m_shader;                     ///< Shader for the collision geometry
-    Data m_data;                               ///< Local data for the collision geometry
+    std::vector<D3DXVECTOR3> m_localBounds;    ///< Local AABB points
     std::vector<D3DXVECTOR3> m_oabb;           ///< Bounds of the world coord OABB
     std::vector<D3DXVECTOR3> m_worldVertices;  ///< Transformed vertices of the mesh
     std::shared_ptr<Geometry> m_geometry;      ///< collision geometry mesh shared accross instances
@@ -323,5 +280,4 @@ private:
     bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
     bool m_renderCollisionDiagnostics;         ///< Whether to render any collision solver diagnostics
     float m_radius;                            ///< Transformed radius that encases geometry
-
 };                                             

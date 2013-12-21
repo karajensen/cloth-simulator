@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "text.h"
 #include <algorithm>
+#include <assert.h>
 
 namespace
 {
@@ -16,7 +17,6 @@ namespace
     const int MESH_SEGMENTS = 8;          ///< Quality of the diagnostic mesh
     const int VARIADIC_BUFFER_SIZE = 32;  ///< Size of the character buffer for variadic text calls
     const float CYLINDER_SIZE = 0.05f;    ///< Radius of the cylinder
-    D3DXVECTOR3 ZAXIS(0.0f, 0.0f, 1.0f);  ///< World z axis
 }
 
 Diagnostic::Diagnostic() :
@@ -178,6 +178,7 @@ void Diagnostic::DrawAllObjects(const Matrix& projection, const Matrix& view)
 void Diagnostic::UpdateSphere(Group group, const std::string& id, 
     Diagnostic::Colour color, const D3DXVECTOR3& position, float radius)
 {
+    assert(AllowDiagnostics(group));
     SphereMap& spheremap = m_groupvector[group].spheremap;
 
     if(spheremap.find(id) == spheremap.end())
@@ -194,6 +195,7 @@ void Diagnostic::UpdateSphere(Group group, const std::string& id,
 void Diagnostic::UpdateLine(Group group, const std::string& id, 
     Diagnostic::Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end)
 {
+    assert(AllowDiagnostics(group));
     LineMap& linemap = m_groupvector[group].linemap;
 
     if(linemap.find(id) == linemap.end())
@@ -210,11 +212,12 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
     linemap[id].world.MakeIdentity();
     D3DXVECTOR3 up = linemap[id].world.Up();
     D3DXVECTOR3 right = linemap[id].world.Right();
+    D3DXVECTOR3 zAxis(0.0f, 0.0f, 1.0f);
     
-    const float threshold = 0.05f;
-    if(fabs(std::acos(D3DXVec3Dot(&ZAXIS, &forward))) > threshold)
+    const float threshold = 0.96f;
+    if(fabs(D3DXVec3Dot(&zAxis, &forward)) < threshold)
     {
-        D3DXVec3Cross(&up, &ZAXIS, &forward);
+        D3DXVec3Cross(&up, &zAxis, &forward);
         D3DXVec3Normalize(&up, &up);
 
         D3DXVec3Cross(&right, &up, &forward);
@@ -230,6 +233,7 @@ void Diagnostic::UpdateLine(Group group, const std::string& id,
 void Diagnostic::UpdateText(Group group, const std::string& id, 
     Diagnostic::Colour color, const std::string& text, bool cleardraw)
 {
+    assert(AllowDiagnostics(group));
     TextMap& textmap = m_groupvector[group].textmap;
 
     if(textmap.find(id) == textmap.end())
@@ -245,6 +249,7 @@ void Diagnostic::UpdateText(Group group, const std::string& id,
 void Diagnostic::UpdateText(Group group, const std::string& id,
     Diagnostic::Colour color, bool increaseCounter, bool cleardraw)
 {
+    assert(AllowDiagnostics(group));
     TextMap& textmap = m_groupvector[group].textmap;
 
     if(textmap.find(id) == textmap.end())

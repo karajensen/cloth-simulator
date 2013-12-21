@@ -1,8 +1,9 @@
 
-• Mouse picking
+• Raycasting algorithm fix
+• Collision mesh testing with ray before raycasting
+• Raycasting notes add
 • Profile and improve framerate
-• Joey approved testing
-
+• Testing/bug fixing
 
 =================================================================
 CLOTH SIMULATOR

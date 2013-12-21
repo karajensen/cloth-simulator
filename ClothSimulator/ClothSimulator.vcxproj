@@ -101,8 +101,10 @@
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="manipulator.cpp" />
     <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="octree.cpp" />
     <ClCompile Include="partition.cpp" />
+    <ClCompile Include="pickablemesh.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="simplex.cpp" />
     <ClCompile Include="timer.cpp" />
@@ -132,9 +134,11 @@
     <ClInclude Include="manipulator.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="octree.h" />
     <ClInclude Include="octree_interface.h" />
     <ClInclude Include="partition.h" />
+    <ClInclude Include="pickablemesh.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="picking.h" />

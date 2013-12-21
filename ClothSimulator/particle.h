@@ -28,10 +28,10 @@ public:
     * @param uv The uvs for the particle
     * @param index The internal index of the particle
     * @param geometry The collision geometry for the particle
-    * @param data The collision data for the particle
+    * @param scale The local scale for the instance
     */
     void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
-         std::shared_ptr<CollisionMesh::Geometry> geometry, const CollisionMesh::Data& data);
+         std::shared_ptr<Geometry> geometry, const D3DXVECTOR3& scale);
 
     /**
     * Draws the particle visual mesh

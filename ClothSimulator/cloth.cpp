@@ -53,21 +53,20 @@ Cloth::Cloth(EnginePtr engine) :
     m_subdivideCloth(false),
     m_gravity(0,-9.8f,0),
     m_generalSmoothing(0.85f),
-    m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr),
     m_engine(engine),
     m_template(nullptr),
-    m_data(nullptr)
+    m_mesh(nullptr),
+    m_texture(nullptr),
+    m_shader(nullptr)
 {
-    m_data.reset(new MeshData());
-    m_data->shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
+    m_shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
     m_template.reset(new CollisionMesh(*this, m_engine));
     m_template->LoadSphere(true, 1.0f, PARTICLE_SUBDIVISIONS);
 
     const std::string path(".\\Resources\\Textures\\square.png");
-    if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), path.c_str(), &m_data->texture)))
+    if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), path.c_str(), &m_texture)))
     {
-        m_data->texture = nullptr;
+        m_texture = nullptr;
         ShowMessageBox("Cannot create cloth texture");
     }
 
@@ -102,7 +101,7 @@ void Cloth::CreateCloth(int rows, float spacing)
 
     // Create the particles
     m_particles.resize(m_particleCount);
-    m_template->GetData().localWorld.SetScale(m_spacing/2.0f);
+    m_template->SetLocalScale(m_spacing/2.0f);
     const int mininum = -m_particleLength/2;
     const int maximum = m_particleLength/2;
 
@@ -126,7 +125,7 @@ void Cloth::CreateCloth(int rows, float spacing)
             }
 
             m_particles[index]->Initialise(position, uvs,
-                index, m_template->GetGeometry(), m_template->GetData());
+                index, m_template->GetGeometry(), m_template->GetLocalScale());
 
             if(firstInitialisation)
             {
@@ -150,10 +149,9 @@ void Cloth::CreateCloth(int rows, float spacing)
     m_vertexData.resize(vertexCount);
 
     // Create the indices
-    const int indiciesPerTriangle = 3;
     const int trianglesPerQuad = m_subdivideCloth ? 4 : 2;
     int triangleNumber = ((m_particleLength-1)*(m_particleLength-1)) * trianglesPerQuad;
-    m_indexData.resize(triangleNumber * indiciesPerTriangle);
+    m_indexData.resize(triangleNumber * POINTS_IN_FACE);
 
     index = 0;
     int quad = 0;
@@ -287,71 +285,68 @@ void Cloth::CreateCloth(int rows, float spacing)
     };
 
     //Create the mesh
-    if(m_data->mesh)
+    if(m_mesh)
     {
-        m_data->mesh->Release();
-        m_data->mesh = nullptr;
+        m_mesh->Release();
+        m_mesh = nullptr;
     }
 
     if(FAILED(D3DXCreateMesh(triangleNumber, m_vertexData.size(),
         D3DXMESH_VB_DYNAMIC | D3DXMESH_IB_MANAGED | D3DXMESH_32BIT,
-        VertexDec, m_engine->device(), &m_data->mesh)))
+        VertexDec, m_engine->device(), &m_mesh)))
     {
-        m_data->mesh = nullptr;
+        m_mesh = nullptr;
         ShowMessageBox("Cloth Mesh creation failed");
     }
 
     UpdateVertices();
 
+    #pragma warning(disable: 4996)
+
     //Vertex Buffer
-    m_vertexBuffer = nullptr;
-    if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
+    void* vertexBuffer = nullptr;
+    if(FAILED(m_mesh->LockVertexBuffer(0, &vertexBuffer)))
     {
         ShowMessageBox("Cloth Vertex buffer lock failed");
     }
-    #pragma warning(disable: 4996)
-    std::copy(m_vertexData.begin(), m_vertexData.end(),(Vertex*)m_vertexBuffer);
-    m_data->mesh->UnlockVertexBuffer();
+    std::copy(m_vertexData.begin(), m_vertexData.end(), (MeshVertex*)vertexBuffer);
+    m_mesh->UnlockVertexBuffer();
 
     //Index Buffer
-    m_indexBuffer = nullptr;
-    if(FAILED(m_data->mesh->LockIndexBuffer(0,&m_indexBuffer)))
+    void* indexdata = nullptr;
+    if(FAILED(m_mesh->LockIndexBuffer(0, &indexdata)))
     {
         ShowMessageBox("Cloth Index buffer lock failed");
     }
-    #pragma warning(disable: 4996)
-    std::copy(m_indexData.begin(), m_indexData.end(), (DWORD*)m_indexBuffer);
-    m_data->mesh->UnlockIndexBuffer();
+    std::copy(m_indexData.begin(), m_indexData.end(), (DWORD*)indexdata);
+    m_mesh->UnlockIndexBuffer();
 }
 
 void Cloth::Draw(const D3DXVECTOR3& cameraPos, const Matrix& projection, const Matrix& view)
 {
-    if(m_data->mesh)
+    m_shader->SetTechnique(DxConstant::DefaultTechnique);
+    m_shader->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
+    m_shader->SetTexture(DxConstant::DiffuseTexture, m_texture);
+    m_engine->sendLightsToShader(m_shader);
+
+    D3DXMATRIX worldInvTrans;
+    D3DXMATRIX worldViewProj = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
+    D3DXMatrixInverse(&worldInvTrans, 0, &GetMatrix());
+    D3DXMatrixTranspose(&worldInvTrans, &worldInvTrans);
+
+    m_shader->SetMatrix(DxConstant::WorldInverseTranspose, &worldInvTrans);
+    m_shader->SetMatrix(DxConstant::WordViewProjection, &worldViewProj);
+    m_shader->SetMatrix(DxConstant::World, &GetMatrix());
+
+    UINT nPasses = 0;
+    m_shader->Begin(&nPasses, 0);
+    for(UINT iPass = 0; iPass < nPasses; ++iPass)
     {
-        m_data->shader->SetTechnique(DxConstant::DefaultTechnique);
-        m_data->shader->SetFloatArray(DxConstant::CameraPosition, &(cameraPos.x), 3);
-        m_data->shader->SetTexture(DxConstant::DiffuseTexture, m_data->texture);
-        m_engine->sendLightsToShader(m_data->shader);
-
-        D3DXMATRIX worldInvTrans;
-        D3DXMATRIX worldViewProj = GetMatrix() * view.GetMatrix() * projection.GetMatrix();
-        D3DXMatrixInverse(&worldInvTrans, 0, &GetMatrix());
-        D3DXMatrixTranspose(&worldInvTrans, &worldInvTrans);
-
-        m_data->shader->SetMatrix(DxConstant::WorldInverseTranspose, &worldInvTrans);
-        m_data->shader->SetMatrix(DxConstant::WordViewProjection, &worldViewProj);
-        m_data->shader->SetMatrix(DxConstant::World, &GetMatrix());
-
-        UINT nPasses = 0;
-        m_data->shader->Begin(&nPasses, 0);
-        for(UINT iPass = 0; iPass < nPasses; ++iPass)
-        {
-            m_data->shader->BeginPass(iPass);
-            m_data->mesh->DrawSubset(0);
-            m_data->shader->EndPass();
-        }
-        m_data->shader->End();
+        m_shader->BeginPass(iPass);
+        m_mesh->DrawSubset(0);
+        m_shader->EndPass();
     }
+    m_shader->End();
 }
 
 void Cloth::SetHandleMode(bool set)
@@ -476,12 +471,14 @@ bool Cloth::MousePickingTest(Picking& input)
         int indexChosen = NO_INDEX;
         for(int index = 0; index < m_particleCount; ++index)
         {
+            const CollisionMesh& mesh = m_particles[index]->GetCollisionMesh();
+            const Geometry& geometry = *mesh.GetGeometry();
+
             D3DXMATRIX worldInverse;
-            auto collision = m_particles[index]->GetCollisionMesh().CollisionMatrix();
-            D3DXMatrixInverse(&worldInverse, 0, &collision.GetMatrix());
+            D3DXMatrixInverse(&worldInverse, 0, &mesh.CollisionMatrix().GetMatrix());
 
             float distanceToMesh = 0.0f;
-            if(input.RayCastMesh(worldInverse, m_particles[index]->GetCollisionMesh().GetMesh(), distanceToMesh))
+            if(input.RayCastMesh(worldInverse, geometry, distanceToMesh))
             {
                 if(distanceToMesh < input.GetDistanceToMesh())
                 {
@@ -640,7 +637,8 @@ bool Cloth::UpdateVertexBuffer()
     UpdateSubdividedVertices();
 
     //Lock the vertex buffer
-    if(FAILED(m_data->mesh->LockVertexBuffer(0,&m_vertexBuffer)))
+    void* vertexBuffer = nullptr;
+    if(FAILED(m_mesh->LockVertexBuffer(0, &vertexBuffer)))
     {
         ShowMessageBox("Vertex buffer lock failed");
         return false;
@@ -648,10 +646,10 @@ bool Cloth::UpdateVertexBuffer()
 
     //Copy over values 
     #pragma warning(disable: 4996)
-    std::copy(m_vertexData.begin(), m_vertexData.end(),(Vertex*)m_vertexBuffer);
+    std::copy(m_vertexData.begin(), m_vertexData.end(), (MeshVertex*)vertexBuffer);
 
     //unlock vertex buffer
-    m_data->mesh->UnlockVertexBuffer();
+    m_mesh->UnlockVertexBuffer();
     return true;
 }
 
