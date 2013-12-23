@@ -205,36 +205,19 @@ void CollisionMesh::DrawDiagnostics()
     if(m_draw && m_geometry &&
         m_engine->diagnostic()->AllowDiagnostics(Diagnostic::MESH))
     {
+        // Render world vertices
         const std::string id = StringCast(this);
-
-        // Render normals of diagnostic mesh
-        const auto& polygons = m_geometry->GetFaces();
-        const float normalsize = 0.6f;
-        for(unsigned int i = 0; i < polygons.size(); ++i)
-        {
-            D3DXVECTOR3 center;
-            D3DXVec3TransformCoord(&center,
-                &polygons[i].center, &m_world.GetMatrix());
-            
-            D3DXVECTOR3 normal;
-            D3DXVec3TransformNormal(&normal, 
-                &polygons[i].normal, &m_world.GetMatrix());
-            D3DXVec3Normalize(&normal, &normal);
-
-            m_engine->diagnostic()->UpdateLine(Diagnostic::MESH,
-                "FaceNormal" + StringCast(i) + id, Diagnostic::CYAN, 
-                center, center + (normal * normalsize));
-        }
-
-        // Render vertices of diagnostic mesh
         const float vertexRadius = 0.1f;
         const auto& vertices = GetVertices();
         for(unsigned int i = 0; i < vertices.size(); ++i)
         {
             m_engine->diagnostic()->UpdateSphere(Diagnostic::MESH,
-                StringCast(i) + id + "0", Diagnostic::RED, 
+                "0" + StringCast(i) + id, Diagnostic::RED, 
                 vertices[i], vertexRadius);
         }
+
+        // Render face normals
+        m_geometry->UpdateDiagnostics(*m_engine->diagnostic(), m_world.GetMatrix());
 
         // Render OABB for diagnostic mesh
         auto getPointColor = [=](int index) -> Diagnostic::Colour

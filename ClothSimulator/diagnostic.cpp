@@ -46,6 +46,7 @@ void Diagnostic::Initialise(LPDIRECT3DDEVICE9 d3ddev, LPD3DXEFFECT boundsShader)
     m_colours[CYAN] = D3DXVECTOR3(0.0f, 1.0f, 1.0f);
     m_colours[MAGENTA] = D3DXVECTOR3(1.0f, 0.0f, 1.0f);
     m_colours[BLACK] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+    m_colours[PURPLE] = D3DXVECTOR3(1.0f, 0.0f, 0.5f);
     m_groupvector.resize(MAX_GROUPS);
 
     const int border = 10;

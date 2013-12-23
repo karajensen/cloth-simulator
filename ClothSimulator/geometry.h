@@ -6,6 +6,8 @@
 #include "common.h"
 #include <array>
 
+class Diagnostic;
+
 /**
 * Polygon triangle for a collision mesh
 */
@@ -141,6 +143,13 @@ public:
     void LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
         const std::string& filename, int dimensions, int miplevels);
 
+    /**
+    * Updates the diagnostics for the geometry
+    * @param renderer The diagnostic renderer
+    * @param world The world matrix of the mesh using the geometry
+    */
+    void UpdateDiagnostics(Diagnostic& renderer, const D3DXMATRIX& world);
+
 private:
 
     /**
@@ -148,7 +157,8 @@ private:
     * @param mesh directx mesh
     * @param saveVertices Whether to cache the vertices or not
     */
-    template<typename Vertex> void CreateMeshData(bool saveVertices);
+    template<typename Vertex, typename Index> 
+    void CreateMeshData(bool saveVertices);
 
     Shape m_shape;                       ///< Type of shape of the collision geometry
     LPD3DXMESH m_mesh;                   ///< Directx geometry mesh

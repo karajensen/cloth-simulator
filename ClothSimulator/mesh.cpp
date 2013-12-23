@@ -163,16 +163,7 @@ bool Mesh::MousePickingTest(Picking& input)
 
         const Matrix& world =  m_collision ? m_collision->CollisionMatrix() : *this;
         const Geometry& mesh = m_collision ? *m_collision->GetGeometry() : *m_geometry;
-
-        float distanceToMesh = 0.0f;
-        if(input.RayCastMesh(world.GetMatrix(), mesh, distanceToMesh))
-        {
-            if(distanceToMesh < input.GetDistanceToMesh())
-            {
-                input.SetPickedMesh(this, distanceToMesh);
-                return true;
-            }
-        }
+        return input.RayCastMesh(this, world.GetMatrix(), mesh);
     }
     return false;
 }

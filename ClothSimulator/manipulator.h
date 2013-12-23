@@ -60,6 +60,12 @@ public:
     void MousePickTest(Picking& input);
 
     /**
+    * Updates manipulator diagnostics
+    * @param mesh the currently selected mesh
+    */
+    void UpdateDiagnostics(const MeshPtr selectedMesh);
+
+    /**
     * Switches the currently active mesh tool
     * @param type The tool to change to
     */

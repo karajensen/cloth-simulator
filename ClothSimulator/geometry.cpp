@@ -4,6 +4,7 @@
 
 #include "geometry.h"
 #include "assimpmesh.h"
+#include "diagnostic.h"
 
 D3DXVertex::D3DXVertex() :
     normal(0.0f, 0.0f, 0.0f),
@@ -119,7 +120,7 @@ Geometry::Geometry(LPDIRECT3DDEVICE9 d3ddev,
     std::copy(indexData.begin(), indexData.end(), indexBuffer);
     m_mesh->UnlockIndexBuffer();
 
-    CreateMeshData<MeshVertex>(false);
+    CreateMeshData<MeshVertex, DWORD>(false);
 }
 
 Geometry::Geometry(LPDIRECT3DDEVICE9 device, 
@@ -143,7 +144,7 @@ Geometry::Geometry(LPDIRECT3DDEVICE9 device,
         D3DXCreateCylinder(device, 1.0f, 1.0f, 1.0f, divisions, 1, &m_mesh, nullptr);
         break;
     }
-    CreateMeshData<D3DXVertex>(true);
+    CreateMeshData<D3DXVertex, WORD>(true);
 }
 
 Geometry::~Geometry()
@@ -170,7 +171,7 @@ void Geometry::LoadTexture(LPDIRECT3DDEVICE9 d3ddev,
     }
 }
 
-template<typename Vertex> void Geometry::CreateMeshData(bool saveVertices)
+template<typename Vertex, typename Index> void Geometry::CreateMeshData(bool saveVertices)
 {
     DWORD vertexNumber = m_mesh->GetNumVertices();
     DWORD faceNumber = m_mesh->GetNumFaces();
@@ -195,7 +196,7 @@ template<typename Vertex> void Geometry::CreateMeshData(bool saveVertices)
     // Create cached polygons
     void* ibuffer = nullptr;
     m_mesh->LockIndexBuffer(0, &ibuffer);
-    WORD* indexBuffer = static_cast<WORD*>(ibuffer);
+    Index* indexBuffer = static_cast<Index*>(ibuffer);
     for(DWORD i = 0; i < indexNumber; i+=3)
     {
         const D3DXVECTOR3& v0 = m_vertices[indexBuffer[i]];
@@ -246,4 +247,25 @@ const std::vector<D3DXVECTOR3>& Geometry::GetVertices() const
 const std::vector<MeshFace>& Geometry::GetFaces() const 
 { 
     return m_faces;
+}
+
+void Geometry::UpdateDiagnostics(Diagnostic& renderer, const D3DXMATRIX& world)
+{
+    if(renderer.AllowDiagnostics(Diagnostic::MESH))
+    {
+        std::string id = StringCast(this);
+        const auto& faces = GetFaces();
+        const float normalsize = 0.6f;
+        for(unsigned int i = 0; i < faces.size(); ++i)
+        {
+            D3DXVECTOR3 center, normal;
+            D3DXVec3TransformCoord(&center, &faces[i].center, &world);
+            D3DXVec3TransformNormal(&normal, &faces[i].normal, &world);
+            D3DXVec3Normalize(&normal, &normal);
+
+            renderer.UpdateLine(Diagnostic::MESH, "FaceNormal" + 
+                StringCast(i) + id, Diagnostic::CYAN, 
+                center, center + (normal * normalsize));
+        }
+    }
 }

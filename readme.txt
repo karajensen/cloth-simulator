@@ -1,7 +1,5 @@
 
 • Plane-ray and Sphere-ray for raycasting
-• Collision notes add
-
 • Profile and improve framerate
 • Testing/bug fixing
 

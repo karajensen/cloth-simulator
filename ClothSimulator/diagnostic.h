@@ -29,6 +29,7 @@ public:
         CYAN,
         MAGENTA,
         BLACK,
+        PURPLE,
         MAX_COLORS
     };
 

@@ -474,14 +474,9 @@ bool Cloth::MousePickingTest(Picking& input)
             const CollisionMesh& mesh = m_particles[index]->GetCollisionMesh();
             const Geometry& geometry = *mesh.GetGeometry();
 
-            float distanceToMesh = 0.0f;
-            if(input.RayCastMesh(mesh.CollisionMatrix().GetMatrix(), geometry, distanceToMesh))
+            if(input.RayCastMesh(this, mesh.CollisionMatrix().GetMatrix(), geometry))
             {
-                if(distanceToMesh < input.GetDistanceToMesh())
-                {
-                    input.SetPickedMesh(this, distanceToMesh);
-                    indexChosen = index;
-                }
+                indexChosen = index;
             }
         }
     

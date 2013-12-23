@@ -144,6 +144,8 @@ void Input::UpdateInput()
         m_engine->diagnostic()->UpdateText(Diagnostic::TEXT,
             "MouseClick", Diagnostic::WHITE, StringCast(IsMouseClicked()));
     }
+
+    m_picking.UpdateDiagnostics();
 }
 
 bool Input::IsMousePressed() const
