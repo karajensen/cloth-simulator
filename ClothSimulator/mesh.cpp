@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////////////
 // Kara Jensen - mail@karajensen.com - mesh.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,23 +147,18 @@ bool Mesh::MousePickingTest(Picking& input)
 {
     if(m_pickable && m_geometry && m_draw && !input.IsLocked())
     {
+        bool raycastmesh = true;
         if(m_collision && m_collision->HasShape())
         {
-            // Pre collision sphere-ray test against shape
-            const float radius = m_collision->GetRadius();
-            const D3DXVECTOR3& position = m_collision->GetPosition();
-
-
-
-
-
-
-
+            raycastmesh = input.RayCastSphere(m_collision->GetPosition(), m_collision->GetRadius());
         }
 
-        const Matrix& world =  m_collision ? m_collision->CollisionMatrix() : *this;
-        const Geometry& mesh = m_collision ? *m_collision->GetGeometry() : *m_geometry;
-        return input.RayCastMesh(this, world.GetMatrix(), mesh);
+        if(raycastmesh)
+        {
+            const Matrix& world =  m_collision ? m_collision->CollisionMatrix() : *this;
+            const Geometry& mesh = m_collision ? *m_collision->GetGeometry() : *m_geometry;
+            return input.RayCastMesh(this, world.GetMatrix(), mesh);
+        }
     }
     return false;
 }

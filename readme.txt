@@ -1,5 +1,4 @@
 
-• Plane-ray and Sphere-ray for raycasting
 • Profile and improve framerate
 • Testing/bug fixing
 

@@ -71,6 +71,14 @@ public:
     */
     void UpdateDiagnostics();
 
+    /**
+    * Casts a ray to a sphere to determine if the mouse is colliding with it
+    * @param center The center of the sphere
+    * @param radius The radius of the sphere
+    * @return whether the ray hit the sphere or not
+    */
+    bool RayCastSphere(const D3DXVECTOR3& center, float radius);
+
 private:
 
     /**

@@ -30,8 +30,6 @@ void Picking::UpdatePicking(const Matrix& projection,
     m_pickCoords.s = 0.0f;
     m_pickCoords.t = 0.0f;
     m_locked = false;
-    m_rayOrigin = D3DXVECTOR3();
-    m_rayDirection = D3DXVECTOR3();
     m_mesh = nullptr;
     m_pickFace = nullptr;
     m_distanceToMesh = FLT_MAX;
@@ -144,7 +142,7 @@ void Picking::UpdateDiagnostics()
     if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::MESH))
     {
         m_engine->diagnostic()->UpdateText(Diagnostic::MESH,
-            "PickCoord", Diagnostic::WHITE, StringCast(m_pickCoords.s)
+            "PickedCoords", Diagnostic::WHITE, StringCast(m_pickCoords.s)
             + ", " + StringCast(m_pickCoords.t));
 
         if(m_mesh)
@@ -172,4 +170,30 @@ void Picking::UpdateDiagnostics()
             }
         }
     }
+}
+
+bool Picking::RayCastSphere(const D3DXVECTOR3& center, float radius)
+{
+    // Sphere: P.P - 2P.c + c.c = r²
+    // Substitute Line equation: P = P₀ + td
+    // (P₀ + td).(P₀ + td) - 2(P₀ + td).c + c.c = r² and rearrange to
+    // (d.d)t² + 2(P₀ - c).dt + (P₀ - c).(P₀ - c) - r² = 0
+    // Using quadratic formula at² + bt + c = 0 
+    // t = -b ± √(b² - 4ac) / 2a where t >= 0 to hit the sphere
+
+    const float radiusSqr = radius * radius;
+    const D3DXVECTOR3 CP0 = m_rayOrigin - center; 
+    const double a = D3DXVec3Dot(&m_rayDirection, &m_rayDirection); 
+    const double b = D3DXVec3Dot(&(2 * CP0), &m_rayDirection);
+    const double c = D3DXVec3Dot(&CP0, &CP0) - radiusSqr;
+
+    const double squaredComponent = (b * b) - (4 * a * c);
+    if(squaredComponent >= 0)
+    {
+        const double squared = std::sqrt(squaredComponent);
+        const double t1 = (-b + squared) / (2 * a);
+        const double t2 = (-b - squared) / (2 * a);
+        return t1 >= 0 || t2 >= 0;
+    }
+    return false;
 }
