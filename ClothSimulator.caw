@@ -1,0 +1,36 @@
+FileVersion=7
+[GENERAL]
+Name=Session
+Notes=
+Launch="D:\Projects\ClothSimulator\ClothSimulator\ClothSimulator.exe" 
+WorkDir=D:\Projects\ClothSimulator\ClothSimulator
+StopOnApp=1
+BreakAfter=1
+Duration=20
+StartPaused=0
+StartImmediately=0
+CSS=0
+CssInterval=10
+StartDelay=5
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+CLUtilEnabled=0
+CLUtilChecked=0
+LdStEnabled=0
+LdStChecked=0
+ApplyProcFilter= 0
+UtilMask= 0
+Pids= 
+EnvVars=
+LastProfile=Current time-base profile
+LaunchHistory=D:\Projects\ClothSimulator\ClothSimulator\ClothSimulator.exe
+LaunchHistory=
+ArgumentsHistory=
+WorkDirHistory=D:\Projects\ClothSimulator\ClothSimulator
+WorkDirHistory=
+ProcessFilter=
+
+[Profiles]
+
+[End]

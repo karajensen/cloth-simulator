@@ -23,12 +23,13 @@ void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA,
                                              CollisionMesh& particleB)
 {
     D3DXVECTOR3 particleToParticle = particleB.GetPosition() - particleA.GetPosition();
-    const float length = D3DXVec3Length(&particleToParticle);
+    const float lengthSqr = D3DXVec3LengthSq(&particleToParticle);
     const float combinedRadius = particleA.GetRadius() + particleB.GetRadius();
 
-    if (length < combinedRadius)
+    if (lengthSqr < (combinedRadius*combinedRadius))
     {
-        particleToParticle /= length;
+		const float length = std::sqrt(lengthSqr);
+        particleToParticle /= std::sqrt(length);
         const D3DXVECTOR3 translation = particleToParticle*fabs(combinedRadius-length);
         particleA.ResolveCollision(-translation);
         particleB.ResolveCollision(translation);
@@ -40,17 +41,17 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
 {
     // Determine if within a rough radius of the convex hull
     const D3DXVECTOR3 sphereToParticle = particle.GetPosition() - hull.GetPosition();
-    const float length = D3DXVec3Length(&sphereToParticle);
+    const float lengthSqr = D3DXVec3LengthSq(&sphereToParticle);
     const float combinedRadius = hull.GetRadius() + particle.GetRadius();
 
-    if (length < combinedRadius)
+    if (lengthSqr < (combinedRadius*combinedRadius))
     {
         Simplex simplex;
         if(AreConvexHullsColliding(particle, hull, simplex))
         {
             simplex.GenerateFaces();
             const D3DXVECTOR3 penetration = GetConvexHullPenetration(particle, hull, simplex);
-            particle.ResolveCollision(penetration, hull.GetShape());
+            particle.ResolveCollision(penetration, hull.GetVelocity(), hull.GetShape());
         }
     }
 }
@@ -129,10 +130,6 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
 
         if(!penetrationFound)
         {
-            // Ensure the projected normal is within the triangle?
-
-
-
             // Check if there are any edge points beyond the closest face
             furthestPoint = GetMinkowskiSumEdgePoint(face.normal, particle, hull);
             const D3DXVECTOR3 faceToPoint = furthestPoint - simplex.GetPoint(face.indices[0]);
@@ -277,14 +274,16 @@ void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
                                                    const CollisionMesh& sphere)
 {
     D3DXVECTOR3 sphereToParticle = particle.GetPosition() - sphere.GetPosition();
-    const float length = D3DXVec3Length(&sphereToParticle);
+    const float lengthSqr = D3DXVec3LengthSq(&sphereToParticle);
     const float combinedRadius = sphere.GetRadius() + particle.GetRadius();
 
-    if (length < combinedRadius)
+    if (lengthSqr < (combinedRadius*combinedRadius))
     {
+		const float length = std::sqrt(lengthSqr);
         sphereToParticle /= length;
-        particle.ResolveCollision(sphereToParticle *
-            fabs(combinedRadius-length), sphere.GetShape());
+
+        particle.ResolveCollision(sphereToParticle * fabs(combinedRadius-length), 
+			sphere.GetVelocity(), sphere.GetShape());
     }
 }
 

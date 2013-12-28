@@ -19,10 +19,11 @@ public:
 
     /**
     * Constructor
-    * @param parent The transform of the mesh parent
     * @param engine Callbacks from the rendering engine
+	* @param parent The transform of the mesh parent
+	* @note If no parent mesh is given, only translation is supported
     */
-    CollisionMesh(const Transform& parent, EnginePtr engine);
+    CollisionMesh(EnginePtr engine, const Transform* parent = nullptr);
 
     /**
     * Function signature for resolving a collision
@@ -139,13 +140,21 @@ public:
 
     /**
     * Updates the collision geometry upon scale/rotate/translate
+	* @note requires a parent for this update
     */
     void FullUpdate();
 
     /**
     * Updates the collision geometry upon translate
+	* @note requires a parent for this update
     */
     void PositionalUpdate();
+
+	/**
+	* Updates the collision geometry upon translate for non-parented meshes
+	* @param position The position to be set to
+	*/
+	void UpdatePosition(const D3DXVECTOR3& position);
 
     /**
     * @return the collision mesh 
@@ -175,10 +184,18 @@ public:
     /**
     * Moves the owner of the collision mesh to resolve a collision
     * @param translation The amount to move the owner by
+    * @note will only work for dynamic collision meshes
+    */
+    void ResolveCollision(const D3DXVECTOR3& translation);
+
+    /**
+    * Moves the owner of the collision mesh to resolve a collision
+    * @param translation The amount to move the owner by
+	* @param velocity The velocity of the colliding mesh
     * @param shape The interacting body causing the movement
     * @note will only work for dynamic collision meshes
     */
-    void ResolveCollision(const D3DXVECTOR3& translation, 
+    void ResolveCollision(const D3DXVECTOR3& translation, const D3DXVECTOR3& velocity,
         Geometry::Shape shape = Geometry::NONE);
 
     /**
@@ -261,12 +278,18 @@ private:
     */
     void CreateLocalBounds(float width, float height, float depth);
 
+	/**
+	* Creates a collision model
+	*/
+	void LoadCollisionModel();
+
     EnginePtr m_engine;                        ///< Callbacks for the rendering engine
-    const Transform& m_parent;                 ///< Parent transform of the collision geometry
+    const Transform* m_parent;                 ///< Parent transform of the collision geometry
     Transform m_localWorld;                    ///< Local World transform of the collision geometry
     Transform m_world;                         ///< World transform of the collision geometry
     Partition* m_partition;                    ///< Partition collision currently in
     D3DXVECTOR3 m_positionDelta;               ///< Change in position this tick
+	D3DXVECTOR3 m_velocity;					   ///< Velocity for the collision mesh
     D3DXVECTOR3 m_colour;                      ///< Colour to render
     D3DXVECTOR3 m_position;                    ///< Cached position of collision geometry
     std::vector<D3DXVECTOR3> m_localBounds;    ///< Local AABB points

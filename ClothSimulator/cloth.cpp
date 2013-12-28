@@ -60,7 +60,7 @@ Cloth::Cloth(EnginePtr engine) :
     m_shader(nullptr)
 {
     m_shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
-    m_template.reset(new CollisionMesh(*this, m_engine));
+    m_template.reset(new CollisionMesh(m_engine, this));
     m_template->LoadSphere(true, 1.0f, PARTICLE_SUBDIVISIONS);
 
     const std::string path(".\\Resources\\Textures\\square.png");

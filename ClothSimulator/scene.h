@@ -176,6 +176,7 @@ private:
     D3DXVECTOR3 m_wallMinBounds;                 ///< Minimum position in the wall enclosed space
     D3DXVECTOR3 m_wallMaxBounds;                 ///< Maximum position in the wall enclosed space
     int m_selectedMesh;                          ///< Currently selected object
+	int m_diagnosticMesh;                        ///< Currently selected object for diagnostics
     bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
     bool m_drawWalls;                            ///< Whether to render the wall mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation

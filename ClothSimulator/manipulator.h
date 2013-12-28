@@ -61,7 +61,7 @@ public:
 
     /**
     * Updates manipulator diagnostics
-    * @param mesh the currently selected mesh
+    * @param selectedMesh the currently selected mesh
     */
     void UpdateDiagnostics(const MeshPtr selectedMesh);
 

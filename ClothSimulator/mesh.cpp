@@ -52,7 +52,7 @@ void Mesh::InitializeCollision()
 {
     if(!m_collision)
     {
-        m_collision.reset(new CollisionMesh(*this, m_engine));
+        m_collision.reset(new CollisionMesh(m_engine, this));
 
         Transform::UpdateFn fullFn =
             std::bind(&CollisionMesh::FullUpdate, m_collision);

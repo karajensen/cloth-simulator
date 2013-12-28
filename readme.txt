@@ -1,6 +1,7 @@
 
-• Profile and improve framerate
-• Testing/bug fixing
+- fix breaking through cloth
+- doxygen
+- video/Update folio
 
 =================================================================
 CLOTH SIMULATOR

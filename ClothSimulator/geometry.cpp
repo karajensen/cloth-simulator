@@ -159,11 +159,11 @@ Geometry::~Geometry()
     }
 }
 
-void Geometry::LoadTexture(LPDIRECT3DDEVICE9 d3ddev,
+void Geometry::LoadTexture(LPDIRECT3DDEVICE9 device,
                            const std::string& filename, 
                            int dimensions, int miplevels)
 {
-    if(FAILED(D3DXCreateTextureFromFileEx(d3ddev, filename.c_str(), dimensions, 
+    if(FAILED(D3DXCreateTextureFromFileEx(device, filename.c_str(), dimensions, 
         dimensions, miplevels, 0, D3DFMT_FROM_FILE, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
         D3DX_DEFAULT, 0, 0, 0, &m_texture)))
     {

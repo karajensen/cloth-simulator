@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - octree.cpp
+// Kara Jensen - mail@karajensen.com - BVHTree.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "octree.h"
+#include "BVHTree.h"
 #include "collisionmesh.h"
 #include "partition.h"
 #include <assert.h>
@@ -16,38 +16,38 @@ namespace
     const int MAX_LEVEL = 3;             ///< Number of levels allowed from the root
 }
 
-Octree::Octree(std::shared_ptr<Engine> engine) :
+BVHTree::BVHTree(std::shared_ptr<Engine> engine) :
     m_iteratorFn(nullptr),
     m_engine(engine),
-    m_octree(new Partition())
+    m_tree(new Partition())
 {
 }
 
-Octree::~Octree()
+BVHTree::~BVHTree()
 {
 }
 
-void Octree::BuildInitialTree()
+void BVHTree::BuildInitialTree()
 {
     const float size = PARITION_SIZE;
     const D3DXVECTOR3 offset(-size / 2.0f, GROUND_HEIGHT, -size / 2.0f);
 
-    m_octree->AddChild(size, D3DXVECTOR3(-size, size, -size) + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(0.0, size, -size)   + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(0.0, size, -size)   + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(-size, size, 0.0)   + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(0.0, size, 0.0)     + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(-size, size, size)  + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(0.0, size, size)    + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(size, size, size)   + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(size, size, 0.0)    + offset);
-    m_octree->AddChild(size, D3DXVECTOR3(size, size, -size)  + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(-size, size, -size) + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(0.0, size, -size)   + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(0.0, size, -size)   + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(-size, size, 0.0)   + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(0.0, size, 0.0)     + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(-size, size, size)  + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(0.0, size, size)    + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(size, size, size)   + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(size, size, 0.0)    + offset);
+    m_tree->AddChild(size, D3DXVECTOR3(size, size, -size)  + offset);
 
-    m_octree->ModifyChildren(std::bind(
-        &Octree::GenerateChildren, this, std::placeholders::_1));
+    m_tree->ModifyChildren(std::bind(
+        &BVHTree::GenerateChildren, this, std::placeholders::_1));
 }
 
-void Octree::GenerateChildren(std::unique_ptr<Partition>& parent)
+void BVHTree::GenerateChildren(std::unique_ptr<Partition>& parent)
 {
     if(parent->GetLevel() != MAX_LEVEL)
     {
@@ -66,11 +66,11 @@ void Octree::GenerateChildren(std::unique_ptr<Partition>& parent)
         parent->AddChild(size, D3DXVECTOR3(0.0, 0.0, 0.0)      + offset);
 
         parent->ModifyChildren(std::bind(
-            &Octree::GenerateChildren, this, std::placeholders::_1));
+            &BVHTree::GenerateChildren, this, std::placeholders::_1));
     }
 }
 
-Partition* Octree::FindPartition(CollisionMesh& object, Partition& partition)
+Partition* BVHTree::FindPartition(CollisionMesh& object, Partition& partition)
 {
     if(partition.GetLevel() == MAX_LEVEL)
     {
@@ -103,7 +103,7 @@ Partition* Octree::FindPartition(CollisionMesh& object, Partition& partition)
 
         if(!chosenChild)
         {
-            return m_octree.get();
+            return m_tree.get();
         }
         else if(inMultiplePartitions)
         {
@@ -114,7 +114,7 @@ Partition* Octree::FindPartition(CollisionMesh& object, Partition& partition)
     return nullptr;
 }
 
-bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition& partition) const
+bool BVHTree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition& partition) const
 {
     const auto& minBounds = partition.GetMinBounds();
     const auto& maxBounds = partition.GetMaxBounds();
@@ -123,7 +123,7 @@ bool Octree::IsPointInsidePartition(const D3DXVECTOR3& point, const Partition& p
            point.z > minBounds.z && point.z < maxBounds.z;
 }
 
-bool Octree::IsAllInsidePartition(const CollisionMesh& object, const Partition& partition) const
+bool BVHTree::IsAllInsidePartition(const CollisionMesh& object, const Partition& partition) const
 {
     const std::vector<D3DXVECTOR3>& oabb = object.GetOABB();
     for(const D3DXVECTOR3& point : oabb)
@@ -136,7 +136,7 @@ bool Octree::IsAllInsidePartition(const CollisionMesh& object, const Partition& 
     return true;
 }
 
-bool Octree::IsCornerInsidePartition(const CollisionMesh& object, const Partition& partition) const
+bool BVHTree::IsCornerInsidePartition(const CollisionMesh& object, const Partition& partition) const
 {
     const std::vector<D3DXVECTOR3>& oabb = object.GetOABB();
     for(const D3DXVECTOR3& point : oabb)
@@ -149,13 +149,13 @@ bool Octree::IsCornerInsidePartition(const CollisionMesh& object, const Partitio
     return false;
 }
 
-void Octree::RemoveObject(CollisionMesh& object)
+void BVHTree::RemoveObject(CollisionMesh& object)
 {
     object.GetPartition()->RemoveNode(object);
     object.SetPartition(nullptr);
 }
 
-void Octree::UpdateObject(CollisionMesh& object)
+void BVHTree::UpdateObject(CollisionMesh& object)
 {
     Partition* partition = object.GetPartition();
     Partition* newPartition = nullptr;
@@ -171,7 +171,7 @@ void Octree::UpdateObject(CollisionMesh& object)
         }
 
         // Will be in found partition or one of the children
-        newPartition = FindPartition(object, parent ? *parent : *m_octree);
+        newPartition = FindPartition(object, parent ? *parent : *m_tree);
     }
     else
     {
@@ -189,9 +189,9 @@ void Octree::UpdateObject(CollisionMesh& object)
     }
 }
 
-void Octree::AddObject(CollisionMesh& object)
+void BVHTree::AddObject(CollisionMesh& object)
 {
-    Partition* partition = FindPartition(object, *m_octree);
+    Partition* partition = FindPartition(object, *m_tree);
     assert(partition);    
 
     // connect object and new partition together
@@ -199,22 +199,22 @@ void Octree::AddObject(CollisionMesh& object)
     object.SetPartition(partition);
 }
 
-void Octree::SetIteratorFunction(IterateOctreeFn iteratorFn)
+void BVHTree::SetIteratorFunction(IterateTreeFn iteratorFn)
 {
     m_iteratorFn = iteratorFn;
 }
 
-void Octree::IterateOctree(CollisionMesh& node)
+void BVHTree::IterateTree(CollisionMesh& node)
 {
     if(m_iteratorFn)
     {
         auto& partition = *node.GetPartition();
-        IterateUpOctree(node, partition);
-        IterateDownOctree(node, partition);
+        IterateUpTree(node, partition);
+        IterateDownTree(node, partition);
     }
 }
 
-void Octree::IterateUpOctree(CollisionMesh& node, Partition& partition)
+void BVHTree::IterateUpTree(CollisionMesh& node, Partition& partition)
 {
     auto& nodes = partition.GetNodes();
     for(unsigned int i = 0; i < nodes.size(); ++i)
@@ -224,11 +224,11 @@ void Octree::IterateUpOctree(CollisionMesh& node, Partition& partition)
 
     if(partition.GetParent())
     {
-        IterateUpOctree(node, *partition.GetParent());
+        IterateUpTree(node, *partition.GetParent());
     }
 }
 
-void Octree::IterateDownOctree(CollisionMesh& node, Partition& partition)
+void BVHTree::IterateDownTree(CollisionMesh& node, Partition& partition)
 {
     const auto& children = partition.GetChildren();
     for(const std::unique_ptr<Partition>& child : children)
@@ -239,28 +239,28 @@ void Octree::IterateDownOctree(CollisionMesh& node, Partition& partition)
             m_iteratorFn(*nodes[i], node);
         }
 
-        IterateDownOctree(node, *child);
+        IterateDownTree(node, *child);
     }
 }
 
-void Octree::RenderDiagnostics()
+void BVHTree::RenderDiagnostics()
 {
-    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::OCTREE))
+    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::PARTITION))
     {
-        int nodeCount = static_cast<int>(m_octree->GetNodes().size());
+        int nodeCount = static_cast<int>(m_tree->GetNodes().size());
 
-        const auto& children = m_octree->GetChildren();
+        const auto& children = m_tree->GetChildren();
         for(const std::unique_ptr<Partition>& child : children)
         {
             nodeCount += RenderPartition(child);
         }
 
-        m_engine->diagnostic()->UpdateText(Diagnostic::OCTREE,
+        m_engine->diagnostic()->UpdateText(Diagnostic::PARTITION,
             "NodeCount", Diagnostic::WHITE, StringCast(nodeCount));
     }
 }
 
-int Octree::RenderPartition(const std::unique_ptr<Partition>& partition)
+int BVHTree::RenderPartition(const std::unique_ptr<Partition>& partition)
 {
     int nodeCount = 0;
 
@@ -294,17 +294,20 @@ int Octree::RenderPartition(const std::unique_ptr<Partition>& partition)
         const std::string& id = partition->GetID();
         auto colour = partition->GetColor();
 
+        m_engine->diagnostic()->UpdateText(Diagnostic::PARTITION, id, colour,
+            StringCast(partition->GetNodes().size()), true);
+
         for(int i = 0, j = SQUARE_POINTS; i < SQUARE_POINTS; ++i, ++j)
         {
-            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE, 
+            m_engine->diagnostic()->UpdateLine(Diagnostic::PARTITION, 
                 id + StringCast(i) + "1", colour, 
                 corners[i], corners[i+1 >= SQUARE_POINTS ? 0 : i+1]);
             
-            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE, 
+            m_engine->diagnostic()->UpdateLine(Diagnostic::PARTITION, 
                 id + StringCast(i) + "2", colour, 
                 corners[j], corners[j+1 >= CUBE_POINTS ? SQUARE_POINTS : j+1]);
             
-            m_engine->diagnostic()->UpdateLine(Diagnostic::OCTREE,
+            m_engine->diagnostic()->UpdateLine(Diagnostic::PARTITION,
                 id + StringCast(i) + "3", colour, 
                 corners[i], corners[j]);
         }

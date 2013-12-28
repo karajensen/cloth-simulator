@@ -137,9 +137,9 @@ public:
 private:
 
     /**
-    * Updates the particle's transform with the cached position
+    * Updates the particle's collision with the cached position
     */
-    void UpdateTransform();
+    void UpdateCollision();
 
     /**
     * Prevent copying

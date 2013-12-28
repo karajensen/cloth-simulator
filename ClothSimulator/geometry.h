@@ -94,7 +94,7 @@ public:
     * @param filename The filename of the mesh
     * @param shader The shader of the mesh
     */
-    Geometry(LPDIRECT3DDEVICE9 d3ddev, 
+    Geometry(LPDIRECT3DDEVICE9 device, 
         const std::string& filename, 
         LPD3DXEFFECT shader);
 

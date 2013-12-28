@@ -20,6 +20,7 @@ ClothSimulator/GuiRelease/
 ClothSimulator/SimDebug/
 ClothSimulator/SimRelease/
 ClothSimulator/obj/
+ClothSimulator/Profile/
 ClothSimulator/ClothSimulatorGUI.dll
 ClothSimulator/ClothSimulatorGUI.lib
 ClothSimulator/ClothSimulatorGUI.exp
