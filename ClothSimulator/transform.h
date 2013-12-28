@@ -117,6 +117,12 @@ public:
     */
     void SetRotationMatrix(const D3DXMATRIX& mat) { m_rotation = mat; }
 
+	/**
+	* Resets the transform to another transform
+	* @param transform The transform to reset to
+	*/
+	void ResetTransform(const Transform& transform);
+
 private:
 
     /**

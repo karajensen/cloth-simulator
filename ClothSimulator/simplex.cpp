@@ -82,7 +82,6 @@ void Simplex::GenerateFaces()
         D3DXVec3Normalize(&m_faces[face].normal, &m_faces[face].normal);
 
         m_faces[face].distanceToOrigin = GetDistanceToOrigin(m_faces[face]);
-        assert(m_faces[face].distanceToOrigin >= 0.0f);
     };
 
     assert(m_simplex.size() <= POINTS_IN_TETRAHEDRON);

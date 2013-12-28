@@ -43,12 +43,11 @@ public:
     /**
     * Load the mesh as an instance of another mesh
     * @param d3ddev The directX device
-    * @param collisionmesh The collsion of the other mesh or null if none
-    * @param geometry The meshdata from the other mesh
+	* @param mesh The mesh of the object to instance off
     * @param index A user defined index
     */
-    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, const CollisionMesh* collisionmesh, 
-        std::shared_ptr<Geometry> geometry, int index = NO_INDEX);
+    bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
+		Mesh& mesh, int index = NO_INDEX);
 
     /**
     * Draw the visual model of the mesh

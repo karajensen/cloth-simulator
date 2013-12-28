@@ -105,6 +105,12 @@ void Cloth::CreateCloth(int rows, float spacing)
     const int mininum = -m_particleLength/2;
     const int maximum = m_particleLength/2;
 
+	// Modify visual radius depending on the spacing
+	// Line chosen passes through (0.75, 0.15), (1.0, 0.18)
+	const float lineslope = 0.12f;
+	const float lineoffset = 0.06f;
+	const float visualRadius = (lineslope * m_spacing) + lineoffset;
+
     float UVu = 0;
     float UVv = 0;
     int index = 0;
@@ -124,8 +130,8 @@ void Cloth::CreateCloth(int rows, float spacing)
                 m_particles[index].reset(new Particle(m_engine));
             }
 
-            m_particles[index]->Initialise(position, uvs,
-                index, m_template->GetGeometry(), m_template->GetLocalScale());
+            m_particles[index]->Initialise(position, uvs, index,
+				m_template->GetGeometry(), m_template->GetLocalScale(), visualRadius);
 
             if(firstInitialisation)
             {

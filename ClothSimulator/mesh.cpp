@@ -65,19 +65,16 @@ void Mesh::InitializeCollision()
 }
 
 bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
-                          const CollisionMesh* collisionmesh,
-                          std::shared_ptr<Geometry> geometry, 
-                          int index)
+                          Mesh& mesh, int index)
 {
+	ResetTransform(mesh);
     m_index = index;
-    m_geometry = geometry;
-    if(collisionmesh)
-    {
-        InitializeCollision();
-        m_collision->LoadInstance(
-            collisionmesh->GetLocalScale(),
-            collisionmesh->GetGeometry());
-    }
+    m_geometry = mesh.GetGeometry();
+    InitializeCollision();
+
+	auto& collision = mesh.GetCollisionMesh();
+    m_collision->LoadInstance(collision.GetLocalScale(), collision.GetGeometry());
+
     return true;
 }
 
@@ -262,8 +259,12 @@ const std::vector<D3DXVECTOR3>& Mesh::GetAnimationPoints() const
 
 void Mesh::ResetAnimation()
 {
-    m_animation.clear();
-    m_target = 1;
+	if(!m_animation.empty())
+	{
+		m_animating = false;
+		m_animation.clear();
+		m_target = 1;
+	}
 }
 
 void Mesh::SavePosition()

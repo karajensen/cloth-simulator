@@ -1,6 +1,8 @@
 
-- fix breaking through cloth
-- doxygen
+BUG FIXING:
+- objects breaking through cloth when translating
+- min-max collision mesh that changes as the object is scaled to prevent no-touching collisions
+
 - video/Update folio
 
 =================================================================

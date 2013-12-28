@@ -7,8 +7,8 @@
 
 namespace
 {
-    const float MIN_SCALE = 0.5f; ///< Minimum allowed scale
-    const float MAX_SCALE = 7.0f; ///< Maximum allowed scale
+    const float MIN_SCALE = 1.0f; ///< Minimum allowed scale
+    const float MAX_SCALE = 6.0f; ///< Maximum allowed scale
 }
 
 Transform::Transform():
@@ -137,4 +137,9 @@ void Transform::MakeIdentity()
 D3DXVECTOR3 Transform::GetScale() const
 {
     return D3DXVECTOR3(m_scale._11, m_scale._22, m_scale._33); 
+}
+
+void Transform::ResetTransform(const Transform& transform)
+{
+	*this = transform;
 }
