@@ -37,37 +37,32 @@ public:
     void MakeDynamic(MotionFn resolveFn);
 
     /**
-    * Creates a sphere collision model
+    * Creates a collision model
     * @param createmesh Whether to create a mesh model or not
-    * @param radius The initial radius of the sphere
-    * @param divisions The amount of divisions of the mesh
+    * @param shape The shape of the collisin mesh
+    * @param minScale Minimum allowed scale of the collision mesh
+    * @param maxScale Maximum allowed scale of the collision mesh
+    * @param divisions The amount of divisions of the mesh if required
     */
-    void LoadSphere(bool createmesh, float radius, int divisions);
+    void Initialise(bool createmesh, Geometry::Shape shape,
+        const D3DXVECTOR3& minScale, const D3DXVECTOR3& maxScale, 
+        int divisions = 0);
 
     /**
-    * Creates a box collision model
+    * Creates a collision model
     * @param createmesh Whether to create a mesh model or not
-    * @param width The initial width of the box
-    * @param height The initial height of the box
-    * @param depth The initial depth of the box
+    * @param shape The shape of the collisin mesh
+    * @param scale Scale of the collision mesh
+    * @param divisions The amount of divisions of the mesh if required
     */
-    void LoadBox(bool createmesh, float width, float height, float depth);
-
-    /**
-    * Creates a cylinder collision model
-    * @param createmesh Whether to create a mesh model or not
-    * @param radius The initial radius of the cylinder
-    * @param length The length of the cylinder
-    * @param divisions The amount of divisions of the mesh
-    */
-    void LoadCylinder(bool createmesh, float radius, float length, int divisions);
+    void Initialise(bool createmesh, Geometry::Shape shape,
+        const D3DXVECTOR3& scale, int divisions = 0);
 
     /**
     * Loads the collision as an instance of another
-    * @param scale The local scale of the new instance
-    * @param geometry Mesh instance
+    * @param mesh The collision mesh to base the instance off
     */
-    void LoadInstance(const D3DXVECTOR3& scale, std::shared_ptr<Geometry> geometry);
+    void LoadInstance(const CollisionMesh& mesh);
 
     /**
     * @return the shape the collision mesh has
@@ -154,7 +149,7 @@ public:
     * Updates the collision geometry upon translate for non-parented meshes
     * @param position The position to be set to
     */
-    void UpdatePosition(const D3DXVECTOR3& position);
+    void PositionalNonParentalUpdate(const D3DXVECTOR3& position);
 
     /**
     * @return the collision mesh 
@@ -236,19 +231,25 @@ public:
     void SetRenderCollisionDiagnostics(bool render);
 
     /**
-    * @return the local scale of the mesh
-    */
-    D3DXVECTOR3 GetLocalScale() const;
-
-    /**
     * Sets the local scale of the mesh
     */
     void SetLocalScale(float scale);
 
     /**
+    * @return the local scale of the mesh
+    */
+    D3DXVECTOR3 GetLocalScale() const;
+
+    /**
     * @return whether the collision mesh has a shape or not
     */
     bool HasShape() const;
+
+    /**
+    * Explicitly set the position
+    * @param position The position to set
+    */
+    void SetPosition(const D3DXVECTOR3& position);
 
 private:
 
@@ -280,8 +281,14 @@ private:
 
     /**
     * Creates a collision model
+    * @param scale The scale to load the mesh at
     */
-    void LoadCollisionModel();
+    void LoadCollisionModel(const D3DXVECTOR3& scale);
+
+    /**
+    * Determines the correct local scale depending on the parent scale
+    */
+    D3DXVECTOR3 FindLocalScale();
 
     EnginePtr m_engine;                        ///< Callbacks for the rendering engine
     const Transform* m_parent;                 ///< Parent transform of the collision geometry
@@ -289,7 +296,7 @@ private:
     Transform m_world;                         ///< World transform of the collision geometry
     Partition* m_partition;                    ///< Partition collision currently in
     D3DXVECTOR3 m_positionDelta;               ///< Change in position this tick
-    D3DXVECTOR3 m_velocity;                       ///< Velocity for the collision mesh
+    D3DXVECTOR3 m_velocity;                    ///< Velocity for the collision mesh
     D3DXVECTOR3 m_colour;                      ///< Colour to render
     D3DXVECTOR3 m_position;                    ///< Cached position of collision geometry
     std::vector<D3DXVECTOR3> m_localBounds;    ///< Local AABB points
@@ -303,6 +310,6 @@ private:
     bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
     bool m_renderCollisionDiagnostics;         ///< Whether to render any collision solver diagnostics
     float m_radius;                            ///< Transformed radius that encases geometry
-    float m_minLocalScale;
-    float m_maxLocalScale;
+    D3DXVECTOR3 m_minLocalScale;               ///< Minimum allowed scale of the collision mesh
+    D3DXVECTOR3 m_maxLocalScale;               ///< Maximum allowed scale of the collision mesh
 };                                             

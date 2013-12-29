@@ -129,6 +129,16 @@ public:
     */
     void SetMaximumScale(float x, float y, float z);
 
+    /**
+    * @return the minimum possible scale
+    */
+    const D3DXVECTOR3& GetMinimumScale() const;
+
+    /**
+    * @return the minimum possible scale
+    */
+    const D3DXVECTOR3& GetMaximumScale() const;
+
 private:
 
     /**
@@ -140,8 +150,8 @@ private:
     float m_yaw;                     ///< Radian amount of yaw
     float m_pitch;                   ///< Radian amount of pitch
     float m_roll;                    ///< Radian amount of roll
-    D3DXVECTOR3 m_minimumScale;         ///< Minimum bounds for scaling
-    D3DXVECTOR3 m_maximumScale;         ///< Maximum bounds for scaling
+    D3DXVECTOR3 m_minimumScale;      ///< Minimum bounds for scaling
+    D3DXVECTOR3 m_maximumScale;      ///< Maximum bounds for scaling
     D3DXVECTOR3 m_position;          ///< Position for the transform
     D3DXMATRIX m_rotation;           ///< Current rotation applied to the matrix
     D3DXMATRIX m_scale;              ///< Current scaling applied to the matrix

@@ -70,10 +70,7 @@ bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev,
     m_index = index;
     m_geometry = mesh.GetGeometry();
     InitializeCollision();
-
-    auto& collision = mesh.GetCollisionMesh();
-    m_collision->LoadInstance(collision.GetLocalScale(), collision.GetGeometry());
-
+    m_collision->LoadInstance(mesh.GetCollisionMesh());
     return true;
 }
 
@@ -183,22 +180,13 @@ bool Mesh::HasCollisionMesh() const
     return m_collision && m_collision->HasGeometry();
 }
 
-void Mesh::CreateCollisionCylinder(float radius, float length, int quality)
+void Mesh::InitialiseCollision(Geometry::Shape shape,
+                               const D3DXVECTOR3& minScale, 
+                               const D3DXVECTOR3& maxScale, 
+                               int divisions)
 {
     InitializeCollision();
-    m_collision->LoadCylinder(true, radius, length, quality);
-}
-
-void Mesh::CreateCollisionBox(float width, float height, float depth)
-{
-    InitializeCollision();
-    m_collision->LoadBox(true, width, height, depth);
-}
-
-void Mesh::CreateCollisionSphere(float radius, int quality)
-{
-    InitializeCollision();
-    m_collision->LoadSphere(true, radius, quality);
+    m_collision->Initialise(true, shape, minScale, maxScale, divisions);
 }
 
 bool Mesh::IsVisible() const

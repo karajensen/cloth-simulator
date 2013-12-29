@@ -59,9 +59,13 @@ Cloth::Cloth(EnginePtr engine) :
     m_texture(nullptr),
     m_shader(nullptr)
 {
+    D3DXVECTOR3 minimumScale(1.0f, 1.0f, 1.0f);
+    D3DXVECTOR3 maximumScale(1.0f, 1.0f, 1.0f);
+
     m_shader = m_engine->getShader(ShaderManager::CLOTH_SHADER);
     m_template.reset(new CollisionMesh(m_engine, this));
-    m_template->LoadSphere(true, 1.0f, PARTICLE_SUBDIVISIONS);
+    m_template->Initialise(true, Geometry::SPHERE, 
+        minimumScale, maximumScale, PARTICLE_SUBDIVISIONS);
 
     const std::string path(".\\Resources\\Textures\\square.png");
     if(FAILED(D3DXCreateTextureFromFile(m_engine->device(), path.c_str(), &m_texture)))
@@ -130,8 +134,8 @@ void Cloth::CreateCloth(int rows, float spacing)
                 m_particles[index].reset(new Particle(m_engine));
             }
 
-            m_particles[index]->Initialise(position, uvs, index,
-                m_template->GetGeometry(), m_template->GetLocalScale(), visualRadius);
+            m_particles[index]->Initialise(position, uvs, 
+                index, *m_template, visualRadius);
 
             if(firstInitialisation)
             {

@@ -1,8 +1,7 @@
 
 BUG FIXING:
 - objects breaking through cloth when translating
-- scaling collision mesh differently depending on parent scale (changing localworld)
-- filter on cloth movement?
+- filter on particle movement?
 
 =================================================================
 CLOTH SIMULATOR

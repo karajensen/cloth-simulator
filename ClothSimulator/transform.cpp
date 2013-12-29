@@ -146,3 +146,13 @@ void Transform::ResetTransform(const Transform& transform)
 {
     *this = transform;
 }
+
+const D3DXVECTOR3& Transform::GetMaximumScale() const
+{
+    return m_maximumScale;
+}
+
+const D3DXVECTOR3& Transform::GetMinimumScale() const
+{
+    return m_minimumScale;
+}

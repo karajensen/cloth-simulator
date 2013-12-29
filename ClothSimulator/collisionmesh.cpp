@@ -65,87 +65,96 @@ void CollisionMesh::CreateLocalBounds(float width, float height, float depth)
     m_localBounds[7] = minBounds + D3DXVECTOR3(0, height, depth);
 }
 
-void CollisionMesh::LoadCollisionModel()
+void CollisionMesh::LoadCollisionModel(const D3DXVECTOR3& scale)
 {
-    m_worldVertices.clear();
-    m_worldVertices.resize(m_geometry->GetVertices().size());
+    // Increase the radius to the circumference for the oabb
+    D3DXVECTOR3 bounds(scale);
+    switch(m_geometry->GetShape())
+    {
+    case Geometry::SPHERE:
+        bounds *= 2.0f;
+        break;
+    case Geometry::CYLINDER:
+        bounds.x *= 2.0f;
+        bounds.y *= 2.0f;
+        break;
+    }
+    CreateLocalBounds(bounds.x, bounds.y, bounds.z);
 
+    m_localWorld.SetScale(scale.x, scale.y, scale.z);
     if(m_parent)
     {
-        FullUpdate();
+        m_world.Set(m_localWorld.GetMatrix()*m_parent->GetMatrix());
     }
     else
     {
         m_world.SetScale(m_localWorld.GetScale());
-        m_world.SetPosition(m_position);
     }
+    m_position = m_world.Position();
 
     m_requiresFullUpdate = true;
     UpdateCollision();
 }
 
-void CollisionMesh::LoadBox(bool createmesh, float width, float height, float depth)
+D3DXVECTOR3 CollisionMesh::FindLocalScale()
+{
+    assert(m_parent);
+    D3DXVECTOR3 scale = m_parent->GetScale();
+    const D3DXVECTOR3& min = m_parent->GetMinimumScale();
+    const D3DXVECTOR3& max = m_parent->GetMaximumScale();
+
+    scale.x = ((scale.x-min.x)*((m_maxLocalScale.x-
+        m_minLocalScale.x)/(max.x-min.x)))+m_minLocalScale.x;
+
+    scale.y = ((scale.y-min.y)*((m_maxLocalScale.y-
+        m_minLocalScale.y)/(max.y-min.y)))+m_minLocalScale.y;
+
+    scale.z = ((scale.z-min.z)*((m_maxLocalScale.z-
+        m_minLocalScale.z)/(max.z-min.z)))+m_minLocalScale.z;
+
+    return scale;
+}
+
+void CollisionMesh::Initialise(bool createmesh, 
+                               Geometry::Shape shape,
+                               const D3DXVECTOR3& scale, 
+                               int divisions)
+{
+    Initialise(createmesh, shape, scale, scale, divisions);
+}
+
+void CollisionMesh::Initialise(bool createmesh,
+                               Geometry::Shape shape,
+                               const D3DXVECTOR3& minScale, 
+                               const D3DXVECTOR3& maxScale, 
+                               int divisions)
 {
     if(createmesh)
     {
         m_geometry.reset(new Geometry(m_engine->device(), 
             m_engine->getShader(ShaderManager::BOUNDS_SHADER),
-            Geometry::BOX));
+            shape, divisions));    
     }
 
-    CreateLocalBounds(width, height, depth);
-    m_localWorld.SetScale(width, height, depth);
-    LoadCollisionModel();
+    m_worldVertices.clear();
+    m_worldVertices.resize(m_geometry->GetVertices().size());
+
+    D3DXVECTOR3 scale(minScale);
+    if(m_parent)
+    {
+        // If parental, scale the mesh from min-max depending on the parent scale
+        m_minLocalScale = minScale;
+        m_maxLocalScale = maxScale;
+        scale = FindLocalScale();
+    }
+    LoadCollisionModel(scale);
 }
 
-
-void CollisionMesh::LoadSphere(bool createmesh, float radius, int divisions)
+void CollisionMesh::LoadInstance(const CollisionMesh& mesh)
 {
-    if(createmesh)
-    {
-        m_geometry.reset(new Geometry(m_engine->device(), 
-            m_engine->getShader(ShaderManager::BOUNDS_SHADER),
-            Geometry::SPHERE, divisions));
-    }
-    
-    //radius of sphere is uniform across x/y/z axis
-    const float boundsRadius = radius * 2.0f;
-    CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
-    m_localWorld.SetScale(radius);
-    LoadCollisionModel();
-}
-
-void CollisionMesh::LoadCylinder(bool createmesh, float radius, float length, int divisions)
-{
-    if(createmesh)
-    {
-        m_geometry.reset(new Geometry(m_engine->device(), 
-            m_engine->getShader(ShaderManager::BOUNDS_SHADER),
-            Geometry::CYLINDER, divisions));
-    }
-
-    //length of cylinder is along the z axis, radius is scaled uniformly across the x/y axis
-    const float boundsRadius = radius * 2.0f;
-    CreateLocalBounds(boundsRadius, boundsRadius, length);
-    m_localWorld.SetScale(radius, radius, length);
-    LoadCollisionModel();
-}
-
-void CollisionMesh::LoadInstance(const D3DXVECTOR3& scale, std::shared_ptr<Geometry> geometry)
-{
-    m_geometry = geometry;
-    switch(geometry->GetShape())
-    {
-    case Geometry::SPHERE:
-        LoadSphere(false, scale.x, 0);
-        break;
-    case Geometry::BOX:
-        LoadBox(false, scale.x, scale.y, scale.z);
-        break;
-    case Geometry::CYLINDER:
-        LoadCylinder(false, scale.x, scale.z, 0);
-        break;
-    }
+    m_geometry = mesh.GetGeometry();
+    Initialise(false, m_geometry->GetShape(), 
+        mesh.m_minLocalScale, mesh.m_maxLocalScale);
 }
 
 bool CollisionMesh::HasGeometry() const
@@ -308,6 +317,13 @@ void CollisionMesh::FullUpdate()
 {
     assert(m_parent);
 
+    D3DXVECTOR3 scale(FindLocalScale());
+    D3DXVECTOR3 localScale(m_localWorld.GetScale());
+    if(scale != localScale)
+    {
+        LoadCollisionModel(scale);
+    }
+
     //DirectX: World = LocalWorld * ParentWorld
     m_positionDelta += m_parent->Position() - m_world.Position();
     m_world.Set(m_localWorld.GetMatrix()*m_parent->GetMatrix());
@@ -326,7 +342,7 @@ void CollisionMesh::PositionalUpdate()
     m_requiresPositionalUpdate = true;
 }
 
-void CollisionMesh::UpdatePosition(const D3DXVECTOR3& position)
+void CollisionMesh::PositionalNonParentalUpdate(const D3DXVECTOR3& position)
 {
     assert(!m_parent);
 
@@ -511,17 +527,27 @@ void CollisionMesh::SetRenderCollisionDiagnostics(bool render)
     m_renderCollisionDiagnostics = render;
 }
 
+void CollisionMesh::SetLocalScale(float scale)
+{
+    m_minLocalScale.x = scale;
+    m_minLocalScale.y = scale;
+    m_minLocalScale.z = scale;
+    m_maxLocalScale = m_minLocalScale;
+    m_localWorld.SetScale(scale);
+}
+
 D3DXVECTOR3 CollisionMesh::GetLocalScale() const
 {
     return m_localWorld.GetScale();
 }
 
-void CollisionMesh::SetLocalScale(float scale)
-{
-    m_localWorld.SetScale(scale);
-}
-
 bool CollisionMesh::HasShape() const
 {
     return GetShape() != Geometry::NONE;
+}
+
+void CollisionMesh::SetPosition(const D3DXVECTOR3& position)
+{
+    m_position = position;
+    m_world.SetPosition(position);
 }

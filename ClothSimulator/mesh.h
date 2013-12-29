@@ -104,25 +104,15 @@ public:
     CollisionMesh& GetCollisionMesh();
 
     /**
-    * Creates a collision cube for the mesh
-    * @param width/height/depth The dimensions of the collision box
+    * Creates a collision model
+    * @param shape The shape of the collisin mesh
+    * @param minScale Minimum allowed scale of the collision mesh
+    * @param maxScale Maximum allowed scale of the collision mesh
+    * @param divisions The amount of divisions of the mesh if required
     */
-    void CreateCollisionBox(float width, float height, float depth);
-
-    /**
-    * Creates a collision sphere for the mesh
-    * @param radius The initial radius of the sphere
-    * @param quality The detail of the collision sphere
-    */
-    void CreateCollisionSphere(float radius, int quality);
-
-    /**
-    * Creates a collision cylinder for the mesh
-    * @param radius The initial radius of the cylinder
-    * @param length The length of the cylinder.
-    * @param quality The detail of the cylinder
-    */
-    void CreateCollisionCylinder(float radius, float length, int quality);
+    void InitialiseCollision(Geometry::Shape shape,
+        const D3DXVECTOR3& minScale, const D3DXVECTOR3& maxScale, 
+        int divisions = 0);
 
     /**
     * @param draw whether the collision mesh is visible

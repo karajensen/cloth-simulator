@@ -10,6 +10,7 @@
 class IOctree;
 class Shader;
 class CollisionSolver;
+class CollisionMesh;
 class Mesh;
 class Picking;
 class Manipulator;
@@ -139,6 +140,7 @@ public:
 private:
 
     typedef std::shared_ptr<Mesh> MeshPtr;
+    typedef std::unique_ptr<CollisionMesh> CollisionPtr;
 
     /**
     * Removes a mesh from the scene
@@ -172,7 +174,7 @@ private:
     std::unique_ptr<Manipulator> m_manipulator;  ///< manipulator tool for changing objects
     std::shared_ptr<CollisionSolver> m_solver;   ///< The solver for collision resolution
     MeshPtr m_ground;                            ///< Ground grid mesh
-    std::vector<MeshPtr> m_walls;                ///< Wall collision meshes
+    std::vector<CollisionPtr> m_walls;           ///< Wall collision meshes
     D3DXVECTOR3 m_wallMinBounds;                 ///< Minimum position in the wall enclosed space
     D3DXVECTOR3 m_wallMaxBounds;                 ///< Maximum position in the wall enclosed space
     int m_selectedMesh;                          ///< Currently selected object

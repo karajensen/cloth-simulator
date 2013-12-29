@@ -27,12 +27,11 @@ public:
     * @param position The intial position of the particle
     * @param uv The uvs for the particle
     * @param index The internal index of the particle
-    * @param geometry The collision geometry for the particle
-    * @param scale The local scale for the instance
+    * @param mesh The template collision mesh to copy
     * @param visualRadius The radius to render the markers 
     */
-    void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
-         std::shared_ptr<Geometry> geometry, const D3DXVECTOR3& scale, float visualRadius);
+    void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, 
+        unsigned int index, const CollisionMesh& mesh, float visualRadius);
 
     /**
     * Draws the particle visual mesh
