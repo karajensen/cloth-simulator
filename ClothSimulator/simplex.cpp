@@ -82,6 +82,7 @@ void Simplex::GenerateFaces()
         D3DXVec3Normalize(&m_faces[face].normal, &m_faces[face].normal);
 
         m_faces[face].distanceToOrigin = GetDistanceToOrigin(m_faces[face]);
+        assert(m_faces[face].distanceToOrigin >= 0.0f);
     };
 
     assert(m_simplex.size() <= POINTS_IN_TETRAHEDRON);
@@ -221,10 +222,9 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
 
 int Simplex::GetDeadFaceIndex() const
 {
-    auto itr = std::find_if(m_faces.begin(), m_faces.end(), [](const Face& face)
-    {
-        return !face.alive;
-    });
+    auto itr = std::find_if(m_faces.begin(), m_faces.end(), 
+        [](const Face& face){ return !face.alive; });
+
     return itr == m_faces.end() ? NO_INDEX : itr->index;
 }
 

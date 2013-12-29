@@ -29,19 +29,19 @@ struct VS_OUTPUT
     float4 Position     :POSITION;
     float3 Normal       :TEXCOORD0;
     float3 LightVector  :TEXCOORD1;
-	float2 UV           :TEXCOORD2;
+    float2 UV           :TEXCOORD2;
 };                 
                         
 VS_OUTPUT VShader(float4 position   :POSITION, 
                   float3 normal     :NORMAL,
-				  float2 uv         :TEXCOORD0)
+                  float2 uv         :TEXCOORD0)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
     
     output.Position = mul(position, WorldViewProjection); 
     output.Normal = mul(normal, WorldInvTrans);
     output.LightVector = LightPosition - mul(position, World);
-	output.UV = uv;
+    output.UV = uv;
 
     return output;
 }
@@ -58,7 +58,7 @@ float4 PShader(VS_OUTPUT input) :COLOR0
 
     diffuse *= DiffuseIntensity * DiffuseColor;
     float3 ambient = AmbientIntensity * AmbientColor;
-	float3 color = saturate(tex2D(ColorSampler, input.UV).xyz * VertexColor);
+    float3 color = saturate(tex2D(ColorSampler, input.UV).xyz * VertexColor);
     return float4(color * (diffuse + ambient), 1.0);
 }
 

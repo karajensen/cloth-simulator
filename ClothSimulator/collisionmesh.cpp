@@ -31,11 +31,11 @@ CollisionMesh::CollisionMesh(EnginePtr engine, const Transform* parent) :
     m_parent(parent),
     m_partition(nullptr),
     m_positionDelta(0.0f, 0.0f, 0.0f),
-	m_velocity(m_positionDelta),
+    m_velocity(m_positionDelta),
     m_colour(1.0f, 1.0f, 1.0f),
     m_geometry(nullptr),
     m_resolveFn(nullptr),
-    m_interactingGeometry(Geometry::NONE),
+    m_collisionType(NO_COLLISION),
     m_draw(false),
     m_requiresFullUpdate(false),
     m_requiresPositionalUpdate(false),
@@ -70,15 +70,15 @@ void CollisionMesh::LoadCollisionModel()
     m_worldVertices.clear();
     m_worldVertices.resize(m_geometry->GetVertices().size());
 
-	if(m_parent)
-	{
-		FullUpdate();
-	}
-	else
-	{
-		m_world.SetScale(m_localWorld.GetScale());
-		m_world.SetPosition(m_position);
-	}
+    if(m_parent)
+    {
+        FullUpdate();
+    }
+    else
+    {
+        m_world.SetScale(m_localWorld.GetScale());
+        m_world.SetPosition(m_position);
+    }
 
     m_requiresFullUpdate = true;
     UpdateCollision();
@@ -95,7 +95,7 @@ void CollisionMesh::LoadBox(bool createmesh, float width, float height, float de
 
     CreateLocalBounds(width, height, depth);
     m_localWorld.SetScale(width, height, depth);
-	LoadCollisionModel();
+    LoadCollisionModel();
 }
 
 
@@ -112,7 +112,7 @@ void CollisionMesh::LoadSphere(bool createmesh, float radius, int divisions)
     const float boundsRadius = radius * 2.0f;
     CreateLocalBounds(boundsRadius, boundsRadius, boundsRadius);
     m_localWorld.SetScale(radius);
-	LoadCollisionModel();
+    LoadCollisionModel();
 }
 
 void CollisionMesh::LoadCylinder(bool createmesh, float radius, float length, int divisions)
@@ -285,7 +285,7 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view, const
         }
         shader->End();
 
-        m_interactingGeometry = NO_COLLISION;
+        m_collisionType = NO_COLLISION;
     }
 }
 
@@ -306,7 +306,7 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
 
 void CollisionMesh::FullUpdate()
 {
-	assert(m_parent);
+    assert(m_parent);
 
     //DirectX: World = LocalWorld * ParentWorld
     m_positionDelta += m_parent->Position() - m_world.Position();
@@ -317,7 +317,7 @@ void CollisionMesh::FullUpdate()
 
 void CollisionMesh::PositionalUpdate()
 {
-	assert(m_parent);
+    assert(m_parent);
 
     //DirectX: World = LocalWorld * ParentWorld
     m_positionDelta += m_parent->Position() - m_world.Position();
@@ -328,10 +328,10 @@ void CollisionMesh::PositionalUpdate()
 
 void CollisionMesh::UpdatePosition(const D3DXVECTOR3& position)
 {
-	assert(!m_parent);
+    assert(!m_parent);
 
     m_positionDelta += position - m_position;
-	m_world.SetPosition(position);
+    m_world.SetPosition(position);
     m_position = position;
     m_requiresPositionalUpdate = true;
 }
@@ -346,8 +346,8 @@ void CollisionMesh::UpdateCollision()
         {
             if(m_requiresFullUpdate)
             {
-				D3DXVec3TransformCoord(&m_worldVertices[i], 
-					&vertices[i], &m_world.GetMatrix());
+                D3DXVec3TransformCoord(&m_worldVertices[i], 
+                    &vertices[i], &m_world.GetMatrix());
             }
             else
             {
@@ -360,15 +360,15 @@ void CollisionMesh::UpdateCollision()
         {
             if(m_requiresFullUpdate)
             {
-				if(m_parent)
-				{
-					D3DXVec3TransformCoord(&m_oabb[i], 
-						&m_localBounds[i], &m_parent->GetMatrix());
-				}
-				else
-				{
-					m_oabb[i] = m_localBounds[i] + m_position;
-				}
+                if(m_parent)
+                {
+                    D3DXVec3TransformCoord(&m_oabb[i], 
+                        &m_localBounds[i], &m_parent->GetMatrix());
+                }
+                else
+                {
+                    m_oabb[i] = m_localBounds[i] + m_position;
+                }
             }
             else
             {
@@ -382,12 +382,12 @@ void CollisionMesh::UpdateCollision()
             if(GetShape() == Geometry::SPHERE)
             {
                 m_radius = m_localWorld.GetScale().x;
-				m_radius *= m_parent ? m_parent->GetScale().x : 1.0f;
+                m_radius *= m_parent ? m_parent->GetScale().x : 1.0f;
             }
             else
             {
                 m_radius = D3DXVec3Length(
-					&(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
+                    &(m_oabb[MINBOUND]-m_oabb[MAXBOUND])) * 0.5f;
             }
         }
 
@@ -401,7 +401,7 @@ void CollisionMesh::UpdateCollision()
         m_requiresPositionalUpdate = false;
     }
 
-	m_velocity = m_positionDelta;
+    m_velocity = m_positionDelta;
     m_positionDelta.x = 0.0f;
     m_positionDelta.y = 0.0f;
     m_positionDelta.z = 0.0f;
@@ -463,25 +463,25 @@ unsigned int CollisionMesh::GetCollisionType(Geometry::Shape shape)
 
 void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation)
 {
-	if(IsDynamic())
-	{
-		m_resolveFn(translation);
-	}
+    if(IsDynamic())
+    {
+        m_resolveFn(translation);
+    }
 }
 
 void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, 
-									 const D3DXVECTOR3& velocity, 
-									 Geometry::Shape shape)
+                                     const D3DXVECTOR3& velocity, 
+                                     Geometry::Shape shape)
 {
     if(IsDynamic())
     {
         if(shape != Geometry::NONE)
         {
-            m_interactingGeometry &= ~NO_COLLISION;
-            m_interactingGeometry |= GetCollisionType(shape);
+            m_collisionType &= ~NO_COLLISION;
+            m_collisionType |= GetCollisionType(shape);
         }
 
-		m_resolveFn(translation);
+        m_resolveFn(translation);
     }
 }
 
@@ -493,7 +493,7 @@ bool CollisionMesh::IsDynamic() const
 bool CollisionMesh::IsCollidingWith(Geometry::Shape shape)
 {
     unsigned int collisionType = GetCollisionType(shape);
-    return (m_interactingGeometry & collisionType) == collisionType;
+    return (m_collisionType & collisionType) == collisionType;
 }
 
 const D3DXVECTOR3& CollisionMesh::GetVelocity() const

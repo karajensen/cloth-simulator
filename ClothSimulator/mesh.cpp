@@ -33,11 +33,10 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
-                       const std::string& filename, 
+void Mesh::LoadTexture(const std::string& filename, 
                        int dimensions, int miplevels)
 {
-    m_geometry->LoadTexture(d3ddev, filename, dimensions, miplevels);
+    m_geometry->LoadTexture(m_engine->device(), filename, dimensions, miplevels);
 }
 
 void Mesh::LoadMesh(LPDIRECT3DDEVICE9 d3ddev, 
@@ -67,12 +66,12 @@ void Mesh::InitializeCollision()
 bool Mesh::LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
                           Mesh& mesh, int index)
 {
-	ResetTransform(mesh);
+    ResetTransform(mesh);
     m_index = index;
     m_geometry = mesh.GetGeometry();
     InitializeCollision();
 
-	auto& collision = mesh.GetCollisionMesh();
+    auto& collision = mesh.GetCollisionMesh();
     m_collision->LoadInstance(collision.GetLocalScale(), collision.GetGeometry());
 
     return true;
@@ -259,12 +258,12 @@ const std::vector<D3DXVECTOR3>& Mesh::GetAnimationPoints() const
 
 void Mesh::ResetAnimation()
 {
-	if(!m_animation.empty())
-	{
-		m_animating = false;
-		m_animation.clear();
-		m_target = 1;
-	}
+    if(!m_animation.empty())
+    {
+        m_animating = false;
+        m_animation.clear();
+        m_target = 1;
+    }
 }
 
 void Mesh::SavePosition()

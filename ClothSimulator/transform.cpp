@@ -5,17 +5,13 @@
 #include "transform.h"
 #include "common.h"
 
-namespace
-{
-    const float MIN_SCALE = 1.0f; ///< Minimum allowed scale
-    const float MAX_SCALE = 6.0f; ///< Maximum allowed scale
-}
-
 Transform::Transform():
     m_yaw(0.0f),
     m_pitch(0.0f),
     m_roll(0.0f),
     m_position(0.0f, 0.0f, 0.0f),
+    m_minimumScale(1.0f, 1.0f, 1.0f),
+    m_maximumScale(1.0f, 1.0f, 1.0f),
     m_fullUpdateFn(nullptr),
     m_positionalUpdateFn(nullptr)
 { 
@@ -70,11 +66,18 @@ void Transform::SetScale(const D3DXVECTOR3& scale)
     SetScale(scale.x, scale.y, scale.z);
 }
 
+void Transform::SetMaximumScale(float x, float y, float z)
+{
+    m_maximumScale.x = x;
+    m_maximumScale.y = y;
+    m_maximumScale.z = z;
+}
+
 void Transform::Scale(float x, float y, float z)
 {
-    m_scale._11 = min(max(MIN_SCALE, m_scale._11 + x), MAX_SCALE);
-    m_scale._22 = min(max(MIN_SCALE, m_scale._22 + y), MAX_SCALE);
-    m_scale._33 = min(max(MIN_SCALE, m_scale._33 + z), MAX_SCALE);
+    m_scale._11 = min(max(m_minimumScale.x, m_scale._11 + x), m_maximumScale.x);
+    m_scale._22 = min(max(m_minimumScale.y, m_scale._22 + y), m_maximumScale.y);
+    m_scale._33 = min(max(m_minimumScale.z, m_scale._33 + z), m_maximumScale.z);
     Update(true);
 }
 
@@ -141,5 +144,5 @@ D3DXVECTOR3 Transform::GetScale() const
 
 void Transform::ResetTransform(const Transform& transform)
 {
-	*this = transform;
+    *this = transform;
 }

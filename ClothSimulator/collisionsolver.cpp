@@ -28,7 +28,7 @@ void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA,
 
     if (lengthSqr < (combinedRadius*combinedRadius))
     {
-		const float length = std::sqrt(lengthSqr);
+        const float length = std::sqrt(lengthSqr);
         particleToParticle /= std::sqrt(length);
         const D3DXVECTOR3 translation = particleToParticle*fabs(combinedRadius-length);
         particleA.ResolveCollision(-translation);
@@ -279,11 +279,11 @@ void CollisionSolver::SolveParticleSphereCollision(CollisionMesh& particle,
 
     if (lengthSqr < (combinedRadius*combinedRadius))
     {
-		const float length = std::sqrt(lengthSqr);
+        const float length = std::sqrt(lengthSqr);
         sphereToParticle /= length;
 
         particle.ResolveCollision(sphereToParticle * fabs(combinedRadius-length), 
-			sphere.GetVelocity(), sphere.GetShape());
+            sphere.GetVelocity(), sphere.GetShape());
     }
 }
 

@@ -43,11 +43,11 @@ public:
     /**
     * Load the mesh as an instance of another mesh
     * @param d3ddev The directX device
-	* @param mesh The mesh of the object to instance off
+    * @param mesh The mesh of the object to instance off
     * @param index A user defined index
     */
     bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
-		Mesh& mesh, int index = NO_INDEX);
+        Mesh& mesh, int index = NO_INDEX);
 
     /**
     * Draw the visual model of the mesh
@@ -158,13 +158,11 @@ public:
 
     /**
     * Loads a texture for the mesh
-    * @param d3ddev the directX device
     * @param filename the filename for the texture
     * @param dimensions the size of the texture
     * @param miplevels the number of mipmap levels to generate
     */
-    void LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
-        const std::string& filename, int dimensions, int miplevels);
+    void LoadTexture(const std::string& filename, int dimensions, int miplevels);
 
     /**
     * @return whether the mesh has collision geometry attached to it

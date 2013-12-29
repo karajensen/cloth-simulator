@@ -117,11 +117,17 @@ public:
     */
     void SetRotationMatrix(const D3DXMATRIX& mat) { m_rotation = mat; }
 
-	/**
-	* Resets the transform to another transform
-	* @param transform The transform to reset to
-	*/
-	void ResetTransform(const Transform& transform);
+    /**
+    * Resets the transform to another transform
+    * @param transform The transform to reset to
+    */
+    void ResetTransform(const Transform& transform);
+
+    /**
+    * Sets the maximum scale values
+    * @param x,y,z The scale values for each axis
+    */
+    void SetMaximumScale(float x, float y, float z);
 
 private:
 
@@ -134,6 +140,8 @@ private:
     float m_yaw;                     ///< Radian amount of yaw
     float m_pitch;                   ///< Radian amount of pitch
     float m_roll;                    ///< Radian amount of roll
+    D3DXVECTOR3 m_minimumScale;         ///< Minimum bounds for scaling
+    D3DXVECTOR3 m_maximumScale;         ///< Maximum bounds for scaling
     D3DXVECTOR3 m_position;          ///< Position for the transform
     D3DXMATRIX m_rotation;           ///< Current rotation applied to the matrix
     D3DXMATRIX m_scale;              ///< Current scaling applied to the matrix

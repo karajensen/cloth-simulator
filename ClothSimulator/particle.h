@@ -29,7 +29,7 @@ public:
     * @param index The internal index of the particle
     * @param geometry The collision geometry for the particle
     * @param scale The local scale for the instance
-	* @param visualRadius The radius to render the markers 
+    * @param visualRadius The radius to render the markers 
     */
     void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, unsigned int index,
          std::shared_ptr<Geometry> geometry, const D3DXVECTOR3& scale, float visualRadius);
@@ -159,5 +159,5 @@ private:
     unsigned int m_index;                        ///< Internal index of the particle
     D3DXVECTOR3 m_color;                         ///< Color of the particle
     std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
-	float m_visualRadius;						 ///< Visual render radius for particle markers
+    float m_visualRadius;                         ///< Visual render radius for particle markers
 };

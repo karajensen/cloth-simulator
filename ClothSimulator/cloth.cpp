@@ -105,11 +105,11 @@ void Cloth::CreateCloth(int rows, float spacing)
     const int mininum = -m_particleLength/2;
     const int maximum = m_particleLength/2;
 
-	// Modify visual radius depending on the spacing
-	// Line chosen passes through (0.75, 0.15), (1.0, 0.18)
-	const float lineslope = 0.12f;
-	const float lineoffset = 0.06f;
-	const float visualRadius = (lineslope * m_spacing) + lineoffset;
+    // Modify visual radius depending on the spacing
+    // Line chosen passes through (0.75, 0.15), (1.0, 0.18)
+    const float lineslope = 0.12f;
+    const float lineoffset = 0.06f;
+    const float visualRadius = (lineslope * m_spacing) + lineoffset;
 
     float UVu = 0;
     float UVv = 0;
@@ -131,7 +131,7 @@ void Cloth::CreateCloth(int rows, float spacing)
             }
 
             m_particles[index]->Initialise(position, uvs, index,
-				m_template->GetGeometry(), m_template->GetLocalScale(), visualRadius);
+                m_template->GetGeometry(), m_template->GetLocalScale(), visualRadius);
 
             if(firstInitialisation)
             {
@@ -393,28 +393,25 @@ void Cloth::PreCollisionUpdate(float deltatime)
 {
     UpdateDiagnostics();
 
-    if(m_simulation || m_handleMode)
+    // Move cloth down slowly
+    if(m_simulation)
     {
-        // Move cloth down slowly
-        if(m_simulation)
-        {
-            AddForce(m_gravity*m_timestepSquared*deltatime);
-        }
+        AddForce(m_gravity*m_timestepSquared*deltatime);
+    }
     
-        // Solve Springs
-        for(int j = 0; j < m_springIterations; ++j)
+    // Solve Springs
+    for(int j = 0; j < m_springIterations; ++j)
+    {
+        for(const SpringPtr& spring : m_springs)
         {
-            for(const SpringPtr& spring : m_springs)
-            {
-                spring->SolveSpring();
-            }
+            spring->SolveSpring();
         }
+    }
 
-        // Updating particle positions
-        for(const ParticlePtr& particle : m_particles)
-        {
-            particle->PreCollisionUpdate(m_damping, m_timestepSquared);
-        }
+    // Updating particle positions
+    for(const ParticlePtr& particle : m_particles)
+    {
+        particle->PreCollisionUpdate(m_damping, m_timestepSquared);
     }
 }
 

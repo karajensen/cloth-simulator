@@ -1,9 +1,8 @@
 
 BUG FIXING:
 - objects breaking through cloth when translating
-- min-max collision mesh that changes as the object is scaled to prevent no-touching collisions
-
-- video/Update folio
+- scaling collision mesh differently depending on parent scale (changing localworld)
+- filter on cloth movement?
 
 =================================================================
 CLOTH SIMULATOR
