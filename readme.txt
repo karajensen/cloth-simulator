@@ -1,7 +1,7 @@
 
 BUG FIXING:
 - objects breaking through cloth when translating
-- filter on particle movement?
+- low pass filter on particle position
 
 =================================================================
 CLOTH SIMULATOR
@@ -40,5 +40,7 @@ T:     Toggle text diagnostics
         - Not in collision: color of partition
 
 DEVELOPMENT UPGRADE IDEAS
+• Other convex shapes for collision
+• Persistent contact caching for GJK/EPA to prevent jittering
 • Switch between different cloth solvers
 • Soft shadow mapping

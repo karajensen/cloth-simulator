@@ -283,6 +283,7 @@ private:
     bool m_subdivideCloth;      ///< Whether to subdivide the cloth or not
     D3DXVECTOR3 m_gravity;      ///< Simulated Gravity of the cloth
     float m_generalSmoothing;   ///< General overall smoothing of the cloth
+    int m_diagnosticParticle;   ///< Particle for rendering diagnostics
 
     EnginePtr m_engine;                           ///< Callbacks for the rendering engine
     std::vector<D3DXVECTOR3> m_colors;            ///< Viable colors for the particles

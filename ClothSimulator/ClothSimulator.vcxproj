@@ -99,6 +99,7 @@
     <ClCompile Include="collisionsolver.cpp" />
     <ClCompile Include="collisionmesh.cpp" />
     <ClCompile Include="diagnostic.cpp" />
+    <ClCompile Include="dynamicmesh.cpp" />
     <ClCompile Include="manipulator.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="geometry.cpp" />
@@ -129,6 +130,7 @@
     <ClInclude Include="collisionmesh.h" />
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="dynamicmesh.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="manipulator.h" />

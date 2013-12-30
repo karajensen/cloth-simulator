@@ -6,24 +6,12 @@
 #include "partition.h"
 #include "shader.h"
 #include <assert.h>
-#include <set>
 
 namespace
 {
     const int MINBOUND = 0; ///< Index for the minbound entry in the AABB
     const int MAXBOUND = 6; ///< Index for the maxbound entry in the AABB
     const int CORNERS = 8;  ///< Number of corners in a cube
-
-    /**
-    * Collision Type bit flags
-    */
-    enum
-    {
-        NO_COLLISION = 1,
-        BOX_COLLISION = 2,
-        SPHERE_COLLISION = 4,
-        CYLINDER_COLLISION = 8
-    };
 }
 
 CollisionMesh::CollisionMesh(EnginePtr engine, const Transform* parent) :
@@ -31,24 +19,17 @@ CollisionMesh::CollisionMesh(EnginePtr engine, const Transform* parent) :
     m_parent(parent),
     m_partition(nullptr),
     m_positionDelta(0.0f, 0.0f, 0.0f),
-    m_velocity(m_positionDelta),
+    m_velocity(0.0f, 0.0f, 0.0f),
     m_colour(1.0f, 1.0f, 1.0f),
     m_geometry(nullptr),
-    m_resolveFn(nullptr),
-    m_collisionType(NO_COLLISION),
     m_draw(false),
     m_requiresFullUpdate(false),
     m_requiresPositionalUpdate(false),
     m_radius(0.0f),
-    m_renderCollisionDiagnostics(false)
+    m_renderSolverDiagnostics(false)
 {
     m_localBounds.resize(CORNERS);
     m_oabb.resize(CORNERS);
-}
-
-void CollisionMesh::MakeDynamic(CollisionMesh::MotionFn resolveFn)
-{
-    m_resolveFn = resolveFn;
 }
 
 void CollisionMesh::CreateLocalBounds(float width, float height, float depth)
@@ -293,23 +274,16 @@ void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view, const
             shader->EndPass();
         }
         shader->End();
-
-        m_collisionType = NO_COLLISION;
     }
 }
 
 void CollisionMesh::DrawMesh(const Matrix& projection, const Matrix& view)
 {
     D3DXVECTOR3 color = m_colour;
-    if(!IsCollidingWith(Geometry::NONE))
-    {
-        color = m_engine->diagnostic()->GetColor(Diagnostic::BLACK);
-    }
-    else if(m_partition)
+    if(m_partition)
     {
         color = m_engine->diagnostic()->GetColor(m_partition->GetColor());
     }
-
     DrawMesh(projection, view, color);
 }
 
@@ -317,6 +291,8 @@ void CollisionMesh::FullUpdate()
 {
     assert(m_parent);
 
+    // Modify the scale of the collision mesh
+    // depending on the parent scale
     D3DXVECTOR3 scale(FindLocalScale());
     D3DXVECTOR3 localScale(m_localWorld.GetScale());
     if(scale != localScale)
@@ -339,16 +315,6 @@ void CollisionMesh::PositionalUpdate()
     m_positionDelta += m_parent->Position() - m_world.Position();
     m_world.Set(m_localWorld.GetMatrix()*m_parent->GetMatrix());
     m_position = m_world.Position();
-    m_requiresPositionalUpdate = true;
-}
-
-void CollisionMesh::PositionalNonParentalUpdate(const D3DXVECTOR3& position)
-{
-    assert(!m_parent);
-
-    m_positionDelta += position - m_position;
-    m_world.SetPosition(position);
-    m_position = position;
     m_requiresPositionalUpdate = true;
 }
 
@@ -428,29 +394,6 @@ const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const
     return m_oabb;
 }
 
-void CollisionMesh::DrawRepresentation(const Matrix& projection, 
-                                       const Matrix& view, 
-                                       float scale,
-                                       const D3DXVECTOR3& color,
-                                       const D3DXVECTOR3& position)
-{
-    // Set the matrix explicitly to stop any observer updates
-    const float savedscale = m_localWorld.GetScale().x;
-    m_world.MatrixPtr()->_11 = scale;
-    m_world.MatrixPtr()->_22 = scale;
-    m_world.MatrixPtr()->_33 = scale;
-    m_world.MatrixPtr()->_41 = position.x;
-    m_world.MatrixPtr()->_42 = position.y;
-    m_world.MatrixPtr()->_43 = position.z;
-    DrawMesh(projection, view, color);
-    m_world.MatrixPtr()->_11 = savedscale;
-    m_world.MatrixPtr()->_22 = savedscale;
-    m_world.MatrixPtr()->_33 = savedscale;
-    m_world.MatrixPtr()->_41 = m_position.x;
-    m_world.MatrixPtr()->_42 = m_position.y;
-    m_world.MatrixPtr()->_43 = m_position.z;
-}
-
 void CollisionMesh::SetPartition(Partition* partition)
 {
     m_partition = partition;
@@ -461,55 +404,21 @@ Partition* CollisionMesh::GetPartition() const
     return m_partition;
 }
 
-unsigned int CollisionMesh::GetCollisionType(Geometry::Shape shape)
-{
-    switch(shape)
-    {
-    case Geometry::BOX:
-        return BOX_COLLISION;
-    case Geometry::SPHERE:
-        return SPHERE_COLLISION;
-    case Geometry::CYLINDER:
-        return CYLINDER_COLLISION;
-    case Geometry::NONE:
-    default:
-        return NO_COLLISION;
-    }
-}
-
 void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation)
 {
-    if(IsDynamic())
-    {
-        m_resolveFn(translation);
-    }
+    throw std::exception("CollisionMesh::ResolveCollision not implemented");
 }
 
 void CollisionMesh::ResolveCollision(const D3DXVECTOR3& translation, 
                                      const D3DXVECTOR3& velocity, 
                                      Geometry::Shape shape)
 {
-    if(IsDynamic())
-    {
-        if(shape != Geometry::NONE)
-        {
-            m_collisionType &= ~NO_COLLISION;
-            m_collisionType |= GetCollisionType(shape);
-        }
-
-        m_resolveFn(translation);
-    }
+    throw std::exception("CollisionMesh::ResolveCollision not implemented");
 }
 
 bool CollisionMesh::IsDynamic() const
 {
-    return m_resolveFn != nullptr;
-}
-
-bool CollisionMesh::IsCollidingWith(Geometry::Shape shape)
-{
-    unsigned int collisionType = GetCollisionType(shape);
-    return (m_collisionType & collisionType) == collisionType;
+    return false;
 }
 
 const D3DXVECTOR3& CollisionMesh::GetVelocity() const
@@ -517,14 +426,19 @@ const D3DXVECTOR3& CollisionMesh::GetVelocity() const
     return m_velocity;
 }
 
-bool CollisionMesh::RenderCollisionDiagnostics() const
+const D3DXVECTOR3& CollisionMesh::GetInteractingVelocity() const
 {
-    return m_renderCollisionDiagnostics;
+    throw std::exception("CollisionMesh::GetInteractingVelocity not implemented");
 }
 
-void CollisionMesh::SetRenderCollisionDiagnostics(bool render)
+bool CollisionMesh::RenderSolverDiagnostics() const
 {
-    m_renderCollisionDiagnostics = render;
+    return m_renderSolverDiagnostics;
+}
+
+void CollisionMesh::SetRenderSolverDiagnostics(bool render)
+{
+    m_renderSolverDiagnostics = render;
 }
 
 void CollisionMesh::SetLocalScale(float scale)

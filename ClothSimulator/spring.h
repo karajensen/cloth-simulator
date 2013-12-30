@@ -40,14 +40,15 @@ public:
 
     /**
     * Update the spring
+    * @param timestep multiplier solved spring positions
     */
-    void SolveSpring();
+    void SolveSpring(float timestep);
 
     /**
     * Updates the line diagnostic for the spring
     * @param diagnostic The diagnostic renderer
     */
-    void UpdateDiagnostic(Diagnostic* diagnostic) const;
+    void UpdateDiagnostic(Diagnostic& diagnostic) const;
 
 private:
 

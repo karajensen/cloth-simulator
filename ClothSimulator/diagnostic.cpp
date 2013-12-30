@@ -15,7 +15,6 @@ namespace
     const int TEXT_SIZE = 16;             ///< Text Character size
     const int TEXT_WEIGHT = 600;          ///< Boldness of text
     const int MESH_SEGMENTS = 8;          ///< Quality of the diagnostic mesh
-    const int VARIADIC_BUFFER_SIZE = 32;  ///< Size of the character buffer for variadic text calls
     const float CYLINDER_SIZE = 0.05f;    ///< Radius of the cylinder
 }
 

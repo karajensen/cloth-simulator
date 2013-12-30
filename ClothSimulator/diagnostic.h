@@ -10,7 +10,7 @@
 class Text;
 
 /**
-* Diagnostic static drawing class
+* Diagnostic drawing class
 */
 class Diagnostic
 {

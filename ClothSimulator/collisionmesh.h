@@ -6,12 +6,14 @@
 #include "common.h"
 #include "callbacks.h"
 #include "geometry.h"
+#include <deque>
 
 class Shader;
 class Partition;
 
 /**
 * Attaches to a parent mesh and supports partitioning and collision resolution
+* If no parent is given, only translation is supported
 */
 class CollisionMesh
 {
@@ -26,15 +28,9 @@ public:
     CollisionMesh(EnginePtr engine, const Transform* parent = nullptr);
 
     /**
-    * Function signature for resolving a collision
+    * Destructor
     */
-    typedef std::function<void(const D3DXVECTOR3&)> MotionFn;
-
-    /**
-    * Makes the collision mesh dynamic
-    * @param resolveFn A function to call to resolve any collision
-    */
-    void MakeDynamic(MotionFn resolveFn);
+    virtual ~CollisionMesh(){}
 
     /**
     * Creates a collision model
@@ -62,7 +58,7 @@ public:
     * Loads the collision as an instance of another
     * @param mesh The collision mesh to base the instance off
     */
-    void LoadInstance(const CollisionMesh& mesh);
+    virtual void LoadInstance(const CollisionMesh& mesh);
 
     /**
     * @return the shape the collision mesh has
@@ -115,18 +111,7 @@ public:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void DrawMesh(const Matrix& projection, const Matrix& view);
-
-    /**
-    * Draw the collision geometry with a specific visual representation
-    * @param projection The projection matrix
-    * @param view The view matrix
-    * @param radius The radius to override
-    * @param color The color to render with
-    * @param position The position to render at
-    */
-    void DrawRepresentation(const Matrix& projection, const Matrix& view, 
-        float radius, const D3DXVECTOR3& color, const D3DXVECTOR3& position);
+    virtual void DrawMesh(const Matrix& projection, const Matrix& view);
 
     /**
     * @param draw Set whether the collision mesh is drawn
@@ -144,12 +129,6 @@ public:
     * @note requires a parent for this update
     */
     void PositionalUpdate();
-
-    /**
-    * Updates the collision geometry upon translate for non-parented meshes
-    * @param position The position to be set to
-    */
-    void PositionalNonParentalUpdate(const D3DXVECTOR3& position);
 
     /**
     * @return the collision mesh 
@@ -177,31 +156,9 @@ public:
     Partition* GetPartition() const;
 
     /**
-    * Moves the owner of the collision mesh to resolve a collision
-    * @param translation The amount to move the owner by
-    * @note will only work for dynamic collision meshes
-    */
-    void ResolveCollision(const D3DXVECTOR3& translation);
-
-    /**
-    * Moves the owner of the collision mesh to resolve a collision
-    * @param translation The amount to move the owner by
-    * @param velocity The velocity of the colliding mesh
-    * @param shape The interacting body causing the movement
-    * @note will only work for dynamic collision meshes
-    */
-    void ResolveCollision(const D3DXVECTOR3& translation, const D3DXVECTOR3& velocity,
-        Geometry::Shape shape = Geometry::NONE);
-
-    /**
-    * @return whether the collision mesh is dynamic or kinematic
-    */
-    bool IsDynamic() const;
-
-    /**
     * Updates the partition and any cached values the require it
     */
-    void UpdateCollision();
+    virtual void UpdateCollision();
 
     /**
     * @return the vertices of the mesh in world coordinates
@@ -210,25 +167,25 @@ public:
     const std::vector<D3DXVECTOR3>& GetVertices() const;
 
     /**
-    * @param shape The shape to query for interaction
-    * @return whether the mesh is colliding with the given shape
-    */
-    bool IsCollidingWith(Geometry::Shape shape);
-
-    /**
     * @return the velocity for the collision mesh
     */
     const D3DXVECTOR3& GetVelocity() const;
 
     /**
+    * @return the velocity for the interacting collision meshes
+    * @throw only updated for dynamic meshes
+    */
+    virtual const D3DXVECTOR3& GetInteractingVelocity() const;
+
+    /**
     * @return whether the hull should render any collision solver diagnostics
     */
-    bool RenderCollisionDiagnostics() const;
+    bool RenderSolverDiagnostics() const;
 
     /**
     * @param render Whether the hull should render any collision solver diagnostics
     */
-    void SetRenderCollisionDiagnostics(bool render);
+    void SetRenderSolverDiagnostics(bool render);
 
     /**
     * Sets the local scale of the mesh
@@ -251,7 +208,29 @@ public:
     */
     void SetPosition(const D3DXVECTOR3& position);
 
-private:
+    /**
+    * Moves the owner of the collision mesh to resolve a collision
+    * @param translation The amount to move the owner by
+    * @throw will only work for dynamic collision meshes
+    */
+    virtual void ResolveCollision(const D3DXVECTOR3& translation);
+
+    /**
+    * Moves the owner of the collision mesh to resolve a collision
+    * @param translation The amount to move the owner by
+    * @param velocity The velocity of the colliding mesh
+    * @param shape The interacting body causing the movement
+    * @throw will only work for dynamic collision meshes
+    */
+    virtual void ResolveCollision(const D3DXVECTOR3& translation, 
+        const D3DXVECTOR3& velocity, Geometry::Shape shape);
+
+    /**
+    * @return whether the collision mesh is dynamic or kinematic
+    */
+    virtual bool IsDynamic() const;
+
+protected:
 
     /**
     * Prevent copying
@@ -266,12 +245,6 @@ private:
     * @param color The color to render the mesh in
     */
     void DrawMesh(const Matrix& projection, const Matrix& view, const D3DXVECTOR3& color);
-
-    /**
-    * @param shape The shape to find the collision type for
-    * @return the type of collision from the given shape
-    */
-    unsigned int GetCollisionType(Geometry::Shape shape);
 
     /**
     * Creates the local points of the OABB
@@ -303,12 +276,10 @@ private:
     std::vector<D3DXVECTOR3> m_oabb;           ///< Bounds of the world coord OABB
     std::vector<D3DXVECTOR3> m_worldVertices;  ///< Transformed vertices of the mesh
     std::shared_ptr<Geometry> m_geometry;      ///< collision geometry mesh shared accross instances
-    MotionFn m_resolveFn;                      ///< Translate the collision in response to a collision
-    unsigned int m_collisionType;              ///< Other collisin geometry shapes that are interacting 
     bool m_draw;                               ///< Whether to draw the geometry
     bool m_requiresFullUpdate;                 ///< Whether the collision mesh requires a full update
     bool m_requiresPositionalUpdate;           ///< Whether the collision mesh requires a positional update
-    bool m_renderCollisionDiagnostics;         ///< Whether to render any collision solver diagnostics
+    bool m_renderSolverDiagnostics;            ///< Whether to render any collision solver diagnostics
     float m_radius;                            ///< Transformed radius that encases geometry
     D3DXVECTOR3 m_minLocalScale;               ///< Minimum allowed scale of the collision mesh
     D3DXVECTOR3 m_maxLocalScale;               ///< Maximum allowed scale of the collision mesh

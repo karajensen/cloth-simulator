@@ -4,9 +4,10 @@
 
 #pragma once
 #include "common.h"
-#include "collisionmesh.h"
+#include "dynamicmesh.h"
 #include "callbacks.h"
 
+class Diagnostic;
 class Shader;
 
 /**
@@ -134,6 +135,12 @@ public:
     */
     void PostCollisionUpdate();
 
+    /**
+    * Updates diagnostics for this particle
+    * @param renderer The diagnostic renderer
+    */
+    void UpdateDiagnostics(Diagnostic& renderer);
+
 private:
 
     /**
@@ -157,6 +164,6 @@ private:
     bool m_pinned;                               ///< Whether particle is pinned or not
     unsigned int m_index;                        ///< Internal index of the particle
     D3DXVECTOR3 m_color;                         ///< Color of the particle
-    std::shared_ptr<CollisionMesh> m_collision;  ///< collision geometry for particle
-    float m_visualRadius;                         ///< Visual render radius for particle markers
+    std::shared_ptr<DynamicMesh> m_collision;    ///< collision geometry for particle
+    float m_visualRadius;                        ///< Visual render radius for particle markers
 };

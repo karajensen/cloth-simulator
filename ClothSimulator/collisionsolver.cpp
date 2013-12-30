@@ -152,7 +152,7 @@ D3DXVECTOR3 CollisionSolver::GetConvexHullPenetration(const CollisionMesh& parti
         penetrationDistance = face.distanceToOrigin;
     }
 
-    if(particle.RenderCollisionDiagnostics())
+    if(particle.RenderSolverDiagnostics())
     {
         UpdateDiagnostics(simplex, furthestPoint);
     }

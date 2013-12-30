@@ -74,7 +74,8 @@ public:
         NONE,
         BOX,
         SPHERE,
-        CYLINDER
+        CYLINDER,
+        MAX_SHAPES
     };
 
     /**

@@ -57,7 +57,8 @@ Cloth::Cloth(EnginePtr engine) :
     m_template(nullptr),
     m_mesh(nullptr),
     m_texture(nullptr),
-    m_shader(nullptr)
+    m_shader(nullptr),
+    m_diagnosticParticle(0)
 {
     D3DXVECTOR3 minimumScale(1.0f, 1.0f, 1.0f);
     D3DXVECTOR3 maximumScale(1.0f, 1.0f, 1.0f);
@@ -148,10 +149,10 @@ void Cloth::CreateCloth(int rows, float spacing)
         UVv += 0.5;
     }
 
-    // Set a centered particle as the one to draw any collision solve diagnostics
-    const int middle = ((m_particleLength/2) * m_particleLength) + (m_particleLength/2);
-    auto& collision = m_particles[middle]->GetCollisionMesh();
-    collision.SetRenderCollisionDiagnostics(true);
+    // Set a centered particle as the one to draw any diagnostics
+    m_diagnosticParticle = ((m_particleLength/2) * m_particleLength) + (m_particleLength/2);
+    auto& collision = m_particles[m_diagnosticParticle]->GetCollisionMesh();
+    collision.SetRenderSolverDiagnostics(true);
 
     // Create the vertices
     m_quadVertices = m_subdivideCloth ? ((m_particleLength-1)*(m_particleLength-1)) : 0;
@@ -408,7 +409,7 @@ void Cloth::PreCollisionUpdate(float deltatime)
     {
         for(const SpringPtr& spring : m_springs)
         {
-            spring->SolveSpring();
+            spring->SolveSpring(m_timestep);
         }
     }
 
@@ -421,17 +422,20 @@ void Cloth::PreCollisionUpdate(float deltatime)
 
 void Cloth::UpdateDiagnostics()
 {
-    if(m_engine->diagnostic()->AllowDiagnostics(Diagnostic::CLOTH))
+    auto& renderer = *m_engine->diagnostic();
+    m_particles[m_diagnosticParticle]->UpdateDiagnostics(renderer);
+
+    if(renderer.AllowDiagnostics(Diagnostic::CLOTH))
     {
         std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
         { 
-            spring->UpdateDiagnostic(m_engine->diagnostic()); 
+            spring->UpdateDiagnostic(renderer); 
         });
 
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
+        renderer.UpdateText(Diagnostic::CLOTH, 
             "ParticleCount", Diagnostic::WHITE, StringCast(m_particleCount));
 
-        m_engine->diagnostic()->UpdateText(Diagnostic::CLOTH, 
+        renderer.UpdateText(Diagnostic::CLOTH, 
             "Smoothing", Diagnostic::WHITE, StringCast(m_generalSmoothing));
     }
 }
