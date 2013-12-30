@@ -384,9 +384,7 @@ void CollisionMesh::UpdateCollision()
     }
 
     m_velocity = m_positionDelta;
-    m_positionDelta.x = 0.0f;
-    m_positionDelta.y = 0.0f;
-    m_positionDelta.z = 0.0f;
+    MakeZeroVector(m_positionDelta);
 }
 
 const std::vector<D3DXVECTOR3>& CollisionMesh::GetOABB() const

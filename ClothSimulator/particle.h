@@ -126,11 +126,6 @@ public:
     void SetColor(const D3DXVECTOR3& colour);
 
     /**
-    * Resets the acceleration to zero
-    */
-    void ResetAcceleration();
-
-    /**
     * Updates the required values post collision resolution
     */
     void PostCollisionUpdate();
@@ -146,14 +141,22 @@ private:
     /**
     * Updates the particle's collision with the cached position
     */
-    void UpdateCollision();
+    void UpdateCollisionPosition();
+
+    /**
+    * Filters the y component of the position delta
+    * @note this is to prevent jittering of the convex hull algorithm
+    * and can be removed once Persistent contact caching is in place
+    */
+    void FilterPosition();
 
     /**
     * Prevent copying
     */
     Particle(const Particle&);
     Particle& operator=(const Particle&);
-               
+             
+    D3DXVECTOR3 m_positionDelta;                 ///< Change in position between current and previous positions
     D3DXVECTOR3 m_previousPosition;              ///< Current previous position this tick
     D3DXVECTOR3 m_position;                      ///< Current position in world coordinates of particle
     D3DXVECTOR3 m_acceleration;                  ///< Current acceleration of particle
@@ -166,4 +169,5 @@ private:
     D3DXVECTOR3 m_color;                         ///< Color of the particle
     std::shared_ptr<DynamicMesh> m_collision;    ///< collision geometry for particle
     float m_visualRadius;                        ///< Visual render radius for particle markers
+    std::deque<float> m_yFiltering;              ///< Filtering of the y component for position
 };

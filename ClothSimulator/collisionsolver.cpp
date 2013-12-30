@@ -42,7 +42,8 @@ void CollisionSolver::SolveParticleHullCollision(CollisionMesh& particle,
     // Determine if within a rough radius of the convex hull
     const D3DXVECTOR3 sphereToParticle = particle.GetPosition() - hull.GetPosition();
     const float lengthSqr = D3DXVec3LengthSq(&sphereToParticle);
-    const float combinedRadius = hull.GetRadius() + particle.GetRadius();
+    const float extendedParticleRadius = particle.GetRadius() * 2.0f;
+    const float combinedRadius = hull.GetRadius() + extendedParticleRadius;
 
     if (lengthSqr < (combinedRadius*combinedRadius))
     {

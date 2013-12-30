@@ -67,9 +67,7 @@ void DynamicMesh::UpdateCollision()
 {
     CollisionMesh::UpdateCollision();
     m_previousResolveVelocity = m_resolveVelocity;
-    m_resolveVelocity.x = 0.0f;
-    m_resolveVelocity.y = 0.0f;
-    m_resolveVelocity.z = 0.0f;
+    MakeZeroVector(m_resolveVelocity);
     m_cachedCollisionType = m_collisionType;
     m_collisionType = NO_COLLISION;
 }
@@ -127,14 +125,15 @@ void DynamicMesh::ResolveCollision(const D3DXVECTOR3& translation,
 {
     if(IsDynamic())
     {
-        if(shape != Geometry::NONE)
-        {
-            m_resolveVelocity += velocity;
-            m_collisionType &= ~NO_COLLISION;
-            m_collisionType |= GetCollisionType(shape);
-        }
+        // Remove the side components of the interacting velocity
+        // This prevents 'stickyness' of the cloth for sideways motion
+        m_resolveVelocity.x = 0.0f;
+        m_resolveVelocity.z = 0.0f;
 
-        m_resolveFn(translation);
+        m_resolveVelocity += velocity;
+        m_collisionType &= ~NO_COLLISION;
+        m_collisionType |= GetCollisionType(shape);
+        m_resolveFn(translation + m_resolveVelocity);
     }
 }
 

@@ -1,8 +1,4 @@
 
-BUG FIXING:
-- objects breaking through cloth when translating
-- low pass filter on particle position
-
 =================================================================
 CLOTH SIMULATOR
 =================================================================
