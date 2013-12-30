@@ -127,6 +127,7 @@ void DynamicMesh::ResolveCollision(const D3DXVECTOR3& translation,
     {
         // Remove the side components of the interacting velocity
         // This prevents 'stickyness' of the cloth for sideways motion
+        m_resolveVelocity.y *= 1.25f;
         m_resolveVelocity.x = 0.0f;
         m_resolveVelocity.z = 0.0f;
 
