@@ -579,8 +579,7 @@ namespace GUI
         }
 
         /**
-        * Required method for Designer support - do not modify
-        * the contents of this method with the code editor.
+        * Required method for Designer support
         */        
         #pragma region Windows Form Designer generated code
         void InitializeComponent(void)
@@ -617,6 +616,7 @@ namespace GUI
             this->MinimumSize = System::Drawing::Size(806, 633);
             this->Name = L"GUIForm";
             this->Text = L"Cloth Simulator";
+            this->FormClosed += gcnew FormClosedEventHandler(this, &GUIForm::GUIFormClosed);
             this->m_mainPanel->ResumeLayout(false);
             this->ResumeLayout(false);
 
