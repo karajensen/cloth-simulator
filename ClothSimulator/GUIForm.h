@@ -608,17 +608,15 @@ namespace GUI
             // 
             // GUIForm
             // 
-            this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
-            this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+            this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::None;
             this->BackColor = System::Drawing::Color::DimGray;
-            this->ClientSize = System::Drawing::Size(800, 600);
+            this->ClientSize = System::Drawing::Size(788, 588);
             this->Controls->Add(this->m_mainPanel);
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
             this->MaximumSize = System::Drawing::Size(806, 633);
             this->MinimumSize = System::Drawing::Size(806, 633);
             this->Name = L"GUIForm";
             this->Text = L"Cloth Simulator";
-            this->FormClosed += gcnew FormClosedEventHandler(this, &GUIForm::GUIFormClosed);
             this->m_mainPanel->ResumeLayout(false);
             this->ResumeLayout(false);
 
