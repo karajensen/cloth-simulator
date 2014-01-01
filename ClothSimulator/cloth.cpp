@@ -485,9 +485,14 @@ bool Cloth::MousePickingTest(Picking& input)
             const CollisionMesh& mesh = m_particles[index]->GetCollisionMesh();
             const Geometry& geometry = *mesh.GetGeometry();
 
-            if(input.RayCastSphere(mesh.GetPosition(), mesh.GetRadius()))
+            //tweak the collision mesh to compensate for any smoothing on the cloth
+            D3DXVECTOR3 position = m_vertexData[index].position;
+            Matrix world = mesh.CollisionMatrix();
+            world.SetPosition(position);
+
+            if(input.RayCastSphere(position, mesh.GetRadius()))
             {
-                if(input.RayCastMesh(this, mesh.CollisionMatrix().GetMatrix(), geometry))
+                if(input.RayCastMesh(this, world.GetMatrix(), geometry))
                 {
                     indexChosen = index;
                 }
