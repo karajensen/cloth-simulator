@@ -72,7 +72,10 @@ void CollisionMesh::LoadCollisionModel(const D3DXVECTOR3& scale)
         m_world.SetScale(m_localWorld.GetScale());
     }
     m_position = m_world.Position();
-
+    MakeZeroVector(m_positionDelta);
+    MakeZeroVector(m_velocity);
+    
+    m_requiresPositionalUpdate = false;
     m_requiresFullUpdate = true;
     UpdateCollision();
 }

@@ -34,6 +34,8 @@ DynamicMesh::DynamicMesh(EnginePtr engine, DynamicMesh::MotionFn resolveFn) :
 
 void DynamicMesh::LoadInstance(const CollisionMesh& mesh)
 {
+    MakeZeroVector(m_resolveVelocity);
+    MakeZeroVector(m_previousResolveVelocity);
     m_collisionType = NO_COLLISION;
     m_cachedCollisionType = NO_COLLISION;
     CollisionMesh::LoadInstance(mesh);
