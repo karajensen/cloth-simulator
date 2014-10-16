@@ -76,8 +76,8 @@ private:
     /**
     * Prevent copying
     */
-    Octree(const Octree&);
-    Octree& operator=(const Octree&);
+    Octree(const Octree&) = delete;
+    Octree& operator=(const Octree&) = delete;
 
     /**
     * Determines if a point in global coordinates exists within the partition bounds
@@ -140,8 +140,8 @@ private:
     */
     Partition* FindPartition(CollisionMesh& object, Partition& partition);
 
-    IterateOctreeFn m_iteratorFn;          ///< Function to call when iterating the octree
-    std::shared_ptr<Engine> m_engine;      ///< Callbacks for the rendering engine
-    std::unique_ptr<Partition> m_octree;   ///< Octree partitioning of collision objects
+    IterateOctreeFn m_iteratorFn = nullptr;  ///< Function to call when iterating the octree
+    std::shared_ptr<Engine> m_engine;        ///< Callbacks for the rendering engine
+    std::unique_ptr<Partition> m_octree;     ///< Octree partitioning of collision objects
 };
 

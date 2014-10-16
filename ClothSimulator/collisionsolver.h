@@ -49,8 +49,8 @@ private:
     /**
     * Prevent copying
     */
-    CollisionSolver(const CollisionSolver&);
-    CollisionSolver& operator=(const CollisionSolver&);
+    CollisionSolver(const CollisionSolver&) = delete;
+    CollisionSolver& operator=(const CollisionSolver&) = delete;
 
     /**
     * Detects and solves a collision between two particles
