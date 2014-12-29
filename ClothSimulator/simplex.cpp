@@ -63,7 +63,7 @@ const std::deque<D3DXVECTOR3>& Simplex::GetPoints() const
 
 void Simplex::GenerateFaces()
 {
-    auto createFace = [&](int face, int i0, int i1, int i2, 
+    auto createFace = [this](int face, int i0, int i1, int i2, 
         const D3DXVECTOR3& u, const D3DXVECTOR3& v)
     {
         m_faces[face].index = face;
@@ -186,7 +186,7 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
             if(!hasDeadFaces)
             {
                 faceIndex = m_faces.size();
-                m_faces.push_back(Face());
+                m_faces.emplace_back();
             }
         }
     

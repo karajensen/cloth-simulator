@@ -202,7 +202,7 @@ template<typename Vertex, typename Index> void Geometry::CreateMeshData(bool sav
         const D3DXVECTOR3& v0 = m_vertices[indexBuffer[i]];
         const D3DXVECTOR3& v1 = m_vertices[indexBuffer[i+1]];
         const D3DXVECTOR3& v2 = m_vertices[indexBuffer[i+2]];
-        m_faces.push_back(MeshFace(v0, v1, v2));
+        m_faces.emplace_back(v0, v1, v2);
     }
     m_mesh->UnlockIndexBuffer();
 

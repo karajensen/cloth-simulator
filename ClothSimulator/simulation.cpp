@@ -136,9 +136,9 @@ bool Simulation::CreateSimulation(HINSTANCE hInstance, HWND hWnd, LPDIRECT3DDEVI
 
     // Create the engine callbacks
     EnginePtr engine(new Engine());
-    engine->device = [&](){ return m_d3ddev; };
-    engine->diagnostic = [&](){ return m_diagnostics.get(); };
-    engine->octree = [&](){ return m_octree.get(); };
+    engine->device = [this](){ return m_d3ddev; };
+    engine->diagnostic = [this](){ return m_diagnostics.get(); };
+    engine->octree = [this](){ return m_octree.get(); };
     
     engine->getShader = std::bind(&ShaderManager::GetShader, 
         m_shader.get(), std::placeholders::_1);
@@ -189,7 +189,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input.reset(new Input(hInstance, hWnd, engine));
 
     // Camera forward movement
-    auto cameraForward = [&]()
+    auto cameraForward = [this]()
     {
         m_camera->ForwardMovement(m_input->GetMouseDirection(), 
             m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED, 
@@ -199,7 +199,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->AddClickPreventionKey(DIK_LSHIFT);
     
     // Camera side movement
-    auto cameraSideways = [&]()
+    auto cameraSideways = [this]()
     {
         m_camera->SideMovement(m_input->GetMouseDirection(), 
             m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED, 
@@ -209,7 +209,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->AddClickPreventionKey(DIK_LCONTROL);
     
     // Camera rotation
-    auto cameraRotation = [&]()
+    auto cameraRotation = [this]()
     {
         m_camera->Rotation(m_input->GetMouseDirection(), 
             m_timer->GetDeltaTime()*CAMERA_ROT_SPEED, 
@@ -219,36 +219,36 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
     m_input->AddClickPreventionKey(DIK_LALT);
     
     // Controlling the cloth
-    m_input->SetKeyCallback(DIK_A, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_A, true, [this](){ m_cloth->MovePinnedRow(
         -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_D, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_D, true, [this](){ m_cloth->MovePinnedRow(
         m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_S, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_S, true, [this](){ m_cloth->MovePinnedRow(
         0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_W, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_W, true, [this](){ m_cloth->MovePinnedRow(
         0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED, 0.0f); });
     
-    m_input->SetKeyCallback(DIK_Q, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_Q, true, [this](){ m_cloth->MovePinnedRow(
         0.0f, 0.0f, -m_timer->GetDeltaTime()*HANDLE_SPEED); });
     
-    m_input->SetKeyCallback(DIK_E, true, [&](){ m_cloth->MovePinnedRow(
+    m_input->SetKeyCallback(DIK_E, true, [this](){ m_cloth->MovePinnedRow(
         0.0f, 0.0f, m_timer->GetDeltaTime()*HANDLE_SPEED); });
     
     // Changing the cloth row selected
     m_input->SetKeyCallback(DIK_1, false, 
-        [&](){ m_cloth->ChangeRow(1); });
+        [this](){ m_cloth->ChangeRow(1); });
     
     m_input->SetKeyCallback(DIK_2, false, 
-        [&](){ m_cloth->ChangeRow(2); });
+        [this](){ m_cloth->ChangeRow(2); });
     
     m_input->SetKeyCallback(DIK_3, false, 
-        [&](){ m_cloth->ChangeRow(3); });
+        [this](){ m_cloth->ChangeRow(3); });
     
     m_input->SetKeyCallback(DIK_4, false, 
-        [&](){ m_cloth->ChangeRow(4); });
+        [this](){ m_cloth->ChangeRow(4); });
     
     // Scene shortcut keys
     m_input->SetKeyCallback(DIK_BACKSPACE, false,
@@ -293,7 +293,7 @@ void Simulation::LoadInput(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
         m_diagnostics.get(), Diagnostic::COLLISION));    
     
     // Toggle mesh collision model diagnostics
-    m_input->SetKeyCallback(DIK_0, false, [&]()
+    m_input->SetKeyCallback(DIK_0, false, [this]()
     {
         m_drawCollisions = !m_drawCollisions;
         m_cloth->SetCollisionVisibility(m_drawCollisions);

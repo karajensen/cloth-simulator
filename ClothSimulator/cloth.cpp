@@ -213,7 +213,7 @@ void Cloth::CreateCloth(int rows, float spacing)
     ------              
     y */
 
-    auto createSpring = [&](int i) -> int
+    auto createSpring = [this](int i) -> int
     {
         if(!m_springs[i+1].get())
         {
@@ -378,7 +378,7 @@ void Cloth::SetCollisionVisibility(bool draw)
 
 void Cloth::UnpinCloth()
 {
-    auto unpinParticle = [&](const ParticlePtr& part)
+    auto unpinParticle = [this](const ParticlePtr& part)
     { 
         part->PinParticle(false); 
         SetParticleColor(part);
@@ -427,10 +427,11 @@ void Cloth::UpdateDiagnostics()
 
     if(renderer.AllowDiagnostics(Diagnostic::CLOTH))
     {
-        std::for_each(m_springs.begin(), m_springs.end(), [&](const SpringPtr& spring)
-        { 
-            spring->UpdateDiagnostic(renderer); 
-        });
+        std::for_each(m_springs.begin(), m_springs.end(), 
+            [this, &renderer](const SpringPtr& spring)
+            { 
+                spring->UpdateDiagnostic(renderer); 
+            });
 
         renderer.UpdateText(Diagnostic::CLOTH, 
             "ParticleCount", Diagnostic::WHITE, StringCast(m_particleCount));

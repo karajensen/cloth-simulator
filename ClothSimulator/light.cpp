@@ -93,7 +93,7 @@ bool LightManager::Inititalise()
 {
     m_lights.resize(MAX_LIGHTS);
     std::generate(m_lights.begin(), m_lights.end(),
-        [&](){ return std::unique_ptr<Light>(new Light()); });
+        [](){ return std::unique_ptr<Light>(new Light()); });
 
     m_lights[MAIN_LIGHT]->SetIndex(MAIN_LIGHT);
     m_lights[MAIN_LIGHT]->SetPosition(D3DXVECTOR3(-10.0f,10.0f,-18.0f));
@@ -107,7 +107,7 @@ void LightManager::SendLightsToShader(LPD3DXEFFECT shader)
     // For now only one light is needed. When multiple 
     // lights are needed, change to allow this
     std::for_each(LightManager::m_lights.begin(), LightManager::m_lights.end(),
-        [&](const std::unique_ptr<Light>& light)
+        [&shader](const std::unique_ptr<Light>& light)
     {
         light->SendLightsToShader(shader);
     });

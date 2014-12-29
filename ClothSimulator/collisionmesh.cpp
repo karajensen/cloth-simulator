@@ -221,7 +221,7 @@ void CollisionMesh::DrawDiagnostics()
         m_geometry->UpdateDiagnostics(*m_engine->diagnostic(), m_world.GetMatrix());
 
         // Render OABB for diagnostic mesh
-        auto getPointColor = [=](int index) -> Diagnostic::Colour
+        auto getPointColor = [](int index) -> Diagnostic::Colour
         {
             return index == MINBOUND || index == MAXBOUND ?
                 Diagnostic::BLUE : Diagnostic::MAGENTA;

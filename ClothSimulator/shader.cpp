@@ -51,7 +51,7 @@ bool ShaderManager::Inititalise(LPDIRECT3DDEVICE9 d3ddev)
 
     m_shaders.resize(MAX_SHADERS);
     std::generate(m_shaders.begin(), m_shaders.end(), 
-        [&](){ return std::unique_ptr<Shader>(new Shader()); });
+        [](){ return std::unique_ptr<Shader>(new Shader()); });
     
     bool success = true;
     success = (success ? m_shaders[MAIN_SHADER]->Load(d3ddev,ShaderFolder+"main.fx") : false);

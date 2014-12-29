@@ -99,7 +99,7 @@ bool Diagnostic::AllowDiagnostics(Group group) const
 void Diagnostic::DrawAllText()
 {
     int counter = 0;
-    auto renderText = [&](const TextMap::value_type& text)
+    auto renderText = [this, &counter](const TextMap::value_type& text)
     {
         m_text->SetText(text.second.text);
         m_text->SetColour(m_colours[text.second.color]);

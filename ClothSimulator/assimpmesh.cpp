@@ -35,7 +35,7 @@ bool Assimpmesh::Initialise(const std::string& path, std::string& errorBuffer)
     // For each sub mesh
     for(unsigned int i = 0; i < numMeshes; ++i)
     {
-        m_subMeshes.push_back(SubMesh());
+        m_subMeshes.emplace_back();
 
         aiMesh* pMesh = meshes[i];
         unsigned int numVerts = pMesh->mNumVertices;

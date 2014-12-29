@@ -117,7 +117,7 @@ void Input::UpdateInput()
 
     // Test whether click prevention is active
     m_clickPrevention = false;
-    auto testPrevention = [&](const unsigned int& key)
+    auto testPrevention = [this](const unsigned int& key)
     { 
         if(IsKeyDownContinous(m_keys[key].state))
         { 
