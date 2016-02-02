@@ -4,10 +4,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#ifdef _DEBUG
-#include "vld/include/vld.h"
-#endif
-
 #include "simulation.h"
 #include "GUIWrapper.h"
 #include "callbacks.h"

@@ -7,6 +7,8 @@
 *.ilk
 *.vcxproj.user
 *.dll.metagen
+*.iobj
+*.ipdb
 ipch/
 Versions/
 Graphics/
