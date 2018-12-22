@@ -8,6 +8,7 @@ https://github.com/karajensen/cloth-simulator.git
 
 RELEASE REQUIREMENTS: Windows 10+, Visual C++ Redistributable 2017 32-bit
 BUILD REQUIREMENTS: Visual Studio 2017, Windows 10+, DirectX SDK
+LIBRARIES: Assimp 3.0
 
 USER KEYS:
 -----------------------------------------------------------------
@@ -32,11 +33,3 @@ T:     Toggle text diagnostics
 0:     Toggle mesh collision models
         - In collision: black
         - Not in collision: color of partition
-
-DEVELOPMENT UPGRADE IDEAS
------------------------------------------------------------------
-• Switch to DirectX11
-• Persistent contact caching for GJK/EPA to prevent jittering
-• Switch between different cloth solvers
-• Other convex shapes for collision
-• Soft shadow mapping
