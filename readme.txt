@@ -6,8 +6,8 @@ www.KaraJensen.com
 https://github.com/karajensen/cloth-simulator.git
 =================================================================
 
-RELEASE REQUIREMENTS: Windows 8+, Visual C++ Redistributable 2012 32-bit
-BUILD REQUIREMENTS: Visual Studio 2015, Windows 8+, DirectX SDK
+RELEASE REQUIREMENTS: Windows 10+, Visual C++ Redistributable 2017 32-bit
+BUILD REQUIREMENTS: Visual Studio 2017, Windows 10+, DirectX SDK
 
 USER KEYS:
 -----------------------------------------------------------------
