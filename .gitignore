@@ -9,7 +9,6 @@
 *.iobj
 *.ipdb
 ipch/
-Graphics/
 html/
 ClothSimulator.caw
 ClothSimulator.VC.opendb
