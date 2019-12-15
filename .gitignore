@@ -10,6 +10,7 @@
 *.ipdb
 ipch/
 html/
+.vs/
 ClothSimulator.caw
 ClothSimulator.VC.opendb
 ClothSimulator/._LOG.txt
