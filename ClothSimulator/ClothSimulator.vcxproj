@@ -43,11 +43,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ClothSimulator\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)ClothSimulator\Sim$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build\$(Configuration)\$(TargetName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)ClothSimulator\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)ClothSimulator\Sim$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build\$(Configuration)\$(TargetName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -67,8 +67,19 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(ProjectName)\assimp;$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)build\$(Configuration)\;$(SolutionDir)\$(ProjectName)\assimp;$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)$(TargetName)\bin\assimp.dll" "$(SolutionDir)build\$(Configuration)\assimp.dll" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Models\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Models\" "$(SolutionDir)build\$(Configuration)\Resources\Models\" &amp;
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Shaders\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Shaders\" "$(SolutionDir)build\$(Configuration)\Resources\Shaders\" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Sprites\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Sprites\" "$(SolutionDir)build\$(Configuration)\Resources\Sprites\" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Textures\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Textures\" "$(SolutionDir)build\$(Configuration)\Resources\Textures\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -90,8 +101,19 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>d3d9.lib;d3dx9.lib;WinMM.lib;dinput8.lib;dxguid.lib;assimp.lib;ClothSimulatorGUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(ProjectName)\assimp;$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)build\$(Configuration)\;$(SolutionDir)\$(ProjectName)\assimp;$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)$(TargetName)\bin\assimp.dll" "$(SolutionDir)build\$(Configuration)\assimp.dll" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Models\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Models\" "$(SolutionDir)build\$(Configuration)\Resources\Models\" &amp;
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Shaders\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Shaders\" "$(SolutionDir)build\$(Configuration)\Resources\Shaders\" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Sprites\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Sprites\" "$(SolutionDir)build\$(Configuration)\Resources\Sprites\" &amp; 
+mkdir "$(SolutionDir)build\$(Configuration)\Resources\Textures\" &amp; 
+copy /Y "$(SolutionDir)$(TargetName)\bin\Resources\Textures\" "$(SolutionDir)build\$(Configuration)\Resources\Textures\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="assimpmesh.cpp" />

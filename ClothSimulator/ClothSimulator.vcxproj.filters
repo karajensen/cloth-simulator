@@ -186,20 +186,20 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\bounds.fx">
+    <None Include="resources\Shaders\bounds.fx">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\Shaders\cloth.fx">
+    <None Include="resources\Shaders\cloth.fx">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\Shaders\main.fx">
+    <None Include="resources\Shaders\main.fx">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\.gitignore" />
-    <None Include="Resources\Shaders\tool.fx">
+    <None Include="resources\Shaders\tool.fx">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\Shaders\ground.fx">
+    <None Include="resources\Shaders\ground.fx">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
