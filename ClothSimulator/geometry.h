@@ -86,8 +86,9 @@ public:
     * @param divisions The divisions of the shape
     */
     Geometry(LPDIRECT3DDEVICE9 device, 
-        LPD3DXEFFECT shader,
-        Shape shape, int divisions = 0);
+             LPD3DXEFFECT shader,
+             Shape shape, 
+             int divisions = 0);
 
     /**
     * Constructor to create a geometry mesh
@@ -96,8 +97,8 @@ public:
     * @param shader The shader of the mesh
     */
     Geometry(LPDIRECT3DDEVICE9 device, 
-        const std::string& filename, 
-        LPD3DXEFFECT shader);
+             const std::string& filename, 
+             LPD3DXEFFECT shader);
 
     /**
     * Destructor
@@ -142,7 +143,9 @@ public:
     * @param miplevels the number of mipmap levels to generate
     */
     void LoadTexture(LPDIRECT3DDEVICE9 d3ddev, 
-        const std::string& filename, int dimensions, int miplevels);
+                     const std::string& filename, 
+                     int dimensions, 
+                     int miplevels);
 
     /**
     * Updates the diagnostics for the geometry
@@ -160,6 +163,8 @@ private:
     */
     template<typename Vertex, typename Index> 
     void CreateMeshData(bool saveVertices);
+
+private:
 
     Shape m_shape;                       ///< Type of shape of the collision geometry
     LPD3DXMESH m_mesh;                   ///< Directx geometry mesh

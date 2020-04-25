@@ -3,9 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "common.h"
+
 #include <unordered_map>
 #include <array>
-#include "common.h"
 
 class Text;
 
@@ -94,8 +96,11 @@ public:
     * @param position The poition in world coordinates
     * @param radius The radius of the sphere
     */
-    void UpdateSphere(Group group, const std::string& id, 
-        Colour color, const D3DXVECTOR3& position, float radius);
+    void UpdateSphere(Group group, 
+                      const std::string& id, 
+                      Colour color, 
+                      const D3DXVECTOR3& position, 
+                      float radius);
 
     /**
     * Adds text for diagnostic rendering.
@@ -106,8 +111,11 @@ public:
     * @param text The text to draw
     * @param cleardraw Whether to remove the text once drawn or not
     */
-    void UpdateText(Group group, const std::string& id,
-        Colour color, const std::string& text, bool cleardraw = false);
+    void UpdateText(Group group, 
+                    const std::string& id,
+                    Colour color, 
+                    const std::string& text, 
+                    bool cleardraw = false);
 
     /**
     * Adds text for diagnostic rendering.
@@ -118,8 +126,11 @@ public:
     * @param increaseCounter Whether to increase the counter or not
     * @param cleardraw Whether to remove the text once drawn or not
     */
-    void UpdateText(Group group, const std::string& id,
-        Colour color, bool increaseCounter, bool cleardraw = false);
+    void UpdateText(Group group, 
+                    const std::string& id,
+                    Colour color, 
+                    bool increaseCounter, 
+                    bool cleardraw = false);
 
     /**
     * Adds a cylinder line for diagnostic rendering.
@@ -130,8 +141,11 @@ public:
     * @param start The start position in world coordinates
     * @param end The end position in world coordinates
     */
-    void UpdateLine(Group group, const std::string& id, 
-        Colour color, const D3DXVECTOR3& start, const D3DXVECTOR3& end);
+    void UpdateLine(Group group, 
+                    const std::string& id, 
+                    Colour color, 
+                    const D3DXVECTOR3& start, 
+                    const D3DXVECTOR3& end);
 
     /**
     * Draws all 3D diagnostics
@@ -168,9 +182,12 @@ private:
     * @param projection The projection matrix
     * @param view The view matrix
     */
-    void RenderObject(LPD3DXEFFECT effect, LPD3DXMESH mesh, 
-        const D3DXVECTOR3& color, const Matrix& world,
-        const Matrix& projection, const Matrix& view);
+    void RenderObject(LPD3DXEFFECT effect, 
+                      LPD3DXMESH mesh, 
+                      const D3DXVECTOR3& color, 
+                      const Matrix& world,
+                      const Matrix& projection, 
+                      const Matrix& view);
 
     /**
     * Diagnostic text data
@@ -223,6 +240,8 @@ private:
 
     typedef std::vector<DiagGroup> GroupVector;
     typedef std::vector<D3DXVECTOR3> ColorVector;
+
+private:
 
     bool m_wireframe;                 ///< Whether or not wireframe is being rendered
     GroupVector m_groupvector;        ///< Vector of groups of geometry diagnostics

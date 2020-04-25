@@ -6,18 +6,17 @@
 #include "particle.h"
 #include "cloth.h"
 #include "simplex.h"
+
 #include <assert.h>
 
 CollisionSolver::CollisionSolver(std::shared_ptr<Engine> engine, 
-                                 std::shared_ptr<Cloth> cloth) :
-    m_cloth(cloth),
-    m_engine(engine)
+                                 std::shared_ptr<Cloth> cloth)
+    : m_cloth(cloth)
+    , m_engine(engine)
 {
 }
 
-CollisionSolver::~CollisionSolver()
-{
-}
+CollisionSolver::~CollisionSolver() = default;
 
 void CollisionSolver::SolveParticleCollision(CollisionMesh& particleA, 
                                              CollisionMesh& particleB)

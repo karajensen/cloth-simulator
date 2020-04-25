@@ -5,27 +5,26 @@
 #include "octree.h"
 #include "collisionmesh.h"
 #include "partition.h"
+
 #include <assert.h>
 
 namespace
 {
-    const float PARITION_SIZE = 45.0f;   ///< Initial dimensions of the root partitions
-    const float GROUND_HEIGHT = -23.0f;  ///< Height of the ground plane
-    const int CUBE_POINTS = 8;           ///< Number of corners in a cube
-    const int SQUARE_POINTS = 4;         ///< Number of corners in a square
-    const int MAX_LEVEL = 3;             ///< Number of levels allowed from the root
+    constexpr float PARITION_SIZE = 45.0f;   ///< Initial dimensions of the root partitions
+    constexpr float GROUND_HEIGHT = -23.0f;  ///< Height of the ground plane
+    constexpr int CUBE_POINTS = 8;           ///< Number of corners in a cube
+    constexpr int SQUARE_POINTS = 4;         ///< Number of corners in a square
+    constexpr int MAX_LEVEL = 3;             ///< Number of levels allowed from the root
 }
 
-Octree::Octree(std::shared_ptr<Engine> engine) :
-    m_iteratorFn(nullptr),
-    m_engine(engine),
-    m_octree(new Partition())
+Octree::Octree(std::shared_ptr<Engine> engine)
+    : m_iteratorFn(nullptr)
+    , m_engine(engine)
+    , m_octree(std::make_unique<Partition>())
 {
 }
 
-Octree::~Octree()
-{
-}
+Octree::~Octree() = default;
 
 void Octree::BuildInitialTree()
 {

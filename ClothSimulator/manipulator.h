@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 
@@ -50,8 +51,10 @@ public:
     * @param position The position of the camera in world space
     * @param selectedMesh The selected mesh the tool is working on
     */
-    void Render(const Matrix& projection, const Matrix& view,
-        const D3DXVECTOR3& position, const MeshPtr& selectedMesh);
+    void Render(const Matrix& projection, 
+                const Matrix& view,
+                const D3DXVECTOR3& position, 
+                const MeshPtr& selectedMesh);
 
     /**
     * Updates the tool through mouse picking and movement
@@ -80,9 +83,12 @@ public:
     * @param pressed Whether the mouse is pressed or not
     * @param deltatime The time passed since last frame in seconds
     */
-    void UpdateState(MeshPtr mesh, const D3DXVECTOR2& direction, 
-        const Matrix& world, const Matrix& invProjection,
-        bool pressed, float deltatime);
+    void UpdateState(MeshPtr mesh, 
+                    const D3DXVECTOR2& direction, 
+                    const Matrix& world, 
+                    const Matrix& invProjection,
+                    bool pressed, 
+                    float deltatime);
 
 private:
 
@@ -139,8 +145,10 @@ private:
     * @param world The world matrix for scaling/position
     */
     void RenderSphere(LPD3DXEFFECT effect,
-        const Matrix& projection, const Matrix& view,
-        const D3DXVECTOR3& color, const Transform& world);
+                      const Matrix& projection, 
+                      const Matrix& view,
+                      const D3DXVECTOR3& color, 
+                      const Transform& world);
 
     /**
     * Translates the selected mesh
@@ -170,11 +178,13 @@ private:
     */
     void AnimateMesh(MeshPtr mesh, float value);
 
+private:
+
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::vector<std::unique_ptr<Tool>> m_tools;  ///< Container of usable tools
     ToolType m_selectedTool;                     ///< Currently selected tool
     ToolAxis m_selectedAxis;                     ///< Currently selected axis
     LPD3DXMESH m_sphere;                         ///< Animation geometry sphere
     LPD3DXEFFECT m_shader;                       ///< Animation point shader
-    bool m_saveAnimation;                        ///< Whether to allow the position to be saved
+    bool m_saveAnimation = false;                ///< Whether to allow the position to be saved
 };

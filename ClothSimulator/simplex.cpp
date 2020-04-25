@@ -3,14 +3,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "simplex.h"
+
 #include <algorithm>
 #include <assert.h>
 
-Face::Face() :
-    normal(0.0f, 0.0f, 0.0f),
-    distanceToOrigin(0.0f),
-    index(0),
-    alive(true)
+Face::Face()
+    : normal(0.0f, 0.0f, 0.0f)
+    , distanceToOrigin(0.0f)
+    , index(0)
+    , alive(true)
 {
     indices.assign(0);
 }

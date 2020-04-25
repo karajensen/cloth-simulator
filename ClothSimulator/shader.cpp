@@ -2,21 +2,14 @@
 // Kara Jensen - mail@karajensen.com - shader.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <fstream>
-#include <algorithm>
 #include "shader.h"
 #include "light.h"
 
-ShaderManager::ShaderManager()
-{
-}
+#include <fstream>
+#include <algorithm>
 
-ShaderManager::~ShaderManager()
-{
-}
-
-Shader::Shader():
-    m_effect(nullptr)
+Shader::Shader()
+    : m_effect(nullptr)
 {
 }
 

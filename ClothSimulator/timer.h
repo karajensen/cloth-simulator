@@ -3,8 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <Windows.h>
+
 #include "callbacks.h"
+
+#include <Windows.h>
 
 /**
 * FPS class for determining frame rate and delta time

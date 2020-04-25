@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "dynamicmesh.h"
 #include "callbacks.h"
@@ -31,8 +32,11 @@ public:
     * @param mesh The template collision mesh to copy
     * @param visualRadius The radius to render the markers 
     */
-    void Initialise(const D3DXVECTOR3& position, const D3DXVECTOR2& uv, 
-        unsigned int index, const CollisionMesh& mesh, float visualRadius);
+    void Initialise(const D3DXVECTOR3& position, 
+                    const D3DXVECTOR2& uv, 
+                    unsigned int index, 
+                    const CollisionMesh& mesh, 
+                    float visualRadius);
 
     /**
     * Draws the particle visual mesh
@@ -41,7 +45,8 @@ public:
     * @param position The position to set the visual mesh
     */
     void DrawVisualMesh(const Matrix& projection, 
-        const Matrix& view, const D3DXVECTOR3& position);
+                        const Matrix& view, 
+                        const D3DXVECTOR3& position);
 
     /**
     * Draws the particle collision mesh
@@ -155,6 +160,8 @@ private:
     */
     Particle(const Particle&);
     Particle& operator=(const Particle&);
+
+private:
              
     D3DXVECTOR3 m_positionDelta;                 ///< Change in position between current and previous positions
     D3DXVECTOR3 m_previousPosition;              ///< Current previous position this tick
@@ -163,11 +170,11 @@ private:
     D3DXVECTOR3 m_initialPosition;               ///< Initial position of particle 
     D3DXVECTOR2 m_uvs;                           ///< Texture uvs for the particle
     Transform m_transform;                       ///< Current transform of particle
-    bool m_selected;                             ///< Whether particle is selected or not
-    bool m_pinned;                               ///< Whether particle is pinned or not
-    unsigned int m_index;                        ///< Internal index of the particle
+    bool m_selected = false;                     ///< Whether particle is selected or not
+    bool m_pinned = false;                       ///< Whether particle is pinned or not
+    unsigned int m_index = 0;                    ///< Internal index of the particle
     D3DXVECTOR3 m_color;                         ///< Color of the particle
     std::shared_ptr<DynamicMesh> m_collision;    ///< collision geometry for particle
-    float m_visualRadius;                        ///< Visual render radius for particle markers
+    float m_visualRadius = 0.0f;                 ///< Visual render radius for particle markers
     std::deque<float> m_yFiltering;              ///< Filtering of the y component for position
 };

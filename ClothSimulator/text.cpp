@@ -9,10 +9,10 @@ namespace
     static const int FULL_ALPHA = 255; ///< Full transparency value
 }
 
-Text::Text() :
-    m_color(D3DCOLOR_ARGB(FULL_ALPHA, FULL_ALPHA, FULL_ALPHA, FULL_ALPHA)),
-    m_font(nullptr),
-    m_align(DT_LEFT)
+Text::Text()
+    : m_color(D3DCOLOR_ARGB(FULL_ALPHA, FULL_ALPHA, FULL_ALPHA, FULL_ALPHA))
+    , m_font(nullptr)
+    , m_align(DT_LEFT)
 {
 }
 

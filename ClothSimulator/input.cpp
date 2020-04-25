@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "input.h"
+
 #include <algorithm>
 
 namespace 
@@ -12,19 +13,19 @@ namespace
     const int KEY_BUFFER_SIZE = 256;    ///< Max buffer size allowable for keys
 }
 
-Input::Input(HINSTANCE hInstance, HWND hWnd, EnginePtr engine) :
-    m_picking(engine),
-    m_hWnd(hWnd),
-    m_mouseClicked(false),
-    m_mouse(0),
-    m_clickPrevention(false),
-    m_x(-1),
-    m_y(-1),
-    m_mouseDirection(0.0f, 0.0f),
-    m_directInput(nullptr),
-    m_keyboardInput(nullptr),
-    m_mouseInput(nullptr),
-    m_engine(engine)
+Input::Input(HINSTANCE hInstance, HWND hWnd, EnginePtr engine)
+    : m_picking(engine)
+    , m_hWnd(hWnd)
+    , m_mouseClicked(false)
+    , m_mouse(0)
+    , m_clickPrevention(false)
+    , m_x(-1)
+    , m_y(-1)
+    , m_mouseDirection(0.0f, 0.0f)
+    , m_directInput(nullptr)
+    , m_keyboardInput(nullptr)
+    , m_mouseInput(nullptr)
+    , m_engine(engine)
 {
     DirectInput8Create(hInstance, DIRECTINPUT_VERSION, 
         IID_IDirectInput8, (void**)&m_directInput, nullptr);

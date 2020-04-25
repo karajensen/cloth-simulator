@@ -5,6 +5,7 @@
 #include "diagnostic.h"
 #include "shader.h"
 #include "text.h"
+
 #include <algorithm>
 #include <assert.h>
 
@@ -18,11 +19,11 @@ namespace
     const float CYLINDER_SIZE = 0.05f;    ///< Radius of the cylinder
 }
 
-Diagnostic::Diagnostic() :
-    m_wireframe(false),
-    m_d3ddev(nullptr),
-    m_sphere(nullptr),
-    m_cylinder(nullptr)
+Diagnostic::Diagnostic()
+    : m_wireframe(false)
+    , m_d3ddev(nullptr)
+    , m_sphere(nullptr)
+    , m_cylinder(nullptr)
 {
 }
 

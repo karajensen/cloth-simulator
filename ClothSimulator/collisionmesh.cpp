@@ -5,6 +5,7 @@
 #include "collisionmesh.h"
 #include "partition.h"
 #include "shader.h"
+
 #include <assert.h>
 
 namespace
@@ -14,19 +15,19 @@ namespace
     const int CORNERS = 8;  ///< Number of corners in a cube
 }
 
-CollisionMesh::CollisionMesh(EnginePtr engine, const Transform* parent) :
-    m_engine(engine),
-    m_parent(parent),
-    m_partition(nullptr),
-    m_positionDelta(0.0f, 0.0f, 0.0f),
-    m_velocity(0.0f, 0.0f, 0.0f),
-    m_colour(1.0f, 1.0f, 1.0f),
-    m_geometry(nullptr),
-    m_draw(false),
-    m_requiresFullUpdate(false),
-    m_requiresPositionalUpdate(false),
-    m_radius(0.0f),
-    m_renderSolverDiagnostics(false)
+CollisionMesh::CollisionMesh(EnginePtr engine, const Transform* parent)
+    : m_engine(engine)
+    , m_parent(parent)
+    , m_partition(nullptr)
+    , m_positionDelta(0.0f, 0.0f, 0.0f)
+    , m_velocity(0.0f, 0.0f, 0.0f)
+    , m_colour(1.0f, 1.0f, 1.0f)
+    , m_geometry(nullptr)
+    , m_draw(false)
+    , m_requiresFullUpdate(false)
+    , m_requiresPositionalUpdate(false)
+    , m_radius(0.0f)
+    , m_renderSolverDiagnostics(false)
 {
     m_localBounds.resize(CORNERS);
     m_oabb.resize(CORNERS);

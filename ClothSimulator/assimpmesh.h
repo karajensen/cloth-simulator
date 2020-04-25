@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include <vector>
 #include <string>
 
@@ -12,6 +13,9 @@
 class Assimpmesh
 {
 public:
+
+    Assimpmesh() = default;
+    ~Assimpmesh() = default;
 
     /**
     * Vertex structure
@@ -38,16 +42,6 @@ public:
     };
 
     /**
-    * Constructor
-    */
-    Assimpmesh();
-
-    /**
-    * Destructor
-    */
-    ~Assimpmesh();
-
-    /**
     * Initialises the mesh
     * @param path The path of the mesh
     * @param errorBuffer The error buffer to fill if something fails
@@ -67,6 +61,8 @@ private:
     */
     Assimpmesh(const Assimpmesh&);              
     Assimpmesh& operator=(const Assimpmesh&);
+
+private:
 
     std::vector<SubMesh> m_subMeshes;  ///< sub meshes for this mesh
 

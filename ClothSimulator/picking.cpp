@@ -6,20 +6,20 @@
 #include "pickablemesh.h"
 #include <assert.h>
 
-Picking::Picking(EnginePtr engine):
-    m_rayDirection(0.0f, 0.0f, 0.0f),
-    m_rayOrigin(0.0f, 0.0f, 0.0f),
-    m_mesh(nullptr),
-    m_distanceToMesh(0.0f),
-    m_locked(false),
-    m_engine(engine),
-    m_pickFace(nullptr)
+Picking::Picking(EnginePtr engine)
+    : m_rayDirection(0.0f, 0.0f, 0.0f)
+    , m_rayOrigin(0.0f, 0.0f, 0.0f)
+    , m_mesh(nullptr)
+    , m_distanceToMesh(0.0f)
+    , m_locked(false)
+    , m_engine(engine)
+    , m_pickFace(nullptr)
 { 
 }
 
-Picking::BarycentricCoords::BarycentricCoords() :
-    s(0.0f),
-    t(0.0f)
+Picking::BarycentricCoords::BarycentricCoords()
+    : s(0.0f)
+    , t(0.0f)
 {
 }
 

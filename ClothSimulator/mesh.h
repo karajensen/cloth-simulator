@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "pickablemesh.h"
 #include "callbacks.h"
@@ -37,8 +38,10 @@ public:
     * @param shader The shader attached to the mesh
     * @param index A user defined index
     */
-    void LoadMesh(LPDIRECT3DDEVICE9 d3ddev, const std::string& filename, 
-        LPD3DXEFFECT shader, int index = NO_INDEX);
+    void LoadMesh(LPDIRECT3DDEVICE9 d3ddev, 
+                  const std::string& filename, 
+                  LPD3DXEFFECT shader, 
+                  int index = NO_INDEX);
 
     /**
     * Load the mesh as an instance of another mesh
@@ -47,7 +50,8 @@ public:
     * @param index A user defined index
     */
     bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
-        Mesh& mesh, int index = NO_INDEX);
+                        Mesh& mesh, 
+                        int index = NO_INDEX);
 
     /**
     * Draw the visual model of the mesh
@@ -56,7 +60,8 @@ public:
     * @param view the view matrix
     */
     void DrawMesh(const D3DXVECTOR3& cameraPos,
-        const Matrix& projection, const Matrix& view);
+                  const Matrix& projection, 
+                  const Matrix& view);
 
     /**
     * Draw the collision model of the mesh
@@ -111,8 +116,9 @@ public:
     * @param divisions The amount of divisions of the mesh if required
     */
     void InitialiseCollision(Geometry::Shape shape,
-        const D3DXVECTOR3& minScale, const D3DXVECTOR3& maxScale, 
-        int divisions = 0);
+                             const D3DXVECTOR3& minScale, 
+                             const D3DXVECTOR3& maxScale, 
+                             int divisions = 0);
 
     /**
     * @param draw whether the collision mesh is visible
@@ -198,6 +204,8 @@ private:
     Mesh(const Mesh&);
     Mesh& operator=(const Mesh&);
 
+private:
+
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::shared_ptr<CollisionMesh> m_collision;  ///< The collision geometry attached to the mesh
     std::shared_ptr<Geometry> m_geometry;        ///< Data for rendering/instancing the mesh
@@ -205,12 +213,12 @@ private:
     D3DXVECTOR3 m_selectedcolor;                 ///< Color for the selected mesh
     D3DXVECTOR3 m_initialcolor;                  ///< initial color for the mesh
     std::vector<D3DXVECTOR3> m_animation;        ///< Animation points for the mesh
-    int m_index;                                 ///< User defined index for the mesh
-    bool m_pickable;                             ///< Whether the mesh can be mouse picked or not
-    bool m_selected;                             ///< Whether the mesh is selected or not
-    bool m_draw;                                 ///< Whether the mesh is visible or not
-    int m_target;                                ///< Animation index target
-    bool m_animating;                            ///< Whether the mesh is animating or not
-    bool m_reversing;                            ///< Whether animating in reverse or not
-    float m_speed;                               ///< The speed the mesh will animate
+    int m_index = NO_INDEX;                      ///< User defined index for the mesh
+    bool m_pickable = false;                     ///< Whether the mesh can be mouse picked or not
+    bool m_selected = false;                     ///< Whether the mesh is selected or not
+    bool m_draw = false;                         ///< Whether the mesh is visible or not
+    int m_target = NO_INDEX;                     ///< Animation index target
+    bool m_animating = false;                    ///< Whether the mesh is animating or not
+    bool m_reversing = false;                    ///< Whether animating in reverse or not
+    float m_speed = 0.0f;                        ///< The speed the mesh will animate
 };

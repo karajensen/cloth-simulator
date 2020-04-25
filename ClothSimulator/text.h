@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 
 /**
@@ -66,6 +67,8 @@ private:
     */
     Text(const Text&);
     Text& operator=(const Text&);
+
+private:
 
     D3DCOLOR m_color;   ///< Colour of the text from 0-255
     RECT m_textbox;     ///< Text bounding area

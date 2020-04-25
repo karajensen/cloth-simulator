@@ -3,7 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include <vcclr.h>
+
 #include "GUICallbacks.h"
 
 namespace GUI
@@ -25,10 +27,10 @@ namespace GUI
         /**
         * Constructor 
         */
-        GUIForm(void) :
-            m_callbacks(nullptr),
-            m_toolSelected(nullptr),
-            m_pinnedSimForm(nullptr)
+        GUIForm(void)
+            : m_callbacks(nullptr)
+            , m_toolSelected(nullptr)
+            , m_pinnedSimForm(nullptr)
         {
             InitializeComponent();
             CreateSimulationForm();

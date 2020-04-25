@@ -8,6 +8,7 @@
 #include "collisionmesh.h"
 #include "spring.h"
 #include "shader.h"
+
 #include <functional>
 #include <algorithm>
 
@@ -35,30 +36,30 @@ namespace
     const D3DXVECTOR3 STARTING_POSITION(0.5f, 8.0f, 0.0f); ///< Initial position for the cloth
 }
 
-Cloth::Cloth(EnginePtr engine) :
-    m_selectedRow(1),
-    m_timestep(TIMESTEP),
-    m_timestepSquared(TIMESTEP*TIMESTEP),
-    m_damping(DAMPING),
-    m_springCount(0),
-    m_springIterations(ITERATIONS),
-    m_particleLength(0),
-    m_particleCount(0),
-    m_quadVertices(0),
-    m_simulation(false),
-    m_drawVisualParticles(false),
-    m_drawColParticles(false),
-    m_spacing(0.0f),
-    m_handleMode(false),
-    m_subdivideCloth(false),
-    m_gravity(0,-9.8f,0),
-    m_generalSmoothing(0.85f),
-    m_engine(engine),
-    m_template(nullptr),
-    m_mesh(nullptr),
-    m_texture(nullptr),
-    m_shader(nullptr),
-    m_diagnosticParticle(0)
+Cloth::Cloth(EnginePtr engine)
+    : m_selectedRow(1)
+    , m_timestep(TIMESTEP)
+    , m_timestepSquared(TIMESTEP * TIMESTEP)
+    , m_damping(DAMPING)
+    , m_springCount(0)
+    , m_springIterations(ITERATIONS)
+    , m_particleLength(0)
+    , m_particleCount(0)
+    , m_quadVertices(0)
+    , m_simulation(false)
+    , m_drawVisualParticles(false)
+    , m_drawColParticles(false)
+    , m_spacing(0.0f)
+    , m_handleMode(false)
+    , m_subdivideCloth(false)
+    , m_gravity(0,-9.8f,0)
+    , m_generalSmoothing(0.85f)
+    , m_engine(engine)
+    , m_template(nullptr)
+    , m_mesh(nullptr)
+    , m_texture(nullptr)
+    , m_shader(nullptr)
+    , m_diagnosticParticle(0)
 {
     D3DXVECTOR3 minimumScale(1.0f, 1.0f, 1.0f);
     D3DXVECTOR3 maximumScale(1.0f, 1.0f, 1.0f);

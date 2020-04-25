@@ -3,9 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "common.h"
+
 #include "callbacks.h"
 #include "octree_interface.h"
+#include "common.h"
 
 class Partition;
 
@@ -139,6 +140,8 @@ private:
     * @return the chosen partition the object is inserted into, or null if none found
     */
     Partition* FindPartition(CollisionMesh& object, Partition& partition);
+
+private:
 
     IterateOctreeFn m_iteratorFn = nullptr;  ///< Function to call when iterating the octree
     std::shared_ptr<Engine> m_engine;        ///< Callbacks for the rendering engine

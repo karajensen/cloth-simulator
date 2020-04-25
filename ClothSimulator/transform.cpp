@@ -5,15 +5,15 @@
 #include "transform.h"
 #include "common.h"
 
-Transform::Transform():
-    m_yaw(0.0f),
-    m_pitch(0.0f),
-    m_roll(0.0f),
-    m_position(0.0f, 0.0f, 0.0f),
-    m_minimumScale(1.0f, 1.0f, 1.0f),
-    m_maximumScale(1.0f, 1.0f, 1.0f),
-    m_fullUpdateFn(nullptr),
-    m_positionalUpdateFn(nullptr)
+Transform::Transform()
+    : m_yaw(0.0f)
+    , m_pitch(0.0f)
+    , m_roll(0.0f)
+    , m_position(0.0f, 0.0f, 0.0f)
+    , m_minimumScale(1.0f, 1.0f, 1.0f)
+    , m_maximumScale(1.0f, 1.0f, 1.0f)
+    , m_fullUpdateFn(nullptr)
+    , m_positionalUpdateFn(nullptr)
 { 
     D3DXMatrixIdentity(&m_scale);
     D3DXMatrixIdentity(&m_rotation);

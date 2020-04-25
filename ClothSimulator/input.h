@@ -3,10 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #define DIRECTINPUT_VERSION 0x0800 //for direct input
 #include "common.h"
 #include "picking.h"
 #include "callbacks.h"
+
 #include <dinput.h>
 #include <unordered_map>
 
@@ -172,6 +174,8 @@ private:
 
     typedef std::unordered_map<unsigned int, Key> KeyMap;
     typedef std::vector<unsigned int> KeyList;
+
+private:
 
     HWND m_hWnd;                           ///< Cached handle to the window
     KeyMap m_keys;                         ///< Cached keys

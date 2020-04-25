@@ -3,9 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 #include "geometry.h"
+
 #include <deque>
 
 class Shader;
@@ -40,9 +42,11 @@ public:
     * @param maxScale Maximum allowed scale of the collision mesh
     * @param divisions The amount of divisions of the mesh if required
     */
-    void Initialise(bool createmesh, Geometry::Shape shape,
-        const D3DXVECTOR3& minScale, const D3DXVECTOR3& maxScale, 
-        int divisions = 0);
+    void Initialise(bool createmesh, 
+                    Geometry::Shape shape,
+                    const D3DXVECTOR3& minScale, 
+                    const D3DXVECTOR3& maxScale, 
+                    int divisions = 0);
 
     /**
     * Creates a collision model
@@ -51,8 +55,10 @@ public:
     * @param scale Scale of the collision mesh
     * @param divisions The amount of divisions of the mesh if required
     */
-    void Initialise(bool createmesh, Geometry::Shape shape,
-        const D3DXVECTOR3& scale, int divisions = 0);
+    void Initialise(bool createmesh, 
+                    Geometry::Shape shape,
+                    const D3DXVECTOR3& scale, 
+                    int divisions = 0);
 
     /**
     * Loads the collision as an instance of another
@@ -223,7 +229,8 @@ public:
     * @throw will only work for dynamic collision meshes
     */
     virtual void ResolveCollision(const D3DXVECTOR3& translation, 
-        const D3DXVECTOR3& velocity, Geometry::Shape shape);
+                                  const D3DXVECTOR3& velocity, 
+                                  Geometry::Shape shape);
 
     /**
     * @return whether the collision mesh is dynamic or kinematic
@@ -262,6 +269,8 @@ protected:
     * Determines the correct local scale depending on the parent scale
     */
     D3DXVECTOR3 FindLocalScale();
+
+protected:
 
     EnginePtr m_engine;                        ///< Callbacks for the rendering engine
     const Transform* m_parent;                 ///< Parent transform of the collision geometry

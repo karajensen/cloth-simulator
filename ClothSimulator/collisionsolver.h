@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 
@@ -80,7 +81,7 @@ private:
     * @return The furthest point in the set along the given direction
     */
     const D3DXVECTOR3& FindFurthestPoint(const std::vector<D3DXVECTOR3>& points,
-        const D3DXVECTOR3& direction) const;
+                                         const D3DXVECTOR3& direction) const;
 
     /**
     * Generates a point on the edge of the Minkowski Sum hull
@@ -92,7 +93,8 @@ private:
     * @return an edge point in the Minkowski Sum
     */
     D3DXVECTOR3 GetMinkowskiSumEdgePoint(const D3DXVECTOR3& direction,
-        const CollisionMesh& particle, const CollisionMesh& hull);
+                                         const CollisionMesh& particle, 
+                                         const CollisionMesh& hull);
 
     /**
     * Determines the next search direction given a line simplex
@@ -124,7 +126,8 @@ private:
     * @return whether the two convex hulls are colliding
     */
     bool AreConvexHullsColliding(const CollisionMesh& particle, 
-        const CollisionMesh& hull, Simplex& simplex);
+                                 const CollisionMesh& hull, 
+                                 Simplex& simplex);
 
     /**
     * Uses the theory of EPA to determine penetration between two convex hulls
@@ -134,7 +137,8 @@ private:
     * @return The direction and magnitude of penetration between the hulls
     */
     D3DXVECTOR3 GetConvexHullPenetration(const CollisionMesh& particle, 
-        const CollisionMesh& hull, Simplex& simplex);
+                                         const CollisionMesh& hull, 
+                                         Simplex& simplex);
 
     /**
     * Updates the diagnostics for a simplex
@@ -142,6 +146,8 @@ private:
     * @param furthestPoint The last furthest point to find for the simplex
     */
     void UpdateDiagnostics(const Simplex& simplex, const D3DXVECTOR3& furthestPoint);
+
+private:
 
     std::weak_ptr<Cloth> m_cloth;     ///< Cloth object holding all particles
     std::shared_ptr<Engine> m_engine; ///< Callbacks for the rendering engine

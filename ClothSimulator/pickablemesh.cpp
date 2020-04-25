@@ -4,14 +4,12 @@
 
 #include "pickablemesh.h"
 
-PickableMesh::PickableMesh() :
-    m_meshPickFn(nullptr)
+PickableMesh::PickableMesh()
+    : m_meshPickFn(nullptr)
 {
 }
 
-PickableMesh::~PickableMesh()
-{
-}
+PickableMesh::~PickableMesh() = default;
 
 void PickableMesh::SetMeshPickFunction(MeshPickFn fn)
 {

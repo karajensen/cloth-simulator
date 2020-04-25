@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 
 /**
@@ -85,8 +86,8 @@ private:
     float m_diffuseIntensity;  ///< Intensity of the diffuse light
     float m_specularIntensity; ///< Intensity of the specular light
     float m_specularSize;      ///< Size of the specular highlights
-    bool m_active;             ///< Whether the light is on or not
-    int m_index;               ///< The unique index of the light
+    bool m_active = false;     ///< Whether the light is on or not
+    int m_index = NO_INDEX;    ///< The unique index of the light
 };
 
 /**
@@ -96,6 +97,9 @@ class LightManager
 {
 public:
 
+    LightManager() = default;
+    ~LightManager() = default;
+
     /**
     * Avaliable lights in the scene
     */
@@ -104,16 +108,6 @@ public:
         MAIN_LIGHT, 
         MAX_LIGHTS 
     };
-
-    /**
-    * Constructor
-    */
-    LightManager();
-
-    /**
-    * Destructor
-    */
-    ~LightManager();
 
     /**
     * Initialise all lighting
@@ -134,6 +128,8 @@ private:
     */
     LightManager(const LightManager&);
     LightManager& operator=(const LightManager&);
+
+private:
 
     std::vector<std::unique_ptr<Light>> m_lights; ///< All lights in scene
 };

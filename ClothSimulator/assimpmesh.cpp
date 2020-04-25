@@ -3,17 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "assimpmesh.h"
+
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
-
-Assimpmesh::Assimpmesh()
-{
-}
-
-Assimpmesh::~Assimpmesh()
-{
-}
 
 bool Assimpmesh::Initialise(const std::string& path, std::string& errorBuffer)
 {

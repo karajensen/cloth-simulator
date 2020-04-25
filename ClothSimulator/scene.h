@@ -3,8 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
+
 #include <queue>
 
 class IOctree;
@@ -53,7 +55,8 @@ public:
     * @param view The camera view matrix
     */
     void Draw(const D3DXVECTOR3& position,
-        const Matrix& projection, const Matrix& view);
+              const Matrix& projection, 
+              const Matrix& view);
 
     /**
     * Draws the scene manipulator tool
@@ -62,7 +65,8 @@ public:
     * @param view The camera view matrix
     */
     void DrawTools(const D3DXVECTOR3& position,
-        const Matrix& projection, const Matrix& view);
+                   const Matrix& projection, 
+                   const Matrix& view);
 
     /**
     * Draws all scene mesh collisions
@@ -107,8 +111,11 @@ public:
     * @param invProjection The camera inverse projection matrix
     * @param deltatime The time passed since last frame in seconds
     */
-    void PreCollisionUpdate(bool pressed, const D3DXVECTOR2& direction,
-        const Matrix& world, const Matrix& invProjection, float deltatime);
+    void PreCollisionUpdate(bool pressed, 
+                            const D3DXVECTOR2& direction,
+                            const Matrix& world, 
+                            const Matrix& invProjection, 
+                            float deltatime);
 
     /**
     * Updates the state of the scene post collision solving
@@ -167,6 +174,8 @@ private:
     Scene(const Scene&);
     Scene& operator=(const Scene&);
 
+private:
+
     EnginePtr m_engine;                          ///< Callbacks for the rendering engine
     std::queue<unsigned int> m_open;             ///< Indices for the avaliable meshes
     std::vector<MeshPtr> m_meshes;               ///< Changable meshes in the scene
@@ -177,9 +186,9 @@ private:
     std::vector<CollisionPtr> m_walls;           ///< Wall collision meshes
     D3DXVECTOR3 m_wallMinBounds;                 ///< Minimum position in the wall enclosed space
     D3DXVECTOR3 m_wallMaxBounds;                 ///< Maximum position in the wall enclosed space
-    int m_selectedMesh;                          ///< Currently selected object
-    int m_diagnosticMesh;                        ///< Currently selected object for diagnostics
-    bool m_drawCollisions;                       ///< Whether to render the mesh collision models or not
-    bool m_drawWalls;                            ///< Whether to render the wall mesh collision models or not
+    int m_selectedMesh = 0;                      ///< Currently selected object
+    int m_diagnosticMesh = 0;                    ///< Currently selected object for diagnostics
+    bool m_drawCollisions = false;               ///< Whether to render the mesh collision models or not
+    bool m_drawWalls = false;                    ///< Whether to render the wall mesh collision models or not
     SetFlag m_enableCreation;                    ///< Callback for enabled/disabling gui mesh creation
 };

@@ -50,8 +50,11 @@ public:
     * @param color The color to render with
     * @param position The position to render at
     */
-    void DrawRepresentation(const Matrix& projection, const Matrix& view, 
-        float radius, const D3DXVECTOR3& color, const D3DXVECTOR3& position);
+    void DrawRepresentation(const Matrix& projection, 
+                            const Matrix& view, 
+                            float radius, 
+                            const D3DXVECTOR3& color, 
+                            const D3DXVECTOR3& position);
 
     /**
     * Updates the collision geometry upon translate for non-parented meshes
@@ -72,7 +75,8 @@ public:
     * @param shape The interacting body causing the movement
     */
     virtual void ResolveCollision(const D3DXVECTOR3& translation, 
-        const D3DXVECTOR3& velocity, Geometry::Shape shape) override;
+                                  const D3DXVECTOR3& velocity,
+                                  Geometry::Shape shape) override;
 
     /**
     * @return whether the collision mesh is dynamic or kinematic
@@ -103,6 +107,8 @@ private:
     * @return the type of collision from the given shape
     */
     unsigned int GetCollisionType(Geometry::Shape shape) const;
+
+private:
 
     D3DXVECTOR3 m_resolveVelocity;             ///< Combined resolution velocity
     D3DXVECTOR3 m_previousResolveVelocity;     ///< Combined previous resolution velocity

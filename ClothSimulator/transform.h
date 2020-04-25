@@ -3,8 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <functional>
+
 #include "matrix.h"
+
+#include <functional>
 
 /**
 * Matrix with rotation and scale components
@@ -146,6 +148,8 @@ private:
     * @param fullupdate Whether to call the full update funtion or not
     */
     void Update(bool fullupdate);
+
+private:
 
     float m_yaw;                     ///< Radian amount of yaw
     float m_pitch;                   ///< Radian amount of pitch

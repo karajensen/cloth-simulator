@@ -5,6 +5,7 @@
 #include "dynamicmesh.h"
 #include "partition.h"
 #include "shader.h"
+
 #include <assert.h>
 
 namespace
@@ -21,13 +22,13 @@ namespace
     };
 }
 
-DynamicMesh::DynamicMesh(EnginePtr engine, DynamicMesh::MotionFn resolveFn) :
-    CollisionMesh(engine, nullptr),
-    m_previousResolveVelocity(0.0f, 0.0f, 0.0f),
-    m_resolveVelocity(0.0f, 0.0f, 0.0f),
-    m_resolveFn(resolveFn),
-    m_collisionType(NO_COLLISION),
-    m_cachedCollisionType(NO_COLLISION)
+DynamicMesh::DynamicMesh(EnginePtr engine, DynamicMesh::MotionFn resolveFn)
+    : CollisionMesh(engine, nullptr)
+    , m_previousResolveVelocity(0.0f, 0.0f, 0.0f)
+    , m_resolveVelocity(0.0f, 0.0f, 0.0f)
+    , m_resolveFn(resolveFn)
+    , m_collisionType(NO_COLLISION)
+    , m_cachedCollisionType(NO_COLLISION)
 {
     SetDraw(true);
 }

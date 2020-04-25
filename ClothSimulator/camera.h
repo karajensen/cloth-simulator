@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 
 /**
@@ -115,6 +116,8 @@ private:
     * @param val The amount to move the camera
     */
     void Up(float val);
+
+private:
 
     Matrix m_projection;       ///< Projection Matrix for the camera
     Matrix m_view;             ///< View Matrix for the camera

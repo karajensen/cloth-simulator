@@ -6,18 +6,18 @@
 #include "assimpmesh.h"
 #include "diagnostic.h"
 
-D3DXVertex::D3DXVertex() :
-    normal(0.0f, 0.0f, 0.0f),
-    position(0.0f, 0.0f, 0.0f)
+D3DXVertex::D3DXVertex()
+    : normal(0.0f, 0.0f, 0.0f)
+    , position(0.0f, 0.0f, 0.0f)
 {
 }
 
 MeshFace::MeshFace(const D3DXVECTOR3& p0, 
                    const D3DXVECTOR3& p1, 
-                   const D3DXVECTOR3& p2) :
-    origin(p0),
-    P1(p1),
-    P2(p2)
+                   const D3DXVECTOR3& p2)
+    : origin(p0)
+    , P1(p1)
+    , P2(p2)
 {
     u = p1 - p0;
     v = p2 - p0;
@@ -34,20 +34,20 @@ MeshFace::MeshFace(const D3DXVECTOR3& p0,
     D3DXVec3Normalize(&normal, &normal);
 }
 
-MeshVertex::MeshVertex() :
-    position(0.0f, 0.0f, 0.0f),
-    normal(0.0f, 0.0f, 0.0f),
-    uvs(0.0f, 0.0f)
+MeshVertex::MeshVertex()
+    : position(0.0f, 0.0f, 0.0f)
+    , normal(0.0f, 0.0f, 0.0f)
+    , uvs(0.0f, 0.0f)
 {
 }
 
 Geometry::Geometry(LPDIRECT3DDEVICE9 d3ddev, 
                    const std::string& filename,
-                   LPD3DXEFFECT shader) :
-    m_shape(NONE),
-    m_mesh(nullptr),
-    m_shader(shader),
-    m_texture(nullptr)
+                   LPD3DXEFFECT shader)
+    : m_shape(NONE)
+    , m_mesh(nullptr)
+    , m_shader(shader)
+    , m_texture(nullptr)
 {
     // Create a assimp mesh
     std::string errorBuffer;

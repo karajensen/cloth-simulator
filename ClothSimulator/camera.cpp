@@ -4,14 +4,14 @@
 
 #include "Camera.h"
 
-Camera::Camera(const D3DXVECTOR3& position, const D3DXVECTOR3& target) : 
-    m_cameraNeedsUpdate(true),
-    m_initialPos(position),
-    m_pos(0.0f, 0.0f, 0.0f),
-    m_target(target),
-    m_yaw(0.0f),     
-    m_pitch(0.0f),
-    m_roll(0.0f)
+Camera::Camera(const D3DXVECTOR3& position, const D3DXVECTOR3& target)
+    : m_cameraNeedsUpdate(true)
+    , m_initialPos(position)
+    , m_pos(0.0f, 0.0f, 0.0f)
+    , m_target(target)
+    , m_yaw(0.0f) 
+    , m_pitch(0.0f)
+    , m_roll(0.0f)
 {
     Reset();
 }

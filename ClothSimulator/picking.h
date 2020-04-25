@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 #include "geometry.h"
@@ -64,7 +65,8 @@ public:
     * @return whether the mesh was selected or not
     */
     bool RayCastMesh(PickableMesh* mesh,
-        const D3DXMATRIX& world, const Geometry& geometry);
+                     const D3DXMATRIX& world, 
+                     const Geometry& geometry);
 
     /**
     * Updates mouse picking diagnostics
@@ -94,6 +96,8 @@ private:
         float s; ///< S coordinate on the triangle
         float t; ///< T coordinate on the triangle
     };
+
+private:
 
     const D3DXMATRIX* m_pickWorld;  ///< World matrix for picked mesh
     const MeshFace* m_pickFace;     ///< Picked triangle face;

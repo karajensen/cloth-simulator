@@ -3,20 +3,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "partition.h"
+
 #include <algorithm>
 
-Partition::Partition() :
-    m_parent(nullptr),
-    m_minBounds(FLT_MAX, -FLT_MAX, FLT_MAX),
-    m_maxBounds(-FLT_MAX, FLT_MAX, -FLT_MAX),
-    m_level(0),
-    m_id("0")
+Partition::Partition()
+    : m_parent(nullptr)
+    , m_minBounds(FLT_MAX, -FLT_MAX, FLT_MAX)
+    , m_maxBounds(-FLT_MAX, FLT_MAX, -FLT_MAX)
+    , m_level(0)
+    , m_id("0")
 {
 }
 
-Partition::~Partition()
-{
-}
+Partition::~Partition() = default;
 
 Partition::Partition(float size, const D3DXVECTOR3& minBounds, Partition* parent) :
     m_parent(parent),

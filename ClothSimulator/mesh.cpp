@@ -9,29 +9,28 @@
 #include "light.h"
 #include "shader.h"
 #include "picking.h"
+
 #include <assert.h>
 
-Mesh::Mesh(EnginePtr engine):
-    m_engine(engine),
-    m_color(1.0f, 1.0f, 1.0f),
-    m_initialcolor(1.0f, 1.0f, 1.0f),
-    m_selectedcolor(0.7f, 0.7f, 1.0f),
-    m_index(NO_INDEX),
-    m_pickable(true),
-    m_selected(false),
-    m_draw(true),
-    m_target(1),
-    m_animating(false),
-    m_reversing(false),
-    m_speed(10.0),
-    m_collision(nullptr),
-    m_geometry(nullptr)
+Mesh::Mesh(EnginePtr engine)
+    : m_engine(engine)
+    , m_color(1.0f, 1.0f, 1.0f)
+    , m_initialcolor(1.0f, 1.0f, 1.0f)
+    , m_selectedcolor(0.7f, 0.7f, 1.0f)
+    , m_index(NO_INDEX)
+    , m_pickable(true)
+    , m_selected(false)
+    , m_draw(true)
+    , m_target(1)
+    , m_animating(false)
+    , m_reversing(false)
+    , m_speed(10.0)
+    , m_collision(nullptr)
+    , m_geometry(nullptr)
 {
 }
 
-Mesh::~Mesh()
-{
-}
+Mesh::~Mesh() = default;
 
 void Mesh::LoadTexture(const std::string& filename, 
                        int dimensions, int miplevels)

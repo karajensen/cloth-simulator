@@ -3,7 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
+
 #include <deque>
 #include <array>
 
@@ -30,10 +32,10 @@ struct Face
     */
     Face();
 
-    bool alive;                              ///< Whether the triangle is dead
-    int index;                               ///< User index of face
+    bool alive = false;                      ///< Whether the triangle is dead
+    int index = 0;                           ///< User index of face
     D3DXVECTOR3 normal;                      ///< Normal of the face
-    float distanceToOrigin;                  ///< Distance of face to origin
+    float distanceToOrigin = 0.0f;           ///< Distance of face to origin
     std::array<int, POINTS_IN_FACE> indices; ///< Index for simplex points
     std::array<Edge, POINTS_IN_FACE> edges;  ///< Edges surrounding the face
 };
@@ -156,6 +158,8 @@ private:
     * @return an index of a dead face
     */
     int GetDeadFaceIndex() const;
+
+private:
 
     std::vector<Edge> m_edges; ///< Found border edges for hull generation
     std::deque<Face> m_faces; ///< faces for tetrahedron+ simplex points

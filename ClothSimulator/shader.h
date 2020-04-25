@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 
 /**
@@ -43,6 +44,8 @@ private:
     Shader(const Shader&);
     Shader& operator=(const Shader&);
 
+private:
+
     LPD3DXEFFECT m_effect; ///< DirectX shader effect
 };
 
@@ -52,6 +55,9 @@ private:
 class ShaderManager
 {
 public:
+
+    ShaderManager() = default;
+    ~ShaderManager() = default;
 
     /**
     * Avaliable shaders in the scene
@@ -65,16 +71,6 @@ public:
         GROUND_SHADER,
         MAX_SHADERS 
     };
-
-    /**
-    * Constructor
-    */
-    ShaderManager();
-
-    /**
-    * Destructor
-    */
-    ~ShaderManager();
 
     /**
     * Initialise all shaders
@@ -95,6 +91,8 @@ private:
     */
     ShaderManager(const ShaderManager&);
     ShaderManager& operator=(const ShaderManager&);
+
+private:
 
     std::vector<std::unique_ptr<Shader>> m_shaders; ///< All shaders in scene
 };

@@ -14,6 +14,7 @@
 #include "scene.h"
 #include "octree.h"
 #include "collisionsolver.h"
+
 #include <algorithm>
 #include <sstream>
 
@@ -28,9 +29,9 @@ namespace
     const D3DCOLOR UPDATE_COLOR(D3DCOLOR_XRGB(0, 255, 0));          
 }
 
-Simulation::Simulation() :
-    m_drawCollisions(false),
-    m_d3ddev(nullptr)
+Simulation::Simulation()
+    : m_drawCollisions(false)
+    , m_d3ddev(nullptr)
 {
 }
 

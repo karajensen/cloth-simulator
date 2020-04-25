@@ -12,16 +12,16 @@ namespace
     const double DT_MINIMUM = 0.01;   ///< Minimum allowed deltatime
 }
 
-Timer::Timer(EnginePtr engine) :
-    m_frequency(0.0),
-    m_previousTime(0.0),
-    m_deltaTime(0.0),
-    m_deltaTimeCounter(0.0),
-    m_fps(0),
-    m_fpsCounter(0),
-    m_engine(engine),
-    m_forceDeltatime(false),
-    m_forcedDeltatime(0.04)
+Timer::Timer(EnginePtr engine)
+    : m_frequency(0.0)
+    , m_previousTime(0.0)
+    , m_deltaTime(0.0)
+    , m_deltaTimeCounter(0.0)
+    , m_fps(0)
+    , m_fpsCounter(0)
+    , m_engine(engine)
+    , m_forceDeltatime(false)
+    , m_forcedDeltatime(0.04)
 {
 }
 

@@ -4,29 +4,22 @@
 
 #include "light.h"
 #include "shader.h"
+
 #include <algorithm>
 
-LightManager::LightManager()
-{
-}
-
-LightManager::~LightManager()
-{
-}
-
-Light::Light() :
-    m_position(0.0f, 0.0f, 0.0f),
-    m_diffuse(1.0f, 1.0f, 1.0f),
-    m_ambient(1.0f, 1.0f, 1.0f),
-    m_attenuation0(0.0f),
-    m_attenuation1(1.0f),
-    m_attenuation2(0.0f),
-    m_ambientIntensity(0.2f),
-    m_diffuseIntensity(0.7f),
-    m_specularIntensity(0.3f),
-    m_specularSize(10.0f),
-    m_active(true),
-    m_index(NO_INDEX)
+Light::Light()
+    : m_position(0.0f, 0.0f, 0.0f)
+    , m_diffuse(1.0f, 1.0f, 1.0f)
+    , m_ambient(1.0f, 1.0f, 1.0f)
+    , m_attenuation0(0.0f)
+    , m_attenuation1(1.0f)
+    , m_attenuation2(0.0f)
+    , m_ambientIntensity(0.2f)
+    , m_diffuseIntensity(0.7f)
+    , m_specularIntensity(0.3f)
+    , m_specularSize(10.0f)
+    , m_active(true)
+    , m_index(NO_INDEX)
 {
 }
 

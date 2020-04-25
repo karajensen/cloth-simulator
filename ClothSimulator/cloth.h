@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 #include "pickablemesh.h"
@@ -48,7 +49,8 @@ public:
     * @param view the view matrix
     */
     void Draw(const D3DXVECTOR3& cameraPos, 
-        const Matrix& projection, const Matrix& view);
+              const Matrix& projection, 
+              const Matrix& view);
 
     /**
     * Test if cloth m_vertices have been clicked
@@ -222,12 +224,6 @@ private:
     void AddForce(const D3DXVECTOR3& force);
 
     /**
-    * Selects the given particle for diagnostic purposes
-    * @param index The particle to select
-    */
-    void SelectParticleForDiagnostics(int index);
-
-    /**
     * Changes a particular row
     * @param row The row to change
     * @param select Whether to select/deselect the row
@@ -246,7 +242,8 @@ private:
     * @return the generated normal
     */
     D3DXVECTOR3 CalculateNormal(const D3DXVECTOR3& p1,
-        const D3DXVECTOR3& p2, const D3DXVECTOR3& p3);
+                                const D3DXVECTOR3& p2, 
+                                const D3DXVECTOR3& p3);
     
     /**
     * Adds a force to the given particle
@@ -265,6 +262,8 @@ private:
     */
     Cloth(const Cloth&);
     Cloth& operator=(const Cloth&);
+
+private:
 
     int m_selectedRow;          ///< Current row selected when in manipulate mode
     float m_timestep;           ///< Cloth physics timestep

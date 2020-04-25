@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "callbacks.h"
 
@@ -80,6 +81,8 @@ private:
     Simulation(const Simulation&);
     Simulation& operator=(const Simulation&);
 
+private:
+
     std::unique_ptr<LightManager> m_light;       ///< Manager for the simulation lights
     std::unique_ptr<ShaderManager> m_shader;     ///< Manager for the simulation shaders
     std::shared_ptr<CollisionSolver> m_solver;   ///< Collision solver for cloth
@@ -91,5 +94,5 @@ private:
     std::unique_ptr<Diagnostic> m_diagnostics;   ///< Diagnostic renderer
     std::unique_ptr<Octree> m_octree;            ///< Octree spatial partitining
     LPDIRECT3DDEVICE9 m_d3ddev;                  ///< DirectX device
-    bool m_drawCollisions;                       ///< Whether to display collision models
+    bool m_drawCollisions = false;               ///< Whether to display collision models
 };
