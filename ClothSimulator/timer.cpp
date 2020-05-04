@@ -2,8 +2,10 @@
 // Kara Jensen - mail@karajensen.com - timer.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <Windows.h>
+#include "utils.h"
 #include "timer.h"
+
+#include <Windows.h>
 
 namespace
 {

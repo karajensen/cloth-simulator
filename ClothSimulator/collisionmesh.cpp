@@ -5,6 +5,7 @@
 #include "collisionmesh.h"
 #include "partition.h"
 #include "shader.h"
+#include "utils.h"
 
 #include <assert.h>
 

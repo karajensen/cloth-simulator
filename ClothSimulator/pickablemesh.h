@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "common.h"
 #include "geometry.h"
+
+#include <functional>
 
 /**
 * Base class for any mesh that is able to be picked

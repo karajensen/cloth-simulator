@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "common.h"
+#include "directx.h"
+#include "transform.h"
 
 #include <unordered_map>
 #include <array>

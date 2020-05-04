@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "common.h"
+#include "directx.h"
+
+#include <string>
 
 /**
 * Class for displaying text

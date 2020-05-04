@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "common.h"
 #include "callbacks.h"
 #include "geometry.h"
 

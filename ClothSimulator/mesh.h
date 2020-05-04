@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "common.h"
 #include "pickablemesh.h"
 #include "callbacks.h"
 
@@ -41,7 +40,7 @@ public:
     void LoadMesh(LPDIRECT3DDEVICE9 d3ddev, 
                   const std::string& filename, 
                   LPD3DXEFFECT shader, 
-                  int index = NO_INDEX);
+                  int index = -1);
 
     /**
     * Load the mesh as an instance of another mesh
@@ -51,7 +50,7 @@ public:
     */
     bool LoadAsInstance(LPDIRECT3DDEVICE9 d3ddev, 
                         Mesh& mesh, 
-                        int index = NO_INDEX);
+                        int index = -1);
 
     /**
     * Draw the visual model of the mesh
@@ -213,11 +212,11 @@ private:
     D3DXVECTOR3 m_selectedcolor;                 ///< Color for the selected mesh
     D3DXVECTOR3 m_initialcolor;                  ///< initial color for the mesh
     std::vector<D3DXVECTOR3> m_animation;        ///< Animation points for the mesh
-    int m_index = NO_INDEX;                      ///< User defined index for the mesh
+    int m_index = -1;                      ///< User defined index for the mesh
     bool m_pickable = false;                     ///< Whether the mesh can be mouse picked or not
     bool m_selected = false;                     ///< Whether the mesh is selected or not
     bool m_draw = false;                         ///< Whether the mesh is visible or not
-    int m_target = NO_INDEX;                     ///< Animation index target
+    int m_target = -1;                     ///< Animation index target
     bool m_animating = false;                    ///< Whether the mesh is animating or not
     bool m_reversing = false;                    ///< Whether animating in reverse or not
     float m_speed = 0.0f;                        ///< The speed the mesh will animate

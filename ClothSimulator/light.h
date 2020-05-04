@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include "common.h"
+#include "directx.h"
+
+#include <vector>
+#include <memory>
 
 /**
 * Basic lights for scene with multiple light shader support
@@ -87,7 +90,7 @@ private:
     float m_specularIntensity; ///< Intensity of the specular light
     float m_specularSize;      ///< Size of the specular highlights
     bool m_active = false;     ///< Whether the light is on or not
-    int m_index = NO_INDEX;    ///< The unique index of the light
+    int m_index = -1;    ///< The unique index of the light
 };
 
 /**

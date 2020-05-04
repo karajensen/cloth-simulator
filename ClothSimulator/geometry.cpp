@@ -5,6 +5,7 @@
 #include "geometry.h"
 #include "assimpmesh.h"
 #include "diagnostic.h"
+#include "utils.h"
 
 D3DXVertex::D3DXVertex()
     : normal(0.0f, 0.0f, 0.0f)

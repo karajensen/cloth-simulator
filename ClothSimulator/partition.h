@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "common.h"
 #include "diagnostic.h"
 
 #include <deque>

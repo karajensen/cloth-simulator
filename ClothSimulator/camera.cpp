@@ -2,7 +2,8 @@
 // Kara Jensen - mail@karajensen.com - camera.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Camera.h"
+#include "camera.h"
+#include "utils.h"
 
 Camera::Camera(const D3DXVECTOR3& position, const D3DXVECTOR3& target)
     : m_cameraNeedsUpdate(true)

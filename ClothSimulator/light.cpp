@@ -19,7 +19,7 @@ Light::Light()
     , m_specularIntensity(0.3f)
     , m_specularSize(10.0f)
     , m_active(true)
-    , m_index(NO_INDEX)
+    , m_index(-1)
 {
 }
 

@@ -170,7 +170,7 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
     for(const Edge& edge : m_edges)
     {
         // Determine a new face to overwrite/create
-        int faceIndex = NO_INDEX;
+        int faceIndex = -1;
         if(visibleIndex < visibleFaces.size())
         {
             faceIndex = visibleFaces[visibleIndex];
@@ -181,7 +181,7 @@ void Simplex::ExtendFace(const D3DXVECTOR3& point)
             if(hasDeadFaces)
             {
                 faceIndex = GetDeadFaceIndex();
-                hasDeadFaces = faceIndex != NO_INDEX;
+                hasDeadFaces = faceIndex != -1;
             }
         
             if(!hasDeadFaces)
@@ -226,7 +226,7 @@ int Simplex::GetDeadFaceIndex() const
     auto itr = std::find_if(m_faces.begin(), m_faces.end(), 
         [](const Face& face){ return !face.alive; });
 
-    return itr == m_faces.end() ? NO_INDEX : itr->index;
+    return itr == m_faces.end() ? -1 : itr->index;
 }
 
 void Simplex::FindBorderEdges(const Face& face, 

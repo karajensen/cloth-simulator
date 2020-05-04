@@ -4,6 +4,7 @@
 
 #include "shader.h"
 #include "light.h"
+#include "utils.h"
 
 #include <fstream>
 #include <algorithm>

@@ -6,7 +6,6 @@
 
 #include "callbacks.h"
 #include "octree_interface.h"
-#include "common.h"
 
 class Partition;
 

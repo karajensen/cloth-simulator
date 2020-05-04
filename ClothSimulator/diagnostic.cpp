@@ -5,6 +5,7 @@
 #include "diagnostic.h"
 #include "shader.h"
 #include "text.h"
+#include "utils.h"
 
 #include <algorithm>
 #include <assert.h>

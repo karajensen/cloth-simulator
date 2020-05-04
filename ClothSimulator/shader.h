@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include "common.h"
+#include "directx.h"
+
+#include <memory>
+#include <vector>
+#include <string>
 
 /**
 * DirectX Shader class

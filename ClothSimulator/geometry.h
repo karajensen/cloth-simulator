@@ -3,8 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "common.h"
+
+#include "directx.h"
+
 #include <array>
+#include <vector>
 
 class Diagnostic;
 

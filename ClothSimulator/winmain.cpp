@@ -4,9 +4,11 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#include "utils.h"
 #include "simulation.h"
 #include "GUIWrapper.h"
 #include "callbacks.h"
+
 #include <windows.h>
 #include <windowsx.h>
 

@@ -5,6 +5,7 @@
 #include "octree.h"
 #include "collisionmesh.h"
 #include "partition.h"
+#include "utils.h"
 
 #include <assert.h>
 

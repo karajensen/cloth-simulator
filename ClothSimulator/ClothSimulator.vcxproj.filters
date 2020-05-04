@@ -106,9 +106,6 @@
     <ClInclude Include="cloth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="diagnostic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -182,6 +179,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dynamicmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

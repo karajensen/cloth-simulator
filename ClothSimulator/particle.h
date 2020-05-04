@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "common.h"
 #include "dynamicmesh.h"
 #include "callbacks.h"
 

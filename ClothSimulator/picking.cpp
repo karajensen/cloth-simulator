@@ -4,6 +4,8 @@
 
 #include "picking.h"
 #include "pickablemesh.h"
+#include "utils.h"
+
 #include <assert.h>
 
 Picking::Picking(EnginePtr engine)

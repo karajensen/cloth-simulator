@@ -4,8 +4,8 @@
 
 #pragma once
 
-#define DIRECTINPUT_VERSION 0x0800 //for direct input
-#include "common.h"
+#define DIRECTINPUT_VERSION 0x0800 // For direct input
+
 #include "picking.h"
 #include "callbacks.h"
 

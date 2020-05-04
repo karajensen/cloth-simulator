@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "common.h"
+#include "directx.h"
+#include "transform.h"
 
 /**
 * Maya styled camera class 

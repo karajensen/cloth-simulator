@@ -8,6 +8,7 @@
 #include "collisionmesh.h"
 #include "spring.h"
 #include "shader.h"
+#include "utils.h"
 
 #include <functional>
 #include <algorithm>
@@ -230,7 +231,7 @@ void Cloth::CreateCloth(int rows, float spacing)
         + ((m_particleLength-1)*m_particleLength);
 
     m_springs.resize(m_springCount);
-    index = NO_INDEX;
+    index = -1;
     for(int x = 0; x < m_particleLength; ++x)
     {
         for(int y = 0; y < m_particleLength; ++y)
@@ -481,7 +482,7 @@ bool Cloth::MousePickingTest(Picking& input)
 {
     if(m_drawVisualParticles && !input.IsLocked())
     {
-        int indexChosen = NO_INDEX;
+        int indexChosen = -1;
         for(int index = 0; index < m_particleCount; ++index)
         {
             const CollisionMesh& mesh = m_particles[index]->GetCollisionMesh();
@@ -502,7 +503,7 @@ bool Cloth::MousePickingTest(Picking& input)
         }
     
         //Update the mesh pick function with selected index
-        if(indexChosen != NO_INDEX)
+        if(indexChosen != -1)
         {
             SetMeshPickFunction(std::bind(&Cloth::SelectParticle, this, indexChosen));
             return true;
@@ -683,7 +684,7 @@ void Cloth::ChangeSmoothing(bool increase)
 
 void Cloth::UpdateVertices()
 {
-    int index = NO_INDEX;
+    int index = -1;
     D3DXVECTOR3 normal(0.0f, 0.0f, 0.0f);
 
     for(int x = 0; x < m_particleLength; ++x)
@@ -733,7 +734,7 @@ void Cloth::SmoothCloth()
 {
     if(m_generalSmoothing > 0.0f)
     {
-        int index = NO_INDEX;
+        int index = -1;
         D3DXVECTOR3 halfp1, halfp2;
         D3DXVECTOR3 positionDifference;
         D3DXVECTOR3 smoothedPosition;

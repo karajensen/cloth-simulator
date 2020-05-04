@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "common.h"
-
 class Particle;
 class Diagnostic;
 
