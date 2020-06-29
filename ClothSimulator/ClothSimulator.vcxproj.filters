@@ -189,24 +189,26 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\Shaders\bounds.fx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="resources\Shaders\cloth.fx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="resources\Shaders\main.fx">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\.gitignore" />
-    <None Include="resources\Shaders\tool.fx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="resources\Shaders\ground.fx">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="bin\Resources\Shaders\bounds.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="bin\Resources\Shaders\cloth.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="bin\Resources\Shaders\ground.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="bin\Resources\Shaders\main.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="bin\Resources\Shaders\tool.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
